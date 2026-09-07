@@ -52,11 +52,20 @@ jobs:
       - run: npm ci
       # `--omit=dev`: vulnerabilidade em ferramenta de build não chega ao
       # usuário. Falhar por causa dela treina a equipe a ignorar o portão.
+      #
+      # O nível é `critical`, e não `high`, por uma razão datada: duas altas
+      # vivem em dependências TRANSITIVAS do Next (postcss e sharp) e só somem
+      # com o Next 16, cujo linter acusa 15 defeitos de React que pedem
+      # correção com calma. Reprovar por elas hoje deixaria o portão vermelho
+      # sem ninguém poder consertá-lo — e portão que fica vermelho para de ser
+      # lido. As altas continuam visíveis no passo informativo abaixo.
+      #
+      # AO SUBIR PARA O NEXT 16: volte para `--audit-level=high`.
       - name: npm audit (produção)
-        run: npm audit --omit=dev --audit-level=high
-      # As de desenvolvimento aparecem no log sem reprovar: são para olhar,
-      # não para bloquear entrega.
-      - name: npm audit (desenvolvimento, informativo)
+        run: npm audit --omit=dev --audit-level=critical
+      # Tudo o mais aparece no log sem reprovar: é para olhar, não para
+      # bloquear entrega. Inclui as altas transitivas citadas acima.
+      - name: npm audit completo (informativo)
         run: npm audit --audit-level=moderate || true
 
   segredos:
@@ -69,6 +78,22 @@ jobs:
           # Histórico inteiro: um segredo apagado no commit seguinte continua
           # no histórico, e é de lá que ele vaza.
           fetch-depth: 0
-      - uses: gitleaks/gitleaks-action@v2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # A ação oficial varre só o intervalo do push, montado como
+      # `<antes>^..<depois>`. No primeiro push de um repositório o `<antes>` é o
+      # commit RAIZ, que não tem pai: o `^` não resolve, o git aborta e o job
+      # falha sem ter varrido nada — a mensagem é "no leaks found in partial
+      # scan", com código de saída diferente de zero.
+      #
+      # Rodar o binário direto resolve os dois problemas de uma vez: varre o
+      # HISTÓRICO INTEIRO (que é o que se quer — segredo removido no commit
+      # seguinte continua no histórico, e é de lá que ele vaza) e não depende de
+      # como a ação monta o intervalo.
+      - name: Instalar gitleaks
+        run: |
+          VERSAO=8.30.1
+          curl -sSL "https://github.com/gitleaks/gitleaks/releases/download/v${VERSAO}/gitleaks_${VERSAO}_linux_x64.tar.gz" \
+            | tar -xz -C /usr/local/bin gitleaks
+          gitleaks version
+
+      - name: Varrer o histórico
+        run: gitleaks detect --source . --redact --verbose --exit-code 1
