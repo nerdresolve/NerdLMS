@@ -1,0 +1,26 @@
+{
+  "name": "@nerdlms/core",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Regras de domínio da NerdResolve: progresso, catálogo, permissões, gamificação e validação. Sem framework.",
+  "engines": {
+    "node": ">=22.6.0"
+  },
+  "exports": {
+    "./*": "./src/*"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "node --experimental-strip-types --test \"src/**/*.test.ts\""
+  },
+  "devDependencies": {
+    "@types/node": "22.15.0",
+    "typescript": "5.7.3"
+  },
+  "comments": {
+    "sem-dependencias": "Nenhuma dependência de runtime, e é isto que dá valor ao pacote: regra de domínio que não sabe o que é React, Next ou banco. Se algum dia precisar de uma, vale perguntar se a regra não está no lugar errado.",
+    "exports": "Subcaminhos com extensão explícita (`@nerdlms/core/courses/progress.ts`), igual ao que o app já usava com `@/lib/...`. Sem barrel: import de barril arrasta o módulo inteiro e esconde o que cada tela realmente usa.",
+    "o-que-nao-mora-aqui": "session.ts (server-only, lê env) e use-learner-store.ts (React) ficaram no app: são infraestrutura, não domínio."
+  }
+}

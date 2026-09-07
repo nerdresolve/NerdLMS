@@ -1,0 +1,223 @@
+/* Player de conteúdo interativo — F6-05. */
+
+.iplayer { display: grid; gap: var(--space-4); }
+
+.iplayer__carregando {
+  margin: 0;
+  font-size: var(--text-small-size);
+  color: var(--text-muted);
+}
+
+.iplayer__cabeca {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-4);
+}
+
+.iplayer__titulo {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0;
+  font-size: var(--text-h3-size);
+  line-height: var(--text-h3-lh);
+}
+
+.iplayer__titulo svg { width: 20px; height: 20px; color: var(--text-brand); }
+
+.iplayer__tipo {
+  padding: 2px var(--space-3);
+  background: var(--surface-brand-subtle);
+  border-radius: var(--radius-pill, 999px);
+  font-size: var(--text-caption-size);
+  color: var(--text-brand);
+}
+
+.iplayer__progresso {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0;
+  font-size: var(--text-small-size);
+  color: var(--text-muted);
+}
+
+.iplayer__progresso svg { width: 16px; height: 16px; color: var(--success-text); }
+
+.iplayer__video,
+.iplayer__imagem {
+  position: relative;
+  border-radius: var(--radius-card);
+  overflow: hidden;
+  background: var(--surface-sunken);
+}
+
+.iplayer__media { display: block; width: 100%; height: auto; }
+
+/* As marcas de pergunta na linha do tempo do vídeo. Decorativas: a informação
+   que importa está no texto de progresso acima. */
+.iplayer__marcas {
+  display: flex;
+  gap: 3px;
+  margin: 0;
+  padding: var(--space-2);
+  list-style: none;
+  background: var(--surface-inverse);
+}
+
+.iplayer__marcas li {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--surface-brand);
+  opacity: 0.4;
+}
+
+.iplayer__marcas li[data-respondida] { opacity: 1; }
+
+/* Os pontos clicáveis da imagem. 44px de alvo, bem acima dos 24 do WCAG
+   2.5.8 — e a posição é em porcentagem, então acompanha a imagem responsiva. */
+.iplayer__ponto {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 3px solid var(--surface-card);
+  border-radius: 50%;
+  background: var(--surface-brand);
+  color: var(--text-inverse, #fff);
+  font-weight: var(--weight-bold);
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 0.3);
+}
+
+.iplayer__ponto[data-visto] { background: var(--success); }
+.iplayer__ponto:hover { transform: translate(-50%, -50%) scale(1.1); }
+
+.iplayer__cartoes {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.iplayer__cartao {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  min-height: 8rem;
+  padding: var(--space-4);
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-lh);
+  color: var(--text-body);
+  text-align: center;
+  cursor: pointer;
+}
+
+.iplayer__cartao:hover { border-color: var(--border-brand); }
+.iplayer__cartao[data-visto] { border-left: 3px solid var(--success); }
+
+/* A interação aberta interrompe — é o ponto de uma pergunta no meio do vídeo. */
+.iplayer__modal {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  display: grid;
+  place-items: center;
+  padding: var(--space-4);
+  background: rgb(0 0 0 / 0.6);
+}
+
+.iplayer__caixa {
+  width: min(32rem, 100%);
+  max-height: 80vh;
+  overflow-y: auto;
+  padding: var(--space-6);
+  background: var(--surface-card);
+  border-radius: var(--radius-card);
+}
+
+.iplayer__pergunta {
+  margin: 0 0 var(--space-4);
+  font-size: var(--text-body-lg-size);
+  line-height: var(--text-body-lg-lh);
+  font-weight: var(--weight-bold);
+}
+
+.iplayer__verso {
+  margin: 0 0 var(--space-4);
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-lh);
+  color: var(--text-body);
+}
+
+.iplayer__alternativas {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.iplayer__alternativa {
+  width: 100%;
+  /* 44px de alvo mínimo. */
+  min-height: 44px;
+  padding: var(--space-3) var(--space-4);
+  background: var(--surface-subtle);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-body-size);
+  color: var(--text-body);
+  text-align: left;
+  cursor: pointer;
+}
+
+.iplayer__alternativa:hover:not(:disabled) {
+  background: var(--surface-brand-subtle);
+  border-color: var(--border-brand);
+}
+
+.iplayer__alternativa:disabled { opacity: 0.6; cursor: wait; }
+
+.iplayer__retorno { display: grid; gap: var(--space-3); }
+
+/* Certo e errado se distinguem pela PALAVRA ("Correto" / "Não é essa") e pelo
+   ícone; a cor só reforça (WCAG 1.4.1). */
+.iplayer__veredito {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0;
+  font-weight: var(--weight-bold);
+  color: var(--danger-text);
+}
+
+.iplayer__retorno[data-certo] .iplayer__veredito { color: var(--success-text); }
+
+.iplayer__veredito svg { width: 20px; height: 20px; }
+
+.iplayer__retorno p {
+  margin: 0;
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-lh);
+  color: var(--text-body);
+}
+
+.iplayer__explicacao {
+  padding: var(--space-3);
+  background: var(--surface-subtle);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-small-size);
+}
+
+.iplayer__acoes { display: flex; flex-wrap: wrap; gap: var(--space-3); }

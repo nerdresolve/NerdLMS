@@ -1,0 +1,159 @@
+/* Prova — F3-03.
+
+   `.reorder__button` (usado na questão de ordenação) vive em `studio.css`, e
+   este arquivo o importa em vez de redefini-lo: duas definições do mesmo botão
+   divergiriam no primeiro ajuste. */
+@import "@/features/studio/studio.css";
+
+.quiz {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  max-width: 52rem;
+}
+
+.quiz__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.quiz__timer {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0;
+  padding: var(--space-2) var(--space-3);
+  font-variant-numeric: tabular-nums;
+  font-weight: var(--weight-semibold);
+  color: var(--text-title);
+  background: var(--surface-subtle);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+}
+.quiz__timer svg { width: 16px; height: 16px; }
+
+/* Menos de um minuto: o aviso é por cor E por peso, nunca só por cor. */
+.quiz__timer[data-baixo] {
+  color: var(--text-danger, #b42318);
+  border-color: currentColor;
+  font-weight: var(--weight-bold);
+}
+
+.quiz-question {
+  padding: var(--space-5);
+  background: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+}
+
+.quiz-question__meta {
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-caption-size);
+  color: var(--text-muted);
+}
+
+.quiz-question__prompt {
+  margin: 0 0 var(--space-4);
+  font-size: var(--text-body-size);
+  font-weight: var(--weight-semibold);
+  color: var(--text-title);
+  line-height: var(--line-heading);
+}
+
+.quiz-options { display: flex; flex-direction: column; gap: var(--space-2); }
+
+.quiz-option {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  /* O alvo inteiro é clicável, não só o círculo de 18px (WCAG 2.5.8). */
+  min-height: var(--touch-target);
+}
+.quiz-option:hover { background: var(--surface-subtle); }
+.quiz-option input { margin-top: 0.15em; flex: none; }
+.quiz-option__text { font-size: var(--text-small-size); color: var(--text-body); }
+
+.quiz-hint {
+  margin: var(--space-2) 0 0;
+  font-size: var(--text-caption-size);
+  color: var(--text-muted);
+}
+
+.quiz-textarea { min-height: unset; height: auto; padding-block: var(--space-2); resize: vertical; }
+.quiz-numeric { max-width: 12rem; }
+
+.quiz-matching { display: flex; flex-direction: column; gap: var(--space-3); }
+.quiz-matching__row {
+  display: grid;
+  grid-template-columns: minmax(8rem, 1fr) minmax(10rem, 1.2fr);
+  align-items: center;
+  gap: var(--space-3);
+}
+.quiz-matching__term { font-size: var(--text-small-size); color: var(--text-body); }
+
+.quiz-ordering { display: flex; flex-direction: column; gap: var(--space-2); margin: 0; padding: 0; list-style: none; }
+.quiz-ordering__item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+}
+.quiz-ordering__number {
+  display: grid;
+  place-items: center;
+  width: 24px; height: 24px; flex: none;
+  font-size: var(--text-caption-size);
+  font-weight: var(--weight-semibold);
+  color: var(--text-on-brand);
+  background: var(--brand);
+  border-radius: var(--radius-full);
+}
+.quiz-ordering__text { flex: 1 1 auto; min-width: 0; font-size: var(--text-small-size); }
+.quiz-ordering__actions { display: flex; gap: var(--space-1); flex: none; }
+
+.quiz__nav { display: flex; justify-content: space-between; gap: var(--space-3); }
+
+/* ------------------------------------------------------------- resultado */
+.quiz-result {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  max-width: 34rem;
+  margin: var(--space-6) auto;
+  padding: var(--space-6);
+  text-align: center;
+  background: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+}
+
+.quiz-result__icon {
+  display: grid;
+  place-items: center;
+  width: 56px; height: 56px;
+  color: var(--text-muted);
+  background: var(--surface-subtle);
+  border-radius: var(--radius-full);
+}
+.quiz-result__icon svg { width: 28px; height: 28px; }
+.quiz-result__icon[data-passou] { color: var(--text-on-brand); background: var(--brand); }
+
+.quiz-result__title { margin: 0; font-size: var(--text-h2-size); color: var(--text-title); }
+.quiz-result__score {
+  margin: 0;
+  font-size: var(--text-display-size, 2.5rem);
+  font-weight: var(--weight-bold);
+  font-variant-numeric: tabular-nums;
+  color: var(--text-brand);
+}
+.quiz-result__text { margin: 0; font-size: var(--text-small-size); color: var(--text-muted); }

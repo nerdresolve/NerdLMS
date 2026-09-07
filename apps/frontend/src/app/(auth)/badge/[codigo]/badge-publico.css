@@ -1,0 +1,88 @@
+/* Verificação pública de badge — F6-01.
+
+   Reaproveita `status-page`, a mesma base da validação de certificado: as duas
+   respondem à mesma pergunta para o mesmo tipo de visitante — alguém de fora
+   conferindo um documento. */
+
+.badge-publico__estado {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0 0 var(--space-4);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-pill, 999px);
+  font-size: var(--text-small-size);
+  font-weight: var(--weight-bold);
+}
+
+.badge-publico__estado svg { width: 18px; height: 18px; flex: none; }
+
+/* Os três estados se distinguem por COR e por TEXTO. O rótulo já diz
+   "válido", "vencido" ou "revogado"; a cor só reforça. */
+.badge-publico__estado--valido {
+  background: var(--success-surface);
+  color: var(--success-text);
+}
+
+.badge-publico__estado--vencido {
+  background: var(--warning-surface);
+  color: var(--warning-text);
+}
+
+.badge-publico__estado--revogado,
+.badge-publico__estado--invalido {
+  background: var(--danger-surface);
+  color: var(--danger-text);
+}
+
+.badge-publico__dados {
+  display: grid;
+  gap: var(--space-3);
+  margin: var(--space-5) 0 0;
+  text-align: left;
+}
+
+.badge-publico__dados div {
+  display: grid;
+  gap: 2px;
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.badge-publico__dados div:last-child { border-bottom: 0; padding-bottom: 0; }
+
+.badge-publico__dados dt {
+  font-size: var(--text-caption-size);
+  letter-spacing: var(--text-caption-tracking);
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.badge-publico__dados dd {
+  margin: 0;
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-lh);
+  color: var(--text-body);
+}
+
+.badge-publico__dados code {
+  font-family: var(--font-mono, monospace);
+  letter-spacing: 0.06em;
+}
+
+.badge-publico__motivo {
+  margin: var(--space-4) 0 0;
+  padding: var(--space-3);
+  background: var(--surface-subtle);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-small-size);
+  line-height: var(--text-small-lh);
+  color: var(--text-body);
+  text-align: left;
+}
+
+.badge-publico__interop {
+  margin: var(--space-5) 0 0;
+  font-size: var(--text-caption-size);
+  color: var(--text-muted);
+}

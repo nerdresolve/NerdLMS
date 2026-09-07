@@ -1,0 +1,381 @@
+<!doctype html>
+<html lang="pt-BR" data-theme="light">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>@@LESSON_TITLE@@ · NerdResolve</title>
+<style>
+/* Gerado por tools/build-preview.mjs — não editar este arquivo. */
+/* @@TOKENS@@ */
+/* @@BASE@@ */
+/* @@COMPONENTS@@ */
+/* @@SHELL@@ */
+/* @@COURSE@@ */
+/* @@LESSON@@ */
+
+/* ===== Barra de Visual QA (fora do produto) ===== */
+.qa {
+  position: fixed; z-index: 70; bottom: var(--space-4); left: 50%; translate: -50% 0;
+  display: flex; align-items: center; gap: var(--space-1);
+  padding: var(--space-1);
+  background: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-full);
+  box-shadow: var(--shadow-lg);
+}
+.qa__label { font-size: 10px; letter-spacing: var(--tracking-wide); text-transform: uppercase; color: var(--text-faint); padding: 0 var(--space-2); }
+.qa button {
+  min-height: 32px; padding: 0 var(--space-3);
+  font: inherit; font-size: var(--text-caption-size); font-weight: var(--weight-medium);
+  color: var(--text-muted);
+  background: none; border: 0; border-radius: var(--radius-full); cursor: pointer;
+}
+.qa button[aria-pressed="true"] { background: var(--brand); color: var(--text-on-brand); }
+.qa__sep { width: 1px; height: 20px; background: var(--border-subtle); margin-inline: var(--space-1); }
+body[data-device="mobile"] .app { max-width: 390px; margin-inline: auto; border-inline: 1px solid var(--border-subtle); }
+</style>
+</head>
+<body data-device="desktop">
+
+<div class="qa" role="group" aria-label="Controles de validação visual">
+  <span class="qa__label">QA</span>
+  <button type="button" id="qa-device" aria-pressed="false">Mobile</button>
+  <span class="qa__sep"></span>
+  <button type="button" id="qa-reset">Reiniciar demo</button>
+</div>
+
+<!-- Sprite Lucide gerado a partir de public/brand/icons (pacote oficial) -->
+@@ICON_SPRITE@@
+
+<a class="skip-link" href="#conteudo">Ir para o conteúdo</a>
+
+<div class="app">
+<div class="shell" id="shell" data-sidebar="collapsed">
+  <aside class="sidebar">
+    <div class="sidebar__head">
+      <img class="sidebar__logo" src="@@LOGO@@" alt="NerdResolve" width="600" height="165" />
+      <img class="sidebar__mark" src="@@MARK@@" alt="NerdResolve" width="220" height="120" />
+      <button type="button" class="sidebar__toggle" id="sidebar-toggle" aria-expanded="false" aria-label="Expandir menu">
+        <svg class="icon" aria-hidden="true" focusable="false"><use href="#i-panel-left"/></svg>
+      </button>
+    </div>
+    <nav class="sidebar__nav" aria-label="Navegação principal">
+      @@NAV@@
+    </nav>
+    <div class="sidebar__foot">
+      <span class="avatar" aria-hidden="true">@@INITIALS@@</span>
+      <span class="sidebar__user-text">
+        <span class="sidebar__user-name">@@FULLNAME@@</span><br />
+        <a class="sidebar__user-link" href="/perfil">Ver perfil</a>
+      </span>
+    </div>
+  </aside>
+
+  <div>
+    <header class="topbar">
+      <button type="button" class="icon-button topbar__menu" id="drawer-open" aria-label="Abrir menu" aria-expanded="false" aria-controls="drawer">
+        <svg class="icon" aria-hidden="true" focusable="false"><use href="#i-menu"/></svg>
+      </button>
+      <img class="topbar__logo" src="@@LOGO_BRAND@@" alt="NerdResolve" width="600" height="165" />
+      <div class="topbar__context">
+        <nav class="breadcrumb" aria-label="Trilha de navegação">
+              <a href="/meus-cursos">Meus cursos</a>
+              <svg class="breadcrumb__sep" aria-hidden="true" focusable="false"><use href="#i-chevron-right"/></svg>
+              <a href="/cursos/@@COURSE_SLUG@@">@@COURSE_TITLE@@</a>
+              <svg class="breadcrumb__sep" aria-hidden="true" focusable="false"><use href="#i-chevron-right"/></svg>
+              <span class="breadcrumb__current" aria-current="page">@@MODULE_TITLE@@</span>
+            </nav>
+      </div>
+      <span class="topbar__spacer"></span>
+      <div class="search topbar__search">
+        <svg class="icon" aria-hidden="true" focusable="false"><use href="#i-search"/></svg>
+        <label class="sr-only" for="busca-topo">Buscar cursos</label>
+        <input class="input" id="busca-topo" type="search" placeholder="Buscar cursos" autocomplete="off" />
+      </div>
+      <button type="button" class="icon-button topbar__search-icon" aria-label="Buscar"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-search"/></svg></button>
+      <button type="button" class="icon-button" id="theme-toggle" aria-pressed="false" aria-label="Ativar modo escuro"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-moon"/></svg></button>
+      <button type="button" class="icon-button topbar__notifications" aria-label="Notificações"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-bell"/></svg></button>
+      <button type="button" class="icon-button icon-button--avatar" aria-label="Sua conta">@@INITIALS@@</button>
+    </header>
+
+    <main class="content" id="conteudo">
+      <div class="lesson-page">
+        <div class="lesson-main">
+          <div class="lesson-topline">
+            
+            <span class="lesson-topline__spacer"></span>
+            <button type="button" class="btn btn--secondary lesson-rail-toggle" id="rail-toggle" aria-expanded="true" aria-controls="rail">
+              <svg class="icon" aria-hidden="true" focusable="false"><use href="#i-list-video"/></svg> Aulas
+            </button>
+          </div>
+
+          @@PLAYER@@
+
+          <div class="lesson-head">
+            <div class="lesson-head__text">
+              <div class="lesson-head__meta">
+                <span class="badge">Aula @@LESSON_INDEX@@ de @@LESSON_COUNT@@</span>
+                <span class="badge badge--neutral"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-clock"/></svg> @@LESSON_DURATION@@</span>
+                <span id="estado-aula" hidden><span class="badge badge--success">Concluída</span></span>
+              </div>
+              <h1 class="lesson-head__title">@@LESSON_TITLE@@</h1>
+            </div>
+            <div class="lesson-head__actions">
+              <button type="button" class="icon-button" aria-label="Salvar aula"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-bookmark"/></svg></button>
+              <button type="button" class="btn btn--primary" id="concluir"
+                      data-lesson-id="@@LESSON_ID@@" data-duration="@@LESSON_SECONDS@@">
+                Concluir aula
+              </button>
+            </div>
+          </div>
+
+          <p class="status-text" id="aula-status" role="status"></p>
+
+          <section class="course-section">
+            <h2 class="course-section__title">Materiais da aula</h2>
+            <div class="materials">
+              @@MATERIALS@@
+            </div>
+            <p class="status-text" id="material-status" role="status"></p>
+          </section>
+
+          @@COMMENTS@@
+
+          <nav class="lesson-pager" aria-label="Navegação entre aulas">
+            @@PAGER@@
+          </nav>
+        </div>
+
+        <aside class="rail" id="rail" aria-label="Conteúdo do curso">
+          <div class="rail__head">
+            <div class="rail__title-row">
+              <h2 class="rail__title">Conteúdo do curso</h2>
+              <span class="rail__count">@@LESSON_COUNT@@ aulas</span>
+              <button type="button" class="icon-button rail__close" id="rail-close" aria-label="Fechar lista de aulas">
+                <svg class="icon" aria-hidden="true" focusable="false"><use href="#i-x"/></svg>
+              </button>
+            </div>
+            <div>
+              <div class="progress-legend">
+                <span>Seu progresso</span>
+                <span class="progress-legend__value" data-course-percent>@@COURSE_PERCENT@@%</span>
+              </div>
+              @@COURSE_PROGRESS@@
+            </div>
+          </div>
+          <div class="rail__list">
+            @@RAIL@@
+          </div>
+        </aside>
+      </div>
+    </main>
+  </div>
+</div>
+
+</div>
+
+<div class="drawer-backdrop" id="drawer-backdrop" data-open="false"></div>
+<div class="drawer" id="drawer" data-open="false" role="dialog" aria-modal="true" aria-label="Menu" hidden>
+  <div class="sidebar__head">
+    <img class="sidebar__logo" src="@@LOGO@@" alt="NerdResolve" width="600" height="165" />
+    <button type="button" class="sidebar__toggle" id="drawer-close" aria-label="Fechar menu">
+      <svg class="icon" aria-hidden="true" focusable="false"><use href="#i-x"/></svg>
+    </button>
+  </div>
+  <nav class="sidebar__nav" aria-label="Navegação principal">
+    @@NAV@@
+  </nav>
+  <div class="sidebar__foot">
+    <span class="avatar" aria-hidden="true">@@INITIALS@@</span>
+    <span class="sidebar__user-text">
+      <span class="sidebar__user-name">@@FULLNAME@@</span><br />
+      <a class="sidebar__user-link" href="/perfil">Ver perfil</a>
+    </span>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  var root = document.documentElement;
+  var body = document.body;
+
+  var deviceBtn = document.getElementById("qa-device");
+  deviceBtn.addEventListener("click", function () {
+    var mobile = body.getAttribute("data-device") === "mobile";
+    body.setAttribute("data-device", mobile ? "desktop" : "mobile");
+    deviceBtn.setAttribute("aria-pressed", String(!mobile));
+    deviceBtn.textContent = mobile ? "Mobile" : "Desktop";
+  });
+
+
+  /* --- Alternador de tema (produto, não QA) --- */
+  var themeToggle = document.getElementById("theme-toggle");
+  if (themeToggle) {
+    themeToggle.addEventListener("click", function () {
+      var dark = root.getAttribute("data-theme") === "dark";
+      root.setAttribute("data-theme", dark ? "light" : "dark");
+      themeToggle.setAttribute("aria-pressed", String(!dark));
+      themeToggle.setAttribute("aria-label", dark ? "Ativar modo escuro" : "Ativar modo claro");
+      themeToggle.querySelector("use").setAttribute("href", dark ? "#i-moon" : "#i-sun");
+    });
+  }
+
+  var shell = document.getElementById("shell");
+  var sidebarToggle = document.getElementById("sidebar-toggle");
+  sidebarToggle.addEventListener("click", function () {
+    var collapsed = shell.getAttribute("data-sidebar") === "collapsed";
+    shell.setAttribute("data-sidebar", collapsed ? "expanded" : "collapsed");
+    sidebarToggle.setAttribute("aria-expanded", String(collapsed));
+    sidebarToggle.setAttribute("aria-label", collapsed ? "Recolher menu" : "Expandir menu");
+  });
+
+  var drawer = document.getElementById("drawer");
+  var backdrop = document.getElementById("drawer-backdrop");
+  var openBtn = document.getElementById("drawer-open");
+  var closeBtn = document.getElementById("drawer-close");
+  function onDrawerKeydown(event) {
+    if (event.key === "Escape") { closeDrawer(); return; }
+    if (event.key !== "Tab") return;
+    var focusable = drawer.querySelectorAll('a[href], button:not([disabled])');
+    if (!focusable.length) return;
+    var first = focusable[0], last = focusable[focusable.length - 1];
+    if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+    else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+  }
+  function openDrawer() {
+    drawer.hidden = false;
+    window.requestAnimationFrame(function () {
+      drawer.setAttribute("data-open", "true");
+      backdrop.setAttribute("data-open", "true");
+    });
+    openBtn.setAttribute("aria-expanded", "true");
+    closeBtn.focus();
+    document.addEventListener("keydown", onDrawerKeydown);
+  }
+  function closeDrawer() {
+    drawer.setAttribute("data-open", "false");
+    backdrop.setAttribute("data-open", "false");
+    openBtn.setAttribute("aria-expanded", "false");
+    openBtn.focus();
+    document.removeEventListener("keydown", onDrawerKeydown);
+    window.setTimeout(function () { drawer.hidden = true; }, 220);
+  }
+  openBtn.addEventListener("click", openDrawer);
+  closeBtn.addEventListener("click", closeDrawer);
+  backdrop.addEventListener("click", closeDrawer);
+
+  /* --- Trilha de aulas no mobile --- */
+  var rail = document.getElementById("rail");
+  var railToggle = document.getElementById("rail-toggle");
+  var railClose = document.getElementById("rail-close");
+  function setRail(open) {
+    rail.hidden = !open;
+    railToggle.setAttribute("aria-expanded", String(open));
+  }
+  railToggle.addEventListener("click", function () { setRail(rail.hidden); });
+  railClose.addEventListener("click", function () { setRail(false); railToggle.focus(); });
+
+  /* ===================== Player =====================
+     Controles próprios sobre um <video> nativo. Nada de biblioteca. */
+  var player = document.getElementById("player");
+  var video = document.getElementById("video");
+  var seek = document.getElementById("seek");
+  var time = document.getElementById("time");
+  var playButtons = Array.prototype.slice.call(document.querySelectorAll("[data-play]"));
+  var muteBtn = document.getElementById("mute");
+  var volume = document.getElementById("volume");
+  var rateBtn = document.getElementById("rate");
+  var fullscreenBtn = document.getElementById("fullscreen");
+  var RATES = [1, 1.25, 1.5, 1.75, 2, 0.75];
+  var rateIndex = 0;
+  var resumeAt = Number(player.dataset.resume || 0);
+
+  function clock(seconds) {
+    var safe = isFinite(seconds) && seconds > 0 ? Math.floor(seconds) : 0;
+    var h = Math.floor(safe / 3600), m = Math.floor((safe % 3600) / 60), s = safe % 60;
+    var pad = function (v) { return String(v).padStart(2, "0"); };
+    return h > 0 ? h + ":" + pad(m) + ":" + pad(s) : pad(m) + ":" + pad(s);
+  }
+
+  function setPlayIcon(playing) {
+    playButtons.forEach(function (button) {
+      var use = button.querySelector("use");
+      if (use) use.setAttribute("href", playing ? "#i-pause" : "#i-play");
+      if (button.hasAttribute("aria-label")) button.setAttribute("aria-label", playing ? "Pausar" : "Reproduzir");
+    });
+    player.setAttribute("data-playing", String(playing));
+  }
+
+  function togglePlay() { if (video.paused) { video.play(); } else { video.pause(); } }
+
+  playButtons.forEach(function (button) { button.addEventListener("click", togglePlay); });
+  video.addEventListener("play", function () { setPlayIcon(true); });
+  video.addEventListener("pause", function () { setPlayIcon(false); });
+
+  video.addEventListener("loadedmetadata", function () {
+    seek.max = String(Math.floor(video.duration || 0));
+    if (resumeAt > 0 && resumeAt < video.duration) video.currentTime = resumeAt;
+    update();
+  });
+
+  function update() {
+    var duration = video.duration || 0;
+    var current = video.currentTime || 0;
+    seek.value = String(Math.floor(current));
+    seek.setAttribute("aria-valuetext", clock(current) + " de " + clock(duration));
+    player.style.setProperty("--seek", (duration ? (current / duration) * 100 : 0) + "%");
+    time.textContent = clock(current) + " / " + clock(duration);
+  }
+  video.addEventListener("timeupdate", update);
+
+  seek.addEventListener("input", function () {
+    video.currentTime = Number(seek.value);
+    update();
+  });
+
+  muteBtn.addEventListener("click", function () {
+    video.muted = !video.muted;
+    muteBtn.setAttribute("aria-pressed", String(video.muted));
+    // o conjunto oficial não traz "volume-x"; o estado é dado por aria-pressed
+    // e pelo fundo do botão, não só pela cor (Design System §26)
+    muteBtn.setAttribute("aria-label", video.muted ? "Ativar som" : "Silenciar");
+  });
+
+  volume.addEventListener("input", function () {
+    video.volume = Number(volume.value);
+    if (video.volume > 0 && video.muted) muteBtn.click();
+  });
+
+  rateBtn.addEventListener("click", function () {
+    rateIndex = (rateIndex + 1) % RATES.length;
+    video.playbackRate = RATES[rateIndex];
+    rateBtn.textContent = RATES[rateIndex] + "×";
+    rateBtn.setAttribute("aria-label", "Velocidade: " + RATES[rateIndex] + " vezes");
+  });
+
+  fullscreenBtn.addEventListener("click", function () {
+    if (document.fullscreenElement) { document.exitFullscreen(); }
+    else if (player.requestFullscreen) { player.requestFullscreen(); }
+  });
+
+  /* Teclado só quando o foco está no player: não sequestrar a página. */
+  player.addEventListener("keydown", function (event) {
+    if (event.target.tagName === "INPUT" && event.key !== "k") return;
+    var handled = true;
+    switch (event.key) {
+      case " ": case "k": togglePlay(); break;
+      case "ArrowRight": video.currentTime = Math.min(video.duration, video.currentTime + 5); break;
+      case "ArrowLeft": video.currentTime = Math.max(0, video.currentTime - 5); break;
+      case "f": fullscreenBtn.click(); break;
+      case "m": muteBtn.click(); break;
+      default: handled = false;
+    }
+    if (handled) event.preventDefault();
+  });
+
+})();
+</script>
+@@RUNTIME@@
+</body>
+</html>

@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="pt-BR" data-theme="light">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>NerdResolve · Plataforma de ensino</title>
+<meta name="description" content="Plataforma de ensino da NerdResolve: cursos, trilhas e acompanhamento de progresso para quem move as águas do Brasil." />
+<style>
+/* Gerado por tools/build-preview.mjs — não editar este arquivo. */
+/* @@TOKENS@@ */
+/* @@BASE@@ */
+/* @@COMPONENTS@@ */
+/* @@LANDING@@ */
+
+/* ===== Barra de Visual QA (fora do produto) ===== */
+.qa {
+  position: fixed; z-index: 70; bottom: var(--space-4); left: 50%; translate: -50% 0;
+  display: flex; align-items: center; gap: var(--space-1);
+  padding: var(--space-1);
+  background: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-full);
+  box-shadow: var(--shadow-lg);
+}
+.qa__label { font-size: 10px; letter-spacing: var(--tracking-wide); text-transform: uppercase; color: var(--text-faint); padding: 0 var(--space-2); }
+.qa button {
+  min-height: 32px; padding: 0 var(--space-3);
+  font: inherit; font-size: var(--text-caption-size); font-weight: var(--weight-medium);
+  color: var(--text-muted);
+  background: none; border: 0; border-radius: var(--radius-full); cursor: pointer;
+}
+.qa button[aria-pressed="true"] { background: var(--brand); color: var(--text-on-brand); }
+body[data-device="mobile"] .landing { max-width: 390px; margin-inline: auto; border-inline: 1px solid var(--border-subtle); }
+</style>
+</head>
+<body data-device="desktop">
+
+<div class="qa" role="group" aria-label="Controles de validação visual">
+  <span class="qa__label">QA</span>
+  <button type="button" id="qa-theme" aria-pressed="false">Dark</button>
+  <button type="button" id="qa-device" aria-pressed="false">Mobile</button>
+</div>
+
+<!-- Sprite Lucide gerado a partir de public/brand/icons (pacote oficial) -->
+@@ICON_SPRITE@@
+
+<a class="skip-link" href="#conteudo">Ir para o conteúdo</a>
+
+<div class="landing">
+  <header class="landing__header">
+    <img class="landing__logo" src="@@LOGO_BRAND@@" alt="NerdResolve" width="600" height="165" />
+    <span class="landing__header-spacer"></span>
+    <nav class="landing__header-actions" aria-label="Acesso">
+      <a class="btn btn--secondary" href="#sobre">Sobre a plataforma</a>
+      <a class="btn btn--primary" href="/login">Entrar</a>
+    </nav>
+  </header>
+
+  <main class="landing__hero" id="conteudo">
+    <div class="landing__copy">
+      <h1 class="landing__title">Conhecimento que <em>transforma</em> realidades</h1>
+      <p class="landing__lead">
+        Uma plataforma completa para você aprender, evoluir e alcançar seus objetivos —
+        no ritmo que a sua rotina permitir.
+      </p>
+      <div class="landing__actions">
+        <a class="btn btn--primary" href="/login">Começar agora</a>
+        <a class="btn btn--secondary" href="#sobre">Saiba mais</a>
+      </div>
+    </div>
+
+    <div class="landing__art" aria-hidden="true">
+      <span class="landing__halo"></span>
+      <span class="landing__blob">@@BLOB@@</span>
+
+      <span class="landing__badge landing__badge--a"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-graduation-cap"/></svg></span>
+      <span class="landing__badge landing__badge--b"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-mail"/></svg></span>
+      <span class="landing__badge landing__badge--c"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-trending-up"/></svg></span>
+
+      <span class="landing__tile landing__tile--a">@@TILE@@<svg class="icon" aria-hidden="true" focusable="false"><use href="#i-users"/></svg></span>
+      <span class="landing__tile landing__tile--b">@@TILE@@<svg class="icon" aria-hidden="true" focusable="false"><use href="#i-users"/></svg></span>
+    </div>
+  </main>
+
+  <div class="landing__stats-wrap">
+    @@STATS_WAVE@@
+    <div class="landing__stats-bleed">
+      <dl class="landing__stats">
+        @@STATS@@
+      </dl>
+    </div>
+  </div>
+
+  <section class="landing__about" id="sobre" aria-labelledby="sobre-titulo">
+    <h2 class="landing__about-title" id="sobre-titulo">Feita para quem aprende trabalhando</h2>
+    <div class="landing__points">
+      @@POINTS@@
+    </div>
+  </section>
+
+  <footer class="landing__footer">
+    <div class="landing__footer-inner">
+      <img class="landing__footer-logo" src="@@LOGO_BRAND@@" alt="NerdResolve" width="600" height="165" />
+      <span>Plataforma de ensino corporativo.</span>
+      <span class="landing__header-spacer"></span>
+      <span>O acesso é liberado pelo seu gestor.</span>
+    </div>
+  </footer>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  var root = document.documentElement;
+  var body = document.body;
+
+  var themeBtn = document.getElementById("qa-theme");
+  themeBtn.addEventListener("click", function () {
+    var dark = root.getAttribute("data-theme") === "dark";
+    root.setAttribute("data-theme", dark ? "light" : "dark");
+    themeBtn.setAttribute("aria-pressed", String(!dark));
+    themeBtn.textContent = dark ? "Dark" : "Light";
+  });
+
+  var deviceBtn = document.getElementById("qa-device");
+  deviceBtn.addEventListener("click", function () {
+    var mobile = body.getAttribute("data-device") === "mobile";
+    body.setAttribute("data-device", mobile ? "desktop" : "mobile");
+    deviceBtn.setAttribute("aria-pressed", String(!mobile));
+    deviceBtn.textContent = mobile ? "Mobile" : "Desktop";
+  });
+})();
+</script>
+@@RUNTIME@@
+</body>
+</html>

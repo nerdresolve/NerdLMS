@@ -1,0 +1,579 @@
+/* Backoffice do instrutor — TASK-045.
+   O que hoje depende da REVO: cadastrar curso, módulo, aula e material.
+   Usa os mesmos primitivos do resto da plataforma — não é "tela de admin". */
+
+.studio { display: flex; flex-direction: column; gap: var(--space-8); max-width: var(--content-max); }
+
+.studio__head { display: flex; align-items: flex-start; gap: var(--space-4); flex-wrap: wrap; }
+.studio__head-text { flex: 1; min-width: 240px; }
+
+/* ===== Lista de cursos do instrutor ===== */
+.studio-list { display: flex; flex-direction: column; gap: var(--space-3); }
+
+.studio-course {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+  padding: var(--space-4) var(--space-5);
+  background: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  transition: var(--transition-control);
+}
+.studio-course:hover { border-color: var(--brand-accent); }
+.studio-course__body { flex: 1; min-width: 200px; display: flex; flex-direction: column; gap: 2px; }
+.studio-course__title { margin: 0; font-size: var(--text-body-size); font-weight: var(--weight-semibold); color: var(--text-title); }
+.studio-course__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  font-size: var(--text-caption-size);
+  color: var(--text-muted);
+}
+.studio-course__actions { display: flex; gap: var(--space-2); }
+
+/* ===== Editor ===== */
+.editor { display: grid; grid-template-columns: 1fr; gap: var(--space-6); }
+@container (min-width: 1000px) { .editor { grid-template-columns: minmax(0, 1fr) 320px; align-items: start; } }
+
+.editor__panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  padding: var(--space-6);
+  background: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-card);
+}
+.editor__panel-title { margin: 0; font-size: var(--text-h4-size); line-height: var(--text-h4-lh); font-weight: var(--weight-semibold); }
+
+@container (min-width: 1000px) {
+  .editor__aside { position: sticky; top: calc(var(--topbar-height) + var(--space-4)); }
+}
+
+/* ===== Módulo em edição ===== */
+.editor-module {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  background: var(--surface-subtle);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+}
+/* O formulário de "nova aula" mora dentro deste cabeçalho, e sem quebra ele
+   espremia o título do módulo até 0px de largura — medido: cabeçalho de 628px,
+   título de 0. Um `flex: 1; min-width: 0` no título não resolve sozinho,
+   porque quem se recusa a encolher é o formulário ao lado.
+
+   Com `wrap`, o formulário desce para a linha de baixo quando não cabe, e o
+   título fica legível em qualquer largura. */
+.editor-module__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+.editor-module__title {
+  /* `flex-basis` de 12rem: o título pede espaço mínimo antes de o formulário
+     ganhar o direito de empurrá-lo para a linha seguinte. */
+  flex: 1 1 12rem;
+  min-width: 0;
+  font-size: var(--text-small-size);
+  font-weight: var(--weight-semibold);
+  color: var(--text-title);
+}
+.editor-module__count { font-size: var(--text-caption-size); color: var(--text-muted); white-space: nowrap; }
+
+.editor-lessons { display: flex; flex-direction: column; gap: var(--space-2); }
+.editor-lesson {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  background: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+}
+.editor-lesson__title { flex: 1; min-width: 0; font-size: var(--text-small-size); overflow-wrap: anywhere; }
+.editor-lesson__duration { font-size: var(--text-caption-size); color: var(--text-faint); white-space: nowrap; }
+
+.editor-add { display: flex; gap: var(--space-2); flex-wrap: wrap; }
+.editor-add .input { flex: 1; min-width: 140px; }
+.editor-add .input--duration { flex: none; width: 96px; }
+
+/* ===== Área de upload ===== */
+.dropzone {
+  display: grid;
+  place-items: center;
+  gap: var(--space-2);
+  padding: var(--space-10) var(--space-5);
+  text-align: center;
+  color: var(--text-muted);
+  background: var(--surface-subtle);
+  border: 2px dashed var(--field-border);
+  border-radius: var(--radius-md);
+}
+.dropzone__icon { display: grid; place-items: center; width: 44px; height: 44px; border-radius: var(--radius-md); background: var(--surface-brand-subtle); color: var(--text-brand); }
+.dropzone__icon svg { width: 20px; height: 20px; }
+.dropzone__title { font-size: var(--text-small-size); font-weight: var(--weight-semibold); color: var(--text-title); }
+.dropzone__hint { font-size: var(--text-caption-size); max-width: 40ch; }
+
+/* ===== Rodapé de publicação ===== */
+.editor__publish { display: flex; flex-direction: column; gap: var(--space-3); }
+.editor__summary { display: flex; flex-direction: column; gap: var(--space-2); }
+.editor__summary-row { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); font-size: var(--text-small-size); }
+.editor__summary-label { color: var(--text-muted); }
+.editor__summary-value { font-weight: var(--weight-semibold); color: var(--text-title); font-variant-numeric: tabular-nums; }
+
+/* Coluna principal do editor e lista de módulos: existiam no markup sem regra,
+   segurando o layout por acaso (estilo inline). Agora têm nome e lugar. */
+.editor__main { display: flex; flex-direction: column; gap: var(--space-6); min-width: 0; }
+.editor-modules { display: flex; flex-direction: column; gap: var(--space-4); }
+.studio-course__seal {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  flex: none;
+  border-radius: var(--radius-md);
+  background: var(--surface-brand-subtle);
+  color: var(--text-brand);
+}
+
+/* ===== Engajamento — TASK-047 ===== */
+.engagement { display: flex; flex-direction: column; gap: var(--space-8); }
+
+.engagement__stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-4); }
+@container (min-width: 720px) { .engagement__stats { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+
+/* Tabela que vira lista em tela estreita: cada linha carrega o rótulo da
+   coluna em data-label e ele aparece quando as colunas somem. */
+.table-wrap { overflow-x: auto; border: 1px solid var(--border-subtle); border-radius: var(--radius-card); background: var(--surface-card); }
+.table { width: 100%; border-collapse: collapse; font-size: var(--text-small-size); }
+.table th,
+.table td { padding: var(--space-3) var(--space-4); text-align: left; }
+.table thead th {
+  font-size: var(--text-overline-size);
+  letter-spacing: var(--text-overline-tracking);
+  text-transform: uppercase;
+  font-weight: var(--weight-bold);
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border-subtle);
+  white-space: nowrap;
+}
+.table tbody tr + tr td { border-top: 1px solid var(--border-subtle); }
+.table td:last-child,
+.table th:last-child { text-align: right; }
+.table__name { font-weight: var(--weight-semibold); color: var(--text-title); }
+.table__bar { width: 120px; }
+.table__percent { font-variant-numeric: tabular-nums; font-weight: var(--weight-semibold); color: var(--text-title); }
+
+@container (max-width: 720px) {
+  .table thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .table tbody tr { display: grid; gap: var(--space-2); padding: var(--space-4); }
+  .table tbody tr + tr { border-top: 1px solid var(--border-subtle); }
+  .table td { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); padding: 0; }
+  .table tbody tr + tr td { border-top: none; }
+  .table td::before { content: attr(data-label); font-size: var(--text-caption-size); color: var(--text-muted); }
+  .table td:last-child { text-align: right; }
+  .table__bar { width: 100%; max-width: 160px; }
+}
+
+/* ===== Admin — TASK-048 ===== */
+.admin-toolbar { display: flex; align-items: center; gap: var(--space-3); flex-wrap: wrap; }
+.admin-toolbar .search { max-width: 320px; }
+.admin-toolbar__spacer { flex: 1; }
+
+.user-role { display: inline-flex; align-items: center; gap: var(--space-2); }
+.user-email { font-size: var(--text-caption-size); color: var(--text-muted); overflow-wrap: anywhere; }
+
+/* Situação do usuário. Cada estado tem cor E texto — nunca só a cor. */
+.badge--pending { background: var(--warning-surface); color: var(--warning-text); }
+.badge--inactive { background: var(--surface-sunken); color: var(--text-muted); }
+
+.table__actions { display: flex; gap: var(--space-2); justify-content: flex-end; }
+
+/* Distribuição por projeto: barra simples, sem biblioteca de gráfico. */
+.breakdown { display: flex; flex-direction: column; gap: var(--space-4); }
+.breakdown__row { display: grid; gap: var(--space-2); }
+.breakdown__head { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-3); }
+.breakdown__label { font-size: var(--text-small-size); color: var(--text-body); }
+.breakdown__value { font-size: var(--text-small-size); font-weight: var(--weight-semibold); color: var(--text-title); font-variant-numeric: tabular-nums; }
+
+/* ===== Auditoria — TASK-058 ===== */
+.audit-alert {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-4);
+  padding: var(--space-4) var(--space-5);
+  background: var(--warning-surface);
+  border: 1px solid var(--warning-text);
+  border-left-width: 3px;
+  border-radius: var(--radius-md);
+}
+.audit-alert__icon { display: grid; place-items: center; width: 32px; height: 32px; flex: none; color: var(--warning-text); }
+.audit-alert__body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.audit-alert__title { margin: 0; font-size: var(--text-small-size); font-weight: var(--weight-bold); color: var(--text-title); }
+.audit-alert__text { margin: 0; font-size: var(--text-caption-size); line-height: 1.5; color: var(--text-body); }
+
+.audit-time { font-variant-numeric: tabular-nums; white-space: nowrap; color: var(--text-muted); font-size: var(--text-caption-size); }
+.audit-target { overflow-wrap: anywhere; }
+.audit-ip { font-family: var(--font-mono); font-size: 11.5px; color: var(--text-faint); }
+
+/* Resultado negado: cor, ícone e a palavra — nunca só a cor. */
+.badge--denied { background: var(--danger-surface); color: var(--danger-text); }
+
+/* Cada fato do card é um bloco próprio: sem isto, o ícone de alunos encosta no
+   texto anterior e "8h 40min" e "5 alunos" viram uma palavra só. */
+.studio-course__fact {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+.studio-course__fact svg {
+  width: 1em;
+  height: 1em;
+}
+/* Formulário de acrescentar módulo ou aula: campos e botão na mesma linha,
+   quebrando no mobile em vez de espremer. */
+.editor-add-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  /* Sem isto o formulário impõe a largura dos filhos ao contêiner flex e não
+     encolhe, esmagando o que estiver ao lado. */
+  min-width: 0;
+}
+.editor-add-form .input {
+  flex: 1 1 12rem;
+  min-width: 0;
+}
+.input--narrow {
+  flex: 0 0 5.5rem;
+}
+/* Convite: campos em grade, botão embaixo. Em telas estreitas vira coluna. */
+.invite-form {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-3);
+  align-items: end;
+}
+@container (min-width: 720px) {
+  .invite-form { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .invite-form > .btn { grid-column: 1 / -1; justify-self: start; }
+  .invite-form > .notice { grid-column: 1 / -1; }
+}
+.btn--small {
+  padding: var(--space-1) var(--space-2);
+  font-size: var(--text-caption-size);
+}
+
+/* ===== Recortes do relatório (TASK-047) =====
+   Vive aqui porque o painel do admin já importa esta folha. */
+.report-filters {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  margin-bottom: var(--space-8);
+  padding: var(--space-5);
+  background: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-card);
+}
+.report-filters__row { display: flex; flex-wrap: wrap; align-items: end; gap: var(--space-4); }
+.report-filters__row--end { justify-content: space-between; }
+.report-filters__field { display: flex; flex-direction: column; gap: var(--space-2); flex: 1 1 180px; min-width: 0; }
+.report-filters__label { font-size: var(--text-small-size); font-weight: var(--weight-medium); color: var(--text-body); }
+
+
+/* Campo de arquivo no editor: o controle nativo não aceita a altura dos
+   outros campos, então só o alinhamento é ajustado. */
+.input--file {
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--text-caption-size);
+  max-width: 260px;
+}
+
+/* Progresso do envio de vídeo.
+   Ocupa a linha inteira do formulário: o campo de arquivo e o botão já
+   dividem o espaço horizontal, e espremer a barra entre eles a deixaria
+   fina demais para ser lida de relance. */
+.upload-progress {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-basis: 100%;
+  margin-top: var(--space-2);
+}
+.upload-progress__track {
+  flex: 1;
+  height: 6px;
+  overflow: hidden;
+  background: var(--track);
+  border-radius: var(--radius-full);
+}
+.upload-progress__fill {
+  display: block;
+  height: 100%;
+  width: 0;
+  background: var(--fill);
+  border-radius: inherit;
+  transition: width var(--duration-base) var(--ease-out);
+}
+
+/* Enquanto o total é desconhecido, a barra percorre em vez de fingir uma
+   porcentagem. É o estado entre pedir a URL assinada e o primeiro evento de
+   progresso — curto, mas sem ele a barra nasce vazia e parece travada. */
+.upload-progress__fill[data-indeterminate] {
+  width: 35%;
+  animation: upload-sweep 1.1s ease-in-out infinite;
+}
+@keyframes upload-sweep {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(320%); }
+}
+
+.upload-progress__label {
+  min-width: 4ch;
+  font-size: var(--text-caption-size);
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Criação de curso.
+   O formulário substitui o botão no mesmo lugar do cabeçalho, em vez de abrir
+   em modal: é curto, e um diálogo para dois campos cobriria a lista de cursos
+   sem necessidade. */
+.new-course {
+  display: grid;
+  gap: var(--space-4);
+  width: min(420px, 100%);
+  padding: var(--space-5);
+  background: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-sm);
+  text-align: left;
+}
+.new-course__optional { font-weight: var(--weight-regular); color: var(--text-muted); }
+.new-course__note {
+  margin: 0;
+  font-size: var(--text-caption-size);
+  line-height: var(--text-small-lh);
+  color: var(--text-muted);
+}
+.new-course__error {
+  margin: 0;
+  font-size: var(--text-small-size);
+  color: var(--danger-text);
+}
+.new-course__actions { display: flex; gap: var(--space-3); justify-content: flex-end; }
+
+/* Aviso de curso arquivado, ao lado das ações de publicação. */
+.editor__retired {
+  margin: 0;
+  font-size: var(--text-caption-size);
+  line-height: var(--text-small-lh);
+  color: var(--text-muted);
+}
+
+/* Metadados do curso — F2-03.
+
+   Duas colunas nos campos curtos (código, carga, nível, idioma, datas) e
+   largura inteira nos longos. Um formulário de uma coluna só faria a página
+   rolar demais para dez campos, e a maioria deles é curto. */
+.meta-form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  gap: var(--space-4);
+  align-items: start;
+}
+
+.meta-form__wide {
+  grid-column: 1 / -1;
+}
+
+.meta-form__actions {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* O `textarea` herda `.input`, que é dimensionado para uma linha. */
+.meta-form textarea.input {
+  min-height: unset;
+  height: auto;
+  padding-block: var(--space-2);
+  resize: vertical;
+  line-height: var(--line-body);
+}
+
+/* A dica dentro do rótulo da caixa de seleção precisa de bloco próprio: em
+   linha, ela empurraria o texto principal para longe da marca. */
+.meta-form .checkbox .field__hint {
+  display: block;
+  margin-top: var(--space-1);
+}
+
+/* Lista reordenável — F2-06. */
+.reorder__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.reorder__item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  background: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  cursor: grab;
+}
+
+/* O item arrastado some parcialmente para a posição de destino ficar legível. */
+.reorder__item[data-arrastando] {
+  opacity: 0.45;
+  cursor: grabbing;
+}
+
+.reorder__grip {
+  display: grid;
+  place-items: center;
+  color: var(--text-muted);
+  flex: none;
+}
+.reorder__grip svg { width: 16px; height: 16px; }
+
+.reorder__label {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: var(--text-small-size);
+  color: var(--text-title);
+}
+
+.reorder__buttons { display: flex; gap: var(--space-1); flex: none; }
+
+/* 24px é o piso da WCAG 2.5.8; aqui vale o `--touch-target-min` porque um
+   botão de 44px ao lado do texto da aula dominaria a linha. */
+.reorder__button {
+  display: grid;
+  place-items: center;
+  width: var(--touch-target-min);
+  height: var(--touch-target-min);
+  color: var(--text-muted);
+  background: transparent;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+.reorder__button:hover:not(:disabled) { color: var(--text-title); background: var(--surface-subtle); }
+.reorder__button:disabled { opacity: 0.35; cursor: default; }
+.reorder__button svg { width: 14px; height: 14px; }
+
+.reorder__hint {
+  margin: var(--space-2) 0 0;
+  font-size: var(--text-caption-size);
+  color: var(--text-muted);
+}
+.reorder__hint kbd {
+  padding: 0 var(--space-1);
+  font-family: inherit;
+  font-size: 0.9em;
+  background: var(--surface-subtle);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-xs, 3px);
+}
+
+/* A ordem dos módulos fica num bloco à parte, e não no cabeçalho de cada um:
+   arrastar um módulo inteiro — com as aulas dentro — é gesto ambíguo, e a
+   lista compacta mostra a sequência completa de uma vez. */
+.editor-module-order {
+  padding: var(--space-4);
+  background: var(--surface-subtle);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+}
+.editor-module-order__title {
+  margin: 0 0 var(--space-3);
+  font-size: var(--text-small-size);
+  font-weight: var(--weight-semibold);
+  color: var(--text-title);
+}
+
+/* Turmas — F2-02. */
+.classes__seats { color: var(--text-muted); font-size: var(--text-caption-size); }
+.classes__form { margin-top: var(--space-4); }
+
+/* Anexos por aula — F1-04 (a tela que faltava). */
+.editor-materials {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: var(--space-3) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.editor-materials__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.editor-materials__label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--text-caption-size);
+  color: var(--text-muted);
+  /* Impede que o rótulo esprema o campo — o mesmo defeito que o cabeçalho do
+     módulo teve. */
+  flex: 1 1 14rem;
+  min-width: 0;
+}
+.editor-materials__label svg { width: 14px; height: 14px; flex: none; }
+
+.editor-materials__input {
+  flex: 1 1 16rem;
+  min-width: 0;
+  font-size: var(--text-caption-size);
+}
+
+/* Preferências de notificação — F4-04. */
+.prefs__col { width: 8rem; text-align: center; }
+.prefs__desc {
+  display: block;
+  margin-top: var(--space-1);
+  font-size: var(--text-caption-size);
+  font-weight: var(--weight-regular);
+  color: var(--text-muted);
+}
+
+/* Textos de e-mail — F4-05. */
+.templates { display: flex; flex-direction: column; gap: var(--space-2); margin: 0; padding: 0; list-style: none; }
+.templates__item {
+  padding: var(--space-3) var(--space-4);
+  background: var(--surface-subtle);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+}
+.templates__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+.templates__form { display: flex; flex-direction: column; gap: var(--space-3); margin-top: var(--space-3); }
+.templates__form .btn { align-self: flex-start; }

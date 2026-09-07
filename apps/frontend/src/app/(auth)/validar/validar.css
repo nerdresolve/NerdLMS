@@ -1,0 +1,68 @@
+/* Validação pública de certificado.
+   O cartão é mais largo que o padrão das telas de status: aqui há um
+   formulário e uma lista de dados, não só um parágrafo. */
+.validar { max-width: 560px; text-align: left; }
+
+.validar__form { display: grid; gap: var(--space-2); margin-block: var(--space-5); }
+.validar__row { display: flex; gap: var(--space-3); }
+.validar__row .input {
+  flex: 1;
+  min-width: 0;
+  /* Código é hexadecimal: monoespaçado evita confundir 0 com O ao conferir. */
+  font-family: ui-monospace, "Cascadia Mono", Menlo, Consolas, monospace;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.validar__result {
+  padding: var(--space-5);
+  margin-top: var(--space-4);
+  background: var(--success-surface);
+  border: 1px solid var(--success-text);
+  border-radius: var(--radius-card);
+}
+.validar__result--fail {
+  background: var(--danger-surface);
+  border-color: var(--danger-text);
+}
+
+.validar__badge {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0 0 var(--space-4);
+  font-weight: var(--weight-semibold);
+  color: var(--success-text);
+}
+.validar__badge--fail { color: var(--danger-text); margin-bottom: var(--space-2); }
+.validar__badge svg { width: 20px; height: 20px; flex: none; }
+
+.validar__data { display: grid; gap: var(--space-3); margin: 0; }
+.validar__data > div { display: grid; gap: 2px; }
+.validar__data dt {
+  font-size: var(--text-caption-size);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+  color: var(--text-muted);
+}
+.validar__data dd {
+  margin: 0;
+  font-weight: var(--weight-semibold);
+  color: var(--text-title);
+}
+.validar__data dd svg {
+  width: 15px;
+  height: 15px;
+  vertical-align: -2px;
+  color: var(--text-muted);
+}
+.validar__code {
+  font-family: ui-monospace, "Cascadia Mono", Menlo, Consolas, monospace;
+  letter-spacing: 0.08em;
+}
+
+.validar__note {
+  margin: var(--space-4) 0 0;
+  font-size: var(--text-caption-size);
+  color: var(--text-muted);
+}

@@ -1,0 +1,160 @@
+/* Agenda e comunicados — TASK-056.
+   Calendário do mês, próximos eventos e central de notificações. */
+
+.agenda { display: grid; grid-template-columns: 1fr; gap: var(--space-6); max-width: var(--content-max); }
+@container (min-width: 1080px) { .agenda { grid-template-columns: minmax(0, 1fr) 340px; align-items: start; } }
+
+.agenda__main { display: flex; flex-direction: column; gap: var(--space-6); min-width: 0; }
+@container (min-width: 1080px) { .agenda__aside { position: sticky; top: calc(var(--topbar-height) + var(--space-4)); } }
+
+/* ===== Calendário ===== */
+.calendar {
+  padding: var(--space-5);
+  background: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-card);
+}
+.calendar__head { display: flex; align-items: center; gap: var(--space-3); margin-bottom: var(--space-4); }
+.calendar__month { flex: 1; margin: 0; font-size: var(--text-h4-size); font-weight: var(--weight-bold); color: var(--text-title); }
+
+.calendar__grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 2px; min-width: 0; }
+.calendar__weekday {
+  padding: var(--space-2) 0;
+  text-align: center;
+  font-size: var(--text-overline-size);
+  letter-spacing: var(--text-overline-tracking);
+  text-transform: uppercase;
+  font-weight: var(--weight-bold);
+  color: var(--text-faint);
+}
+
+.calendar__day {
+  display: flex;
+  flex-direction: column;
+  /* Célula de grade não encolhe sozinha abaixo do conteúdo — em 320px o mês
+     inteiro empurrava a página para fora. */
+  min-width: 0;
+  gap: 3px;
+  min-height: 76px;
+  padding: var(--space-2);
+  background: var(--surface-subtle);
+  border-radius: var(--radius-sm);
+}
+.calendar__day[data-outside="true"] { background: transparent; }
+.calendar__day[data-outside="true"] .calendar__number { color: var(--text-faint); }
+.calendar__day[data-today="true"] { outline: 2px solid var(--brand); outline-offset: -2px; }
+
+.calendar__number { font-size: var(--text-caption-size); font-weight: var(--weight-semibold); color: var(--text-body); font-variant-numeric: tabular-nums; }
+
+/* Marcador de evento: cor E forma diferentes por tipo, para não depender de cor. */
+.calendar__event {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10.5px;
+  line-height: 1.25;
+  padding: 2px 4px;
+  border-radius: 4px;
+  background: var(--surface-brand-subtle);
+  color: var(--text-brand);
+  overflow: hidden;
+}
+.calendar__event span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.calendar__event svg { width: 10px; height: 10px; flex: none; }
+.calendar__event[data-kind="deadline"] { background: var(--warning-surface); color: var(--warning-text); }
+.calendar__event[data-kind="announcement"] { background: var(--surface-sunken); color: var(--text-muted); }
+
+/* Em tela estreita o mês vira lista: grade de 7 colunas em 360px é ilegível. */
+@container (max-width: 720px) {
+  .calendar__grid { grid-template-columns: 1fr; gap: var(--space-2); }
+  .calendar__weekday { display: none; }
+  .calendar__day { min-height: 0; flex-direction: row; align-items: center; flex-wrap: wrap; gap: var(--space-2); }
+  .calendar { padding: var(--space-4); }
+  .calendar__day:not(:has(.calendar__event)) { display: none; }
+  .calendar__event { font-size: var(--text-caption-size); }
+}
+
+/* ===== Próximos eventos ===== */
+.event-list { display: flex; flex-direction: column; gap: var(--space-3); }
+.event {
+  display: flex;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  background: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+}
+.event__date {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  flex: none;
+  border-radius: var(--radius-md);
+  background: var(--surface-brand-subtle);
+  color: var(--text-brand);
+  line-height: 1.1;
+  text-align: center;
+}
+.event__day { font-size: var(--text-body-size); font-weight: var(--weight-bold); font-variant-numeric: tabular-nums; }
+.event__month { font-size: 10px; text-transform: uppercase; letter-spacing: var(--text-overline-tracking); }
+.event__body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.event__title { margin: 0; font-size: var(--text-small-size); font-weight: var(--weight-semibold); color: var(--text-title); }
+.event__meta { font-size: var(--text-caption-size); color: var(--text-muted); }
+
+/* ===== Notificações ===== */
+.notifications { display: flex; flex-direction: column; gap: var(--space-2); }
+.notification {
+  display: flex;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  background: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+}
+/* Não lida: barra à esquerda e peso maior — não é só a cor de fundo. */
+.notification[data-read="false"] { border-left: 3px solid var(--brand); background: var(--surface-brand-subtle); }
+.notification[data-read="false"] .notification__title { font-weight: var(--weight-bold); }
+
+.notification__icon { display: grid; place-items: center; width: 32px; height: 32px; flex: none; border-radius: var(--radius-full); background: var(--surface-sunken); color: var(--text-muted); }
+.notification[data-read="false"] .notification__icon { background: var(--surface-card); color: var(--text-brand); }
+.notification__body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.notification__title { margin: 0; font-size: var(--text-small-size); font-weight: var(--weight-semibold); color: var(--text-title); }
+.notification__text { margin: 0; font-size: var(--text-caption-size); line-height: 1.5; color: var(--text-muted); text-wrap: pretty; }
+.notification__time { font-size: var(--text-caption-size); color: var(--text-faint); }
+
+/* Hoje.
+   Anel em vez de fundo cheio: a célula também abriga os selos de evento, e um
+   fundo sólido brigaria com eles pelo contraste. */
+.calendar__day[data-today] {
+  border-color: var(--brand);
+  box-shadow: inset 0 0 0 1px var(--brand);
+}
+.calendar__day[data-today] .calendar__number {
+  color: var(--text-brand);
+  font-weight: var(--weight-bold);
+}
+
+/* Botão de marcar lido: discreto até o ponteiro chegar no aviso — a ação é
+   secundária, e um botão sempre visível competiria com o texto do aviso. */
+.notification__read {
+  align-self: start;
+  padding: var(--space-1) var(--space-2);
+  font: inherit;
+  font-size: var(--text-caption-size);
+  color: var(--text-brand);
+  background: none;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  opacity: 0;
+}
+.notification:hover .notification__read,
+.notification__read:focus-visible {
+  opacity: 1;
+  border-color: var(--border-default);
+}
+/* Toque não tem hover: no touch o botão fica sempre visível. */
+@media (hover: none) {
+  .notification__read { opacity: 1; border-color: var(--border-default); }
+}

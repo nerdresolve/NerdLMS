@@ -1,0 +1,84 @@
+/* Telas de 404 e de erro.
+   Usam os tokens da aplicação, e não o estilo embutido do Next: aquele ignora
+   o tema e resultava em texto violeta sobre fundo preto no modo escuro. */
+
+.status-page {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: var(--space-6);
+  background: var(--surface-page);
+  color: var(--text-body);
+}
+
+.status-page__card {
+  width: 100%;
+  max-width: 480px;
+  text-align: center;
+  padding: var(--space-10) var(--space-8);
+  background: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-sm);
+}
+
+.status-page__code {
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-h1-size);
+  font-weight: var(--weight-bold);
+  line-height: 1;
+  color: var(--text-brand);
+  font-variant-numeric: tabular-nums;
+}
+
+.status-page__title {
+  margin: 0 0 var(--space-3);
+  font-size: var(--text-h3-size);
+  font-weight: var(--weight-semibold);
+  color: var(--text-title);
+}
+
+.status-page__text {
+  margin: 0 0 var(--space-6);
+  font-size: var(--text-body-size);
+  color: var(--text-muted);
+}
+
+.status-page__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  justify-content: center;
+}
+
+/* Identificador que o Next grava no log do servidor: serve para achar a
+   ocorrência sem expor a mensagem, que em produção é omitida. */
+.status-page__digest {
+  margin: var(--space-6) 0 0;
+  font-size: var(--text-caption-size);
+  color: var(--text-faint);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Aviso de funcionalidade planejada. Nome próprio porque `.notice` já existe
+   em components.css como aviso que nasce escondido (`display:none` até
+   `data-visible="true"`) — reusar a classe fazia este bloco sumir. */
+.planned {
+  margin: var(--space-6) 0;
+  padding: var(--space-4);
+  text-align: left;
+  background: var(--surface-brand-subtle);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+}
+.planned__title {
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-small-size);
+  font-weight: var(--weight-semibold);
+  color: var(--text-title);
+}
+.planned__text {
+  margin: 0;
+  font-size: var(--text-small-size);
+  color: var(--text-body);
+}

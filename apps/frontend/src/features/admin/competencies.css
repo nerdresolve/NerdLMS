@@ -1,0 +1,184 @@
+/* Competências e planos — F6-02.
+
+   Reaproveita `platform__form`, `field` e `prefs__desc`. O que existe aqui é o
+   que a estrutura de competência exige e não havia: a árvore competência →
+   cursos, e a escolha de nível dentro de uma lista. */
+
+.comp__linha {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4);
+}
+
+@media (max-width: 640px) {
+  .comp__linha { grid-template-columns: 1fr; }
+}
+
+.comp__frameworks {
+  display: grid;
+  gap: var(--space-2);
+  margin: var(--space-4) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.comp__frameworks li {
+  display: grid;
+  gap: 2px;
+  padding: var(--space-3);
+  background: var(--surface-subtle);
+  border-radius: var(--radius-sm);
+}
+
+.comp__frameworks .prefs__desc { margin-top: 0; }
+
+.comp__lista {
+  display: grid;
+  gap: var(--space-3);
+  margin: var(--space-5) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.comp__item {
+  padding: var(--space-4);
+  background: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+}
+
+.comp__cabeca {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-2) var(--space-3);
+}
+
+.comp__framework {
+  font-size: var(--text-caption-size);
+  color: var(--text-muted);
+}
+
+.comp__outcome {
+  margin: var(--space-1) 0 0;
+  max-width: 68ch;
+  font-size: var(--text-small-size);
+  line-height: var(--text-small-lh);
+  color: var(--text-body);
+}
+
+/* Os cursos que desenvolvem a competência: recuados, porque são uma
+   consequência dela — a mesma leitura de um sumário. */
+.comp__cursos {
+  display: grid;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--border-subtle);
+}
+
+.comp__cursos-titulo {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-caption-size);
+  letter-spacing: var(--text-caption-tracking);
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.comp__cursos-titulo svg { width: 13px; height: 13px; }
+
+.comp__vinculos {
+  display: grid;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.comp__vinculos li {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  background: var(--surface-subtle);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-small-size);
+}
+
+.comp__nivel {
+  margin-left: auto;
+  padding: 1px var(--space-2);
+  background: var(--surface-brand-subtle);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-caption-size);
+  color: var(--text-brand);
+  white-space: nowrap;
+}
+
+.comp__remover {
+  display: grid;
+  place-items: center;
+  /* 24px é o mínimo do WCAG 2.5.8; a área clicável cobre o ícone de 14px. */
+  width: 24px;
+  height: 24px;
+  flex: none;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.comp__remover:hover { background: var(--danger-surface); color: var(--danger-text); }
+.comp__remover svg { width: 14px; height: 14px; }
+
+.comp__vincular {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: center;
+}
+
+.comp__vincular .select { flex: 1 1 12rem; }
+
+.comp__escolha {
+  display: grid;
+  gap: 2px;
+  margin: 0 0 var(--space-5);
+  padding: 0;
+  border: 0;
+  max-height: 22rem;
+  overflow-y: auto;
+}
+
+.comp__escolha-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  /* 44px de alvo, bem acima dos 24 do WCAG 2.5.8. */
+  min-height: 44px;
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.comp__escolha-item:last-child { border-bottom: 0; }
+
+.comp__escolha-nome {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex: 1;
+  min-width: 0;
+  cursor: pointer;
+}
+
+.comp__escolha-nome input {
+  width: 18px;
+  height: 18px;
+  flex: none;
+  accent-color: var(--surface-brand);
+}
+
+.comp__escolha-nivel { flex: none; max-width: 12rem; }

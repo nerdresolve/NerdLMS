@@ -1,0 +1,79 @@
+/* Configuração da plataforma.
+   Duas seções longas numa coluna só: são listas de leitura, não um painel de
+   números — dispor em grade faria o olho pular entre colunas sem ganho. */
+.platform { display: grid; gap: var(--space-8); }
+
+.platform__hint {
+  margin: 0 0 var(--space-5);
+  max-width: 62ch;
+  font-size: var(--text-small-size);
+  line-height: var(--text-small-lh);
+  color: var(--text-muted);
+}
+
+.platform__features { display: grid; gap: 2px; margin: 0; padding: 0; list-style: none; }
+
+.platform__feature {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  background: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+}
+
+/* O filho recua, para a hierarquia da chave (`comentarios.upvotes`) aparecer
+   sem precisar repeti-la na tela. */
+.platform__feature[data-nivel="1"] { margin-left: var(--space-8); }
+.platform__feature[data-nivel="2"] { margin-left: calc(var(--space-8) * 2); }
+
+/* Bloqueada pelo pai: some o realce, mas o texto continua legível — quem lê
+   precisa entender POR QUE não pode mexer. */
+.platform__feature[data-bloqueada] { opacity: 0.66; }
+
+.platform__switch {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  flex: 1;
+  cursor: pointer;
+}
+.platform__feature[data-bloqueada] .platform__switch { cursor: not-allowed; }
+
+.platform__switch input {
+  /* 20px: alvo de toque confortável, e o rótulo inteiro também é clicável. */
+  width: 20px;
+  height: 20px;
+  margin-top: 2px;
+  flex: none;
+  accent-color: var(--brand);
+}
+
+.platform__feature-text { display: grid; gap: 2px; min-width: 0; }
+.platform__feature-label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-weight: var(--weight-semibold);
+}
+.platform__feature-desc {
+  font-size: var(--text-caption-size);
+  line-height: var(--text-small-lh);
+  color: var(--text-muted);
+}
+
+.platform__badge {
+  padding: 1px var(--space-2);
+  font-size: 10px;
+  font-weight: var(--weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+  color: var(--text-brand);
+  background: var(--surface-brand-subtle);
+  border-radius: var(--radius-full);
+}
+
+.platform__form { display: grid; gap: var(--space-4); max-width: 480px; }
+.platform__actions { display: flex; gap: var(--space-3); }

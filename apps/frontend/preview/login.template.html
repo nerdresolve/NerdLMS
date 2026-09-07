@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="pt-BR" data-theme="light">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Entrar · NerdResolve</title>
+<style>
+/* Gerado por tools/build-preview.mjs — não editar este arquivo.
+   Fontes: src/styles/tokens.css, src/styles/base.css, src/styles/components.css, src/features/auth/login.css */
+/* @@TOKENS@@ */
+/* @@BASE@@ */
+/* @@COMPONENTS@@ */
+/* @@LOGIN@@ */
+
+/* ===== Barra de Visual QA (fora do produto) ===== */
+.qa {
+  position: fixed; z-index: 50; top: var(--space-4); right: var(--space-4);
+  display: flex; align-items: center; gap: var(--space-1);
+  padding: var(--space-1);
+  background: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-full);
+  box-shadow: var(--shadow-md);
+}
+.qa__label { font-size: 10px; letter-spacing: var(--tracking-wide); text-transform: uppercase; color: var(--text-faint); padding: 0 var(--space-2); }
+.qa button {
+  min-height: 32px; padding: 0 var(--space-3);
+  font: inherit; font-size: var(--text-caption-size); font-weight: var(--weight-medium);
+  color: var(--text-muted);
+  background: none; border: 0; border-radius: var(--radius-full); cursor: pointer;
+}
+.qa button[aria-pressed="true"] { background: var(--brand); color: var(--text-on-brand); }
+.viewport[data-device="mobile"] { max-width: 390px; }
+.viewport[data-device="mobile"] .auth { border-radius: var(--radius-lg); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+}
+</style>
+</head>
+<body>
+
+<div class="qa" role="group" aria-label="Controles de validação visual">
+  <span class="qa__label">QA</span>
+  <button type="button" id="qa-theme" aria-pressed="false">Dark</button>
+  <button type="button" id="qa-device" aria-pressed="false">Mobile</button>
+</div>
+
+<main class="page">
+  <div class="viewport" id="viewport" data-device="desktop">
+    <div class="auth">
+
+      <!-- ============ Painel de marca ============ -->
+      <section class="brand">
+        <svg class="brand__waves" viewBox="0 0 520 720" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false">
+          <path d="M-40,96 C120,30 268,196 208,344 C160,462 34,506 -12,660 L-40,660 Z" fill="var(--wave-2)" />
+          <path d="M560,-40 C420,72 502,232 384,330 C264,430 348,606 262,760 L560,760 Z" fill="var(--wave-1)" />
+          <path d="M-40,470 C96,392 176,540 322,452 C426,390 494,432 560,376 L560,760 L-40,760 Z" fill="var(--wave-3)" />
+          <path d="M-40,556 C110,478 190,614 336,528 C438,468 500,514 560,462" fill="none" stroke="var(--wave-line)" stroke-width="1.5" />
+        </svg>
+
+        <img class="brand__logo" src="@@LOGO@@" alt="NerdResolve" width="1249" height="354" />
+
+        <p class="brand__tagline">
+          <strong>Aprender transforma.</strong>
+          Conhecimento move.
+        </p>
+
+        <svg class="brand__squiggle" viewBox="0 0 72 12" fill="none" aria-hidden="true" focusable="false">
+          <path d="M1 7C7 1 13 1 19 7s12 6 18 0 12-6 18 0 12 6 16 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+        </svg>
+
+        <!-- Borda orgânica entre os painéis (desktop) -->
+        <!-- Borda ondulada apenas no layout empilhado (mobile) -->
+        <svg class="brand__edge" viewBox="0 0 390 36" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+          <path d="M0,20 C70,-6 132,34 200,20 C268,6 330,26 390,12 L390,36 L0,36 Z" fill="var(--surface-card)" />
+        </svg>
+      </section>
+
+      <!-- Fora do .brand de propósito: a onda cruza a divisa entre as duas
+           colunas, e o overflow:hidden do painel azul a recortaria justamente
+           na emenda — deixando uma linha vertical visível. -->
+      @@SPLIT@@
+
+      <!-- ============ Formulário ============ -->
+      <section class="form-panel">
+        <div class="form-panel__inner">
+          <h1 class="title">Bem-vindo de volta!</h1>
+          <p class="subtitle">Acesse sua conta para continuar.</p>
+
+          <form id="login-form" novalidate>
+            <div class="field">
+              <label class="field__label" for="identifier">Email ou usuário</label>
+              <div class="field__control">
+                <input class="input" id="identifier" name="identifier" type="text"
+                       inputmode="email" autocomplete="username" placeholder="seu@email.com"
+                       aria-describedby="identifier-error" />
+              </div>
+              <p class="error" id="identifier-error" role="alert"></p>
+            </div>
+
+            <div class="field">
+              <label class="field__label" for="password">Senha</label>
+              <div class="field__control">
+                <input class="input input--with-affix" id="password" name="password" type="password"
+                       autocomplete="current-password" placeholder="••••••••"
+                       aria-describedby="password-error" />
+                <button type="button" class="affix" id="toggle-password" aria-pressed="false"
+                        aria-controls="password" aria-label="Mostrar senha">
+                  <svg id="icon-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                    <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7Z" />
+                    <circle cx="12" cy="12" r="3" />
+                  </svg>
+                </button>
+              </div>
+              <p class="error" id="password-error" role="alert"></p>
+            </div>
+
+            <div class="row-between">
+              <label class="checkbox" for="remember">
+                <input type="checkbox" id="remember" name="remember" />
+                <span class="checkbox__box" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                    <path d="M20 6 9 17l-5-5" />
+                  </svg>
+                </span>
+                <span>Lembrar de mim</span>
+              </label>
+              <a class="link" href="#/recuperar-senha">Esqueceu sua senha?</a>
+            </div>
+
+            <button class="btn btn--primary btn--block" type="submit" id="submit">Entrar</button>
+
+            <div class="notice" id="notice" role="status">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                <circle cx="12" cy="12" r="10" /><path d="M12 16v-4M12 8h.01" />
+              </svg>
+              <span>Demonstração: nenhuma credencial foi enviada e nada foi autenticado. Seguindo para o painel…</span>
+            </div>
+          </form>
+
+          <div class="divider" role="separator">ou continue com</div>
+
+          <div class="sso">
+            <button type="button" class="btn btn--secondary" data-provider="Google">
+              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.5h6.5c-.3 1.5-1.1 2.8-2.4 3.6v3h3.9c2.3-2.1 3.5-5.2 3.5-8.8Z"/>
+                <path fill="#34A853" d="M12 24c3.2 0 5.9-1.1 7.9-2.9l-3.9-3c-1.1.7-2.4 1.2-4 1.2-3.1 0-5.7-2.1-6.6-4.9h-4v3.1C3.4 21.3 7.4 24 12 24Z"/>
+                <path fill="#FBBC05" d="M5.4 14.4a7.2 7.2 0 0 1 0-4.6V6.7h-4a12 12 0 0 0 0 10.8l4-3.1Z"/>
+                <path fill="#EA4335" d="M12 4.8c1.8 0 3.3.6 4.5 1.8l3.4-3.4C17.9 1.2 15.2 0 12 0 7.4 0 3.4 2.7 1.4 6.7l4 3.1C6.3 6.9 8.9 4.8 12 4.8Z"/>
+              </svg>
+              <span class="sr-only">Entrar com Google</span>
+            </button>
+            <button type="button" class="btn btn--secondary" data-provider="Microsoft">
+              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <path fill="#F25022" d="M2 2h9.5v9.5H2z"/><path fill="#7FBA00" d="M12.5 2H22v9.5h-9.5z"/>
+                <path fill="#00A4EF" d="M2 12.5h9.5V22H2z"/><path fill="#FFB900" d="M12.5 12.5H22V22h-9.5z"/>
+              </svg>
+              <span class="sr-only">Entrar com Microsoft</span>
+            </button>
+          </div>
+
+          <div class="notice" id="sso-notice" role="status">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+              <circle cx="12" cy="12" r="10" /><path d="M12 16v-4M12 8h.01" />
+            </svg>
+            <span id="sso-notice-text"></span>
+          </div>
+
+          <p class="foot">Não tem uma conta? <a class="link" href="#/suporte">Fale com seu administrador.</a></p>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</main>
+
+<script>
+(function () {
+  "use strict";
+
+  var root = document.documentElement;
+  var viewport = document.getElementById("viewport");
+  var themeBtn = document.getElementById("qa-theme");
+  var deviceBtn = document.getElementById("qa-device");
+
+  themeBtn.addEventListener("click", function () {
+    var dark = root.getAttribute("data-theme") === "dark";
+    root.setAttribute("data-theme", dark ? "light" : "dark");
+    themeBtn.setAttribute("aria-pressed", String(!dark));
+    themeBtn.textContent = dark ? "Dark" : "Light";
+  });
+
+  deviceBtn.addEventListener("click", function () {
+    var mobile = viewport.getAttribute("data-device") === "mobile";
+    viewport.setAttribute("data-device", mobile ? "desktop" : "mobile");
+    deviceBtn.setAttribute("aria-pressed", String(!mobile));
+    deviceBtn.textContent = mobile ? "Mobile" : "Desktop";
+  });
+
+  /* --- Mostrar/ocultar senha --- */
+  var password = document.getElementById("password");
+  var toggle = document.getElementById("toggle-password");
+  var EYE = '<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/>';
+  var EYE_OFF = '<path d="M10.6 5.1A9.9 9.9 0 0 1 12 5c6.4 0 10 7 10 7a17.6 17.6 0 0 1-3.2 4.1M6.6 6.6A17.7 17.7 0 0 0 2 12s3.6 7 10 7a9.7 9.7 0 0 0 4.4-1M3 3l18 18M9.9 9.9a3 3 0 0 0 4.2 4.2"/>';
+
+  toggle.addEventListener("click", function () {
+    var shown = password.type === "text";
+    password.type = shown ? "password" : "text";
+    toggle.setAttribute("aria-pressed", String(!shown));
+    toggle.setAttribute("aria-label", shown ? "Mostrar senha" : "Ocultar senha");
+    toggle.querySelector("svg").innerHTML = shown ? EYE : EYE_OFF;
+    password.focus();
+  });
+
+  /* --- Validação (espelha as regras que o backend também aplicará) --- */
+  var ALERT = '<svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>';
+  var EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+  function setError(input, errorEl, message) {
+    if (message) {
+      input.setAttribute("aria-invalid", "true");
+      errorEl.innerHTML = ALERT + "<span>" + message + "</span>";
+    } else {
+      input.removeAttribute("aria-invalid");
+      errorEl.textContent = "";
+    }
+    return !message;
+  }
+
+  function validateIdentifier() {
+    var el = document.getElementById("identifier");
+    var err = document.getElementById("identifier-error");
+    var v = el.value.trim();
+    if (!v) return setError(el, err, "Informe seu email ou usuário.");
+    if (v.indexOf("@") > -1 && !EMAIL_RE.test(v)) return setError(el, err, "Verifique o formato do email.");
+    if (v.indexOf("@") === -1 && v.length < 3) return setError(el, err, "O usuário precisa ter ao menos 3 caracteres.");
+    return setError(el, err, "");
+  }
+
+  function validatePassword() {
+    var err = document.getElementById("password-error");
+    if (!password.value) return setError(password, err, "Informe sua senha.");
+    if (password.value.length < 8) return setError(password, err, "A senha precisa ter ao menos 8 caracteres.");
+    return setError(password, err, "");
+  }
+
+  document.getElementById("identifier").addEventListener("blur", validateIdentifier);
+  password.addEventListener("blur", validatePassword);
+
+  Array.prototype.forEach.call(document.querySelectorAll("[data-provider]"), function (button) {
+    button.addEventListener("click", function () {
+      var provider = button.getAttribute("data-provider");
+      document.getElementById("sso-notice-text").textContent =
+        "Entrar com " + provider + " ainda não está disponível — depende da TASK-005 (provedor de identidade).";
+      document.getElementById("sso-notice").setAttribute("data-visible", "true");
+    });
+  });
+
+  var form = document.getElementById("login-form");
+  var submit = document.getElementById("submit");
+  var notice = document.getElementById("notice");
+
+  form.addEventListener("submit", function (event) {
+    event.preventDefault();
+    notice.setAttribute("data-visible", "false");
+
+    var okId = validateIdentifier();
+    var okPw = validatePassword();
+    if (!okId || !okPw) {
+      document.querySelector('[aria-invalid="true"]').focus();
+      return;
+    }
+
+    submit.disabled = true;
+    submit.innerHTML = '<span class="btn__spinner" aria-hidden="true"></span><span>Entrando…</span>';
+
+    window.setTimeout(function () {
+      notice.setAttribute("data-visible", "true");
+      // Protótipo: segue o fluxo para o cliente percorrer a navegação inteira.
+      // No produto, quem redireciona é a API de sessão (TASK-004).
+      window.setTimeout(function () { window.location.href = "dashboard.html"; }, 900);
+    }, 500);
+  });
+})();
+</script>
+@@RUNTIME@@
+</body>
+</html>

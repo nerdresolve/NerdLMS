@@ -1,0 +1,212 @@
+/* Analytics avançado — F6-06.
+
+   Reaproveita `.table`, `.table-wrap` e `platform__hint`. O que existe aqui é o
+   funil, que é a única forma nova de mostrar dado nesta tela. */
+
+.an__numeros {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.an__numeros li {
+  display: grid;
+  gap: var(--space-1);
+  padding: var(--space-4);
+  background: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+}
+
+.an__numeros strong {
+  font-size: var(--text-h2-size);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.an__numeros span {
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-lh, 1.4);
+  color: var(--text-muted);
+}
+
+/* A aderência é o número que o §21 quer destacar: é ele que distingue hábito
+   de visita. */
+.an__destaque {
+  background: var(--surface-brand-subtle);
+  border-color: var(--border-brand);
+}
+
+.an__destaque strong { color: var(--text-brand); }
+
+.an__alerta {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+  padding: var(--space-4);
+  background: var(--warning-surface);
+  border: 1px solid var(--warning-text);
+  border-radius: var(--radius-md);
+}
+
+.an__alerta svg { width: 20px; height: 20px; flex: none; color: var(--warning-text); }
+
+.an__alerta p {
+  margin: 0;
+  max-width: 62ch;
+  font-size: var(--text-small-size);
+  line-height: var(--text-small-lh);
+  color: var(--text-body);
+}
+
+.an__funil {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: etapa;
+}
+
+.an__etapa {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(6rem, 1fr) auto;
+  align-items: center;
+  gap: var(--space-3) var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  background: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  border-left: 3px solid var(--border-default);
+  border-radius: var(--radius-sm);
+}
+
+/* Etapa crítica se distingue pela borda E pelo número de perda ao lado —
+   cor sozinha reprovaria em WCAG 1.4.1. */
+.an__etapa[data-critica] {
+  background: var(--warning-surface);
+  border-left-color: var(--warning-text);
+}
+
+@media (max-width: 720px) {
+  /* Numa tela estreita, três colunas deixam cada uma ilegível. */
+  .an__etapa { grid-template-columns: 1fr; }
+}
+
+.an__etapa-nome {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.an__pos {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--surface-subtle);
+  font-size: var(--text-caption-size);
+  font-weight: var(--weight-bold);
+  color: var(--text-muted);
+}
+
+.an__etapa-nome strong {
+  display: block;
+  font-size: var(--text-small-size);
+}
+
+.an__modulo {
+  display: block;
+  font-size: var(--text-caption-size);
+  color: var(--text-muted);
+}
+
+.an__barra {
+  height: 8px;
+  background: var(--surface-sunken);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.an__barra span {
+  display: block;
+  height: 100%;
+  background: var(--surface-brand);
+  border-radius: 999px;
+}
+
+.an__etapa-numeros {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-3);
+  font-size: var(--text-caption-size);
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.an__perda { color: var(--danger-text); font-weight: var(--weight-bold); }
+
+/* Linha com número ruim: o dado já está na célula, a cor só chama o olho. */
+.table tbody tr[data-baixa] { background: var(--warning-surface); }
+
+.an__abandonos {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.an__abandonos li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  background: var(--surface-subtle);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-small-size);
+}
+
+.an__parado { color: var(--text-muted); white-space: nowrap; }
+
+/* A escolha do curso: o funil é por curso, e a aula 3 de um não é a aula 3 do
+   outro. Fica na URL para o relatório ser compartilhável. */
+.an__cursos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-bottom: var(--space-5);
+}
+
+.an__curso {
+  /* 44px de alvo, bem acima dos 24 do WCAG 2.5.8. */
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: var(--space-2) var(--space-4);
+  background: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-pill, 999px);
+  font-size: var(--text-small-size);
+  color: var(--text-body);
+  text-decoration: none;
+}
+
+.an__curso:hover { border-color: var(--border-brand); }
+
+/* O curso escolhido é marcado por `aria-current`, não por uma classe: o leitor
+   de tela anuncia "página atual", e o estilo acompanha o mesmo atributo. */
+.an__curso[aria-current="page"] {
+  background: var(--surface-brand);
+  border-color: var(--surface-brand);
+  color: #fff;
+  font-weight: var(--weight-bold);
+}

@@ -1,0 +1,131 @@
+/* Conquistas — TASK-054.
+   Moedas, nível, distintivos e loja. Sóbrio de propósito: a proposta pede
+   gamificação, não um jogo. Os elementos usam a paleta da marca, sem dourado
+   nem brilho, para caber numa plataforma corporativa. */
+
+.rewards { display: flex; flex-direction: column; gap: var(--space-8); max-width: var(--content-max); }
+
+/* ===== Faixa de nível e moedas ===== */
+.level-card {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-5);
+  padding: var(--space-6);
+  color: var(--text-on-brand);
+  background: var(--gradient-brand);
+  border-radius: var(--radius-hero);
+}
+@container (min-width: 720px) {
+  .level-card { grid-template-columns: 1fr auto; align-items: center; padding: var(--space-8) var(--space-10); }
+}
+/* A onda ocupa a largura inteira do card. Ancorada a 45%/55% com 65% de
+   largura, a borda esquerda do preenchimento aparecia como um corte reto no
+   meio da faixa — a forma `band` é fechada (`L…Z`), feita para atravessar o
+   bloco, não para ser recortada. A curva continua concentrada à direita
+   porque a própria geometria sobe só no final do traçado. */
+.level-card__wave { position: absolute; inset: auto 0 -50% 0; width: 100%; height: 180%; z-index: -1; opacity: 0.25; }
+
+.level-card__body { display: flex; flex-direction: column; gap: var(--space-3); min-width: 0; }
+.level-card__title { margin: 0; color: inherit; font-size: var(--text-h2-size); line-height: var(--text-h2-lh); font-weight: var(--weight-bold); }
+.level-card__hint { font-size: var(--text-small-size); color: rgba(255, 255, 255, 0.82); }
+.level-card__bar { max-width: 420px; }
+
+.coins {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-5);
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: var(--radius-card);
+}
+.coins__icon { display: grid; place-items: center; width: 40px; height: 40px; flex: none; border-radius: var(--radius-full); background: rgba(255, 255, 255, 0.18); }
+.coins__value { font-size: var(--text-h2-size); font-weight: var(--weight-bold); font-variant-numeric: tabular-nums; line-height: 1; }
+.coins__label { font-size: var(--text-caption-size); color: rgba(255, 255, 255, 0.82); }
+
+/* ===== Distintivos ===== */
+.badges { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-4); }
+@container (min-width: 720px) { .badges { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+
+.badge-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-5);
+  text-align: center;
+  align-items: center;
+  background: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-card);
+}
+.badge-card__icon {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border-radius: var(--radius-full);
+  background: var(--surface-sunken);
+  color: var(--text-faint);
+}
+.badge-card__icon svg { width: 24px; height: 24px; }
+.badge-card__title { margin: 0; font-size: var(--text-small-size); font-weight: var(--weight-semibold); color: var(--text-title); }
+.badge-card__text { margin: 0; font-size: var(--text-caption-size); line-height: 1.5; color: var(--text-muted); text-wrap: pretty; }
+
+/* Conquistado muda cor E ganha o selo textual: não depende só de cor. */
+.badge-card[data-earned="true"] { border-color: var(--brand-accent); }
+.badge-card[data-earned="true"] .badge-card__icon { background: var(--surface-brand-subtle); color: var(--text-brand); }
+.badge-card__state { font-size: var(--text-caption-size); font-weight: var(--weight-semibold); color: var(--text-faint); }
+.badge-card[data-earned="true"] .badge-card__state { color: var(--success-text); }
+
+/* ===== Loja ===== */
+.rewards-grid { display: grid; grid-template-columns: 1fr; gap: var(--space-4); }
+@container (min-width: 720px) { .rewards-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+.reward {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+  padding: var(--space-5);
+  background: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-card);
+}
+.reward__body { flex: 1; min-width: 160px; display: flex; flex-direction: column; gap: 2px; }
+.reward__title { margin: 0; font-size: var(--text-body-size); font-weight: var(--weight-semibold); color: var(--text-title); }
+.reward__text { margin: 0; font-size: var(--text-caption-size); line-height: 1.5; color: var(--text-muted); }
+.reward__cost { display: inline-flex; align-items: center; gap: var(--space-2); font-size: var(--text-small-size); font-weight: var(--weight-bold); color: var(--text-title); font-variant-numeric: tabular-nums; }
+.reward__cost svg { width: 16px; height: 16px; color: var(--text-brand); }
+.reward .btn { flex: none; }
+
+/* ===== Destaques do mês — TASK-060 =====
+   Reconhece contribuição, não velocidade de conclusão. Ver DEC-051. */
+.highlights { display: flex; flex-direction: column; gap: var(--space-3); }
+.highlight {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-4) var(--space-5);
+  background: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+}
+.highlight__position {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  flex: none;
+  font-size: var(--text-small-size);
+  font-weight: var(--weight-bold);
+  font-variant-numeric: tabular-nums;
+  color: var(--text-brand);
+  background: var(--surface-brand-subtle);
+  border-radius: var(--radius-full);
+}
+.highlight__body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.highlight__name { font-size: var(--text-small-size); font-weight: var(--weight-semibold); color: var(--text-title); }
+.highlight__meta { font-size: var(--text-caption-size); color: var(--text-muted); }

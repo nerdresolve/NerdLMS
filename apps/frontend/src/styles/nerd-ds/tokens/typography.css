@@ -1,0 +1,13 @@
+:root{
+--text-display-size:48px;--text-display-lh:56px;--text-display-weight:800;--text-display-tracking:-0.03em;
+--text-h1-size:32px;--text-h1-lh:40px;--text-h1-weight:700;--text-h1-tracking:-0.02em;
+--text-h2-size:24px;--text-h2-lh:32px;--text-h2-weight:600;--text-h2-tracking:-0.015em;
+--text-h3-size:20px;--text-h3-lh:28px;--text-h3-weight:600;--text-h3-tracking:-0.01em;
+--text-h4-size:18px;--text-h4-lh:26px;--text-h4-weight:600;--text-h4-tracking:-0.01em;
+--text-body-lg-size:18px;--text-body-lg-lh:28px;
+--text-body-size:16px;--text-body-lh:24px;
+--text-small-size:14px;--text-small-lh:20px;
+--text-caption-size:12px;--text-caption-lh:16px;--text-caption-tracking:0.02em;
+--text-overline-size:11px;--text-overline-lh:14px;--text-overline-tracking:0.09em;
+--weight-light:300;--weight-regular:400;--weight-medium:500;--weight-semibold:600;--weight-bold:700;--weight-extrabold:800;
+}

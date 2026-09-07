@@ -1,0 +1,97 @@
+/* Badges no perfil — F6-01.
+
+   Ao lado dos certificados, porque respondem à mesma pergunta: "o que eu posso
+   comprovar?". */
+
+.pbadges__hint,
+.pbadges__vazio {
+  margin: 0 0 var(--space-4);
+  max-width: 62ch;
+  font-size: var(--text-small-size);
+  line-height: var(--text-small-lh);
+  color: var(--text-muted);
+}
+
+.pbadges {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pbadges__item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  background: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  border-left: 3px solid var(--success);
+  border-radius: var(--radius-md);
+}
+
+/* Vencido e revogado se distinguem pela borda E pela palavra na linha de
+   baixo — cor sozinha reprovaria em WCAG 1.4.1. */
+.pbadges__item[data-situacao="expired"] { border-left-color: var(--warning-text); }
+
+.pbadges__item[data-situacao="revoked"] {
+  border-left-color: var(--danger);
+  opacity: 0.7;
+}
+
+.pbadges__icone {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--surface-brand-subtle);
+  color: var(--text-brand);
+}
+
+.pbadges__icone svg { width: 24px; height: 24px; }
+
+.pbadges__item[data-situacao="revoked"] .pbadges__icone,
+.pbadges__item[data-situacao="expired"] .pbadges__icone {
+  background: var(--surface-subtle);
+  color: var(--text-muted);
+}
+
+.pbadges__dados {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+
+.pbadges__nome {
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-lh);
+}
+
+.pbadges__desc,
+.pbadges__meta {
+  font-size: var(--text-caption-size);
+  color: var(--text-muted);
+}
+
+.pbadges__estado {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-weight: var(--weight-bold);
+}
+
+.pbadges__estado svg { width: 13px; height: 13px; }
+
+.pbadges__item[data-situacao="expired"] .pbadges__estado { color: var(--warning-text); }
+.pbadges__item[data-situacao="revoked"] .pbadges__estado { color: var(--danger-text); }
+
+.pbadges__acoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  flex: none;
+}

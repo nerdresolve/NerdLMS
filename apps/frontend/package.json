@@ -1,0 +1,54 @@
+{
+  "name": "@nerdlms/frontend",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.6.0"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "node --experimental-strip-types --test \"src/**/*.test.ts\"",
+    "test:a11y": "node tools/check-contrast.mjs && node tools/check-wcag22.mjs",
+    "preview": "node --experimental-strip-types tools/build-preview.mjs",
+    "verify": "npm run test && npm run test:a11y && npm run preview && npm run quality && npm run check:imports && npm run check:hydration && npm run perf",
+    "quality": "node tools/check-quality.mjs",
+    "lighthouse": "lhci autorun --config=lighthouserc.json",
+    "shots": "python3 tools/shot.py",
+    "perf": "python3 tools/perf.py",
+    "e2e": "python3 tools/e2e.py",
+    "check:imports": "node tools/check-imports.mjs",
+    "check:hydration": "node tools/check-hydration.mjs"
+  },
+  "dependencies": {
+    "@nerdlms/backend": "0.1.0",
+    "@nerdlms/core": "0.1.0",
+    "lucide-react": "0.469.0",
+    "next": "15.4.0",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "server-only": "0.0.1"
+  },
+  "devDependencies": {
+    "@lhci/cli": "0.14.0",
+    "@types/node": "22.15.0",
+    "@types/react": "19.1.0",
+    "@types/react-dom": "19.1.0",
+    "eslint": "9.19.0",
+    "eslint-config-next": "15.4.0",
+    "typescript": "5.7.3"
+  },
+  "comments": {
+    "install": "npm ci exige rede.",
+    "runnable-offline": "test, test:a11y e preview rodam sem nenhuma dependência instalada.",
+    "lighthouse": "npm run lighthouse exige rede e Chrome. npm run quality roda offline.",
+    "shots": "Validação visual real com Chromium (Playwright). Só isto vale para layout.",
+    "e2e": "Fluxo crítico num navegador real: entrar, abrir curso e aula, comentar, sair, e o que cada papel alcança. Exige a aplicação no ar, então NÃO entra no verify — roda antes de publicar (E2E_BASE aponta o ambiente).",
+    "check:imports": "Todo pacote importado precisa estar declarado. Pegou o server-only faltando.",
+    "check:hydration": "Data sem fuso em componente de cliente quebra a hidratação e a página para de responder. Pegou o botão de copiar badge."
+  }
+}

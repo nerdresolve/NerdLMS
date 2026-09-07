@@ -1,0 +1,114 @@
+/* Integrações — chaves de API e webhooks (F5-01, F5-02).
+
+   A tela reaproveita `platform__*`, `templates__*` e `field`: é a mesma
+   administração, e inventar um visual próprio para ela faria parecer outro
+   produto. O que existe aqui é só o que não existia antes — a revelação de um
+   segredo e as listas de marcação. */
+
+/* O aviso de segredo.
+
+   Fundo de atenção, e não de erro: nada deu errado, mas há uma ação que só
+   pode ser feita agora. É a única parte da tela que some para sempre. */
+.revelado {
+  margin-bottom: var(--space-6);
+  /* Focado por código depois de criar: sem contorno próprio o navegador
+     desenharia o dele em cima da borda de atenção. */
+  outline: none;
+  padding: var(--space-5);
+  background: var(--warning-surface);
+  border: 1px solid var(--warning-text);
+  border-radius: var(--radius-md);
+}
+
+.revelado__titulo {
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-body-lg-size);
+  line-height: var(--text-body-lg-lh);
+  color: var(--warning-text);
+}
+
+.revelado__aviso {
+  margin: 0 0 var(--space-4);
+  max-width: 62ch;
+  font-size: var(--text-small-size);
+  line-height: var(--text-small-lh);
+  color: var(--text-body);
+}
+
+.revelado__linha {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+  flex-wrap: wrap;
+}
+
+/* A chave quebra em qualquer ponto: são 52 caracteres sem espaço, e sem isto
+   ela estoura a caixa no celular em vez de continuar na linha de baixo. */
+.revelado__valor {
+  flex: 1 1 24ch;
+  padding: var(--space-3);
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono, monospace);
+  font-size: var(--text-small-size);
+  word-break: break-all;
+  user-select: all;
+}
+
+/* Lista de marcação — escopos e eventos. */
+.escopos {
+  margin: 0 0 var(--space-5);
+  padding: 0;
+  border: 0;
+}
+
+.escopos__item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  /* 44px de alvo com folga (WCAG 2.5.8 pede 24): a linha inteira é clicável,
+     não só o quadradinho. */
+  min-height: 44px;
+  padding: var(--space-3);
+  border-bottom: 1px solid var(--border-subtle);
+  cursor: pointer;
+}
+
+.escopos__item:last-child { border-bottom: 0; }
+.escopos__item:hover { background: var(--surface-subtle); }
+
+.escopos__item input {
+  /* Alinha com a primeira linha do rótulo, não com o centro do bloco. */
+  margin-top: 2px;
+  width: 18px;
+  height: 18px;
+  flex: none;
+  accent-color: var(--surface-brand);
+}
+
+.escopos__texto { display: grid; gap: 2px; }
+
+/* URLs longas de webhook não podem empurrar o botão de remover para fora. */
+.hook__url {
+  display: block;
+  word-break: break-all;
+}
+
+/* Uma linha da lista: nome em cima, metadados empilhados embaixo.
+
+   Sem isto o `<strong>` do nome e o primeiro metadado dividem a mesma linha —
+   `<strong>` é inline — e o prefixo da chave gruda no nome. Cada metadado é uma
+   informação diferente e precisa da própria linha para ser lida. */
+.integracao__dados {
+  display: grid;
+  gap: var(--space-1);
+  /* Sem isto a coluna de texto não encolhe e empurra o botão para fora numa
+     tela estreita: `min-width: auto` é o padrão de um item de grid. */
+  min-width: 0;
+}
+
+/* Os metadados já são `display: block` por `prefs__desc`; aqui só se remove a
+   margem que fazia dobra dupla com o `gap` da grade. */
+.integracao__dados .prefs__desc { margin-top: 0; }

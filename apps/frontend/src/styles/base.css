@@ -1,0 +1,140 @@
+/* Base da aplicação.
+   O reset, os defaults tipográficos e o anel de foco vêm do pacote oficial
+   (`nerd-ds/tokens/base.css`). Aqui ficam apenas os acréscimos que o pacote
+   não define — nada que o duplique ou o contrarie. */
+
+@import "./tokens.css";
+@import "./nerd-ds/tokens/base.css";
+
+html,
+body {
+  height: 100%;
+}
+
+/* `[hidden]` vem da folha do navegador e perde para qualquer classe que
+   declare `display`. Sem esta linha, painel de aba, acordeão e drawer ficam
+   visíveis mesmo escondidos. */
+[hidden] {
+  display: none !important;
+}
+
+body {
+  /* A Plus Jakarta Sans traz um espaço estreito (0,17em). Em rótulos de 14px
+     as palavras encostam. 0,06em devolve respiro sem mexer no desenho da
+     letra e é imperceptível em texto de display. Verificado contra o arquivo
+     original: não é efeito do subset. */
+  word-spacing: 0.06em;
+
+  /* o pacote define fonte, cor e fundo; a transição é da aplicação,
+     para a troca de tema não piscar */
+  transition:
+    background-color var(--duration-base) var(--ease-standard),
+    color var(--duration-base) var(--ease-standard);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* =============================================================================
+   Fluidez — TASK-019
+
+   Rolagem, transição de página e entrada de conteúdo. Tudo curto e discreto:
+   o Design System §24 pede duração baixa e proíbe animação que bloqueie
+   conteúdo. Nada aqui altera layout depois da pintura, para não gerar CLS.
+   ============================================================================= */
+
+html {
+  scroll-behavior: smooth;
+  /* âncoras não param colados na topbar fixa */
+  scroll-padding-top: calc(var(--topbar-height) + var(--space-4));
+}
+
+/* Transição entre páginas no mesmo documento e entre documentos.
+   Navegadores sem suporte simplesmente ignoram — nada quebra. */
+@view-transition {
+  navigation: auto;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: var(--duration-base);
+  animation-timing-function: var(--ease-standard);
+}
+
+/* Entrada do conteúdo principal: um deslocamento de 8px, uma vez, sem layout
+   shift (usa transform, não margem). */
+.content > * {
+  animation: nerd-rise var(--duration-slow) var(--ease-standard) both;
+}
+.content > *:nth-child(2) { animation-delay: 40ms; }
+.content > *:nth-child(3) { animation-delay: 80ms; }
+
+/* Barra de rolagem discreta, na paleta fria do sistema. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-default) transparent;
+}
+*::-webkit-scrollbar { width: 10px; height: 10px; }
+*::-webkit-scrollbar-thumb {
+  background: var(--border-default);
+  border: 3px solid transparent;
+  border-radius: var(--radius-full);
+  background-clip: padding-box;
+}
+*::-webkit-scrollbar-thumb:hover { background: var(--border-strong); background-clip: padding-box; }
+
+/* Rolagem com inércia previsível em listas longas.
+
+   O `contain` só entra quando a lista TEM o que rolar. Aplicado sempre, ele
+   fazia o oposto do pretendido: com o menu curto (`scrollHeight` igual a
+   `clientHeight`), a sidebar engolia a roda do mouse em vez de repassá-la à
+   página — quem apontasse para o menu não conseguia rolar o conteúdo ao lado.
+   O mesmo defeito derrubava a trilha de aulas no mobile (ver lesson.css).
+
+   `scroll-margin-block: 0` é só um gancho inofensivo para a regra existir; o
+   que importa é o `contain` estar sob a media query de altura, que só casa
+   quando o menu de fato transborda. */
+.sidebar__nav {
+  scroll-margin-block: 0;
+}
+
+/* Só contém a rolagem quando a lista realmente transborda: aí segurar o gesto
+   dentro dela é o comportamento desejado, e não há página para "destravar". */
+@media (max-height: 780px) {
+  .sidebar__nav {
+    overscroll-behavior: contain;
+  }
+}
+
+/* =============================================================================
+   Movimento reduzido — obrigatório (§24, §26)
+
+   O pacote já zera as durações; aqui desligamos também rolagem suave,
+   transição de página e as animações de entrada.
+   ============================================================================= */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+
+  @view-transition { navigation: none; }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Sprite de ícones: definição fora do fluxo, sem estilo inline. */
+.icon-sprite { position: absolute; width: 0; height: 0; overflow: hidden; }

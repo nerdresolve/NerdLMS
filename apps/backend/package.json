@@ -1,0 +1,35 @@
+{
+  "name": "@nerdlms/backend",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Camada de servidor da NerdResolve: acesso ao PostgreSQL, sessões e casos de uso da API.",
+  "engines": {
+    "node": ">=22.6.0"
+  },
+  "exports": {
+    "./*": "./src/*"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "node --experimental-strip-types --test \"src/**/*.test.ts\""
+  },
+  "dependencies": {
+    "@nerdlms/core": "0.1.0",
+    "@aws-sdk/client-s3": "^3.1115.0",
+    "@aws-sdk/s3-request-presigner": "^3.1115.0",
+    "nodemailer": "^9.0.5",
+    "pg": "8.23.0"
+  },
+  "devDependencies": {
+    "@types/node": "22.15.0",
+    "@types/nodemailer": "^8.0.1",
+    "@types/pg": "8.21.0",
+    "typescript": "5.7.3"
+  },
+  "comments": {
+    "o-que-mora-aqui": "Tudo que fala com banco e decide sessão. Não conhece React nem Next: recebe dados, devolve dados.",
+    "o-que-nao-mora-aqui": "Os `route.ts` continuam em apps/frontend/src/app/api/, porque no Next a rota É o arquivo — fora da pasta ela não existe. Eles são cascas finas que chamam os casos de uso daqui.",
+    "porque-nao-tem-servidor-http": "Não há Fastify nem Express: quem serve HTTP hoje é o Next. Este pacote é a camada abaixo disso, e continua válido se um dia um processo próprio for necessário."
+  }
+}

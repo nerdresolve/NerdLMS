@@ -1,0 +1,113 @@
+/* Tela de Login — TASK-002.
+   Consumida tanto pelo app (Next.js) quanto por preview/login.html.
+   Layout responsivo por container query: o mesmo componente se adapta dentro
+   de um frame de 390px e em largura total (Design System §25). */
+
+/* ===== Página ===== */
+.page {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: var(--space-6);
+  background:
+    radial-gradient(1200px 600px at 12% -10%, var(--surface-subtle), transparent 60%),
+    var(--surface-page);
+}
+.viewport { width: 100%; max-width: 1120px; container-type: inline-size; }
+
+/* ===== Shell do login ===== */
+.auth {
+  display: grid;
+  grid-template-columns: 1fr;
+  /* referência de posicionamento para `.brand__split`, que precisa cruzar a
+     divisa entre as colunas sem ser recortado pelo painel violeta */
+  position: relative;
+  background: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  /* a referência usa um raio mais contido no cartão de login */
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+}
+@container (min-width: 860px) {
+  .auth { grid-template-columns: 46fr 54fr; min-height: 640px; }
+}
+
+/* ===== Painel de marca (Fluid Wave) ===== */
+.brand {
+  position: relative;
+  isolation: isolate;
+  background: var(--gradient-brand);
+  color: var(--text-on-brand);
+  padding: var(--space-8) var(--space-6) var(--space-12);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  gap: var(--space-5);
+  min-height: 208px;
+  overflow: hidden;
+}
+.brand__waves { position: absolute; inset: 0; width: 100%; height: 100%; z-index: -1; }
+.brand__edge { position: absolute; left: 0; right: 0; bottom: -1px; width: 100%; height: 36px; display: block; }
+
+/* Borda orgânica entre o painel de marca e o formulário. Só existe quando as
+   duas colunas convivem; empilhado, quem faz a transição é .brand__edge. */
+.brand__split { display: none; }
+.brand__logo { width: min(58%, 230px); height: auto; }
+.brand__tagline { margin: 0; font-size: var(--text-body); color: rgba(255,255,255,0.86); max-width: 26ch; }
+.brand__tagline strong { display: block; font-weight: var(--weight-semibold); color: var(--text-on-brand); }
+.brand__squiggle { width: 72px; height: 12px; opacity: 0.75; }
+
+@container (min-width: 860px) {
+  .brand {
+    align-items: flex-start;
+    text-align: left;
+    padding: var(--space-16) var(--space-12);
+    gap: var(--space-6);
+  }
+  .brand__logo { width: 220px; }
+  .brand__edge { display: none; }
+  /* A onda precisa cruzar a divisa entre as duas colunas, e por isso é ancorada
+     no `.auth` — não no `.brand`.
+
+     `.brand` tem `overflow: hidden` (para conter as ondas de fundo), então
+     qualquer sangria para fora dele era recortada: com `right: -1px` sobrava
+     uma fresta de subpixel na emenda, visível como uma linha vertical entre o
+     violeta e o branco. A coluna mede 514.266px, e é esse fracionário que
+     transforma a fresta em linha.
+
+     Ancorada no `.auth`, a onda é posicionada pela largura da coluna violeta e
+     avança 1px sobre o painel branco, cobrindo a emenda. O recorte do cartão
+     continua sendo feito pelo `overflow: hidden` do próprio `.auth`. */
+  .brand__split {
+    display: block;
+    position: absolute;
+    inset-block: 0;
+    left: calc(46% - 77px);
+    width: 78px;
+    height: 100%;
+  }
+}
+
+/* ===== Painel do formulário ===== */
+.form-panel {
+  padding: var(--space-8) var(--space-6) var(--space-10);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background: var(--surface-card);
+}
+@container (min-width: 860px) { .form-panel { padding: var(--space-16) var(--space-12); } }
+.form-panel__inner { width: 100%; max-width: 400px; margin-inline: auto; }
+
+.title { margin: 0 0 var(--space-2); font-size: var(--text-h2-size); line-height: var(--text-h2-lh); font-weight: var(--weight-bold); letter-spacing: var(--tracking-tight); }
+.subtitle { margin: 0 0 var(--space-8); color: var(--text-muted); font-size: var(--text-small-size); line-height: var(--text-small-lh); }
+
+/* ===== Linha: lembrar / esqueci ===== */
+.row-between {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: var(--space-4); flex-wrap: wrap;
+  margin-bottom: var(--space-6);
+}

@@ -1,0 +1,92 @@
+/* Importação de usuários em massa — F5-05.
+
+   A tabela é a `.table` do produto, dentro da `.table-wrap` de sempre: uma
+   segunda definição de tabela divergiria da primeira na próxima mudança. O que
+   existe aqui é só o que a conferência precisa e ainda não existia. */
+
+.importar__acoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.importar__plano {
+  display: grid;
+  gap: var(--space-4);
+  margin-top: var(--space-5);
+  padding-top: var(--space-5);
+  border-top: 1px solid var(--border-subtle);
+}
+
+.importar__titulo {
+  margin: 0;
+  font-size: var(--text-body-lg-size);
+  line-height: var(--text-body-lg-lh);
+}
+
+.importar__resumo {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-5);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--text-small-size);
+  color: var(--text-body);
+}
+
+/* O número de problemas se destaca: é a única linha do resumo sobre a qual a
+   pessoa precisa decidir alguma coisa antes de confirmar. */
+.importar__erros {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--warning-text);
+}
+
+.importar__erros svg {
+  width: 16px;
+  height: 16px;
+  flex: none;
+}
+
+/* A situação de cada linha, por cor E por texto.
+
+   A coluna "Situação" já diz em palavras o que acontece — a cor só reforça.
+   Cor sozinha reprovaria em WCAG 1.4.1, e quem não distingue vermelho de verde
+   leria a tabela do mesmo jeito. */
+.table tbody tr[data-situacao="erro"] {
+  background: var(--danger-surface);
+}
+
+.table tbody tr[data-situacao="erro"] td {
+  color: var(--danger-text);
+}
+
+.table tbody tr[data-situacao="duplicada"],
+.table tbody tr[data-situacao="existente"] {
+  color: var(--text-muted);
+}
+
+/* Limita a altura para uma planilha de 400 linhas não empurrar o botão de
+   confirmar para fora do alcance — o botão é o ponto da tela. */
+.importar__plano .table-wrap {
+  max-height: 26rem;
+  overflow-y: auto;
+}
+
+/* A última coluna aqui é TEXTO, não número nem botão.
+
+   A `.table` alinha a última coluna à direita — certo para uma ação ou uma
+   contagem, errado para "Papel 'Coordenador' não existe...", que fica longe do
+   nome a que se refere e é lido de trás para frente. */
+.importar__plano .table td:last-child,
+.importar__plano .table th:last-child {
+  text-align: left;
+}
+
+/* O motivo do erro embaixo da situação, e não colado nela. */
+.importar__plano .table td .prefs__desc {
+  margin-top: var(--space-1);
+  max-width: 40ch;
+}

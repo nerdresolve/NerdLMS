@@ -1,0 +1,252 @@
+/* Tela de acesso inicial — TASK-021.
+   Única superfície pública do produto e o único lugar onde a voz se levanta
+   (README do pacote). Composição da referência: cabeçalho enxuto, manchete à
+   esquerda, agrupamento orgânico à direita, faixa de números ao pé. */
+
+.landing {
+  position: relative;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface-card);
+  container-type: inline-size;
+}
+
+/* ===== Cabeçalho público ===== */
+.landing__header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  width: 100%;
+  max-width: var(--content-max);
+  margin-inline: auto;
+  padding: var(--space-6) var(--space-5);
+}
+@container (min-width: 860px) { .landing__header { padding: var(--space-8) var(--space-12); } }
+
+.landing__logo { width: 108px; height: auto; }
+
+/* A marca violeta desaparece contra o fundo escuro da landing; a branca some
+   contra o claro. Só uma das duas fica visível, escolhida pelo tema. */
+.landing__logo--dark { display: none; }
+[data-theme="dark"] .landing__logo--light { display: none; }
+[data-theme="dark"] .landing__logo--dark { display: block; }
+.landing__header-spacer { flex: 1; }
+.landing__header-actions { display: flex; align-items: center; gap: var(--space-3); }
+
+/* Abaixo de 420px só "Entrar" cabe no cabeçalho. "Sobre a plataforma" continua
+   a um toque de distância: é o mesmo destino do "Saiba mais" logo abaixo. */
+@container (max-width: 420px) {
+  .landing__header { padding-inline: var(--space-4); }
+  .landing__header-actions .btn--secondary { display: none; }
+}
+
+/* ===== Hero ===== */
+.landing__hero {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-10);
+  align-items: center;
+  width: 100%;
+  max-width: var(--content-max);
+  margin-inline: auto;
+  padding: var(--space-6) var(--space-5) var(--space-16);
+}
+@container (min-width: 960px) {
+  .landing__hero {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: var(--space-16);
+    padding: var(--space-8) var(--space-12) var(--space-20);
+  }
+}
+
+.landing__copy { display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-5); }
+
+.landing__title {
+  margin: 0;
+  font-size: clamp(2rem, 5.5cqi, 3.25rem);
+  line-height: 1.08;
+  letter-spacing: var(--text-display-tracking);
+  font-weight: var(--weight-extrabold);
+  text-wrap: balance;
+}
+/* A palavra que carrega a promessa é a única em violeta. */
+.landing__title em { font-style: normal; color: var(--text-brand); }
+
+.landing__lead {
+  margin: 0;
+  max-width: 42ch;
+  font-size: var(--text-body-lg-size);
+  line-height: var(--text-body-lg-lh);
+  color: var(--text-muted);
+  text-wrap: pretty;
+}
+
+.landing__actions { display: flex; gap: var(--space-3); flex-wrap: wrap; }
+
+/* ===== Agrupamento orgânico =====
+   Sem fotografia fornecida: o espaço reservado é explícito, e a composição se
+   sustenta pela forma de marca e pelos selos flutuantes. */
+.landing__art {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  display: grid;
+  place-items: center;
+  /* no mobile a composição não pode dominar a dobra */
+  width: 100%;
+  max-width: 420px;
+  margin-inline: auto;
+}
+@container (min-width: 960px) { .landing__art { max-width: none; } }
+
+/* Forma orgânica assimétrica, não um círculo: é a assinatura da referência.
+   Feita com border-radius em oito valores — sem clip-path e sem custo de
+   composição extra. */
+.landing__blob {
+  position: absolute;
+  inset: 9% 7% 7% 9%;
+  border-radius: 58% 42% 38% 62% / 46% 64% 36% 54%;
+  background: linear-gradient(145deg, var(--violet-600) 0%, var(--violet-800) 58%, var(--violet-950) 100%);
+  overflow: hidden;
+}
+.landing__blob svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+
+/* Halo claro atrás da forma, como na referência. */
+.landing__halo {
+  position: absolute;
+  inset: 0;
+  border-radius: 44% 56% 62% 38% / 58% 40% 60% 42%;
+  background: var(--surface-brand-subtle);
+}
+
+/* Mesmo tratamento do MediaPlaceholder do kit oficial: superfície de marca com
+   onda, e não um retângulo vazio com texto. */
+.landing__tile {
+  position: absolute;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  width: 34%;
+  aspect-ratio: 4 / 3;
+  background: linear-gradient(135deg, var(--violet-600) 0%, var(--violet-500) 55%, var(--violet-400) 100%);
+  border: 3px solid var(--surface-card);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+}
+.landing__tile svg:not(.icon) { position: absolute; inset: 0; width: 100%; height: 100%; }
+.landing__tile .icon { position: relative; width: 22px; height: 22px; color: rgba(255, 255, 255, 0.9); }
+.landing__tile--a { top: 18%; right: -2%; }
+.landing__tile--b { bottom: 12%; left: 0; }
+
+.landing__badge {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  color: var(--text-brand);
+  background: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+}
+.landing__badge svg { width: 20px; height: 20px; }
+.landing__badge--a { top: 4%; left: 46%; }
+.landing__badge--b { top: 44%; left: 2%; }
+.landing__badge--c { bottom: 24%; right: 6%; }
+
+/* ===== Faixa de números ===== */
+.landing__stats-wrap { position: relative; margin-top: auto; }
+.landing__stats-wave { display: block; width: 100%; height: 96px; }
+
+.landing__stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-6) var(--space-4);
+  width: 100%;
+  max-width: var(--content-max);
+  margin: 0 auto;
+  padding: var(--space-6) var(--space-5) var(--space-10);
+  background: var(--surface-brand-subtle);
+}
+@container (min-width: 860px) {
+  .landing__stats { grid-template-columns: repeat(4, minmax(0, 1fr)); padding: var(--space-8) var(--space-12) var(--space-12); }
+}
+/* A faixa precisa sangrar até as bordas, mas o conteúdo respeita o grid. */
+.landing__stats-bleed { background: var(--surface-brand-subtle); }
+
+.landing__stat { display: flex; flex-direction: column; gap: var(--space-1); }
+/* Semanticamente o rótulo (dt) precede o valor (dd); visualmente o número vem
+   primeiro, como na referência. Ordem de leitura preservada. */
+.landing__stat-value { order: -1; }
+.landing__stat-value {
+  font-size: var(--text-h2-size);
+  line-height: var(--text-h2-lh);
+  letter-spacing: var(--text-h2-tracking);
+  font-weight: var(--weight-bold);
+  color: var(--text-brand);
+  font-variant-numeric: tabular-nums;
+}
+.landing__stat-label { font-size: var(--text-small-size); color: var(--text-muted); }
+
+/* ===== Sobre a plataforma =====
+   Fecha a promessa dos botões "Sobre a plataforma" e "Saiba mais": sem esta
+   seção eles seriam links inertes numa página de apresentação. */
+.landing__about {
+  width: 100%;
+  max-width: var(--content-max);
+  margin-inline: auto;
+  padding: var(--space-16) var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+@container (min-width: 860px) { .landing__about { padding: var(--space-20) var(--space-12); } }
+
+.landing__about-title {
+  margin: 0;
+  max-width: 22ch;
+  font-size: var(--text-h1-size);
+  line-height: var(--text-h1-lh);
+  letter-spacing: var(--text-h1-tracking);
+  font-weight: var(--weight-bold);
+  text-wrap: balance;
+}
+
+.landing__points { display: grid; grid-template-columns: 1fr; gap: var(--space-6); }
+@container (min-width: 760px) { .landing__points { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-8); } }
+
+.landing__point { display: flex; flex-direction: column; gap: var(--space-3); }
+.landing__point-icon {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-md);
+  background: var(--surface-brand-subtle);
+  color: var(--text-brand);
+}
+.landing__point-icon svg { width: 20px; height: 20px; }
+.landing__point-title { margin: 0; font-size: var(--text-h4-size); line-height: var(--text-h4-lh); font-weight: var(--weight-semibold); }
+.landing__point-text { margin: 0; font-size: var(--text-small-size); line-height: 1.6; color: var(--text-muted); text-wrap: pretty; }
+
+/* ===== Rodapé ===== */
+.landing__footer {
+  border-top: 1px solid var(--border-subtle);
+  background: var(--surface-page);
+}
+.landing__footer-inner {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+  width: 100%;
+  max-width: var(--content-max);
+  margin-inline: auto;
+  padding: var(--space-6) var(--space-5);
+  font-size: var(--text-caption-size);
+  color: var(--text-muted);
+}
+@container (min-width: 860px) { .landing__footer-inner { padding-inline: var(--space-12); } }
+.landing__footer-logo { width: 76px; height: auto; }
