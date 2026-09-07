@@ -27,7 +27,14 @@ const CAMADAS = [
 
 /* Além dos pacotes irmãos, o núcleo não pode alcançar o mundo: se ele importa
    `pg` ou `node:fs`, deixou de ser testável sem infraestrutura — que é a única
-   razão de ele existir separado. */
+   razão de ele existir separado.
+
+   A proibição vale para o CÓDIGO, não para o teste dele. Um `.test.ts` que lê o
+   próprio fixture do disco (`reports/fixtures/…`) não torna o núcleo dependente
+   de infraestrutura: o fixture é parte do teste, e o teste continua rodando com
+   `node --test` e nada mais. Proibir ali empurraria o fixture para dentro do
+   fonte como base64, que é pior — o arquivo deixa de ser inspecionável e o
+   codificador que o gerou deixa de ser independente do nosso leitor. */
 const IO_PROIBIDO_NO_CORE = ["pg", "node:fs", "node:fs/promises", "node:http", "node:https"];
 
 const IGNORADOS = new Set(["node_modules", ".next", "dist"]);
@@ -55,8 +62,14 @@ for (const camada of CAMADAS) {
   for await (const caminho of fontes(join(raiz, camada.dir))) {
     const codigo = await readFile(caminho, "utf-8");
 
+    /* O teste do núcleo pode tocar o disco para carregar o próprio fixture; o
+       fonte não. Os pacotes irmãos continuam proibidos nos dois. */
+    const proibidosAqui = caminho.endsWith(".test.ts")
+      ? proibidos.filter((p) => !IO_PROIBIDO_NO_CORE.includes(p))
+      : proibidos;
+
     for (const alvo of importados(codigo)) {
-      if (!proibidos.some((p) => alvo === p || alvo.startsWith(`${p}/`))) continue;
+      if (!proibidosAqui.some((p) => alvo === p || alvo.startsWith(`${p}/`))) continue;
       violacoes.push({
         arquivo: relative(raiz, caminho).split("\\").join("/"),
         camada: camada.nome,
