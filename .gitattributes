@@ -1,0 +1,35 @@
+# =============================================================================
+# Fim de linha.
+#
+# O repositório guarda LF em tudo. Sem isto, um clone no Windows com
+# `core.autocrlf=true` converte na saída E na entrada, e dois riscos aparecem:
+#
+#   - `.sh` com CRLF não roda no Linux: o shell lê o `\r` como parte do
+#     interpretador e responde "bad interpreter". O deploy usa
+#     `.github/deploy-remoto.sh` por SSH, num runner Linux.
+#   - `.woff2`, `.png` e `.mp4` tratados como texto são CORROMPIDOS pela
+#     conversão. Um byte 0x0D dentro do arquivo vira 0x0D 0x0A.
+#
+# `* text=auto eol=lf` normaliza o que é texto e deixa o resto em paz; os
+# `binary` abaixo são explícitos porque a heurística do git já errou com fonte.
+# =============================================================================
+* text=auto eol=lf
+
+# Scripts: LF obrigatório, rodam em Linux
+*.sh   text eol=lf
+*.mjs  text eol=lf
+*.yml  text eol=lf
+*.yaml text eol=lf
+
+# Binários: nunca converter
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.webp binary
+*.ico  binary
+*.mp4  binary
+*.pdf  binary
+*.woff  binary
+*.woff2 binary
+*.otf  binary
+*.ttf  binary
