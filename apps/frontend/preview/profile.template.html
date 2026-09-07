@@ -155,7 +155,7 @@ body[data-device="mobile"] .app { max-width: 390px; margin-inline: auto; border-
             <div class="preference">
               <span class="preference__text">
                 <span class="preference__title">Notificações por email</span>
-                <span class="preference__hint">Lembretes de curso e novos comunicados. Depende da central de notificações (TASK-038).</span>
+                <span class="preference__hint">Lembretes de curso e novos comunicados.</span>
               </span>
             </div>
           </div>
@@ -303,13 +303,13 @@ body[data-device="mobile"] .app { max-width: 390px; margin-inline: auto; border-
   if (editar) {
     editar.addEventListener("click", function () {
       document.getElementById("perfil-status").textContent =
-        "Edição de perfil depende de TASK-004 (sessão) e da gestão de usuários (TASK-045).";
+        "Edição de perfil não funciona no protótipo: exige sessão e a gestão de usuários.";
     });
   }
   Array.prototype.forEach.call(document.querySelectorAll("[data-certificate]"), function (button) {
     button.addEventListener("click", function () {
       document.getElementById("certificado-status").textContent =
-        "Certificado de demonstração. A emissão em PDF depende de TASK-041 (geração de certificados).";
+        "Certificado de demonstração. A emissão em PDF só acontece na aplicação.";
     });
   });
 

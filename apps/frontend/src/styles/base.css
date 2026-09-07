@@ -30,16 +30,40 @@ body {
     color var(--duration-base) var(--ease-standard);
 }
 
+/* Esconde do olho e mantém para o leitor de tela.
+
+   `margin: -1px` some daqui de propósito. Com ele, e sem ancestral posicionado,
+   o elemento se resolve contra o viewport e escapa do container de rolagem: uma
+   legenda dentro de `.table-wrap` (que tem `overflow-x: auto`) aparecia 7px
+   além da direita da PÁGINA, e a página inteira passava a rolar na horizontal
+   a 1024px. O portão de rolagem pegou; o olho não pegaria, porque o que
+   transborda é invisível.
+
+   `clip-path` faz o recorte sem precisar da margem negativa, e `clip` fica como
+   reserva para navegador antigo.
+
+   Ainda assim `position: absolute` se resolve contra o ANCESTRAL POSICIONADO
+   mais próximo — e quando não há nenhum, contra o viewport. Um `<span
+   class="sr-only">` dentro de um `<th>` sem posição ficava ancorado na página
+   inteira, longe da célula, e reaparecia como 8px de rolagem horizontal. Daí a
+   regra seguinte: quem envolve um `.sr-only` vira o bloco de contenção. */
 .sr-only {
   position: absolute;
   width: 1px;
   height: 1px;
   padding: 0;
-  margin: -1px;
   overflow: hidden;
   clip: rect(0 0 0 0);
+  clip-path: inset(50%);
   white-space: nowrap;
   border: 0;
+}
+
+/* `:has()` é suportado por todo navegador que a plataforma atende. `relative`
+   não muda o layout de quem já está no fluxo — só passa a ser a referência do
+   `absolute` do filho, que é exatamente o que faltava. */
+:has(> .sr-only) {
+  position: relative;
 }
 
 /* =============================================================================

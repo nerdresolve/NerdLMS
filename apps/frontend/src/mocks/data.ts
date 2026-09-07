@@ -39,7 +39,7 @@ export const student: User = {
   email: "maria.souza@exemplo.com",
   status: "active",
   project: "Unidade Leste",
-  region: "Rosário do Catete",
+  region: "Região Sul",
   lastAccessAt: acessoEm(1),
 };
 
@@ -63,7 +63,7 @@ export const instructors: User[] = [
     email: "camila.prado@exemplo.com",
     status: "active",
     project: "Unidade Oeste",
-    region: "Japaratuba",
+    region: "Região Norte",
   },
 ];
 
@@ -88,7 +88,7 @@ export const admin: User = {
   email: "ana.ribeiro@exemplo.com",
   status: "active",
   project: "Sede",
-  region: "Aracaju",
+  region: "Região Metropolitana",
   lastAccessAt: acessoEm(0),
 };
 
@@ -547,7 +547,7 @@ const NOMES = [
 
 /* Campos e municípios reais da operação da organização . */
 const PROJETOS = ["Unidade Central", "Unidade Leste", "Unidade Oeste", "Unidade Sul"];
-const REGIOES = ["Unidade Central", "Rosário do Catete", "Japaratuba"];
+const REGIOES = ["Unidade Central", "Região Sul", "Região Norte"];
 
 function emailDe(fullName: string): string {
   return `${fullName

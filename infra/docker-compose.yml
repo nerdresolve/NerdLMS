@@ -153,7 +153,7 @@ services:
       DATABASE_URL: ${DATABASE_URL:?defina no .env}
       # Fuso da operação, não UTC.
       #
-      # O contêiner nasce em UTC, três horas à frente de Sergipe. Consequência
+      # O contêiner nasce em UTC, três horas à frente do horário de Brasília. Consequência
       # concreta: entre 21h e meia-noite no horário local, `new Date()` dentro
       # do processo já está no dia seguinte — o calendário marcaria amanhã como
       # hoje, e um prazo que vence hoje sairia da lista de próximos antes da

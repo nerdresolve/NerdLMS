@@ -230,7 +230,7 @@
     button.addEventListener("click", function () {
       var provider = button.getAttribute("data-provider");
       document.getElementById("sso-notice-text").textContent =
-        "Entrar com " + provider + " ainda não está disponível — depende da TASK-005 (provedor de identidade).";
+        "Entrar com " + provider + " não funciona no protótipo: exige o provedor de identidade configurado.";
       document.getElementById("sso-notice").setAttribute("data-visible", "true");
     });
   });
@@ -256,7 +256,7 @@
     window.setTimeout(function () {
       notice.setAttribute("data-visible", "true");
       // Protótipo: segue o fluxo para o cliente percorrer a navegação inteira.
-      // No produto, quem redireciona é a API de sessão (TASK-004).
+      // No produto, quem redireciona é a API de sessão.
       window.setTimeout(function () { window.location.href = "dashboard.html"; }, 900);
     }, 500);
   });
