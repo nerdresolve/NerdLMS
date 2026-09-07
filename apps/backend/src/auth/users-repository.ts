@@ -70,7 +70,7 @@ function toAccount(row: UserRow): AccountRecord {
  * A comparação ignora maiúsculas nos DOIS casos. A coluna é `citext`, o que
  * já bastaria para o e-mail inteiro; mas `$1 || '@exemplo.com'` devolve
  * `text`, e o resultado da concatenação perde a insensibilidade — quem
- * digitasse `ADMIN.MOCK` não entrava, enquanto `ADMIN.MOCK@NERDRESOLVEENERGY.COM`
+ * digitasse `ADMIN.MOCK` não entrava, enquanto `ADMIN.MOCK@EXEMPLO.COM`
  * entrava. O cast explícito devolve o comportamento de `citext` ao lado
  * concatenado.
  *
