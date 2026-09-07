@@ -15,9 +15,15 @@
 /* @@COURSE@@ */
 
 /* ===== Barra de Visual QA (fora do produto) ===== */
+/* Barra de QA do protótipo — não existe na aplicação.
+
+   `max-width` + `flex-wrap` porque em 390px ela media 426px e sangrava dos dois
+   lados da tela, tapando justamente o conteúdo que se está conferindo. */
 .qa {
   position: fixed; z-index: 70; bottom: var(--space-4); left: 50%; translate: -50% 0;
-  display: flex; align-items: center; gap: var(--space-1);
+  display: flex; align-items: center; justify-content: center; gap: var(--space-1);
+  flex-wrap: wrap;
+  max-width: calc(100vw - var(--space-4) * 2);
   padding: var(--space-1);
   background: var(--surface-card);
   border: 1px solid var(--border-subtle);
