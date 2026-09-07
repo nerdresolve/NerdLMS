@@ -1,0 +1,37 @@
+version: 2
+
+# Atualização de dependência agrupada por tipo. Um PR por grupo, não um por
+# pacote: vinte PRs semanais viram vinte PRs ignorados.
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    groups:
+      # Patch e minor de tudo num PR só. A CI decide se entra.
+      producao:
+        dependency-type: production
+        update-types: [minor, patch]
+      desenvolvimento:
+        dependency-type: development
+        update-types: [minor, patch]
+    # Major vem em PR próprio: quase sempre exige leitura do changelog, e
+    # misturar com patch faria o lote inteiro esperar por ele.
+    commit-message:
+      prefix: "deps"
+      prefix-development: "deps-dev"
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    groups:
+      actions:
+        patterns: ["*"]
+
+  - package-ecosystem: docker
+    directory: /apps/frontend
+    schedule:
+      interval: monthly

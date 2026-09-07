@@ -2,7 +2,7 @@
  * Conteúdo da tela de acesso inicial — TASK-021.
  *
  * Os números eram da referência visual: "+10 mil alunos", "94% de satisfação".
- * Numa página pública, com a marca da Exemplo S.A., isso é afirmação sobre o
+ * Numa página pública, com a marca da organização, isso é afirmação sobre o
  * negócio de uma empresa real — e nenhum deles era verdade (o banco tinha 13
  * pessoas e 7 cursos). Agora vêm de contagem real, montada por quem chama
  * (ISSUE-009).

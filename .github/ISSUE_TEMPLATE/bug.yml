@@ -1,0 +1,49 @@
+name: Defeito
+description: Algo não funciona como deveria
+labels: [defeito]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Antes de abrir: se o problema envolve credencial, dado de usuário ou
+        acesso indevido, **não descreva aqui**. Veja o [SECURITY.md](../security).
+
+  - type: textarea
+    id: o-que-acontece
+    attributes:
+      label: O que acontece
+      description: E o que você esperava que acontecesse.
+    validations:
+      required: true
+
+  - type: textarea
+    id: como-reproduzir
+    attributes:
+      label: Como reproduzir
+      placeholder: |
+        1. Entrar como instrutor
+        2. Abrir Estúdio → curso X
+        3. ...
+    validations:
+      required: true
+
+  - type: input
+    id: versao
+    attributes:
+      label: Versão
+      description: Tag, ou o hash do commit.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: papel
+    attributes:
+      label: Papel de quem viu o problema
+      options: [aluno, instrutor, gestor, administrador, não se aplica]
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Log ou mensagem de erro
+      description: Cole o que apareceu. **Remova senha, token e e-mail real.**
+      render: shell

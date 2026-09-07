@@ -5,7 +5,7 @@
  * arquivo PDF, aqui é o que o certificado diz e como ele se parece. Trocar o
  * gerador não muda o texto, e mudar o texto não mexe no formato.
  *
- * O desenho segue o material da Exemplo S.A.: uma faixa do grafismo da marca
+ * O desenho segue o material da organização: uma faixa do grafismo da marca
  * na borda esquerda, a logo no topo, "CERTIFICADO DE" em letras espaçadas
  * sobre "CONCLUSÃO" em corpo grande, e uma linha de assinatura acima da
  * atribuição. O papel é branco e o bloco de cor fica na borda — o texto vive
@@ -26,6 +26,7 @@ import {
 } from "./pdf.ts";
 import type { ItemDoPrograma } from "./certificate-verso.ts";
 import { formatDuration } from "../courses/progress.ts";
+import { NOME_PADRAO } from "../tenancy/branding.ts";
 
 export interface CertificateData {
   learnerName: string;
@@ -36,6 +37,15 @@ export interface CertificateData {
   completedAt: string;
   /** Identificador para conferência. */
   code: string;
+  /**
+   * Quem emite, impresso na linha de assinatura quando o curso não tem
+   * instrutor definido.
+   *
+   * Vem do tenant que emitiu — é o nome que a pessoa reconhece no documento.
+   * Omitido, cai no nome do produto: um nome de cliente fixo aqui sairia
+   * impresso no certificado de TODOS os outros.
+   */
+  issuer?: string;
   /**
    * Quem assina, e a assinatura em si.
    *
@@ -178,12 +188,12 @@ function centered(
  * O desenho de fundo.
  *
  * Uma FAIXA do grafismo da marca no topo, em cores cheias, e o resto do papel
- * limpo. É a composição do material da Exemplo S.A.: bloco de formas de um
+ * limpo. É a composição do material da organização: bloco de formas de um
  * lado da divisa, conteúdo do outro, aresta reta entre os dois.
  *
  * O que havia antes eram massas de onda invadindo as duas laterais — a
  * assinatura gráfica da marca anterior. Nenhuma curva orgânica existe no
- * material da Exemplo S.A..
+ * material da organização.
  *
  * A faixa é no TOPO, e não na lateral: `centered()` centra pelo papel inteiro,
  * e uma faixa só à esquerda deslocaria o eixo óptico do texto sem deslocar o
@@ -221,7 +231,7 @@ function background(signer: CertificateData["signer"]): PdfShape[] {
     { kind: "rect", x: 0, y: height - celula, width, height: celula, color: BRAND_DEEP },
     ...tiles,
 
-    /* A logo real da Exemplo S.A., abaixo da faixa. Proporção preservada: a
+    /* A logo real da organização, abaixo da faixa. Proporção preservada: a
        altura sai da razão do arquivo — esticar a marca seria erro de
        identidade. */
     {
@@ -456,7 +466,7 @@ export function buildCertificate(data: CertificateData): Uint8Array {
           centered(data.signer.title, 72, 9, false, MUTED),
         ]
       : [
-          centered(spaced("EXEMPLO S.A."), 86, 9.5, true, BRAND_DEEP),
+          centered(spaced((data.issuer ?? NOME_PADRAO).toUpperCase()), 86, 9.5, true, BRAND_DEEP),
           centered("Plataforma de Ensino", 72, 9, false, MUTED),
         ]),
 
@@ -636,7 +646,7 @@ function versoDoCertificado(data: CertificateData): PdfPage | null {
      recebe precisa saber que a conformidade com a norma depende de outros
      registros, e não de ter este papel em mãos. */
   textos.push({
-    text: "Documento de conclusão interna, emitido pela plataforma de ensino da Exemplo S.A..",
+    text: "Documento de conclusão interna, emitido pela plataforma de ensino da organização.",
     x: margem,
     y: 46,
     size: 7.5,

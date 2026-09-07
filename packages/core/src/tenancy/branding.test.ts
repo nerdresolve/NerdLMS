@@ -9,7 +9,7 @@ describe("Paleta derivada da cor do cliente", () => {
     // escolhe amarelo não pode terminar com botão de texto ilegível — e o
     // problema apareceria no produto dele, não no cadastro.
     const cores = [
-      "#4C1D95", // azul da Exemplo S.A.
+      "#4C1D95", // azul da organização
       "#FFE600", // amarelo — o pior caso com texto branco
       "#00FF00", // verde puro
       "#FF6B6B", // coral claro

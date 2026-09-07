@@ -3,7 +3,7 @@ import Link from "next/link";
 
 import "@/styles/status-page.css";
 
-export const metadata: Metadata = { title: "Página não encontrada · Exemplo S.A." };
+export const metadata: Metadata = { title: "Página não encontrada · a organização" };
 
 /**
  * 404 da aplicação.

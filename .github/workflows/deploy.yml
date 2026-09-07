@@ -1,0 +1,193 @@
+name: Deploy
+
+# =============================================================================
+# Publica a imagem no GitHub Container Registry (GHCR) e, se o servidor estiver
+# configurado, atualiza a instalação por SSH.
+#
+# O QUE VOCÊ PRECISA CONFIGURAR PARA USAR ISTO NO SEU FORK
+#
+# Nada, para PUBLICAR A IMAGEM: o `GITHUB_TOKEN` já vem com permissão de
+# escrita no GHCR do próprio repositório. Marque uma tag e a imagem sai.
+#
+# Para o DEPLOY AUTOMÁTICO no servidor, crie um Environment chamado `producao`
+# (Settings -> Environments) e nele os secrets:
+#
+#   SSH_HOST      endereço do servidor              ex.: lms.suaempresa.com
+#   SSH_USER      usuário com acesso ao Docker      ex.: deploy
+#   SSH_KEY       chave PRIVADA (a pública vai no authorized_keys do servidor)
+#   SSH_PORT      opcional, padrão 22
+#   DEPLOY_PATH   onde o repositório está clonado   ex.: /opt/nerdlms
+#
+# Sem esses secrets o job de deploy é PULADO, não falha: um fork que só quer a
+# imagem não vê erro vermelho por algo que não pediu.
+#
+# COMO PUBLICAR UMA VERSÃO
+#
+#   git tag v1.0.0 && git push origin v1.0.0
+#
+# Ou pela aba Actions -> Deploy -> Run workflow.
+# =============================================================================
+
+on:
+  push:
+    tags: ["v*.*.*"]
+  workflow_dispatch:
+    inputs:
+      ambiente:
+        description: "Ambiente de destino"
+        type: environment
+        required: true
+        default: producao
+
+concurrency:
+  # Um deploy por vez. Dois em paralelo deixariam o servidor num estado que
+  # ninguém consegue descrever.
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  REGISTRY: ghcr.io
+  # Minúsculas obrigatórias no GHCR; `github.repository` já vem assim.
+  IMAGE: ghcr.io/${{ github.repository }}
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # Os mesmos portões da CI. Publicar sem eles é publicar no escuro — e uma tag
+  # já baixada por alguém não se desmarca.
+  # ---------------------------------------------------------------------------
+  verificar:
+    name: Portões
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run lint
+      - name: Testes e portões offline
+        run: |
+          npm run test --workspace @nerdlms/core
+          npm run test --workspace @nerdlms/backend
+          npm run test --workspace @nerdlms/frontend
+          npm run test:a11y --workspace @nerdlms/frontend
+          npm run check:sql
+          npm run check:encoding
+          npm run check:layers
+
+  # ---------------------------------------------------------------------------
+  # Constrói uma vez e publica. O servidor BAIXA essa imagem — não compila.
+  # Compilar no servidor gasta a RAM que a aplicação precisa e faz o deploy
+  # depender de a rede do servidor alcançar o registro do npm.
+  # ---------------------------------------------------------------------------
+  publicar:
+    name: Publicar imagem
+    needs: verificar
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Entrar no GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.IMAGE }}
+          # `v1.2.3` gera as tags 1.2.3, 1.2 e latest. Quem fixa a menor recebe
+          # correção de patch sem editar nada; quem quer o topo usa latest;
+          # quem precisa de reprodutibilidade fixa a completa.
+          tags: |
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=raw,value=latest,enable=${{ github.ref_type == 'tag' }}
+            type=sha,format=short
+
+      - id: build
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: apps/frontend/Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Resumo
+        run: |
+          {
+            echo "### Imagem publicada"
+            echo
+            echo "Digest: ${{ steps.build.outputs.digest }}"
+            echo
+            echo "Tags:"
+            echo "${{ steps.meta.outputs.tags }}"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  # ---------------------------------------------------------------------------
+  # Atualiza o servidor. PULADO quando os secrets não existem — ver o cabeçalho.
+  # ---------------------------------------------------------------------------
+  implantar:
+    name: Implantar no servidor
+    needs: publicar
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: ${{ inputs.ambiente || 'producao' }}
+    steps:
+      - name: Há servidor configurado?
+        id: check
+        env:
+          HOST: ${{ secrets.SSH_HOST }}
+        run: |
+          if [ -n "$HOST" ]; then
+            echo "configurado=sim" >> "$GITHUB_OUTPUT"
+          else
+            echo "configurado=nao" >> "$GITHUB_OUTPUT"
+            echo "Sem SSH_HOST no ambiente: a imagem foi publicada, o deploy no servidor não roda." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Preparar chave SSH
+        if: steps.check.outputs.configurado == 'sim'
+        env:
+          CHAVE: ${{ secrets.SSH_KEY }}
+          HOST: ${{ secrets.SSH_HOST }}
+          PORTA: ${{ secrets.SSH_PORT || '22' }}
+        run: |
+          mkdir -p ~/.ssh && chmod 700 ~/.ssh
+          printf '%s\n' "$CHAVE" > ~/.ssh/id_deploy
+          chmod 600 ~/.ssh/id_deploy
+          # `ssh-keyscan` em vez de StrictHostKeyChecking=no: aceitar qualquer
+          # host abriria a porta para man-in-the-middle no meio do deploy.
+          ssh-keyscan -p "$PORTA" -H "$HOST" >> ~/.ssh/known_hosts 2>/dev/null
+
+      - name: Atualizar a instalação
+        if: steps.check.outputs.configurado == 'sim'
+        env:
+          HOST: ${{ secrets.SSH_HOST }}
+          USUARIO: ${{ secrets.SSH_USER }}
+          PORTA: ${{ secrets.SSH_PORT || '22' }}
+          CAMINHO: ${{ secrets.DEPLOY_PATH || '/opt/nerdlms' }}
+        run: |
+          ssh -i ~/.ssh/id_deploy -p "$PORTA" "$USUARIO@$HOST" \
+            "CAMINHO='$CAMINHO' bash -euo pipefail" < .github/deploy-remoto.sh
+
+      - name: Limpar chave
+        if: always()
+        run: rm -f ~/.ssh/id_deploy

@@ -27,7 +27,7 @@ describe("Gestor matricula a equipe (F1-03)", () => {
   });
 
   test("gente de fora da equipe é recusada", () => {
-    // Sem isto um gestor matricularia pessoas de outra concessionária, e o
+    // Sem isto um gestor matricularia pessoas de outra unidade, e o
     // relatório dele passaria a contar quem não é dele.
     const d = canAssignEnrollment(curso(), false, false);
     assert.equal(d.allow === false && d.reason, "outside_team");

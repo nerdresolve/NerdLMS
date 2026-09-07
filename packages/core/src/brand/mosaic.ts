@@ -1,5 +1,5 @@
 /**
- * O grafismo da Exemplo S.A. — a grade de formas coloridas.
+ * O grafismo da organização — a grade de formas coloridas.
  *
  * NÃO é invenção nossa. Sai de `img-formas-coloridas-banner-home.svg`, do site
  * institucional: uma grade 6×6 de células de 109,64px, cada célula com UMA de
@@ -9,7 +9,7 @@
  * pixel contra as quatro rotações de cada primitiva.
  *
  * Substituiu a "Fluid Wave" — a onda era a assinatura gráfica de outra marca.
- * Curva orgânica não é o vocabulário da Exemplo S.A.: aqui tudo é módulo,
+ * Curva orgânica não é o vocabulário da organização: aqui tudo é módulo,
  * canto reto e círculo.
  *
  * A COR É PROPRIEDADE DA FORMA, não da posição. É o que faz o grafismo ser
@@ -176,7 +176,7 @@ export const MOSAIC_SHAPES: Record<MosaicVariant, MosaicShape> = {
      Uma delas já foi um recorte de 7×4: vinte e oito formas miúdas num cartão
      de 200px de altura. Sozinha parecia rica; ao lado das outras três numa
      grade, virava ruído — e o olho não tinha onde descansar. O grafismo da
-     Exemplo S.A. funciona por repetição em ESCALA, não por densidade. */
+     a organização funciona por repetição em ESCALA, não por densidade. */
   art1: recorte(2, 2, 0, 0),
   art2: recorte(2, 2, 3, 2),
   art3: recorte(2, 2, 1, 4),

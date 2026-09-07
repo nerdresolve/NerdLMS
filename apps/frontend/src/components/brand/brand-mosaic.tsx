@@ -1,8 +1,8 @@
 /**
- * O grafismo da Exemplo S.A., em SVG.
+ * O grafismo da organização, em SVG.
  *
  * Substitui o `FluidWave`: a onda era a assinatura de outra marca, e nenhuma
- * curva orgânica aparece no material da Exemplo S.A.. A geometria vem de
+ * curva orgânica aparece no material da organização. A geometria vem de
  * `@nerdlms/core/brand/mosaic.ts`, extraída do arquivo oficial do site institucional e
  * compartilhada com o gerador do protótipo — as duas superfícies desenham o
  * mesmo grafismo por construção.

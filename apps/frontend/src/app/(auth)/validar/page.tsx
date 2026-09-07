@@ -10,8 +10,8 @@ import "./validar.css";
 import { CampoCodigo } from "./campo-codigo.tsx";
 
 export const metadata: Metadata = {
-  title: "Validar certificado · Exemplo S.A.",
-  description: "Confira a autenticidade de um certificado emitido pela plataforma de ensino da Exemplo S.A..",
+  title: "Validar certificado · a organização",
+  description: "Confira a autenticidade de um certificado emitido pela plataforma de ensino da organização.",
 };
 
 /* Consulta o banco a cada visita: um certificado emitido hoje precisa validar

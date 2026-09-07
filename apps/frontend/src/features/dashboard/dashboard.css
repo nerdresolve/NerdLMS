@@ -160,7 +160,7 @@
    grafismo ancora no canto. */
 /* Encostado à direita e SANGRANDO para fora: o grafismo é uma grade infinita,
    e mostrá-lo inteiro dentro da capa o transforma num carimbo com borda. No
-   material da Exemplo S.A. a grade é sempre cortada pelo limite da peça. */
+   material da organização a grade é sempre cortada pelo limite da peça. */
 .course-card__art svg { position: absolute; inset: 0 -7% 0 auto; width: 56%; height: 100%; }
 .course-card__art--b { background: linear-gradient(140deg, var(--brand-accent), var(--brand) 60%, var(--brand-deep)); }
 .course-card__art--c { background: linear-gradient(200deg, var(--brand-deep), var(--brand) 70%); }

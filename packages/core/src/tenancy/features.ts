@@ -24,7 +24,7 @@ export interface FeatureDefinition {
   /**
    * Ligada quando o cliente não disse nada.
    *
-   * O padrão é `true` para o que a Exemplo S.A. já usa hoje: um cliente existente não
+   * O padrão é `true` para o que a organização já usa hoje: um cliente existente não
    * pode perder funcionalidade porque o catálogo nasceu. Recurso novo entra
    * desligado, para ninguém ser surpreendido por uma tela que apareceu
    * sozinha.

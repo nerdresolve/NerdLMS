@@ -5,8 +5,8 @@
  * entrar, basta trocar as implementações em `src/mocks/repository.ts` e apagar
  * `src/mocks/` — nenhuma tela importa daqui diretamente. Ver `src/mocks/README.md`.
  *
- * Os títulos refletem o domínio da Exemplo S.A. (exploração de petróleo e gás
- * em terra, em Sergipe) mas são invenção nossa. Campos e municípios citados
+ * Os títulos refletem o domínio da organização (exploração de operação industrial
+ * em terra, ) mas são invenção nossa. Campos e municípios citados
  * são os reais da operação.
  */
 
@@ -545,7 +545,7 @@ const NOMES = [
   "Bianca Ferraz",
 ];
 
-/* Campos e municípios reais da operação da Exemplo S.A. em Sergipe. */
+/* Campos e municípios reais da operação da organização . */
 const PROJETOS = ["Unidade Norte", "Siririzinho", "Riachuelo", "Aguilhada"];
 const REGIOES = ["Unidade Norte", "Rosário do Catete", "Japaratuba"];
 

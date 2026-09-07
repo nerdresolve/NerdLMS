@@ -58,7 +58,7 @@ export interface SessionUser {
  * O que a interface precisa saber sobre o cliente.
  *
  * `unitLabel` é o que impede a palavra "projeto" de ficar escrita no código:
- * a Exemplo S.A. chama suas unidades de "Campo", uma rede de varejo chamaria
+ * a organização chama suas unidades de "Campo", uma rede de varejo chamaria
  * de "Filial". O termo é dado do cliente, não vocabulário da plataforma.
  */
 export interface TenantContext {

@@ -149,7 +149,7 @@ export async function certificateUseCase(
 
      Nulo quando o cliente ainda não declarou domínio, e nesse caso o
      certificado imprime uma orientação em vez de um endereço inventado. */
-  const dominio = await validacaoUrl(command.actor.tenantId);
+  const emissor = await dadosDoEmissor(command.actor.tenantId);
 
   const pdf = buildCertificate({
     learnerName: command.actorName,
@@ -162,7 +162,8 @@ export async function certificateUseCase(
       truncado: programa.truncado,
       carga: cargaPorExtenso(carga.minutos),
     },
-    validacaoUrl: dominio,
+    validacaoUrl: emissor.validacaoUrl,
+    ...(emissor.nome ? { issuer: emissor.nome } : {}),
     completedAt: (row?.completed_at ?? new Date()).toISOString(),
     code: certificateCode(row?.id ?? command.courseId),
     signer: assinante
@@ -315,12 +316,20 @@ export async function verifyCertificateUseCase(
  * Sem `https://` no papel: o rodapé é lido por uma pessoa, não clicado, e o
  * esquema só ocuparia espaço numa linha que já é apertada.
  */
-async function validacaoUrl(tenantId: string): Promise<string | null> {
-  const linhas = await query<{ domain: string | null }>(
-    `SELECT domain FROM tenants WHERE id = $1 LIMIT 1`,
+async function dadosDoEmissor(
+  tenantId: string,
+): Promise<{ validacaoUrl: string | null; nome: string | null }> {
+  const linhas = await query<{ domain: string | null; name: string | null }>(
+    `SELECT domain, name FROM tenants WHERE id = $1 LIMIT 1`,
     [tenantId],
   );
 
   const dominio = linhas[0]?.domain?.trim();
-  return dominio ? `${dominio}/validar` : null;
+  return {
+    validacaoUrl: dominio ? `${dominio}/validar` : null,
+    /* O nome vai impresso na linha de assinatura quando o curso não tem
+       instrutor. Nulo aqui faz o certificado cair no nome do produto — ver
+       `CertificateData.issuer`. */
+    nome: linhas[0]?.name?.trim() || null,
+  };
 }

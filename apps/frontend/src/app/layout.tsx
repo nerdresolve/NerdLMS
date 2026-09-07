@@ -47,7 +47,7 @@ const satoshi = localFont({
  *
  * `generateMetadata` em vez de `metadata` estático: num white-label o nome na
  * aba do navegador é do cliente, e um valor fixo faria a plataforma da ACME se
- * anunciar como Exemplo S.A.. O tenant vem do domínio — não há sessão no layout raiz,
+ * anunciar como a organização. O tenant vem do domínio — não há sessão no layout raiz,
  * que também serve a página pública.
  */
 export async function generateMetadata(): Promise<Metadata> {

@@ -1,0 +1,37 @@
+name: Proposta
+description: Sugerir uma funcionalidade ou melhoria
+labels: [proposta]
+body:
+  - type: textarea
+    id: problema
+    attributes:
+      label: Que problema isso resolve
+      description: >
+        Descreva a situação, não a solução. "O gestor não consegue saber quem
+        ainda não começou o treinamento obrigatório" diz mais do que "adicionar
+        um filtro na tabela".
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposta
+    attributes:
+      label: O que você imagina
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternativas
+    attributes:
+      label: O que já tentou, ou que alternativas considerou
+
+  - type: checkboxes
+    id: whitelabel
+    attributes:
+      label: Isto serve a mais de um cliente?
+      description: >
+        O projeto é white-label. Funcionalidade que só faz sentido para uma
+        organização costuma caber melhor num fork ou numa configuração de
+        tenant do que no produto.
+      options:
+        - label: Sim, é útil para qualquer instalação

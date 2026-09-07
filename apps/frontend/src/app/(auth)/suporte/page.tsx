@@ -4,7 +4,7 @@ import Link from "next/link";
 import "@/styles/status-page.css";
 
 export const metadata: Metadata = {
-  title: "Suporte · Exemplo S.A.",
+  title: "Suporte · a organização",
   robots: { index: false, follow: false },
 };
 
@@ -25,7 +25,7 @@ export default function SuportePage() {
       <div className="status-page__card">
         <h1 className="status-page__title">Acesso à plataforma</h1>
         <p className="status-page__text">
-          As contas são criadas pela administração da Exemplo S.A.. Se você ainda não tem acesso, ou perdeu
+          As contas são criadas pela administração da organização. Se você ainda não tem acesso, ou perdeu
           o acesso que tinha, fale com o gestor da sua área: é ele quem cadastra e reativa contas.
         </p>
 

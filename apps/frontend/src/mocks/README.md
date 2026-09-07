@@ -18,7 +18,7 @@ O que sobrou tem três usos, e só três:
 
 `build-seed.mjs` transforma este catálogo em SQL, e o SQL entra com
 `ON CONFLICT DO UPDATE`. Isso significa que **`npm run seed` num banco que já
-tem o conteúdo real da Exemplo S.A. traz os cursos fictícios de volta** — sete
+tem o conteúdo real da organização traz os cursos fictícios de volta** — sete
 cursos, vinte módulos, oitenta e quatro aulas.
 
 Num banco vazio é o caminho mais rápido para ter com quem entrar. Num banco em
@@ -29,7 +29,7 @@ outro caminho de propósito.
 
 | Dado | Situação |
 |---|---|
-| 7 cursos de petróleo e gás, com módulos, aulas e provas | Inventado. Os cursos reais estão em `infra/db/content/cursos.json` |
+| 7 cursos de operação industrial, com módulos, aulas e provas | Inventado. Os cursos reais estão em `infra/db/content/cursos.json` |
 | 5 contas de papel (`user.mock`, `admin.mock`…) | Contas de demonstração, e são elas que se quer do seed |
 | 8 pessoas com nome próprio, sem senha | Inventado. Existem para as telas de gestão terem gente |
 | Progresso, matrículas, comentários e votos | Inventado |

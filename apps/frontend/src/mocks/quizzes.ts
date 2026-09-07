@@ -10,8 +10,8 @@
  * O `build-seed.mjs` lê daqui e gera o SQL. É a mesma regra do resto do mock:
  * o dado tem UMA origem, e o banco e as telas leem a mesma coisa.
  *
- * SOBRE O CONTEÚDO: as questões são plausíveis para operação de petróleo
- * onshore em Sergipe, e foram escritas para a plataforma ter o que mostrar —
+ * SOBRE O CONTEÚDO: as questões são plausíveis para operação
+ * onshore , e foram escritas para a plataforma ter o que mostrar —
  * não passaram por revisão técnica de ninguém da operação. Antes de virarem
  * prova de verdade, quem entende do assunto precisa lê-las.
  */
@@ -46,7 +46,7 @@ export const quizzes: MockQuiz[] = [
     maxAttempts: 3,
     questions: [
       {
-        prompt: "O que caracteriza a elevação artificial num poço de petróleo?",
+        prompt: "O que caracteriza a elevação artificial num poço?",
         options: [
           { text: "O uso de energia externa para trazer o fluido à superfície quando a pressão do reservatório não basta", correct: true },
           { text: "A perfuração de um poço adicional para aumentar a vazão" },

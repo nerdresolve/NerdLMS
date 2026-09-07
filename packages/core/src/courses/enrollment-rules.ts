@@ -67,7 +67,7 @@ export function canSelfEnroll(course: EnrollableCourse, alreadyEnrolled: boolean
  *   a pessoa também poderia pegar sozinha;
  *
  * - o recorte de equipe entra. Sem ele, um gestor matricularia gente de outra
- *   concessionária, e o relatório dele passaria a contar pessoas que não são
+ *   unidade, e o relatório dele passaria a contar pessoas que não são
  *   dele. A permissão (`can`) responde "este papel matricula?"; esta função
  *   responde "matricula ESTA pessoa?".
  *
