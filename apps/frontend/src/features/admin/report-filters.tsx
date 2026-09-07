@@ -6,7 +6,7 @@ import { useUnitLabel } from "@/features/tenant/tenant-context.tsx";
 import { Download } from "lucide-react";
 
 /**
- * Recortes do relatório.
+ * Recortes do relatório (TASK-047).
  *
  * Monta a URL e deixa o navegador baixar: o relatório continua sendo um link,
  * então funciona ao colar o endereço e não depende de JavaScript para o caso

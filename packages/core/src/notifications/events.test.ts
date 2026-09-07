@@ -124,8 +124,8 @@ describe("Menções", () => {
   });
 
   test("ignora e-mail", () => {
-    // "fale com joao@exemplo.com.br" não é menção ao usuário "lms".
-    assert.deepEqual(extractMentions("fale com joao@exemplo.com.br"), []);
+    // "fale com joao@exemplo.com" não é menção ao usuário "exemplo".
+    assert.deepEqual(extractMentions("fale com joao@exemplo.com"), []);
   });
 
   test("não confunde pontuação final com o nome", () => {

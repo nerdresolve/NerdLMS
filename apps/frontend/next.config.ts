@@ -1,9 +1,9 @@
 import type { NextConfig } from "next";
 
 /**
- * Headers de segurança.
+ * Headers de segurança — e §23.
  * A CSP começa restritiva; cada liberação futura (player de vídeo, CDN)
- * precisa ser justificada.
+ * precisa ser justificada e registrada em progress.md.
  */
 /*
  * A Content-Security-Policy NÃO mora mais aqui: ela precisa de um nonce novo a

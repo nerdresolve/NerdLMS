@@ -131,7 +131,7 @@
   color: var(--sidebar-text);
 }
 /* Sem esta regra o link herda o `a:hover` do pacote (`--brand-hover`), que
-   sobre o violeta escuro da sidebar dá 4.12:1. O branco forte da própria
+   sobre o azul-marinho da sidebar dá 4.12:1. O branco forte da própria
    sidebar mantém o destaque e o contraste. */
 .sidebar__user-link:hover { color: var(--sidebar-text-strong); }
 
@@ -182,7 +182,7 @@
 }
 .topbar__logo { width: 92px; height: auto; flex: none; }
 
-/* A marca violeta tem 3.37:1 sobre a topbar escura; a branca, 17.48:1. Só uma
+/* A marca azul tem 3.37:1 sobre a topbar escura; a branca, 17.48:1. Só uma
    das duas fica visível, escolhida pelo tema — sem JavaScript, então vale já
    no primeiro render. */
 .topbar__logo--dark { display: none; }
@@ -194,7 +194,13 @@
    busca, tema e conta são os controles que o aluno realmente usa ali. */
 @container (max-width: 420px) {
   .topbar { gap: var(--space-2); padding-inline: var(--space-3); }
-  .topbar__notifications { display: none; }
+  /* `.topbar .topbar__notifications`, e não só a classe: `@container` não soma
+     especificidade, e `.icon-button { display: grid }` está DEPOIS neste
+     arquivo — com as duas empatadas em 0-1-0, quem vinha por último vencia e o
+     sino nunca sumia. A mesma armadilha já tinha sido corrigida logo abaixo,
+     no ícone de busca. Sem isso a barra levava cinco controles a 320px, e
+     todos encolhiam para 34px para caber. */
+  .topbar .topbar__notifications { display: none; }
 }
 
 /* Slot do contexto da página (breadcrumb), como no kit oficial: a trilha vive
@@ -372,7 +378,7 @@
   display: flex;
   justify-content: center;
   padding: calc(var(--topbar-height) + var(--space-4)) var(--space-4) var(--space-4);
-  background: rgba(7, 18, 58, 0.42);
+  background: rgba(0, 11, 27, 0.42);
   backdrop-filter: blur(2px);
 }
 
@@ -475,6 +481,73 @@
 /* =============================================================================
    Sino de avisos
    ============================================================================= */
+/* ===== Menu da conta =====
+
+   Mesma mecânica do sino: âncora relativa, capturador de clique fora e painel
+   ancorado à direita. Fica junto dele no arquivo porque um dia alguém vai
+   mexer no `z-index` de um e precisa ver o do outro. */
+.account { position: relative; display: inline-flex; }
+.account__catcher { position: fixed; inset: 0; z-index: 55; }
+
+.account__panel {
+  position: absolute;
+  top: calc(100% + var(--space-2));
+  right: 0;
+  z-index: 56;
+  width: max(220px, 100%);
+  padding: var(--space-2);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  background: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-lg);
+}
+
+.account__head {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--space-2) var(--space-3) var(--space-3);
+  border-bottom: 1px solid var(--border-subtle);
+  margin-bottom: var(--space-1);
+}
+.account__name { font-weight: var(--weight-semibold); color: var(--text-title); }
+.account__role { font-size: var(--text-caption-size); color: var(--text-muted); }
+
+.account__item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  /* O piso de alvo de toque vale aqui como em qualquer item de menu: são duas
+     linhas próximas, e errar a mira significa ir para o perfil querendo sair. */
+  min-height: var(--touch-target);
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-sm);
+  color: var(--text-body);
+  text-decoration: none;
+  /* O item de sair é um `<button>` dentro de um formulário, porque a rota
+     responde a POST. Botão não herda fonte nem largura do pai e vem com fundo,
+     borda e alinhamento próprios do agente de usuário — sem isto ele destoaria
+     do item ao lado, que é um link. As duas formas passam a ser a mesma coisa
+     na tela, que é o que o usuário enxerga. */
+  width: 100%;
+  background: none;
+  border: 0;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.account__item:hover { background: var(--surface-sunken); color: var(--text-title); text-decoration: none; }
+/* O formulário existe só para carregar o método POST; ele não deve ocupar
+   espaço nem criar um degrau entre os dois itens do painel. */
+.account__form { display: contents; }
+.account__item svg { width: var(--icon-sm); height: var(--icon-sm); flex: none; }
+/* Sair é a única ação destrutiva do menu, e a cor diz isso antes da leitura. */
+.account__item--exit { color: var(--danger-text); }
+.account__item--exit:hover { background: var(--danger-surface); color: var(--danger-text); }
+
 .bell { position: relative; display: inline-flex; }
 
 /* O selo fica sobre o ícone, não ao lado: a barra do topo é estreita e um

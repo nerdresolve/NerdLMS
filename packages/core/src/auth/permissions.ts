@@ -15,10 +15,10 @@
  * Papéis da plataforma.
  *
  * `manager` existe porque a proposta promete "Administrador, Gestor e Aluno" e
- * porque os relatórios pedidos são **por projeto** (Águas do Rio, Prolagos,
- * Regenera Rio, Escola Social). O recorte do instrutor é autoria de conteúdo e
- * não responde "como está Prolagos" — são funções diferentes, não sinônimos.
- * Ver PRD §2 e.
+ * porque os relatórios pedidos são **por campo** (Unidade Norte, Siririzinho,
+ * Riachuelo, Aguilhada). O recorte do instrutor é autoria de conteúdo e não
+ * responde "como está Siririzinho" — são funções diferentes, não sinônimos.
+ * Ver PRD §2 e DEC-038.
  */
 export type Role = "admin" | "manager" | "instructor" | "learner";
 
@@ -33,7 +33,7 @@ export interface Actor {
    * significou acesso ao dado de outra empresa.
    *
    * Opcional no tipo por uma razão de transição: há chamadas antigas que ainda
-   * não o informam, e `can` trata a ausência como "não sei de quem é" —
+   * não o informam, e `can()` trata a ausência como "não sei de quem é" —
    * negando quando o recurso declara tenant. Torná-lo obrigatório de uma vez
    * quebraria o build em 31 pontos sem que nenhum deles estivesse errado.
    */
@@ -145,7 +145,7 @@ export function can(
 
       case "enrollment":
         // Matrícula atribuída: é o gestor quem coloca a equipe no treinamento
-        // obrigatório.
+        // obrigatório. Ver DEC-039.
         return action === "read" || action === "create" || action === "enroll";
 
       case "course":

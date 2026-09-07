@@ -160,7 +160,7 @@ export function CoursesImport() {
 
       <p className="cimport__hint">
         Uma planilha em que cada linha diz se é <strong>curso</strong>, <strong>módulo</strong> ou{" "}
-        <strong>aula</strong> — a hierarquia vem da ordem, como num sumário. Os cursos entram como
+        <strong>aula</strong>, a hierarquia vem da ordem, como num sumário. Os cursos entram como
         rascunho para você revisar antes de publicar.
       </p>
 

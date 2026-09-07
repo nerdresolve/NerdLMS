@@ -9,7 +9,7 @@ const titles = (list: ReturnType<typeof queryCatalog>) => list.map((entry) => en
 
 describe("normalizeForSearch", () => {
   test("ignora acento, caixa e espaço redundante", () => {
-    assert.equal(normalizeForSearch("  Água   POTÁVEL "), "agua potavel");
+    assert.equal(normalizeForSearch("  Óleo   e GÁS "), "oleo e gas");
     assert.equal(normalizeForSearch("Manutenção"), "manutencao");
   });
 });
@@ -28,7 +28,7 @@ describe("toCatalogEntries", () => {
   });
 });
 
-describe("queryCatalog — filtros", () => {
+describe("queryCatalog, filtros", () => {
   test("em andamento exclui não iniciados e concluídos", () => {
     const list = queryCatalog(entries, { filter: "in_progress" });
     assert.ok(list.every((entry) => entry.summary.status === "in_progress"));
@@ -47,15 +47,15 @@ describe("queryCatalog — filtros", () => {
   });
 });
 
-describe("queryCatalog — busca", () => {
+describe("queryCatalog, busca", () => {
   test("encontra sem acento", () => {
-    assert.deepEqual(titles(queryCatalog(entries, { search: "agua" })), ["Tratamento de Água: Fundamentos"]);
+    assert.deepEqual(titles(queryCatalog(entries, { search: "pocos" })), ["Operação de Poços: Fundamentos"]);
   });
 
   test("exige todos os termos, em qualquer ordem", () => {
-    assert.equal(queryCatalog(entries, { search: "perdas distribuicao" }).length, 1);
-    assert.equal(queryCatalog(entries, { search: "distribuicao perdas" }).length, 1);
-    assert.equal(queryCatalog(entries, { search: "perdas inexistente" }).length, 0);
+    assert.equal(queryCatalog(entries, { search: "integridade ativos" }).length, 1);
+    assert.equal(queryCatalog(entries, { search: "ativos integridade" }).length, 1);
+    assert.equal(queryCatalog(entries, { search: "integridade inexistente" }).length, 0);
   });
 
   test("busca também no resumo do curso", () => {
@@ -67,11 +67,11 @@ describe("queryCatalog — busca", () => {
   });
 
   test("busca combina com filtro", () => {
-    assert.equal(queryCatalog(entries, { filter: "completed", search: "agua" }).length, 0);
+    assert.equal(queryCatalog(entries, { filter: "completed", search: "pocos" }).length, 0);
   });
 });
 
-describe("queryCatalog — ordenação", () => {
+describe("queryCatalog, ordenação", () => {
   test("continue coloca em andamento primeiro e concluídos por último", () => {
     const list = queryCatalog(entries, { sort: "continue" });
     assert.equal(list[0]?.summary.status, "in_progress");

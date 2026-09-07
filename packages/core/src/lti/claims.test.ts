@@ -22,11 +22,10 @@ function launch(over: Record<string, unknown> = {}) {
     clientId: "cli-lab-virtual",
     userId: "u-1",
     userName: "Maria Souza",
-    userEmail: "maria@exemplo.com.br",
+    userEmail: "maria@exemplo.com",
     role: "learner",
     contextId: "c-1",
     contextTitle: "Tratamento de Água",
-    platformName: "Empresa Exemplo",
     linkId: "l-1",
     linkTitle: "Laboratório do módulo 2",
     targetLinkUri: "https://lab.exemplo/launch",
@@ -37,7 +36,7 @@ function launch(over: Record<string, unknown> = {}) {
   });
 }
 
-describe("LTI 1.3 — claims — F6-04", () => {
+describe("LTI 1.3, claims: F6-04", () => {
   test("o launch tem os campos obrigatórios do padrão", () => {
     /* Faltar um faz a ferramenta recusar com uma mensagem que não diz qual. */
     const c = launch();
@@ -77,7 +76,7 @@ describe("LTI 1.3 — claims — F6-04", () => {
     const c = launch({ userEmail: null });
 
     assert.equal("email" in c, false);
-    assert.equal(launch().email, "maria@exemplo.com.br");
+    assert.equal(launch().email, "maria@exemplo.com");
   });
 
   test("AGS e NRPS só aparecem quando a ferramenta pode usá-los", () => {
@@ -135,7 +134,7 @@ describe("LTI 1.3 — claims — F6-04", () => {
     assert.deepEqual(resultado, { ok: false, error: "wrong_audience" });
   });
 
-  test("aud como array também vale — o padrão permite", () => {
+  test("aud como array também vale, o padrão permite", () => {
     const resultado = validateIncomingClaims(
       {
         iss: "https://ferramenta",

@@ -7,6 +7,7 @@ import { useState } from "react";
 import { Info, Power, UserPlus } from "lucide-react";
 
 import type { Role } from "@nerdlms/core/auth/permissions.ts";
+import { campoObrigatorio } from "@/lib/campo-obrigatorio.ts";
 
 const ROLE_OPTIONS: Array<{ value: Role; label: string }> = [
   { value: "learner", label: "Aluno" },
@@ -73,14 +74,14 @@ export function InviteForm() {
         <label className="field__label" htmlFor="convite-nome">
           Nome
         </label>
-        <input className="input" id="convite-nome" name="fullName" type="text" required />
+        <input className="input" id="convite-nome" name="fullName" type="text" {...campoObrigatorio("Escreva o nome de quem vai receber o convite.")} />
       </div>
 
       <div className="field">
         <label className="field__label" htmlFor="convite-email">
           E-mail
         </label>
-        <input className="input" id="convite-email" name="email" type="email" required />
+        <input className="input" id="convite-email" name="email" type="email" {...campoObrigatorio("Informe o e-mail para onde o convite vai.")} />
       </div>
 
       <div className="field">

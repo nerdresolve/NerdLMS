@@ -18,7 +18,7 @@ import { TenantProvider } from "@/features/tenant/tenant-context.tsx";
  * mundo (: autorização acontece no servidor, a cada acesso).
  *
  * É também o que faz `next build` terminar hoje: as camadas de dados recusam
- * rodar em produção enquanto a fonte real não existe (/), e
+ * rodar em produção enquanto a fonte real não existe (TASK-004/TASK-006), e
  * esse `throw` acontecia durante o prerender. Com a renderização dinâmica, ele
  * volta a ser o que sempre quis ser — uma barreira em tempo de execução, não um
  * erro de build.
@@ -61,10 +61,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
             O conteúdo é gerado por `paletteToCss`, que só emite hexadecimal
             validado: não há caminho para texto do cliente chegar aqui. */}
         {palette ? (
-          <style
-            // eslint-disable-next-line react/no-danger
-            dangerouslySetInnerHTML={{ __html: `:root{${palette}}` }}
-          />
+          <style dangerouslySetInnerHTML={{ __html: `:root{${palette}}` }} />
         ) : null}
         {children}
       </FeatureProvider>

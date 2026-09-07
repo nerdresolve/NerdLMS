@@ -96,7 +96,6 @@ async function responder(params: URLSearchParams): Promise<Response> {
     role: user.role,
     contextId: link.courseId,
     contextTitle: link.courseTitle,
-    platformName: user.tenant.name,
     linkId: link.id,
     linkTitle: link.title,
     targetLinkUri: link.targetLinkUri,

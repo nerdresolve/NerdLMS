@@ -14,6 +14,14 @@ from playwright.sync_api import sync_playwright
 PAGES = ["landing", "login", "dashboard", "catalog", "library", "completed", "favorites", "course", "lesson", "profile", "studio", "editor", "engagement", "admin", "users", "manager", "team", "tracks", "rewards", "agenda", "audit"]
 VIEWPORTS = [("desktop", 1440, 900), ("mobile", 390, 844)]
 
+# O tema escuro tambem e capturado, num subconjunto. Motivo: o portao de
+# contraste confere PARES de token, e ha texto que nao cai em par nenhum — o
+# titulo do card em destaque do dashboard fica sobre `--gradient-brand`, e uma
+# vez saiu navy sobre navy, invisivel, com todos os pares aprovados. So a
+# imagem pega isso. Sao quatro telas porque sao as que carregam superficie de
+# marca; o resto do produto e card sobre pagina, ja coberto pelo portao.
+DARK_PAGES = ["landing", "login", "dashboard", "lesson"]
+
 root = pathlib.Path(__file__).resolve().parent.parent
 preview = root / "preview"
 out = root / "shots"
@@ -43,6 +51,17 @@ with sync_playwright() as play:
                 print(f"  ERRO {name}/{label}: {real[:2]}")
 
             page.close()
+
+    for name in DARK_PAGES:
+        page = browser.new_page(viewport={"width": 1440, "height": 900})
+        page.goto((preview / f"{name}.html").as_uri())
+        page.wait_for_timeout(500)
+        # O protótipo aplica o tema pelo atributo, igual ao app.
+        page.evaluate("document.documentElement.setAttribute('data-theme','dark')")
+        page.wait_for_timeout(400)
+        page.add_style_tag(content=".qa{display:none!important}")
+        page.screenshot(path=str(out / f"{name}-dark.png"), full_page=True)
+        page.close()
 
     browser.close()
 

@@ -1,5 +1,5 @@
 /**
- * Calendário e eventos.
+ * Calendário e eventos — TASK-056.
  *
  * A proposta pede "calendário de treinamento, eventos corporativos e
  * comunicações internas". Montar grade de mês parece trivial e é onde erro de
@@ -124,6 +124,16 @@ export interface Notification {
   date: string;
   kind: "announcement" | "reminder" | "achievement";
   read: boolean;
+  /**
+   * Para onde o aviso leva.
+   *
+   * Nulo quando não há destino — um comunicado sem página própria, por
+   * exemplo. O campo EXISTIA no banco e não subia até aqui: a lista virava um
+   * botão que só marcava como lido, e clicar num aviso de "sua nota saiu" não
+   * levava à nota. Aviso que não leva a lugar nenhum é uma pergunta sem
+   * resposta.
+   */
+  link?: string | null;
 }
 
 /** Não lidas primeiro, depois por data decrescente. */

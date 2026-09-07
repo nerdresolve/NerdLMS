@@ -74,9 +74,9 @@ export function AnalyticsView({ data }: { data: AnalyticsData }) {
               {data.habit.stickiness >= 4
                 ? (() => {
                     const dias = Math.round((data.habit.stickiness / 100) * 30);
-                    return ` — a pessoa média entra ${dias} ${dias === 1 ? "dia" : "dias"} por mês`;
+                    return `, a pessoa média entra ${dias} ${dias === 1 ? "dia" : "dias"} por mês`;
                   })()
-                : " — uso ainda esporádico"}
+                : ", uso ainda esporádico"}
             </span>
           </li>
         </ul>
@@ -84,7 +84,7 @@ export function AnalyticsView({ data }: { data: AnalyticsData }) {
 
       <section className="course-section" aria-labelledby="funil">
         <h2 className="course-section__title" id="funil">
-          <TrendingDown aria-hidden /> Onde as pessoas param — {data.courseTitle}
+          <TrendingDown aria-hidden /> Onde as pessoas param: {data.courseTitle}
         </h2>
 
         <p className="platform__hint">
@@ -149,7 +149,7 @@ export function AnalyticsView({ data }: { data: AnalyticsData }) {
 
           <p className="platform__hint">
             Quanto do vídeo a pessoa média assiste. Um vídeo com muitos
-            espectadores e retenção baixa é um vídeo que perde a atenção — não um
+            espectadores e retenção baixa é um vídeo que perde a atenção, não um
             vídeo que ninguém abriu.
           </p>
 
@@ -169,12 +169,12 @@ export function AnalyticsView({ data }: { data: AnalyticsData }) {
               <tbody>
                 {data.retention.map((video) => (
                   <tr key={video.lessonId} data-baixa={video.retentionPercent < 50 || undefined}>
-                    <td>{video.title}</td>
-                    <td>{minutos(video.durationSeconds)}</td>
-                    <td>{video.viewers}</td>
-                    <td>{minutos(video.averageWatchedSeconds)}</td>
-                    <td>{video.retentionPercent}%</td>
-                    <td>{video.finished}</td>
+                    <td data-label="Aula">{video.title}</td>
+                    <td data-label="Duração">{minutos(video.durationSeconds)}</td>
+                    <td data-label="Abriram">{video.viewers}</td>
+                    <td data-label="Assistiram em média">{minutos(video.averageWatchedSeconds)}</td>
+                    <td data-label="Retenção">{video.retentionPercent}%</td>
+                    <td data-label="Até o fim">{video.finished}</td>
                   </tr>
                 ))}
               </tbody>
@@ -212,12 +212,12 @@ export function AnalyticsView({ data }: { data: AnalyticsData }) {
               <tbody>
                 {data.departments.map((area) => (
                   <tr key={area.department} data-baixa={area.completionRate < 40 || undefined}>
-                    <td>{area.department}</td>
-                    <td>{area.learners}</td>
-                    <td>{area.enrollments}</td>
-                    <td>{area.averagePercent}%</td>
-                    <td>{area.completed}</td>
-                    <td>{area.completionRate}%</td>
+                    <td data-label="Unidade">{area.department}</td>
+                    <td data-label="Pessoas">{area.learners}</td>
+                    <td data-label="Matrículas">{area.enrollments}</td>
+                    <td data-label="Progresso médio">{area.averagePercent}%</td>
+                    <td data-label="Concluíram">{area.completed}</td>
+                    <td data-label="Taxa">{area.completionRate}%</td>
                   </tr>
                 ))}
               </tbody>

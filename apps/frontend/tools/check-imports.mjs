@@ -1,5 +1,5 @@
 /**
- * Todo pacote importado precisa estar declarado.
+ * Todo pacote importado precisa estar declarado — TASK-065.
  *
  * Existe porque `server-only` era importado por seis arquivos sem estar no
  * `package.json`. Sem node_modules e sem rede, nada acusava: os testes rodam
@@ -26,13 +26,13 @@ function packageOf(specifier) {
   return specifier.split("/")[0];
 }
 
-async function walk(dir) {
+async function walk(dir, extensoes = /\.(ts|tsx|js|jsx|mjs)$/) {
   const entries = await readdir(dir, { withFileTypes: true });
   const files = [];
   for (const entry of entries) {
     const path = join(dir, entry.name);
-    if (entry.isDirectory()) files.push(...(await walk(path)));
-    else if (/\.(ts|tsx|js|jsx|mjs)$/.test(entry.name)) files.push(path);
+    if (entry.isDirectory()) files.push(...(await walk(path, extensoes)));
+    else if (extensoes.test(entry.name)) files.push(path);
   }
   return files;
 }
@@ -46,7 +46,28 @@ const declared = new Set([
 const used = new Map();
 let failures = 0;
 
-for (const file of [...(await walk(join(root, "src"))), ...(await walk(join(root, "tools")))]) {
+/* Ferramenta em Python também consome dependência: `certificate-preview.py` lê
+   o `pdfjs-dist` direto de node_modules para renderizar o PDF no Chromium.
+   Sem contar isto, o pacote apareceria como "declarado e nunca importado" e a
+   saída seria removê-lo — quebrando a única forma de OLHAR o certificado. */
+for (const file of await walk(join(root, "tools"), /\.py$/)) {
+  const source = await readFile(file, "utf8");
+  for (const match of source.matchAll(/node_modules["'\s/]+(@?[\w.-]+(?:\/[\w.-]+)?)/g)) {
+    const nome = packageOf(match[1]);
+    used.set(nome, (used.get(nome) ?? 0) + 1);
+  }
+}
+
+/* Os arquivos de configuração da RAIZ do app entram junto: `eslint.config.mjs`
+   importa `@eslint/eslintrc`, e sem varrê-lo o pacote aparecia como "declarado
+   e nunca importado" — a saída seria removê-lo e quebrar o lint. */
+const raizDoApp = ["eslint.config.mjs", "next.config.ts"].map((nome) => join(root, nome));
+
+for (const file of [
+  ...(await walk(join(root, "src"))),
+  ...(await walk(join(root, "tools"))),
+  ...raizDoApp,
+]) {
   const source = await readFile(file, "utf8");
   const specifiers = [
     ...source.matchAll(/(?:^|\n)\s*import\s[^;]*?from\s*["']([^"']+)["']/g),

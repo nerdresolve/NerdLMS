@@ -1,6 +1,5 @@
-import { CalendarDays } from "lucide-react";
+import { Bell, CalendarDays } from "lucide-react";
 
-import { FluidWave } from "@/components/brand/fluid-wave.tsx";
 import { NotificationItem } from "./notification-item.tsx";
 import type { AgendaPageData } from "./data.ts";
 
@@ -37,7 +36,7 @@ export function AgendaView({ month, upcoming, notifications, unread }: Omit<Agen
     <div className="agenda">
       <div className="agenda__main">
         <div className="page-head">
-          <h1 className="page-head__greeting">Agenda</h1>
+          <h1 className="page-head__title">Agenda</h1>
           <p className="page-head__sub">Treinamentos, prazos e comunicados da sua área.</p>
         </div>
 
@@ -107,7 +106,7 @@ export function AgendaView({ month, upcoming, notifications, unread }: Omit<Agen
             </div>
           ) : (
             <div className="empty">
-              <FluidWave variant="band" className="empty__wave" />
+              <span className="empty__rule" aria-hidden="true" />
               <div className="empty__inner">
                 <span className="empty__icon">
                   <CalendarDays aria-hidden />
@@ -124,11 +123,31 @@ export function AgendaView({ month, upcoming, notifications, unread }: Omit<Agen
             Avisos {unread > 0 ? <span className="badge">{unread} {unread === 1 ? "não lido" : "não lidos"}</span> : null}
           </h2>
 
-          <div className="notifications">
-            {notifications.map((item) => (
-              <NotificationItem item={item} formattedDate={formatDate(item.date)} key={item.id} />
-            ))}
-          </div>
+          {/* Seção vazia precisa DIZER que está vazia.
+
+              "Próximos", logo acima, já explicava a ausência com um estado
+              próprio; esta ficava sendo um título seguido de nada, e um bloco
+              em branco no meio da página se lê como falha de carregamento. */}
+          {notifications.length > 0 ? (
+            <div className="notifications">
+              {notifications.map((item) => (
+                <NotificationItem item={item} formattedDate={formatDate(item.date)} key={item.id} />
+              ))}
+            </div>
+          ) : (
+            <div className="empty">
+              <span className="empty__rule" aria-hidden="true" />
+              <div className="empty__inner">
+                <span className="empty__icon">
+                  <Bell aria-hidden />
+                </span>
+                <h3 className="empty__title">Nenhum aviso</h3>
+                <p className="empty__text">
+                  Comunicados e lembretes dos seus cursos aparecem aqui.
+                </p>
+              </div>
+            </div>
+          )}
         </section>
       </aside>
     </div>

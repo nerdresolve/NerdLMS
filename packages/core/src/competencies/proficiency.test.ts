@@ -27,7 +27,7 @@ function ev(over: Partial<Evidence> = {}): Evidence {
   };
 }
 
-describe("Nível de domínio e gaps — F6-02", () => {
+describe("Nível de domínio e gaps: F6-02", () => {
   test("evidência revogada e vencida não contam", () => {
     assert.equal(evidenceCounts(ev(), AGORA), true);
     assert.equal(evidenceCounts(ev({ revokedAt: "2026-03-01T00:00:00Z" }), AGORA), false);
@@ -209,7 +209,7 @@ describe("Nível de domínio e gaps — F6-02", () => {
     assert.equal(derivedLevel("folha", nodes, new Map([["folha", 2]])), 2);
   });
 
-  test("vencimento próximo — a recertificação do §33", () => {
+  test("vencimento próximo, a recertificação do §33", () => {
     const em20dias = ev({ id: "a", expiresAt: "2026-06-21T00:00:00Z" });
     const em90dias = ev({ id: "b", expiresAt: "2026-08-30T00:00:00Z" });
     const jaVenceu = ev({ id: "c", expiresAt: "2026-01-01T00:00:00Z" });

@@ -27,7 +27,7 @@ export async function POST(request: Request): Promise<Response> {
   }
 
   /* Os arquivos já subiram para o storage por URL assinada; aqui vêm só os
-     metadados. O mesmo desenho do vídeo e do material. */
+     metadados. O mesmo desenho do vídeo e do material (DEC-009). */
   const arquivos = Array.isArray(body.files)
     ? body.files.flatMap((f: unknown) => {
         if (typeof f !== "object" || f === null) return [];

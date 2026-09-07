@@ -1,5 +1,6 @@
 import { findMaterialKey } from "@nerdlms/backend/courses/material-repository.ts";
 import { presignDownload } from "@nerdlms/backend/storage/object-storage.ts";
+import { origemDaRequisicao } from "@/lib/origem-da-requisicao.ts";
 
 import { getLessonPageData } from "@/features/lesson/data.ts";
 import { currentUser } from "@/lib/auth/session.ts";
@@ -51,5 +52,7 @@ export async function GET(
     return Response.json({ error: "Material não encontrado." }, { status: 404 });
   }
 
-  return Response.json({ url: await presignDownload(key) });
+  return Response.json({
+    url: await presignDownload(key, (await origemDaRequisicao()) ?? undefined),
+  });
 }

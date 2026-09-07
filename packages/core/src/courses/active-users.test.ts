@@ -61,16 +61,16 @@ describe("activeByProject", () => {
     const periodo = lastDays(30, HOJE);
     const linhas = activeByProject(
       [
-        pessoa("a", "Prolagos", "2026-08-10T09:00:00-03:00"),
-        pessoa("b", "Prolagos", "2026-08-11T09:00:00-03:00"),
-        pessoa("c", "Escola Social", "2026-08-09T09:00:00-03:00"),
-        pessoa("d", "Escola Social"),
+        pessoa("a", "Siririzinho", "2026-08-10T09:00:00-03:00"),
+        pessoa("b", "Siririzinho", "2026-08-11T09:00:00-03:00"),
+        pessoa("c", "Aguilhada", "2026-08-09T09:00:00-03:00"),
+        pessoa("d", "Aguilhada"),
       ],
       periodo,
     );
     assert.deepEqual(linhas, [
-      { project: "Prolagos", active: 2, total: 2 },
-      { project: "Escola Social", active: 1, total: 2 },
+      { project: "Siririzinho", active: 2, total: 2 },
+      { project: "Aguilhada", active: 1, total: 2 },
     ]);
   });
 

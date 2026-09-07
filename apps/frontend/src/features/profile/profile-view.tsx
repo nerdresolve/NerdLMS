@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useId, useState } from "react";
 import { Award, CircleCheck, Clock, FileText, GraduationCap, TrendingUp, Users } from "lucide-react";
 
-import { FluidWave } from "@/components/brand/fluid-wave.tsx";
+import { BrandMosaic } from "@/components/brand/brand-mosaic.tsx";
 import { formatDuration } from "@nerdlms/core/courses/progress.ts";
 import type { Role } from "@nerdlms/core/auth/permissions.ts";
 import type { Course, User } from "@nerdlms/core/courses/types.ts";
@@ -12,6 +12,8 @@ import type { ProgressSummary } from "@nerdlms/core/courses/progress.ts";
 
 import "./profile.css";
 import { plural } from "@nerdlms/core/courses/plural.ts";
+import { SignatureUpload } from "./signature-upload.tsx";
+import { campoObrigatorio } from "@/lib/campo-obrigatorio.ts";
 
 export interface ProfileCertificate {
   course: Course;
@@ -50,10 +52,12 @@ export function ProfileView({
   user,
   totals,
   certificates,
+  assinaturaEnviadaEm,
 }: {
   user: User;
   totals: ProfileTotals;
   certificates: ProfileCertificate[];
+  assinaturaEnviadaEm: string | null;
 }) {
   const router = useRouter();
   const formId = useId();
@@ -114,7 +118,7 @@ export function ProfileView({
   return (
     <div className="profile">
       <section className="profile-hero">
-        <FluidWave variant="blob" className="profile-hero__wave" />
+        <BrandMosaic variant="blob" className="profile-hero__wave" tone="silhueta" />
 
         <span className="profile-hero__avatar" aria-hidden="true">
           {initialsOf(user.fullName)}
@@ -126,7 +130,7 @@ export function ProfileView({
             <span className="badge badge--on-brand">
               <GraduationCap aria-hidden /> {ROLE_LABEL[user.role]}
             </span>
-            {/* O projeto vem da pessoa, não fixo: com "Escola Social" no JSX
+            {/* O projeto vem da pessoa, não fixo: com "Aguilhada" no JSX
                 todo perfil dizia o mesmo, contradizendo a tela de usuários na
                 mesma sessão. A data de entrada saiu porque o modelo não a
                 guarda — imprimir uma fixa era inventar dado. */}
@@ -167,7 +171,7 @@ export function ProfileView({
               type="text"
               defaultValue={user.fullName}
               maxLength={200}
-              required
+              {...campoObrigatorio("Escreva o seu nome completo.")}
               autoComplete="name"
             />
           </div>
@@ -206,6 +210,13 @@ export function ProfileView({
         </div>
       </section>
 
+      {/* Só para quem pode ser autor de curso. Para um aluno seria um campo
+          sem consequência nenhuma — e campo sem consequência é o que faz uma
+          tela de perfil virar formulário de cadastro. */}
+      {user.role === "instructor" || user.role === "manager" || user.role === "admin" ? (
+        <SignatureUpload enviadaEm={assinaturaEnviadaEm} />
+      ) : null}
+
       <section className="course-section" aria-labelledby="certificados">
         <h2 className="course-section__title" id="certificados">
           Certificados
@@ -234,7 +245,7 @@ export function ProfileView({
           </div>
         ) : (
           <div className="empty">
-            <FluidWave variant="band" className="empty__wave" />
+            <span className="empty__rule" aria-hidden="true" />
             <div className="empty__inner">
               <span className="empty__icon">
                 <Award aria-hidden />

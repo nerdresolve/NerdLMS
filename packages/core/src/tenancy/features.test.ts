@@ -43,7 +43,7 @@ describe("Catálogo de funcionalidades", () => {
   });
 });
 
-describe("Herança — o caso que motivou a árvore", () => {
+describe("Herança, o caso que motivou a árvore", () => {
   test("desligar o upvote NÃO derruba os comentários", () => {
     // É o pedido do cliente, literalmente: "podem querer tirar a opção dos
     // upvotes de comentários, alguns podem nem querer comentários".

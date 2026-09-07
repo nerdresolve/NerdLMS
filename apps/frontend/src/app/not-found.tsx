@@ -3,13 +3,13 @@ import Link from "next/link";
 
 import "@/styles/status-page.css";
 
-export const metadata: Metadata = { title: "Página não encontrada" };
+export const metadata: Metadata = { title: "Página não encontrada · Exemplo S.A." };
 
 /**
  * 404 da aplicação.
  *
  * Sem este arquivo quem respondia era a página interna do Next, que traz o
- * próprio estilo mínimo e ignora os tokens: no tema escuro saía texto violeta
+ * próprio estilo mínimo e ignora os tokens: no tema escuro saía texto azul
  * sobre fundo preto, ilegível.
  *
  * Também é o destino de `notFound()` nas camadas de dados, que é como as

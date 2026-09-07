@@ -22,7 +22,7 @@ function estado(over: Partial<Scorm2004State> = {}): Scorm2004State {
   };
 }
 
-describe("SCORM 2004 — duração ISO 8601", () => {
+describe("SCORM 2004, duração ISO 8601", () => {
   test("lê as formas que os pacotes usam", () => {
     assert.equal(parseIso8601Duration("PT1H30M45S"), 5445);
     assert.equal(parseIso8601Duration("PT30M"), 1800);
@@ -34,7 +34,7 @@ describe("SCORM 2004 — duração ISO 8601", () => {
     assert.equal(parseIso8601Duration("PT1.5S"), 1.5);
   });
 
-  test("aceita dias — um pacote que os declare não perde o tempo", () => {
+  test("aceita dias, um pacote que os declare não perde o tempo", () => {
     assert.equal(parseIso8601Duration("P1DT2H"), 24 * 3600 + 7200);
   });
 
@@ -66,7 +66,7 @@ describe("SCORM 2004 — duração ISO 8601", () => {
   });
 });
 
-describe("SCORM 2004 — concluir e passar são coisas SEPARADAS", () => {
+describe("SCORM 2004, concluir e passar são coisas SEPARADAS", () => {
   test("concluir a aula não é passar na prova", () => {
     /* É a diferença que o 2004 existe para expressar: quem reprova VIU a aula
        inteira, e o progresso do curso tem de reconhecer isso. No 1.2 esta
@@ -110,8 +110,8 @@ describe("SCORM 2004 — concluir e passar são coisas SEPARADAS", () => {
   });
 });
 
-describe("SCORM 2004 — o que o conteúdo lê e escreve", () => {
-  test("a versão é declarada — pacote que não a vê pode se recusar a rodar", () => {
+describe("SCORM 2004, o que o conteúdo lê e escreve", () => {
+  test("a versão é declarada, pacote que não a vê pode se recusar a rodar", () => {
     assert.equal(scorm2004Value(estado(), "cmi._version"), "1.0");
   });
 
@@ -174,7 +174,7 @@ describe("SCORM 2004 — o que o conteúdo lê e escreve", () => {
   });
 });
 
-describe("SCORM 2004 — o resumo que a plataforma grava", () => {
+describe("SCORM 2004, o resumo que a plataforma grava", () => {
   test("a nota normalizada vira percentual", () => {
     const r = to2004Summary(estado({ scoreScaled: 0.85 }));
     assert.equal(r.scorePercent, 85);

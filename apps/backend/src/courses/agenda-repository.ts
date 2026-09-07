@@ -32,6 +32,7 @@ interface NotificationRow {
   kind: string;
   created_at: Date | string;
   read_at: Date | string | null;
+  link: string | null;
 }
 
 /* O driver devolve `date` como Date, e `new Date(...).toISOString()` recuaria
@@ -72,7 +73,7 @@ export async function findEvents(tenantId: string, project: string | null): Prom
 
 export async function findNotifications(userId: string): Promise<Notification[]> {
   const rows = await query<NotificationRow>(
-    `SELECT id, title, body, kind, created_at, read_at
+    `SELECT id, title, body, kind, created_at, read_at, link
        FROM notifications
       WHERE user_id = $1
       ORDER BY created_at DESC`,
@@ -88,6 +89,7 @@ export async function findNotifications(userId: string): Promise<Notification[]>
       ? row.kind
       : "announcement") as Notification["kind"],
     read: row.read_at !== null,
+    link: row.link,
   }));
 }
 

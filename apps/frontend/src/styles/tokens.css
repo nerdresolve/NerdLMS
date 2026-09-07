@@ -1,22 +1,25 @@
 /* =============================================================================
-   Tokens da aplicação
+   EXEMPLO S.A. — Tokens da aplicação
 
-   A fonte de verdade é o pacote oficial do Design System, vendorizado sem
-   alteração em `nerd-ds/`. Este arquivo faz duas coisas e nada além:
+   A fonte de verdade é o pacote de marca, vendorizado sem alteração em
+   `nerd-ds/` e derivado do site institucional (dev/SITE): azul #4C1D95 e
+   #A855F7 do logotipo, cinzas neutro-quentes, canto reto e DM Sans.
 
-     1. importa o pacote oficial;
-     2. adiciona o que o pacote não cobre, e corrige o que reprova em
-        acessibilidade — cada correção justificada e coberta por
-        `tools/check-contrast.mjs`.
+   Este arquivo faz duas coisas e nada além:
+
+     1. importa o pacote;
+     2. adiciona o que o pacote não cobre — papéis que só existem dentro da
+        plataforma (sidebar, gradiente, camadas da onda).
 
    Nunca editar os arquivos dentro de `nerd-ds/`: eles precisam continuar
-   idênticos ao pacote para que uma atualização futura seja um `cp`, não um
+   idênticos ao pacote para que uma atualização de marca seja um `cp`, não um
    merge manual. Ver progress.md → DEC-006.
+
+   Toda cor daqui passa por `tools/check-contrast.mjs`, nos dois temas.
    ============================================================================= */
 
-/* fonts.css do pacote NÃO é importado: ele resolve os `@font-face` a partir da
-   raiz do pacote. A versão local define os mesmos tokens apontando para
-   `/fonts/`, que é onde o Next serve os arquivos. Ver DEC-017. */
+/* fonts.css do pacote NÃO é importado: ele baixa a fonte do Google.
+   A versão auto-hospedada define os mesmos tokens. Ver DEC-017. */
 @import "./fonts.css";
 @import "./nerd-ds/tokens/colors.css";
 @import "./nerd-ds/tokens/typography.css";
@@ -27,64 +30,37 @@
 @import "./nerd-ds/tokens/layout.css";
 
 /* =============================================================================
-   1. Correções de acessibilidade (DEC-003)
-
-   O pacote define bordas de campo muito claras. WCAG 1.4.11 exige 3:1 para o
-   limite de um controle de formulário e `--field-border` entrega 1.49:1 sobre
-   o card. Abaixo está a diferença mínima para passar; o resto fica intacto.
-   ============================================================================= */
-:root {
-  --field-border: #8c85a0;  /* era --neutral-300 (#C7C3D0) → 1.48:1 */
-  /* Os dois cinzas precisam passar também sobre `--surface-brand-subtle`
-     (#EDE9FE), o fundo da faixa de números da landing — mais escuro que a
-     página e que o card. Era o par que faltava: 4.39:1, reprovado. */
-  --text-muted: #635c73;    /* era --neutral-500 (#6B6479) → 4.37:1 sobre a página */
-  --success-text: #0f7a42;  /* era --green-600 (#128A4B) → 4.41:1 sobre card */
-  --text-faint: #635c73;    /* era --neutral-400 (#9691A4) → 2.35:1 sobre a página */
-  --danger-text: #b91c1c;   /* era #C81E1E → 4.70:1, mas 3.95:1 sobre o próprio selo */
-}
-
-[data-theme="dark"] {
-  --field-border: #6a6180; /* era #2A2438 → 1.60:1; este dá 3.27:1 sobre o card */
-  --brand-hover: #9333ea;  /* --violet-400 com texto branco caía para 3.5:1 */
-  --track: #17131f;        /* era #1C1728 → 2.69:1 contra o preenchimento */
-
-  /* As três correções acima moram em `:root` porque nasceram do tema claro —
-     e `:root` também vale no escuro, onde sobrescreviam os tokens próprios do
-     pacote e derrubavam o contraste. Aqui elas voltam ao valor do dark:
-     `--text-muted` para #A49EB2 (5.74:1 sobre card) e `--success-text` para
-     o verde claro do pacote (10.03:1), em vez do verde escuro do claro. */
-  --text-muted: #a49eb2;
-  --success-text: #4ade80;
-  --text-faint: #a29cb0; /* #9691A4 dava 4.18:1 na faixa de marca escura */
-}
-
-/* =============================================================================
-   2. Adições — papéis que o pacote não nomeia
+   Adições — papéis que o pacote não nomeia
 
    Tudo aqui é composto a partir das rampas oficiais; nenhum hex novo é
-   inventado, exceto onde a correção de contraste exigiu.
+   inventado, exceto onde o contraste exigiu e está justificado na linha.
    ============================================================================= */
 :root {
   /* Gradiente de marca: hero, painel de login e capas de curso.
-     O pacote define --wave-from/--wave-to; aqui vira gradiente reutilizável. */
-  --gradient-brand: linear-gradient(150deg, var(--wave-from) 0%, var(--violet-800) 55%, var(--violet-950) 100%);
+     Vai do azul de energia ao navy institucional — a mesma leitura do
+     logotipo, de "ENERGY" para "NERDRESOLVE".
 
-  /* Camadas do Fluid Wave: a aplicação sobrepõe três camadas translúcidas
-     para criar profundidade, onde o pacote usa uma forma sólida. */
-  --wave-1: rgba(255, 255, 255, 0.10);
-  --wave-2: rgba(168, 85, 247, 0.55);
-  --wave-3: rgba(196, 132, 252, 0.16);
-  --wave-line: rgba(255, 255, 255, 0.38);
+     A ponta escura é `--blue-900`, não `--blue-950`: o 950 é quase preto, e a
+     camada branca da onda por cima dele resultava cinza — a metade de baixo do
+     painel de login saía dessaturada, sem marca nenhuma. */
+  --gradient-brand: linear-gradient(150deg, var(--violet-400) 0%, var(--violet-700) 55%, var(--violet-900) 100%);
 
-  /* Sidebar. O componente oficial usa --violet-800 com branco translúcido;
-     aqui os valores são sólidos para poderem ser auditados por contraste. */
-  /* Medido na referência: roxo profundo e quase plano, não o violeta-700 vivo. */
-  --sidebar-bg: #241155;
-  --sidebar-bg-deep: #180B3B;
-  --sidebar-text: #cfc6e8;
+  /* A arte da landing: a forma de marca e o halo atrás dela.
+
+     São tokens, e não valores no CSS da feature, porque no ESCURO os dois
+     precisam inverter a relação. Com a rampa fixa, a ponta escura do degradê
+     (--blue-950) some dentro da página escura e o halo (--surface-brand-subtle)
+     fica quase da mesma cor da forma: o hero inteiro vira uma mancha. */
+  --landing-art: linear-gradient(145deg, var(--violet-600) 0%, var(--violet-800) 58%, var(--violet-950) 100%);
+  --landing-halo: var(--surface-brand-subtle);
+
+  /* Sidebar. Sólida, não branco translúcido sobre a marca, para poder ser
+     auditada por contraste — é onde o usuário passa o dia. */
+  --sidebar-bg: var(--violet-700);
+  --sidebar-bg-deep: #00214f; /* o navy da marca um passo abaixo do --blue-700 */
+  --sidebar-text: #c5d8ec;    /* 8.94:1 sobre o navy */
   --sidebar-text-strong: #ffffff;
-  --sidebar-section: #b3a6d6;
+  --sidebar-section: #a9c4de; /* 7.22:1 — rótulo de seção, menor e mais claro */
   --sidebar-hover: rgba(255, 255, 255, 0.10);
   --sidebar-active: var(--violet-500);
   --sidebar-border: rgba(255, 255, 255, 0.14);
@@ -108,24 +84,26 @@
   /* Aliases de leitura usados pelo CSS da aplicação. */
   --radius-hero: var(--radius-surface);
   --shadow-focus: var(--focus-ring);
-  --tracking-tight: -0.02em;
+  --tracking-tight: -0.015em;
   --tracking-wide: var(--text-overline-tracking);
 }
 
 [data-theme="dark"] {
-  --gradient-brand: linear-gradient(150deg, #2E1065 0%, #150B2E 55%, #08060D 100%);
+  --gradient-brand: linear-gradient(150deg, #0b3560 0%, #051a33 55%, #00060f 100%);
 
-  --wave-1: rgba(192, 132, 252, 0.10);
-  --wave-2: rgba(124, 58, 237, 0.30);
-  --wave-3: rgba(76, 29, 149, 0.28);
-  --wave-line: rgba(196, 132, 252, 0.30);
+  /* A forma clareia e o halo escurece: no claro é o contrário. O que importa
+     é a ORDEM — halo, forma e página precisam ser três valores distintos, em
+     qualquer tema. */
+  --landing-art: linear-gradient(145deg, #17568f 0%, #0e3357 58%, #0a2440 100%);
+  --landing-halo: #0a1d31;
 
+  /* No escuro a sidebar não pode ser a marca: o navy sobre um fundo já navy
+     apaga a divisão entre menu e conteúdo. Ela vira a superfície de card. */
   --sidebar-bg: var(--surface-card);
   --sidebar-bg-deep: var(--surface-page);
-  --sidebar-text: #bdb6cc;
-  --sidebar-text-strong: #f8fafc;
-  --sidebar-section: #a49eb2;
-  --sidebar-hover: rgba(255, 255, 255, 0.06);
-  --sidebar-active: var(--violet-700);
+  --sidebar-text: #aec3d8;
+  --sidebar-text-strong: #f2f8fd;
+  --sidebar-section: #93a7bb;
+  --sidebar-active: var(--violet-600);
   --sidebar-border: var(--border-subtle);
 }

@@ -151,6 +151,14 @@ services:
       NODE_ENV: production
       # A aplicação usa `lms_app`, sem DDL — não o dono do schema.
       DATABASE_URL: ${DATABASE_URL:?defina no .env}
+      # Fuso da operação, não UTC.
+      #
+      # O contêiner nasce em UTC, três horas à frente de Sergipe. Consequência
+      # concreta: entre 21h e meia-noite no horário local, `new Date()` dentro
+      # do processo já está no dia seguinte — o calendário marcaria amanhã como
+      # hoje, e um prazo que vence hoje sairia da lista de próximos antes da
+      # hora. Quem demonstrasse a plataforma à noite veria isso.
+      TZ: ${TZ:-America/Sao_Paulo}
       SESSION_SECRET: ${SESSION_SECRET:?defina no .env}
       # Sem provedor de e-mail contratado, `log` grava a mensagem no log em vez
       # de enviar. Ver a nota em `.env.example`.
@@ -164,14 +172,22 @@ services:
       SMTP_FROM: ${SMTP_FROM:-}
       PUBLIC_ORIGIN: ${PUBLIC_ORIGIN:-}
       STORAGE_ENDPOINT: http://storage:9000
-      # Onde o NAVEGADOR alcança o storage. O proxy publica `/media-storage/*`
-      # no mesmo domínio do site; a URL assinada é emitida contra este endereço.
+      # Onde o NAVEGADOR alcança o storage. O proxy publica `/lms-media/*` no
+      # mesmo domínio do site, e a URL assinada é emitida contra este endereço.
       #
-      # Não derivado de SITE_ADDRESS: atrás do túnel ele vale `http://nerdlms…`
-      # (o TLS termina na Cloudflare), e uma URL `http://` dentro de uma página
-      # `https://` é bloqueada pelo navegador como conteúdo misto. Este valor é
-      # o endereço que o navegador realmente usa.
-      STORAGE_PUBLIC_ENDPOINT: ${STORAGE_PUBLIC_ENDPOINT:-https://localhost:8444}
+      # NORMALMENTE VAZIO, e é assim que deve ficar. A aplicação assina contra
+      # a origem da requisição que está atendendo, que acerta sozinha em
+      # qualquer ambiente. Esta variável só entra quando não há requisição.
+      #
+      # O padrão anterior era `https://localhost:8444`, uma porta que nenhum
+      # serviço publica. Como a assinatura do S3 cobre o host, toda URL saía
+      # apontando para um endereço morto e NENHUM vídeo carregava — nem aqui
+      # nem na instalação publicada, que atende em outro domínio e caía no
+      # mesmo padrão. Sem erro na tela: o `<video>` simplesmente não tocava.
+      #
+      # Se precisar preencher, use o endereço que o navegador usa, com esquema
+      # e porta: `https://ead.exemplo.com.br` ou `http://localhost:8080`.
+      STORAGE_PUBLIC_ENDPOINT: ${STORAGE_PUBLIC_ENDPOINT:-}
       STORAGE_ACCESS_KEY: ${STORAGE_ACCESS_KEY}
       STORAGE_SECRET_KEY: ${STORAGE_SECRET_KEY}
       STORAGE_BUCKET: ${STORAGE_BUCKET:-lms-media}

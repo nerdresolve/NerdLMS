@@ -74,7 +74,7 @@ export function lessonCountOf(course: { modules: Module[] }): number {
  * `unknown` de propósito: o valor vem de um `<input>`, que entrega string, e a
  * pessoa digita o que quiser. Converter aqui, uma vez, evita que cada chamada
  * repita o tratamento — e duração inválida vira 0 em vez de NaN, porque NaN
- * contamina todo o cálculo de progresso adiante.
+ * contamina todo o cálculo de progresso adiante (mesma regra do DEC-031).
  */
 export function durationFromMinutes(minutes: unknown): number {
   const value = Number(minutes);

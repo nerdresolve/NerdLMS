@@ -38,7 +38,7 @@ function record(over: Partial<LearnerRecord> = {}): LearnerRecord {
   };
 }
 
-describe("Critérios de badge — F6-01", () => {
+describe("Critérios de badge: F6-01", () => {
   test("manual NUNCA se cumpre sozinho", () => {
     /* Um critério manual que se cumpre sozinho daria o badge a todo mundo — o
        oposto do que a palavra diz. */
@@ -163,7 +163,7 @@ describe("Critérios de badge — F6-01", () => {
     );
   });
 
-  test("aviso de vencimento próximo — a recertificação do §33", () => {
+  test("aviso de vencimento próximo, a recertificação do §33", () => {
     const agora = new Date("2026-06-01T00:00:00Z");
     const em20dias = { awardedAt: "2025-06-01", expiresAt: "2026-06-21", revokedAt: null };
     const em90dias = { awardedAt: "2025-06-01", expiresAt: "2026-08-30", revokedAt: null };

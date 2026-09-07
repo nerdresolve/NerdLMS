@@ -40,6 +40,34 @@ describe("Certificado em PDF", () => {
     assert.match(pdf, /startxref\n\d+/);
   });
 
+  test("sem domínio declarado, não imprime endereço nenhum", () => {
+    /* O rodapé trazia `lms.exemplo.com/validar` escrito à mão, e esse
+       endereço não resolve. Quem recebe o documento tenta conferir o código,
+       bate numa porta fechada e conclui que o certificado é falso — o oposto
+       do que aquela linha existe para provar.
+
+       Endereço adivinhado é pior que endereço nenhum. */
+    const pdf = asText(buildCertificate(DADOS));
+
+    assert.ok(!pdf.includes("lms.exemplo.com"), "imprimiu um endereço inventado");
+    assert.ok(pdf.includes("Confira o c"), "sumiu a orientação de conferência");
+  });
+
+  test("com domínio declarado, imprime o endereço de conferência", () => {
+    const pdf = asText(buildCertificate({ ...DADOS, validacaoUrl: "ead.exemplo.com.br/validar" }));
+
+    assert.ok(pdf.includes("Confira em ead.exemplo.com.br/validar"));
+  });
+
+  test("o código de conferência sai no papel dos dois jeitos", () => {
+    /* O endereço pode faltar; o código, nunca. É ele que identifica o
+       documento, e sem ele o rodapé não prova nada. */
+    for (const url of [null, "ead.exemplo.com.br/validar"]) {
+      const pdf = asText(buildCertificate({ ...DADOS, validacaoUrl: url }));
+      assert.ok(pdf.includes(DADOS.code), `código ausente com validacaoUrl=${url}`);
+    }
+  });
+
   test("traz o nome, o curso e a data", () => {
     const pdf = asText(buildCertificate(DADOS));
     assert.ok(pdf.includes("Maria Souza"));
@@ -56,7 +84,7 @@ describe("Certificado em PDF", () => {
   test("parênteses no título não quebram o arquivo", () => {
     // Parênteses delimitam string no formato PDF; sem escape, o arquivo inteiro
     // fica inválido.
-    const pdf = asText(buildCertificate({ ...DADOS, courseTitle: "Água (potável) — etapa 1" }));
+    const pdf = asText(buildCertificate({ ...DADOS, courseTitle: "Água (potável), etapa 1" }));
     assert.ok(pdf.includes("\\(pot"), "o parêntese precisa sair escapado");
     assert.ok(pdf.trimEnd().endsWith("%%EOF"));
   });

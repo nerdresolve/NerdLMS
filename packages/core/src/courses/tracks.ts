@@ -1,5 +1,5 @@
 /**
- * Trilhas de aprendizagem.
+ * Trilhas de aprendizagem — TASK-053.
  *
  * Uma trilha é uma sequência ordenada de cursos. A proposta a chama de
  * "Jornada / Mapa de Metrô" e o levantamento pede "trilha personalizável".
@@ -15,6 +15,7 @@
  *    faz sentido para a função dele.
  */
 
+import { trilhaAlcanca, type PessoaAlcancada } from "./alvo-da-trilha.ts";
 import { courseProgress } from "./progress.ts";
 import type { Course, Enrollment } from "./types.ts";
 
@@ -30,7 +31,10 @@ export interface Track {
    * `free`: todos abertos desde o início.
    */
   mode: "sequential" | "free";
+  /** A unidade a que a trilha se destina. Ausente: qualquer uma. */
   project?: string;
+  /** A função a que a trilha se destina. Ausente: qualquer uma. */
+  jobTitle?: string;
 }
 
 export type TrackStepState = "completed" | "current" | "available" | "locked";
@@ -104,7 +108,16 @@ export function trackView(track: Track, courses: Course[], enrollments: Enrollme
   };
 }
 
-/** Trilhas visíveis para alguém, considerando o projeto. */
-export function visibleTracks(tracks: Track[], project?: string): Track[] {
-  return tracks.filter((track) => !track.project || track.project === project);
+/**
+ * Trilhas visíveis para alguém, cruzando local e função.
+ *
+ * A comparação delega a `trilhaAlcanca`: era uma igualdade exata escrita aqui,
+ * que sumia com a trilha por causa de um espaço ou de uma maiúscula — e agora
+ * são duas dimensões, então duas cópias da regra virariam duas oportunidades de
+ * divergir da consulta.
+ */
+export function visibleTracks(tracks: Track[], quem: PessoaAlcancada = {}): Track[] {
+  return tracks.filter((track) =>
+    trilhaAlcanca({ project: track.project ?? null, jobTitle: track.jobTitle ?? null }, quem),
+  );
 }

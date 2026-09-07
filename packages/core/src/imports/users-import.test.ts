@@ -10,7 +10,7 @@ function doCsv(texto: string) {
   return parseTable(texto).rows;
 }
 
-describe("Importação de usuários — F5-05", () => {
+describe("Importação de usuários: F5-05", () => {
   test("planeja a criação das linhas boas", () => {
     const plano = planImport(
       doCsv("Nome;Email;Papel\r\nMaria;maria@x.com;aluno\r\nJoão;joao@x.com;instrutor"),

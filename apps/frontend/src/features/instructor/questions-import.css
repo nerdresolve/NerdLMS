@@ -110,6 +110,7 @@
 .qimport__linha { font-weight: var(--weight-bold); }
 
 .qimport__tipo,
+.qimport__pontos,
 .qimport__categoria {
   padding: 2px var(--space-2);
   background: var(--surface-subtle);

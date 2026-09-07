@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { CalendarRange, Plus } from "lucide-react";
 
 import { classPeriod, seatsLeft, type CourseClass } from "@nerdlms/core/courses/classes.ts";
+import { campoObrigatorio } from "@/lib/campo-obrigatorio.ts";
 
 /**
  * Turmas do curso — F2-02.
@@ -112,10 +113,10 @@ export function ClassesPanel({
 
                 return (
                   <tr key={turma.id}>
-                    <td>{turma.name}</td>
-                    <td>{classPeriod(turma) ?? "Contínua"}</td>
-                    <td>{turma.instructorName ?? "—"}</td>
-                    <td>
+                    <td data-label="Turma">{turma.name}</td>
+                    <td data-label="Período">{classPeriod(turma) ?? "Contínua"}</td>
+                    <td data-label="Instrutor">{turma.instructorName ?? "-"}</td>
+                    <td data-label="Matriculados">
                       {turma.enrolled}
                       {vagas !== null ? (
                         <span className="classes__seats">
@@ -124,10 +125,10 @@ export function ClassesPanel({
                         </span>
                       ) : null}
                     </td>
-                    <td>
+                    <td data-label="Situação">
                       <button
                         type="button"
-                        className="btn btn--ghost btn--sm"
+                        className="btn btn--ghost btn--small"
                         disabled={busy}
                         onClick={() =>
                           void enviar("PATCH", {
@@ -147,7 +148,7 @@ export function ClassesPanel({
         </div>
       ) : (
         <p className="platform__hint">
-          Nenhuma turma. Sem turmas, o curso funciona como oferta contínua — cada pessoa entra
+          Nenhuma turma. Sem turmas, o curso funciona como oferta contínua, cada pessoa entra
           quando quiser.
         </p>
       )}
@@ -158,7 +159,7 @@ export function ClassesPanel({
             <label className="label" htmlFor="turma-nome">
               Nome da turma
             </label>
-            <input className="input" id="turma-nome" name="name" required placeholder="Turma de março" />
+            <input className="input" id="turma-nome" name="name" {...campoObrigatorio("Dê um nome à turma.")} placeholder="Turma de março" />
           </div>
 
           <div className="field">

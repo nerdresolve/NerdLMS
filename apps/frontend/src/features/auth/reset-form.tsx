@@ -4,6 +4,7 @@ import { useState } from "react";
 import { AlertCircle, Check, Eye, EyeOff, Info } from "lucide-react";
 
 import { PASSWORD_MIN_LENGTH } from "@nerdlms/core/validation/login.ts";
+import { campoObrigatorio } from "@/lib/campo-obrigatorio.ts";
 
 /**
  * Pedido de link de redefinição.
@@ -41,7 +42,7 @@ export function RequestResetForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} noValidate>
+    <form onSubmit={handleSubmit} method="post" noValidate>
       <div className="field">
         <label className="field__label" htmlFor="recuperar-email">
           E-mail
@@ -52,7 +53,7 @@ export function RequestResetForm() {
           name="email"
           type="email"
           placeholder="seu@email.com"
-          required
+          {...campoObrigatorio("Digite o e-mail da sua conta.")}
         />
       </div>
 
@@ -133,7 +134,7 @@ export function ConfirmResetForm({ token }: { token: string }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} noValidate>
+    <form onSubmit={handleSubmit} method="post" noValidate>
       <div className="field">
         <label className="field__label" htmlFor="nova-senha">
           Nova senha
@@ -145,7 +146,7 @@ export function ConfirmResetForm({ token }: { token: string }) {
             name="password"
             type={showPassword ? "text" : "password"}
             minLength={PASSWORD_MIN_LENGTH}
-            required
+            {...campoObrigatorio("Escolha a nova senha.")}
           />
           <button
             type="button"
@@ -168,7 +169,7 @@ export function ConfirmResetForm({ token }: { token: string }) {
           id="confirmar-senha"
           name="confirm"
           type={showPassword ? "text" : "password"}
-          required
+          {...campoObrigatorio("Repita a nova senha.")}
         />
       </div>
 

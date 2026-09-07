@@ -89,7 +89,10 @@
   border: 3px solid var(--surface-card);
   border-radius: 50%;
   background: var(--surface-brand);
-  color: var(--text-inverse, #fff);
+  /* `--text-on-brand` é o nome do sistema; `--text-inverse` não existe e a
+     regra caía no branco fixo. Sobre `--surface-brand`, o token certo é o que
+     acompanha a marca se ela mudar. */
+  color: var(--text-on-brand);
   font-weight: var(--weight-bold);
   cursor: pointer;
   box-shadow: 0 2px 8px rgb(0 0 0 / 0.3);

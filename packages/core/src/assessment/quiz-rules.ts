@@ -149,3 +149,57 @@ export function shuffleWithSeed<T>(items: readonly T[], seed: string): T[] {
 
   return lista;
 }
+
+/* ---------------------------------------------------------------------------
+   A escolha, num lugar só
+   --------------------------------------------------------------------------- */
+
+/** O mínimo que esta decisão precisa saber sobre uma tentativa. */
+export interface TentativaRegistrada {
+  startedAt: string | Date;
+  submittedAt?: string | Date | undefined;
+}
+
+/** `"nova"` cria; uma tentativa devolve ELA; `null` recusa. */
+export type EscolhaDeTentativa<T> = "nova" | T | null;
+
+/**
+ * O que fazer diante das tentativas que já existem.
+ *
+ * POR QUE ISTO SAIU DO CASO DE USO
+ *
+ * A decisão precisa acontecer DUAS vezes: uma na leitura solta, para a resposta
+ * saber dizer "a prova está fechada" ou "solicite um reteste"; outra dentro da
+ * trava do banco, com os dados relidos, e essa é a que vale. Duas cópias da
+ * mesma regra é como o teto de tentativas deixaria de existir de novo — a
+ * segunda envelheceria calada.
+ *
+ * `maxAttempts` aqui já é o teto EFETIVO: o da prova mais os retestes
+ * aprovados. Quem chama faz essa soma, porque é ela que conhece os retestes.
+ *
+ * A TENTATIVA ABERTA VOLTA, NÃO CONSOME
+ *
+ * Recarregar a página não pode gastar uma chance. Se há tentativa sem envio e
+ * dentro do prazo, ela é a resposta — e é justamente isso que faz dezesseis
+ * pedidos simultâneos devolverem 200 dezesseis vezes tendo criado UMA linha.
+ *
+ * ABANDONADA NÃO CONTA COMO USADA
+ *
+ * Só o envio consome. Quem abriu a prova, perdeu a conexão e deixou o prazo
+ * vencer não gastou a chance — a tentativa vencida fica no histórico e uma
+ * nova pode nascer. Contar o abandono puniria queda de rede como se fosse
+ * resposta errada.
+ */
+export function escolhaDaTentativa<T extends TentativaRegistrada>(
+  quiz: QuizSettings,
+  anteriores: readonly T[],
+  agora: Date,
+): EscolhaDeTentativa<T> {
+  const aberta = anteriores.find((tentativa) => !tentativa.submittedAt);
+
+  if (aberta && !isExpired(quiz, new Date(aberta.startedAt), agora)) return aberta;
+
+  const enviadas = anteriores.filter((tentativa) => tentativa.submittedAt).length;
+
+  return canStartAttempt(quiz, enviadas, agora).allow ? "nova" : null;
+}

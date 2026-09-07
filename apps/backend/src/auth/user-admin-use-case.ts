@@ -52,8 +52,8 @@ export async function inviteUserUseCase(command: InviteCommand): Promise<InviteO
     return { status: 400, error: USER_REFUSAL_MESSAGE[validated.reason] };
   }
 
-  /* A permissão é avaliada sobre o projeto de DESTINO: um gestor de Prolagos
-     não convida ninguém para Águas do Rio. */
+  /* A permissão é avaliada sobre o projeto de DESTINO: um gestor de Siririzinho
+     não convida ninguém para Unidade Norte. */
   const allowed = can(command.actor, "create", {
     kind: "user",
     ...(validated.project ? { project: validated.project } : {}),

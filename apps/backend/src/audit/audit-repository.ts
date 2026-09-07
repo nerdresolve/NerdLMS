@@ -5,7 +5,7 @@ import { query } from "../db/pool.ts";
 /**
  * Escrita e leitura do registro de auditoria.
  *
- * A tabela é somente-inserção: um gatilho recusa UPDATE e DELETE.
+ * A tabela é somente-inserção: um gatilho recusa UPDATE e DELETE (DEC-048).
  * Registro que se edita não prova nada — é essa a diferença entre auditoria e
  * histórico.
  *
@@ -21,6 +21,13 @@ export interface AuditRecord {
   target: string;
   outcome: AuditOutcome;
   ip?: string | null;
+  /**
+   * De qual cliente é o evento, quando NÃO há ator para deduzi-lo.
+   *
+   * Obrigatório em login fracassado — é justamente o caso em que ainda não se
+   * sabe quem tentou. Nas outras chamadas é dispensável: o ator já diz.
+   */
+  tenantId?: string | null;
 }
 
 /**
@@ -34,18 +41,27 @@ export interface AuditRecord {
 export async function recordAudit(record: AuditRecord): Promise<void> {
   try {
     /* O tenant é DERIVADO do ator, por subconsulta, em vez de vir no registro.
-       
+
        São 20 pontos de chamada; exigir o campo em cada um garantiria que
        alguém esqueceria — e a coluna é NOT NULL, então o esquecimento
-       apareceria como auditoria que deixou de gravar. Derivar do
-       `actor_id`, que toda chamada já informa, fecha essa porta.
-       
-       `actor_id` é nulo em evento de sistema; nesse caso o tenant fica nulo
-       também, e a tela de auditoria mostra o evento para quem tem acesso
-       global. */
+       apareceria como auditoria que deixou de gravar. Derivar do `actor_id`,
+       que quase toda chamada já informa, fecha essa porta.
+
+       O `COALESCE` cobre o caso em que NÃO HÁ ATOR, e ele é o mais importante
+       de todos: login fracassado. Aqui ainda não se sabe quem tentou, a
+       subconsulta devolve nulo, e a coluna `NOT NULL` recusava a linha — como
+       `recordAudit` nunca lança, a falha ia para o console e o login seguia.
+       Resultado: TODA tentativa fracassada de login por SSO, LDAP ou SAML
+       deixava de ser registrada, em silêncio. Justamente o evento que a
+       auditoria existe para guardar.
+
+       (O comentário anterior aqui dizia que, sem ator, "o tenant fica nulo
+       também". Não ficava: a coluna proíbe. Descrevia uma intenção que o
+       esquema nunca permitiu.) */
     await query(
       `INSERT INTO audit_log (tenant_id, actor_id, actor_name, action, target, outcome, ip)
-       VALUES ((SELECT tenant_id FROM users WHERE id = $1), $1, $2, $3, $4, $5, $6)`,
+       VALUES (COALESCE((SELECT tenant_id FROM users WHERE id = $1), $7::uuid),
+               $1, $2, $3, $4, $5, $6)`,
       [
         record.actorId,
         record.actorName,
@@ -53,6 +69,7 @@ export async function recordAudit(record: AuditRecord): Promise<void> {
         record.target.slice(0, 500),
         record.outcome,
         record.ip ?? null,
+        record.tenantId ?? null,
       ],
     );
   } catch (error) {

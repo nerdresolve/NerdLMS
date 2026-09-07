@@ -2,10 +2,20 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { Archive, Clock, FileText, Info, ListVideo, Paperclip, Plus, Send } from "lucide-react";
+import {
+  Archive,
+  Clock,
+  FileText,
+  Info,
+  ListVideo,
+  Paperclip,
+  Plus,
+  Send,
+  Trash2,
+} from "lucide-react";
 
 import { formatDuration } from "@nerdlms/core/courses/progress.ts";
-import type { Course } from "@nerdlms/core/courses/types.ts";
+import type { Course, LessonMaterial } from "@nerdlms/core/courses/types.ts";
 import { contentKindOf } from "@nerdlms/core/courses/content.ts";
 import { countPdfPages } from "@nerdlms/core/reports/pdf-pages.ts";
 import { MetadataPanel, type CategoryOption } from "./metadata-panel.tsx";
@@ -13,7 +23,10 @@ import { Reorderable } from "./reorderable.tsx";
 import { ClassesPanel, type InstructorOption } from "./classes-panel.tsx";
 import type { CourseClass } from "@nerdlms/core/courses/classes.ts";
 
-import { useCourseUpload } from "./use-course-upload.ts";
+import { campoObrigatorio } from "@/lib/campo-obrigatorio.ts";
+import { duracaoDoVideo } from "./duracao-do-video.ts";
+import { aulasNecessarias, cabeNumaAula } from "@nerdlms/core/courses/duracao-da-aula.ts";
+import { uploadWithProgress } from "./upload-progress.ts";
 
 import "@/features/studio/studio.css";
 
@@ -31,6 +44,7 @@ export function EditorView({
   categories,
   classes,
   instructors,
+  materials,
 }: {
   course: Course;
   lessons: number;
@@ -38,13 +52,14 @@ export function EditorView({
   categories: CategoryOption[];
   classes: CourseClass[];
   instructors: InstructorOption[];
+  materials: Record<string, LessonMaterial[]>;
 }) {
   const router = useRouter();
   const [title, setTitle] = useState(course.title);
   const [summary, setSummary] = useState(course.summary);
   const [busy, setBusy] = useState(false);
-  const upload = useCourseUpload(course.id);
-  const { enviando, progresso } = upload;
+  const [enviando, setEnviando] = useState<string | null>(null);
+  const [progresso, setProgresso] = useState<number | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
 
   /** Envia e devolve `true` quando deu certo, para quem chamou decidir o resto. */
@@ -80,10 +95,10 @@ export function EditorView({
    *
    * Dois passos, como o vídeo: o arquivo sobe direto para o storage por URL
    * assinada, e só então a linha é gravada. O arquivo não atravessa o processo
-   * do Next.
+   * do Next (DEC-009).
    */
   async function anexarMaterial(lessonId: string, file: File) {
-    const key = await upload.enviar(file, "materiais");
+    const key = await enviarArquivo(file, "materiais");
     if (!key) return;
 
     const resposta = await fetch("/api/materiais", {
@@ -105,6 +120,38 @@ export function EditorView({
 
     setNotice(`${file.name} anexado.`);
     router.refresh();
+  }
+
+  /**
+   * Desanexa um material.
+   *
+   * Sem isto, quem subisse o arquivo errado não tinha saída: anexava o certo e
+   * convivia com os dois na lista que o aluno vê.
+   */
+  async function removerMaterial(lessonId: string, materialId: string, nome: string) {
+    setBusy(true);
+    setNotice(null);
+
+    try {
+      const resposta = await fetch("/api/materiais", {
+        method: "DELETE",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ lessonId, materialId }),
+      });
+
+      if (!resposta.ok) {
+        const erro = (await resposta.json().catch(() => ({}))) as { error?: string };
+        setNotice(erro.error ?? "Não foi possível remover o material.");
+        return;
+      }
+
+      setNotice(`${nome} removido.`);
+      router.refresh();
+    } catch {
+      setNotice("Não foi possível falar com o servidor.");
+    } finally {
+      setBusy(false);
+    }
   }
 
   async function handleSave() {
@@ -142,6 +189,10 @@ export function EditorView({
     event.preventDefault();
     const form = event.currentTarget;
     const input = form.elements.namedItem("moduleTitle") as HTMLInputElement | null;
+
+    /* O `required` do campo já barra o vazio e explica. Esta guarda continua
+       porque ele não pega o título só de espaços, e porque nada garante que o
+       envio venha do formulário. */
     if (!input?.value.trim()) return;
 
     if (await send("POST", { courseId: course.id, title: input.value })) {
@@ -156,6 +207,53 @@ export function EditorView({
    * duração, e o navegador fala com o storage. Um arquivo de duas horas
    * atravessando o processo travaria a renderização das páginas.
    */
+  async function enviarArquivo(
+    file: File,
+    scope: "aulas" | "materiais" = "aulas",
+  ): Promise<string | null> {
+    setProgresso(0);
+    setEnviando(`Enviando ${file.name}`);
+    try {
+      const autorizacao = await fetch("/api/upload", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ courseId: course.id, filename: file.name, scope }),
+      });
+
+      if (!autorizacao.ok) {
+        const corpo = (await autorizacao.json().catch(() => ({}))) as { error?: string };
+        setNotice(corpo.error ?? "Não foi possível preparar o envio.");
+        return null;
+      }
+
+      const { url, key, contentType } = (await autorizacao.json()) as {
+        url: string;
+        key: string;
+        contentType: string;
+      };
+
+      /* `XMLHttpRequest`, e não `fetch`: só ele reporta progresso de ENVIO.
+         `fetch` acompanha o download da resposta, o que aqui não serve — o
+         que demora é o vídeo subindo. Sem isso, um arquivo grande em conexão
+         de campo deixava o botão em "Enviando" por minutos, sem sinal de que
+         algo acontecia, e quem opera recarregava a página no meio. */
+      const envio = uploadWithProgress(url, file, contentType, (pct) => setProgresso(pct));
+      const enviado = await envio.done;
+
+      if (!enviado) {
+        setNotice("O arquivo não chegou ao armazenamento. Tente de novo.");
+        return null;
+      }
+
+      return key;
+    } catch {
+      setNotice("Não foi possível enviar o arquivo. Verifique sua conexão.");
+      return null;
+    } finally {
+      setEnviando(null);
+      setProgresso(null);
+    }
+  }
 
   /**
    * Cria a aula e publica o pacote SCORM nela.
@@ -200,7 +298,7 @@ export function EditorView({
       corpo.append("arquivo", zip);
       corpo.append("lessonId", criada.lessonId);
 
-      upload.marcarEnvio(zip.name);
+      setEnviando(zip.name);
 
       const publicacao = await fetch("/api/scorm/pacote", { method: "POST", body: corpo });
       const resultado = (await publicacao.json().catch(() => ({}))) as {
@@ -220,7 +318,7 @@ export function EditorView({
          escolheu um `.zip` e não tem como saber que versão de SCORM ele é nem
          quantos arquivos tinha dentro. */
       setNotice(
-        `Pacote SCORM ${resultado.versao ?? ""} publicado — ${resultado.arquivos ?? 0} arquivos.`,
+        `Pacote SCORM ${resultado.versao ?? ""} publicado, ${resultado.arquivos ?? 0} arquivos.`,
       );
       router.refresh();
       return true;
@@ -229,7 +327,7 @@ export function EditorView({
       return false;
     } finally {
       setBusy(false);
-      upload.marcarEnvio(null);
+      setEnviando(null);
     }
   }
 
@@ -240,6 +338,9 @@ export function EditorView({
     const minutes = (form.elements.namedItem("lessonMinutes") as HTMLInputElement | null)?.value ?? "";
     const campo = form.elements.namedItem("lessonFile") as HTMLInputElement | null;
     const file = campo?.files?.[0];
+
+    /* Como no módulo: o `required` explica o vazio, esta guarda pega o título
+       só de espaços, que o navegador aceita. */
     if (!title.trim()) return;
 
     /* O `.zip` tem caminho próprio: precisa ser descompactado no servidor, e o
@@ -250,13 +351,36 @@ export function EditorView({
       return;
     }
 
+    /* O TETO DE DURAÇÃO: AVISO, E NÃO MAIS RECUSA.
+
+       Esta checagem RECUSAVA o vídeo longo e mandava o instrutor cortar por
+       fora. Fazia sentido enquanto o servidor não cortava; agora corta, e
+       recusar seria negar o trabalho que o produto passou a fazer sozinho.
+
+       A leitura continua acontecendo aqui, antes do envio, porque é o que
+       permite dizer QUANTAS aulas vão sair — a pessoa fica sabendo o que
+       esperar antes de 300 MB atravessarem a rede. */
+    if (file && file.type.startsWith("video/")) {
+      const duracao = await duracaoDoVideo(file);
+      const veredito = cabeNumaAula(duracao);
+
+      if (!veredito.aceita) {
+        const partes = duracao ? aulasNecessarias(duracao) : 0;
+        setNotice(
+          partes > 1
+            ? `Este vídeo passa de 15 minutos: ele será dividido em ${partes} aulas depois do envio.`
+            : "Este vídeo passa de 15 minutos e será dividido depois do envio.",
+        );
+      }
+    }
+
     /* O arquivo sobe ANTES da aula: se o envio falhar, não fica uma aula
        apontando para arquivo que não chegou. */
     let mediaKey: string | undefined;
     let pageCount: number | undefined;
 
     if (file) {
-      const key = await upload.enviar(file);
+      const key = await enviarArquivo(file);
       if (!key) return;
       mediaKey = key;
 
@@ -333,7 +457,7 @@ export function EditorView({
             <div className="editor-module" key={module.id}>
               <div className="editor-module__head">
                 <h3 className="editor-module__title">
-                  Módulo {index + 1} — {module.title}
+                  Módulo {index + 1}: {module.title}
                 </h3>
                 <form className="editor-add-form" onSubmit={(event) => handleAddLesson(event, module.id)}>
                   <label className="sr-only" htmlFor={`aula-${module.id}`}>
@@ -345,6 +469,9 @@ export function EditorView({
                     name="lessonTitle"
                     type="text"
                     placeholder="Título da aula"
+                    /* Sem isto o clique não fazia NADA e não dizia nada, e quem
+                       clicou conclui que o botão está quebrado. */
+                    {...campoObrigatorio("Escreva o título da aula.")}
                   />
                   <label className="sr-only" htmlFor={`min-${module.id}`}>
                     Duração em minutos
@@ -407,7 +534,16 @@ export function EditorView({
                 <Reorderable
                   items={module.lessons.map((lesson) => ({
                     id: lesson.id,
-                    label: `${lesson.title} — ${formatDuration(lesson.durationSeconds)}`,
+                    /* O estado da mídia entra no rótulo porque esta lista não
+                       tem outro lugar para ele — e um vídeo sendo cortado
+                       dentro de um módulo que já tem aulas ficaria sem aviso
+                       nenhum, parecendo uma aula pronta de 56 minutos. */
+                    label:
+                      lesson.mediaStatus === "splitting"
+                        ? `${lesson.title} · dividindo o vídeo em aulas de 15 minutos…`
+                        : lesson.mediaStatus === "failed"
+                          ? `${lesson.title} · não foi possível dividir. O vídeo está inteiro`
+                          : `${lesson.title}, ${formatDuration(lesson.durationSeconds)}`,
                   }))}
                   itemLabel="aula"
                   disabled={busy}
@@ -426,6 +562,47 @@ export function EditorView({
                       <span className="editor-lesson__duration">
                         {formatDuration(lesson.durationSeconds)}
                       </span>
+
+                      {/* SE HÁ ARQUIVO, E COMO ABRI-LO.
+
+                          A lista mostrava só ícone, título e duração — e uma
+                          aula com vídeo de cem megabytes ficava idêntica a uma
+                          vazia. Quem abria o editor de um curso importado via
+                          uma casca, e concluía, com razão, que não havia nada
+                          ali dentro.
+
+                          O link leva à aula como o ALUNO a vê, em vez de um
+                          segundo player aqui: aquela tela já resolve URL
+                          assinada, legenda e retomada, e duplicá-la criaria
+                          duas formas de assistir que envelheceriam em
+                          separado. */}
+                      {/* O CORTE EM ANDAMENTO PRECISA APARECER.
+
+                          O vídeo longo entra inteiro e o trabalhador o
+                          substitui por partes de quinze minutos. Sem este
+                          aviso, o instrutor veria uma aula de 56 minutos
+                          aparentemente pronta e concluiria que o corte não
+                          acontece — ou publicaria o curso assim. */}
+                      {lesson.mediaStatus === "splitting" ? (
+                        <span className="editor-lesson__preparando">
+                          Dividindo o vídeo em aulas de 15 minutos…
+                        </span>
+                      ) : lesson.mediaStatus === "failed" ? (
+                        <span className="editor-lesson__falhou">
+                          Não foi possível dividir este vídeo. Ele está inteiro.
+                        </span>
+                      ) : lesson.mediaKey ? (
+                        <a
+                          className="editor-lesson__arquivo"
+                          href={`/aulas/${lesson.id}`}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          <Paperclip aria-hidden /> Ver arquivo
+                        </a>
+                      ) : (
+                        <span className="editor-lesson__sem-arquivo">Sem arquivo</span>
+                      )}
                     </li>
                   ))}
                 </ul>
@@ -451,6 +628,35 @@ export function EditorView({
                         if (file) void anexarMaterial(lesson.id, file);
                       }}
                     />
+
+                    {/* O QUE JÁ ESTÁ ANEXADO.
+
+                        O editor oferecia o campo de envio e nunca mostrava o
+                        resultado: quem anexava lia "arquivo.pdf anexado.",
+                        recarregava a página e não encontrava mais rastro
+                        nenhum. Sem a lista não dá para conferir se o envio deu
+                        certo, nem para perceber que subiu o arquivo errado —
+                        e o aluno via os dois. */}
+                    {(materials[lesson.id] ?? []).length > 0 ? (
+                      <ul className="editor-materials__anexos">
+                        {(materials[lesson.id] ?? []).map((material) => (
+                          <li className="editor-materials__anexo" key={material.id}>
+                            <Paperclip aria-hidden />
+                            <span className="editor-materials__nome">{material.name}</span>
+                            <button
+                              type="button"
+                              className="btn btn--ghost btn--small"
+                              disabled={busy || enviando !== null}
+                              onClick={() =>
+                                void removerMaterial(lesson.id, material.id, material.name)
+                              }
+                            >
+                              <Trash2 aria-hidden /> Remover
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                    ) : null}
                   </li>
                 ))}
               </ul>
@@ -481,6 +687,8 @@ export function EditorView({
               name="moduleTitle"
               type="text"
               placeholder="Título do módulo"
+              /* Mesmo motivo do título da aula: clique mudo lê-se como defeito. */
+              {...campoObrigatorio("Escreva o título do módulo.")}
             />
             <button type="submit" className="editor-add" disabled={busy}>
               <Plus aria-hidden /> Novo módulo

@@ -1,17 +1,14 @@
+import { NOME_PADRAO } from "@nerdlms/core/tenancy/branding.ts";
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 
-import { BRANDING_PADRAO, NOME_PADRAO } from "@nerdlms/core/tenancy/branding.ts";
-
-import { FluidWave } from "@/components/brand/fluid-wave.tsx";
+import { BrandMosaic } from "@/components/brand/brand-mosaic.tsx";
 import { ConfirmResetForm, RequestResetForm } from "@/features/auth/reset-form.tsx";
-import { tenantOfRequest } from "@/lib/tenant-request.ts";
 import "@/features/auth/login.css";
 
-/* O nome do cliente é anexado pelo `template` do layout raiz. */
 export const metadata: Metadata = {
-  title: "Redefinir senha",
+  title: "Redefinir senha · Exemplo S.A.",
   robots: { index: false, follow: false },
 };
 
@@ -30,35 +27,28 @@ export default async function ResetPage({
   searchParams: Promise<{ token?: string }>;
 }) {
   const { token } = await searchParams;
-  const tenant = await tenantOfRequest();
-
-  /* A marca do cliente, com a do produto como reserva. */
-  const nome = tenant?.name ?? NOME_PADRAO;
-  const logo = tenant?.branding.logoDarkUrl ?? BRANDING_PADRAO.logoDark;
 
   return (
     <main className="page">
       <div className="viewport">
         <div className="auth">
           <section className="brand">
-            <FluidWave variant="vertical" className="brand__waves" />
+            <BrandMosaic variant="vertical" className="brand__waves" tone="silhueta" />
 
             <Image
               className="brand__logo"
-              src={logo}
-              alt={nome}
-              width={600}
-              height={165}
+              src="/brand/nerdresolve-wordmark-white.png"
+              alt={NOME_PADRAO}
+              width={400}
+              height={170}
               priority
             />
 
             <p className="brand__tagline">
               <strong>Aprender transforma.</strong>
-              Conhecimento move.
+              Energia move.
             </p>
           </section>
-
-          <FluidWave variant="split" className="brand__split" />
 
           <section className="form-panel">
             <div className="form-panel__inner">

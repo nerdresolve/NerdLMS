@@ -89,7 +89,7 @@ export async function publicarPacoteScorm(command: UploadCommand): Promise<Uploa
   if (!manifesto) {
     return {
       status: 400,
-      error: "O pacote não tem imsmanifest.xml — não parece um pacote SCORM.",
+      error: "O pacote não tem imsmanifest.xml, não parece um pacote SCORM.",
     };
   }
 

@@ -4,7 +4,6 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { Inbox, Search } from "lucide-react";
 
-import { FluidWave } from "@/components/brand/fluid-wave.tsx";
 import { CourseCard } from "@/features/dashboard/dashboard-view.tsx";
 import { EnrollButton } from "./enroll-button.tsx";
 import { useFeature } from "@/features/tenant/feature-context.tsx";
@@ -20,8 +19,11 @@ import {
 
 import "./catalog.css";
 
+/* A ordem segue o percurso do aluno, e os três primeiros somam o total de
+   "Todos". "Salvos" atravessa os outros e por isso vem depois. */
 const TABS: Array<{ id: CatalogFilter; label: string }> = [
   { id: "all", label: "Todos" },
+  { id: "not_started", label: "Não iniciados" },
   { id: "in_progress", label: "Em andamento" },
   { id: "completed", label: "Concluídos" },
   { id: "saved", label: "Salvos" },
@@ -128,7 +130,7 @@ export function CatalogView({
   return (
     <div className="catalog">
       <div className="page-head">
-        <h1 className="page-head__greeting">{title}</h1>
+        <h1 className="page-head__title">{title}</h1>
         <p className="page-head__sub">{subtitle}</p>
       </div>
 
@@ -237,7 +239,7 @@ export function CatalogView({
                  botão dentro dele aninharia dois interativos — inválido em
                  HTML e confuso no teclado. */
               <div className="catalog-item" key={entry.course.id}>
-                <CourseCard course={entry.course} summary={entry.summary} level={2} />
+                <CourseCard course={entry.course} summary={entry.summary} level={2} estado={entry.estado} />
                 {showEnroll ? (
                   <EnrollButton courseId={entry.course.id} enrolled={entry.enrolled === true} />
                 ) : null}
@@ -250,7 +252,7 @@ export function CatalogView({
           </div>
         ) : (
           <div className="empty">
-            <FluidWave variant="band" className="empty__wave" />
+            <span className="empty__rule" aria-hidden="true" />
             <div className="empty__inner">
               <span className="empty__icon">
                 <Inbox aria-hidden />

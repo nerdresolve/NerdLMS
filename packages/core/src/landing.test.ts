@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 
 import { landingStats } from "./landing.ts";
 
-describe("Números da landing — contagem real, nunca inventada", () => {
+describe("Números da landing, contagem real, nunca inventada", () => {
   test("omite o que está zerado", () => {
     // "0 alunos" numa página de apresentação fala do estado da instalação, não
     // do produto. Melhor não mostrar o cartão.

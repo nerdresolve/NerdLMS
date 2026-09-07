@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { startQuizUseCase } from "@nerdlms/backend/assessment/quiz-use-case.ts";
 
 import { AppShell } from "@/features/app-shell/app-shell.tsx";
+import { Breadcrumb } from "@/components/breadcrumb.tsx";
 import { QuizView } from "@/features/quiz/quiz-view.tsx";
 import { actorOf, requireUser, toDisplayUser } from "@/lib/auth/session.ts";
 
@@ -52,6 +53,7 @@ export default async function QuizPage({ params }: { params: Promise<{ quizId: s
 
   return (
     <AppShell
+      topbar={<Breadcrumb items={[{ label: "Meus cursos", href: "/meus-cursos" }, { label: outcome.quiz.title }]} />}
       fullName={toDisplayUser(user).fullName}
       role={user.role}
       currentPath="/meus-cursos"
@@ -64,6 +66,10 @@ export default async function QuizPage({ params }: { params: Promise<{ quizId: s
           startedAt: outcome.attempt.startedAt,
           questions: outcome.questions,
           quiz: {
+            id: outcome.quiz.id,
+            /* O curso, para o certificado: quem passa vê o link ali mesmo, em
+               vez de ter de procurar no perfil qual curso acabou de concluir. */
+            courseId: outcome.quiz.courseId,
             title: outcome.quiz.title,
             timeLimitMinutes: outcome.quiz.timeLimitMinutes ?? null,
             questionsPerPage: outcome.quiz.questionsPerPage ?? null,

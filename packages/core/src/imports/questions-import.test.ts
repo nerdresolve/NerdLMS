@@ -15,7 +15,7 @@ function doCsv(texto: string) {
 
 const CABECALHO = "Tipo;Enunciado;Pontos;Alternativa 1;Alternativa 2;Alternativa 3;Correta";
 
-describe("Importação de questões — F5-05", () => {
+describe("Importação de questões: F5-05", () => {
   test("lê uma questão de escolha única", () => {
     const plano = planQuestionsImport(
       doCsv(`${CABECALHO}\r\nunica;Qual a capital?;1;Belo Horizonte;Brasília;Salvador;2`),

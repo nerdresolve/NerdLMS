@@ -1,6 +1,5 @@
 import { Award, Download, Layers, TrendingUp, Users } from "lucide-react";
 
-import { FluidWave } from "@/components/brand/fluid-wave.tsx";
 import type { ManagerPageData } from "./data.ts";
 
 import "@/features/profile/profile.css";
@@ -12,13 +11,19 @@ import "@/features/studio/studio.css";
  * Tudo aqui é recortado pelo projeto dele. O subtítulo diz qual é, porque um
  * número sem recorte explícito é um número que alguém vai ler como se fosse da
  * plataforma inteira.
+ *
+ * O TÍTULO NÃO CARREGA O RÓTULO DA UNIDADE
+ *
+ * Era "Painel da {unidade}", e a unidade é palavra do cliente: com "Campo" saía
+ * "Painel da campo". Não há como acertar o artigo sem saber o gênero de um termo
+ * que ainda não foi cadastrado, e inventá-lo por terminação erra em "filial" e
+ * em "unidade". O título passa a ser o mesmo do menu, que não precisa dele.
  */
 export function ManagerView({
   project,
   stats,
   courses,
-  unitLower,
-}: Omit<ManagerPageData, "manager" | "team"> & { unitLower: string }) {
+}: Omit<ManagerPageData, "manager" | "team">) {
   const cards = [
     { Icon: Users, value: String(stats.people), label: `pessoas em ${project}` },
     { Icon: TrendingUp, value: String(stats.active30d), label: "ativos em 30 dias" },
@@ -27,18 +32,16 @@ export function ManagerView({
   ];
 
   return (
-    <div className="studio">
-      <div className="studio__head">
-        <div className="studio__head-text">
-          <h1 className="page-head__greeting">Painel da {unitLower}</h1>
-          <p className="page-head__sub">
-            Visão de {project}. Só aparecem pessoas e matrículas desta {unitLower}.
-          </p>
+    <div className="page">
+      <div className="page-head">
+        <div className="page-head__text">
+          <h1 className="page-head__title">Painel da gestão</h1>
+          <p className="page-head__sub">Somente pessoas e matrículas de {project}.</p>
         </div>
 
         {/* Links, não botões: o CSV é um arquivo que se baixa, e o servidor
             recorta o relatório pelo projeto de quem pede. */}
-        <div className="studio-course__actions">
+        <div className="page-head__actions">
           <a className="btn btn--secondary" href="/api/relatorios?tipo=progresso">
             <Download aria-hidden /> Progresso
           </a>
@@ -78,18 +81,18 @@ export function ManagerView({
               <thead>
                 <tr>
                   <th scope="col">Curso</th>
-                  <th scope="col">Pessoas</th>
-                  <th scope="col">Progresso médio</th>
-                  <th scope="col">Concluíram</th>
+                  <th scope="col" data-num>Pessoas</th>
+                  <th scope="col" data-num>Progresso médio</th>
+                  <th scope="col" data-num>Concluíram</th>
                 </tr>
               </thead>
               <tbody>
                 {courses.map(({ course, learners, averagePercent, completed }) => (
                   <tr key={course.id}>
-                    <td>{course.title}</td>
-                    <td>{learners}</td>
-                    <td>{averagePercent}%</td>
-                    <td>{completed}</td>
+                    <td data-label="Curso">{course.title}</td>
+                    <td data-label="Pessoas" data-num>{learners}</td>
+                    <td data-label="Progresso médio" data-num>{averagePercent}%</td>
+                    <td data-label="Concluíram" data-num>{completed}</td>
                   </tr>
                 ))}
               </tbody>
@@ -97,7 +100,7 @@ export function ManagerView({
           </div>
         ) : (
           <div className="empty">
-            <FluidWave variant="band" className="empty__wave" />
+            <span className="empty__rule" aria-hidden="true" />
             <div className="empty__inner">
               <span className="empty__icon">
                 <Layers aria-hidden />

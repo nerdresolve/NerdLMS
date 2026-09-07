@@ -208,7 +208,7 @@ export function UsersImport({ unitLabel }: { unitLabel: string }) {
             </li>
             {plano.existentes > 0 ? (
               <li>
-                <strong>{plano.existentes}</strong> já cadastrada(s) — não muda nada
+                <strong>{plano.existentes}</strong> já cadastrada(s), não muda nada
               </li>
             ) : null}
             {plano.duplicadas > 0 ? (
@@ -218,7 +218,7 @@ export function UsersImport({ unitLabel }: { unitLabel: string }) {
             ) : null}
             {plano.erros > 0 ? (
               <li className="importar__erros">
-                <AlertTriangle aria-hidden /> <strong>{plano.erros}</strong> com problema — essas
+                <AlertTriangle aria-hidden /> <strong>{plano.erros}</strong> com problema, essas
                 linhas não serão criadas
               </li>
             ) : null}
@@ -241,11 +241,11 @@ export function UsersImport({ unitLabel }: { unitLabel: string }) {
               <tbody>
                 {plano.linhas.map((linha) => (
                   <tr key={linha.linha} data-situacao={linha.situacao}>
-                    <td>{linha.linha}</td>
-                    <td>{linha.nome || "—"}</td>
-                    <td>{linha.email || "—"}</td>
-                    <td>{PAPEL_LABEL[linha.papel] ?? linha.papel}</td>
-                    <td>
+                    <td data-label="Linha">{linha.linha}</td>
+                    <td data-label="Nome">{linha.nome || "-"}</td>
+                    <td data-label="E-mail">{linha.email || "-"}</td>
+                    <td data-label="Papel">{PAPEL_LABEL[linha.papel] ?? linha.papel}</td>
+                    <td data-label="Situação">
                       {SITUACAO_LABEL[linha.situacao]}
                       {linha.erro ? <span className="prefs__desc">{linha.erro}</span> : null}
                     </td>

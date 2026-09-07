@@ -1,6 +1,5 @@
 import { Users } from "lucide-react";
 
-import { FluidWave } from "@/components/brand/fluid-wave.tsx";
 import { InviteForm, StatusToggle } from "./user-actions.tsx";
 import type { Role } from "@nerdlms/core/auth/permissions.ts";
 import type { UsersPageData } from "./data.ts";
@@ -31,10 +30,10 @@ const STATUS_LABEL = {
    tenant vive no cliente. Quem renderiza já tem a sessão em mãos. */
 export function UsersView({ users, unitLabel }: Omit<UsersPageData, "admin"> & { unitLabel: string }) {
   return (
-    <div className="studio">
-      <div className="studio__head">
-        <div className="studio__head-text">
-          <h1 className="page-head__greeting">Usuários</h1>
+    <div className="page">
+      <div className="page-head">
+        <div className="page-head__text">
+          <h1 className="page-head__title">Usuários</h1>
           <p className="page-head__sub">
             Todas as pessoas com acesso à plataforma. Convidar cria a conta pendente; a senha é
             definida por quem recebe.
@@ -71,18 +70,18 @@ export function UsersView({ users, unitLabel }: Omit<UsersPageData, "admin"> & {
               <tbody>
                 {users.map(({ user, enrollments }) => (
                   <tr key={user.id}>
-                    <td>{user.fullName}</td>
-                    <td>{ROLE_LABEL[user.role]}</td>
-                    <td>{user.project ?? "—"}</td>
-                    <td>
+                    <td data-label="Nome">{user.fullName}</td>
+                    <td data-label="Papel">{ROLE_LABEL[user.role]}</td>
+                    <td data-label={unitLabel}>{user.project ?? "-"}</td>
+                    <td data-label="Situação">
                       <span
                         className={`badge${user.status === "active" ? " badge--success" : user.status === "inactive" ? " badge--inactive" : " badge--pending"}`}
                       >
                         {STATUS_LABEL[user.status ?? "pending"]}
                       </span>
                     </td>
-                    <td>{enrollments}</td>
-                    <td>
+                    <td data-label="Matrículas" data-num>{enrollments}</td>
+                    <td data-label="Acesso">
                       <StatusToggle userId={user.id} status={user.status} />
                     </td>
                   </tr>
@@ -92,7 +91,7 @@ export function UsersView({ users, unitLabel }: Omit<UsersPageData, "admin"> & {
           </div>
         ) : (
           <div className="empty">
-            <FluidWave variant="band" className="empty__wave" />
+            <span className="empty__rule" aria-hidden="true" />
             <div className="empty__inner">
               <span className="empty__icon">
                 <Users aria-hidden />

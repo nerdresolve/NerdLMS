@@ -27,7 +27,7 @@ function itemEscolha(): string {
 </assessmentItem>`;
 }
 
-describe("QTI — o item de escolha", () => {
+describe("QTI, o item de escolha", () => {
   test("lê enunciado, alternativas e gabarito", () => {
     const q = parseQtiItem(itemEscolha(), 1);
 
@@ -59,7 +59,7 @@ describe("QTI — o item de escolha", () => {
     assert.equal(parseQtiItem(itemEscolha(), 1).pontos, 2.5);
   });
 
-  test("sem MAXSCORE, o peso é 1 — não é motivo para recusar", () => {
+  test("sem MAXSCORE, o peso é 1, não é motivo para recusar", () => {
     const semPeso = itemEscolha().replace(/<outcomeDeclaration[\s\S]*?<\/outcomeDeclaration>/, "");
     const q = parseQtiItem(semPeso, 1);
 
@@ -73,7 +73,7 @@ describe("QTI — o item de escolha", () => {
   });
 });
 
-describe("QTI — os tipos que a contagem revela", () => {
+describe("QTI, os tipos que a contagem revela", () => {
   test("duas alternativas certas viram múltipla resposta", () => {
     /* O QTI não distingue os dois na tag — a contagem distingue, e os dois são
        corrigidos de formas diferentes. */
@@ -135,7 +135,7 @@ describe("QTI — os tipos que a contagem revela", () => {
   });
 });
 
-describe("QTI — o que é recusado, e com que mensagem", () => {
+describe("QTI, o que é recusado, e com que mensagem", () => {
   test("questão de associação é recusada PELO NOME", () => {
     /* "Item inválido" faria o professor abrir o XML para descobrir o quê.
        O tipo no texto diz o que fazer. */
@@ -205,7 +205,7 @@ describe("QTI — o que é recusado, e com que mensagem", () => {
   });
 });
 
-describe("QTI — o arquivo inteiro", () => {
+describe("QTI, o arquivo inteiro", () => {
   test("lê vários itens e conta o que dá para criar", () => {
     const xml = `<assessmentTest>
       <assessmentItem>

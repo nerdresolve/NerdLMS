@@ -13,7 +13,7 @@ const curso = (over: Partial<EnrollableCourse> = {}): EnrollableCourse => ({
 describe("Gestor matricula a equipe (F1-03)", () => {
   test("curso `assigned` é o caso normal, não a recusa", () => {
     // É a diferença central em relação à auto-matrícula: o treinamento
-    // obrigatório existe justamente para ser atribuído.
+    // obrigatório existe justamente para ser atribuído (DEC-039).
     assert.equal(canAssignEnrollment(curso(), false, true).allow, true);
 
     const auto = canSelfEnroll(curso(), false);

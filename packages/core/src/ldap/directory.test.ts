@@ -1,9 +1,9 @@
 import { test, describe } from "node:test";
 import assert from "node:assert/strict";
 
-import { buildBindDn, directoryPreset, escapeDnValue } from "./directory.ts";
+import { baseDnDoDominio, buildBindDn, directoryPreset, escapeDnValue } from "./directory.ts";
 
-describe("LDAP — diretórios pré-configurados", () => {
+describe("LDAP, diretórios pré-configurados", () => {
   test("o Active Directory usa o formato de login das pessoas", () => {
     /* É a única forma que funciona sem saber em qual OU a conta mora — e isso
        muda por empresa, às vezes por departamento. */
@@ -35,7 +35,7 @@ describe("LDAP — diretórios pré-configurados", () => {
   });
 });
 
-describe("LDAP — o DN não aceita injeção", () => {
+describe("LDAP, o DN não aceita injeção", () => {
   test("vírgula e igual no nome são escapados", () => {
     /* Sem escapar, quem digitasse `ana,ou=admins` estaria descrevendo outro
        lugar da árvore em vez de informar um nome. */
@@ -79,7 +79,7 @@ describe("LDAP — o DN não aceita injeção", () => {
   });
 });
 
-describe("LDAP — configuração pela metade", () => {
+describe("LDAP, configuração pela metade", () => {
   test("marcador que sobrou é recusado", () => {
     /* `{domain}` sem domínio preenchido chegaria ao servidor como texto
        literal, e o erro apontaria para o diretório em vez da configuração. */
@@ -99,7 +99,7 @@ describe("LDAP — configuração pela metade", () => {
   });
 });
 
-describe("LDAP — escape de valor", () => {
+describe("LDAP, escape de valor", () => {
   test("os caracteres do RFC 4514 são escapados", () => {
     assert.equal(escapeDnValue("a,b"), "a\\,b");
     assert.equal(escapeDnValue("a=b"), "a\\=b");
@@ -110,5 +110,28 @@ describe("LDAP — escape de valor", () => {
     /* No meio ele é parte legítima do nome. */
     assert.equal(escapeDnValue("ana souza"), "ana souza");
     assert.equal(escapeDnValue(" ana"), "\\ ana");
+  });
+});
+
+describe("LDAP, base da busca deduzida do domínio", () => {
+  test("o domínio vira a raiz do Active Directory", () => {
+    /* Quem configura já informou `empresa.local` no campo do login; pedir
+       `DC=empresa,DC=local` noutro campo é pedir a mesma coisa duas vezes. */
+    assert.equal(baseDnDoDominio("empresa.local"), "DC=empresa,DC=local");
+    assert.equal(baseDnDoDominio("exemplo.local"), "DC=exemplo,DC=local");
+    assert.equal(baseDnDoDominio("a.b.c.com.br"), "DC=a,DC=b,DC=c,DC=com,DC=br");
+  });
+
+  test("sem domínio não inventa base", () => {
+    assert.equal(baseDnDoDominio(""), "");
+    assert.equal(baseDnDoDominio(null), "");
+    assert.equal(baseDnDoDominio("   "), "");
+  });
+
+  test("pedaço vazio não vira componente vazio", () => {
+    /* `empresa..local` produziria `DC=empresa,DC=,DC=local`, que o servidor
+       recusa com um erro sobre a busca — e não sobre a configuração. */
+    assert.equal(baseDnDoDominio("empresa..local"), "DC=empresa,DC=local");
+    assert.equal(baseDnDoDominio(".empresa.local."), "DC=empresa,DC=local");
   });
 });

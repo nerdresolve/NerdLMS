@@ -3,13 +3,8 @@
    números — dispor em grade faria o olho pular entre colunas sem ganho. */
 .platform { display: grid; gap: var(--space-8); }
 
-.platform__hint {
-  margin: 0 0 var(--space-5);
-  max-width: 62ch;
-  font-size: var(--text-small-size);
-  line-height: var(--text-small-lh);
-  color: var(--text-muted);
-}
+/* `.platform__hint` mora em styles/components.css: catorze telas o usam, duas
+   delas no perfil, que não carrega este arquivo. O nome ficou. */
 
 .platform__features { display: grid; gap: 2px; margin: 0; padding: 0; list-style: none; }
 

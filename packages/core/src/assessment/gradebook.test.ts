@@ -49,7 +49,7 @@ describe("A nota vigente é a última lançada", () => {
     assert.equal(vigentes.length, 2);
   });
 
-  test("a ordem de entrada não importa — vale a data", () => {
+  test("a ordem de entrada não importa, vale a data", () => {
     // O banco devolve por `created_at`, mas depender disso deixaria a regra
     // refém da cláusula ORDER BY de quem consultar.
     const vigentes = currentGrades([
@@ -112,7 +112,7 @@ describe("Nota final do curso", () => {
   });
 });
 
-describe("Nota mínima para o certificado — F3-09", () => {
+describe("Nota mínima para o certificado: F3-09", () => {
   test("sem exigência, concluir as aulas basta", () => {
     // É o comportamento de hoje, e cursos existentes não podem passar a exigir
     // prova que não têm.

@@ -1,5 +1,5 @@
 /**
- * Economia social dos comentários.
+ * Economia social dos comentários — TASK-060.
  *
  * Inspirada no modelo de TabCoins do TabNews: votar custa, receber voto
  * recompensa, e não existe voto negativo. O que muda em relação ao TabNews, e
@@ -12,7 +12,7 @@
  *
  * Por isso são **duas moedas separadas**:
  *
- * - **Moedas**: ganhas aprendendo e recebendo votos. Gastas na loja.
+ * - **Moedas NerdResolve**: ganhas aprendendo e recebendo votos. Gastas na loja.
  * - **Votos da semana**: orçamento semanal fixo, que **não acumula**. Serve só
  *   para votar. Não gastar é perder — o incentivo é usar, não guardar.
  *
@@ -136,7 +136,7 @@ export interface Highlight {
  * A distinção é deliberada: ranquear conclusão de treinamento obrigatório
  * expõe quem está atrasado e transforma exigência em competição. Reconhecer
  * quem ajudou os colegas premia algo voluntário e não constrange ninguém.
- * Ver.
+ * Ver DEC-051.
  */
 export function highlights(
   comments: VotableComment[],

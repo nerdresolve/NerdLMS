@@ -13,7 +13,7 @@ function doCsv(texto: string) {
 
 const CAB = "Tipo;Titulo;Descricao;Formato;Duracao;URL;Paginas";
 
-describe("Importação de cursos — F5-05", () => {
+describe("Importação de cursos: F5-05", () => {
   test("monta a árvore pela ordem das linhas", () => {
     const plano = planCoursesImport(
       doCsv(
@@ -173,7 +173,7 @@ describe("Importação de cursos — F5-05", () => {
     for (const formato of FORMATOS_ACEITOS) {
       assert.ok(
         formato in KIND_LABEL,
-        `formato "${formato}" não é um ContentKind — o banco vai recusar`,
+        `formato "${formato}" não é um ContentKind, o banco vai recusar`,
       );
     }
   });

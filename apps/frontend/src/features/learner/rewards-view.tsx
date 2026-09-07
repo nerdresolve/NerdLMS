@@ -1,6 +1,5 @@
 import { Award, Coins, Gift, Lock } from "lucide-react";
 
-import { FluidWave } from "@/components/brand/fluid-wave.tsx";
 import { ProgressBar } from "@/features/dashboard/dashboard-view.tsx";
 import type { RewardsPageData } from "./data.ts";
 
@@ -25,14 +24,13 @@ export function RewardsView({
   return (
     <div className="rewards">
       <div className="page-head">
-        <h1 className="page-head__greeting">Conquistas</h1>
+        <h1 className="page-head__title">Conquistas</h1>
         <p className="page-head__sub">
           Cada aula concluída vira moeda. Cada curso terminado, um marco.
         </p>
       </div>
 
       <section className="level-card" aria-labelledby="nivel">
-        <FluidWave variant="band" className="level-card__wave" />
         <div className="level-card__body">
           <h2 className="level-card__title" id="nivel">
             Nível {level.level}

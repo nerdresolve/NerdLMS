@@ -8,6 +8,7 @@ import { requireUser, toDisplayUser } from "@/lib/auth/session.ts";
 import { can } from "@nerdlms/core/auth/permissions.ts";
 import { findCategoryOptions } from "@nerdlms/backend/courses/category-repository.ts";
 import { findClasses } from "@nerdlms/backend/courses/class-repository.ts";
+import { findMaterials } from "@nerdlms/backend/courses/material-repository.ts";
 import type { CourseClass } from "@nerdlms/core/courses/classes.ts";
 import { actorOf } from "@/lib/auth/session.ts";
 import {
@@ -19,7 +20,13 @@ import {
   type LearnerRow,
 } from "@nerdlms/core/courses/engagement.ts";
 import { courseDurationSeconds } from "@nerdlms/core/courses/progress.ts";
-import type { Course, User } from "@nerdlms/core/courses/types.ts";
+import { tentativasAteAprovar } from "@nerdlms/backend/analytics/analytics-repository.ts";
+import {
+  aproveitamentoPorTentativa,
+  lerAproveitamento,
+  type Aproveitamento,
+} from "@nerdlms/core/assessment/aproveitamento.ts";
+import type { Course, LessonMaterial, User } from "@nerdlms/core/courses/types.ts";
 
 /**
  * Camada de dados do instrutor.
@@ -89,6 +96,15 @@ export interface EngagementPageData {
   summary: EngagementSummary;
   learners: LearnerRowView[];
   courses: Array<{ course: Course; engagement: CourseEngagement }>;
+  /**
+   * Em que tentativa as pessoas passam nas provas deste instrutor.
+   *
+   * A taxa de aprovação sozinha esconde a diferença entre uma prova calibrada
+   * e uma aula que não prepara para ela: nas duas o total pode ser o mesmo.
+   */
+  aproveitamento: Aproveitamento;
+  /** Leitura do número, quando há dados suficientes para arriscar uma. */
+  leitura: string | null;
 }
 
 /** Engajamento agregado dos cursos do instrutor, e a lista de alunos. */
@@ -101,12 +117,15 @@ export async function getEngagementPageData(): Promise<EngagementPageData> {
     notFound();
   }
 
-  const [allCourses, allEnrollments, allUsers] = await Promise.all([
+  const [allCourses, allEnrollments, allUsers, tentativas] = await Promise.all([
     findAllCourses(user.tenant.id),
     findEnrollments(),
     findAllUsers(user.tenant.id),
+    tentativasAteAprovar(user.tenant.id, authorId),
   ]);
   const authored = allCourses.filter((course) => course.authorId === authorId);
+
+  const aproveitamento = aproveitamentoPorTentativa(tentativas);
 
   const nameById = new Map(allUsers.map((person) => [person.id, person.fullName]));
   const titleById = new Map(authored.map((course) => [course.id, course.title]));
@@ -125,6 +144,8 @@ export async function getEngagementPageData(): Promise<EngagementPageData> {
       course,
       engagement: courseEngagement(course, allEnrollments),
     })),
+    aproveitamento,
+    leitura: lerAproveitamento(aproveitamento),
   };
 }
 
@@ -137,6 +158,15 @@ export interface EditorPageData {
   categories: { id: string; name: string; parentName: string | null }[];
   classes: CourseClass[];
   instructors: { id: string; name: string }[];
+  /**
+   * O que já está anexado, por aula.
+   *
+   * O editor oferecia o campo de envio e nunca mostrava o resultado: quem
+   * anexasse via "arquivo.pdf anexado.", recarregava a página e não achava
+   * mais rastro nenhum. Sem saber o que está lá, não dá para conferir se o
+   * envio deu certo nem para perceber que o arquivo errado subiu.
+   */
+  materials: Record<string, LessonMaterial[]>;
 }
 
 /**
@@ -167,9 +197,27 @@ export async function getEditorPageData(courseId: string): Promise<EditorPageDat
        quem nem pode abrir o curso. */
     categories: await findCategoryOptions(user.tenant.id),
     classes: await findClasses(courseId),
+    materials: await materiaisPorAula(course),
     /* Quem pode conduzir turma: instrutor ou admin do mesmo cliente. */
     instructors: (await findAllUsers(user.tenant.id))
       .filter((pessoa) => pessoa.role === "instructor" || pessoa.role === "admin")
       .map((pessoa) => ({ id: pessoa.id, name: pessoa.fullName })),
   };
+}
+
+/**
+ * Materiais de todas as aulas do curso, indexados pela aula.
+ *
+ * Em paralelo porque são consultas independentes e o editor precisa das
+ * duas dezenas de uma vez; em série, um curso com trinta aulas somaria trinta
+ * idas ao banco antes de a página começar a renderizar.
+ */
+async function materiaisPorAula(course: Course): Promise<Record<string, LessonMaterial[]>> {
+  const aulas = course.modules.flatMap((modulo) => modulo.lessons.map((aula) => aula.id));
+
+  const pares = await Promise.all(
+    aulas.map(async (id) => [id, await findMaterials(id)] as const),
+  );
+
+  return Object.fromEntries(pares);
 }

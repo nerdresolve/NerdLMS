@@ -1,116 +1,89 @@
 import { test, describe } from "node:test";
 import assert from "node:assert/strict";
 
-import { lessonStatus, isLessonCompleted, resolveCompletion } from "./progress.ts";
-import type { Enrollment, Lesson } from "./types.ts";
+import {
+  cursoConcluido,
+  estadoDoCurso,
+  ROTULO_CURTO_DO_ESTADO,
+  ROTULO_DO_ESTADO,
+} from "./completion.ts";
+import type { ProgressSummary } from "./progress.ts";
 
-const aula = (over: Partial<Lesson> = {}): Lesson => ({
-  id: "l1",
-  title: "Aula",
-  durationSeconds: 600,
-  ...over,
+const aulas = (status: ProgressSummary["status"]): ProgressSummary => ({
+  total: 10,
+  completed: status === "completed" ? 10 : status === "in_progress" ? 4 : 0,
+  percent: status === "completed" ? 100 : status === "in_progress" ? 40 : 0,
+  status,
 });
 
-const matricula = (progresso: Enrollment["progress"]): Enrollment => ({
-  courseId: "c1",
-  learnerId: "u1",
-  enrolledBy: "self",
-  progress: progresso,
-});
-
-describe("Conclusão é um fato registrado, não um cálculo", () => {
-  test("assistir muito NÃO conclui sozinho quando o registro não diz que concluiu", () => {
-    // O ponto do guia §5: "assistir 20% do vídeo não necessariamente significa
-    // concluir uma aula". Antes, `completed` era derivado de watchedSeconds, e
-    // por isso não existia forma de ter uma aula muito assistida e não
-    // concluída — nem de desmarcar o que o cálculo dizia estar pronto.
-    const e = matricula({
-      l1: { lessonId: "l1", watchedSeconds: 599, lastPositionSeconds: 599 },
-    });
-
-    assert.equal(lessonStatus(aula(), e), "in_progress");
+describe("Conclusão do curso", () => {
+  test("sem prova exigida, as aulas fecham o curso", () => {
+    /* Cursos que não têm prova não passam a exigir uma que não existe. */
+    const r = estadoDoCurso(aulas("completed"), { notaMinima: null, melhorPercentual: null });
+    assert.equal(r, "concluido");
   });
 
-  test("com `completedAt`, está concluída — mesmo com pouco vídeo assistido", () => {
-    // O caso da aula de leitura ou do encontro presencial: não há o que medir,
-    // e sob a regra antiga jamais concluiria.
-    const e = matricula({
-      l1: {
-        lessonId: "l1",
-        watchedSeconds: 0,
-        lastPositionSeconds: 0,
-        completedAt: "2026-08-23T10:00:00.000Z",
-        completionSource: "manual",
-      },
-    });
-
-    assert.equal(lessonStatus(aula({ completionMode: "manual" }), e), "completed");
+  test("com prova exigida e nunca feita, o curso NÃO está concluído", () => {
+    /* Era o defeito: o perfil listava certificado para quem tinha as aulas em
+       dia, e o botão de baixar devolvia recusa. A tela prometia o que o
+       servidor negava. */
+    const r = estadoDoCurso(aulas("completed"), { notaMinima: 80, melhorPercentual: null });
+    assert.equal(r, "falta-prova");
   });
 
-  test("sem progresso nenhum, não começou", () => {
-    assert.equal(lessonStatus(aula(), matricula({})), "not_started");
-  });
-});
-
-describe("Quando o consumo DEVE disparar a conclusão automática", () => {
-  test("aula `auto` que cruzou o limiar conclui", () => {
-    const decisao = resolveCompletion(aula(), 540, undefined);
-    assert.equal(decisao?.completionSource, "auto");
+  test("reprovado na prova também é falta-prova", () => {
+    const r = estadoDoCurso(aulas("completed"), { notaMinima: 80, melhorPercentual: 60 });
+    assert.equal(r, "falta-prova");
   });
 
-  test("aula `auto` abaixo do limiar não conclui", () => {
-    assert.equal(resolveCompletion(aula(), 120, undefined), null);
+  test("aulas em dia e prova aprovada fecham o curso", () => {
+    const r = estadoDoCurso(aulas("completed"), { notaMinima: 80, melhorPercentual: 80 });
+    assert.equal(r, "concluido");
   });
 
-  test("aula `manual` NÃO conclui por consumo, por mais que se assista", () => {
-    // É a razão de o modo existir. Se o consumo concluísse a aula manual, o
-    // modo não teria efeito nenhum.
-    assert.equal(resolveCompletion(aula({ completionMode: "manual" }), 600, undefined), null);
+  test("aprovar na prova sem terminar as aulas não conclui", () => {
+    /* A prova pode ser feita antes; concluir o curso continua exigindo o
+       conteúdo. */
+    const r = estadoDoCurso(aulas("in_progress"), { notaMinima: 80, melhorPercentual: 100 });
+    assert.equal(r, "em-andamento");
   });
 
-  test("o que já foi concluído não é reconcluído", () => {
-    // Reescrever `completedAt` a cada progresso apagaria a data real da
-    // conclusão — e ela vai para relatório de conformidade.
-    const antes = {
-      lessonId: "l1",
-      watchedSeconds: 540,
-      lastPositionSeconds: 540,
-      completedAt: "2026-01-01T00:00:00.000Z",
-      completionSource: "auto" as const,
-    };
-
-    assert.equal(resolveCompletion(aula(), 600, antes), null);
+  test("quem não começou aparece como não iniciado, mesmo com prova exigida", () => {
+    const r = estadoDoCurso(aulas("not_started"), { notaMinima: 80, melhorPercentual: null });
+    assert.equal(r, "nao-comecou");
   });
 
-  test("conclusão manual não é desfeita por consumo posterior", () => {
-    const antes = {
-      lessonId: "l1",
-      watchedSeconds: 0,
-      lastPositionSeconds: 0,
-      completedAt: "2026-01-01T00:00:00.000Z",
-      completionSource: "manual" as const,
-    };
+  test("o atalho concorda com o estado", () => {
+    assert.equal(cursoConcluido(aulas("completed"), { notaMinima: 80, melhorPercentual: 90 }), true);
+    assert.equal(cursoConcluido(aulas("completed"), { notaMinima: 80, melhorPercentual: 70 }), false);
+  });
 
-    assert.equal(resolveCompletion(aula(), 10, antes), null);
+  test("a nota de corte é a mesma da regra de aprovação", () => {
+    /* 80% são 8,0. Se as duas divergissem, o curso fecharia por um caminho e
+       o certificado seria recusado pelo outro. */
+    assert.equal(cursoConcluido(aulas("completed"), { notaMinima: 80, melhorPercentual: 79 }), false);
+    assert.equal(cursoConcluido(aulas("completed"), { notaMinima: 80, melhorPercentual: 80 }), true);
   });
 });
 
-describe("Retomada usa onde parou, não o quanto assistiu", () => {
-  test("quem voltou para rever retoma do ponto em que saiu", () => {
-    // O caso concreto: assistiu até 8:00, voltou para 2:00 para rever, fechou.
-    // `watchedSeconds` continua 480 (mede consumo e só cresce), mas retomar
-    // aos 8:00 jogaria a pessoa adiante do ponto em que ela estava.
-    const p = { lessonId: "l1", watchedSeconds: 480, lastPositionSeconds: 120 };
-    assert.equal(p.lastPositionSeconds, 120);
-    assert.notEqual(p.lastPositionSeconds, p.watchedSeconds);
+describe("Os rótulos dos estados", () => {
+  test("os dois mapas cobrem os mesmos estados", () => {
+    /* São duas redações da MESMA coisa, a longa e a de selo. Acrescentar um
+       estado num mapa e esquecer o outro faria uma tela dizer o nome do estado
+       e a outra dizer `undefined`, e só numa situação específica. */
+    assert.deepEqual(
+      Object.keys(ROTULO_DO_ESTADO).sort(),
+      Object.keys(ROTULO_CURTO_DO_ESTADO).sort(),
+    );
   });
-});
 
-describe("O limiar de consumo continua valendo para o que ele mede", () => {
-  test("`isLessonCompleted` segue respondendo sobre CONSUMO", () => {
-    // A função não sumiu: ela responde "assistiu o bastante?", que é uma
-    // pergunta legítima — só não é mais a mesma pergunta que "concluiu?".
-    assert.equal(isLessonCompleted(540, 600), true);
-    assert.equal(isLessonCompleted(120, 600), false);
+  test("`falta-prova` tem rótulo próprio, e não vira `concluído`", () => {
+    /* O cartão caía no percentual das aulas e estampava "100%" num curso que
+       ainda depende da prova. Quem lê o cartão lê o selo primeiro. */
+    assert.equal(ROTULO_CURTO_DO_ESTADO["falta-prova"], "Falta a prova");
+    assert.notEqual(
+      ROTULO_CURTO_DO_ESTADO["falta-prova"],
+      ROTULO_CURTO_DO_ESTADO.concluido,
+    );
   });
 });

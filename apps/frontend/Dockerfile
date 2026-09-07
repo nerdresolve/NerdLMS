@@ -66,6 +66,25 @@ ENV NODE_ENV=production \
     # container fica "unhealthy" servindo páginas normalmente.
     HOSTNAME=0.0.0.0
 
+# Banco de fusos horários.
+#
+# A imagem alpine não o traz, e sem ele a variável `TZ` é IGNORADA em silêncio:
+# `date` e o Node continuam em UTC mesmo com `TZ=America/Sao_Paulo` definida no
+# compose. Foi o que aconteceu — a variável estava lá, o relógio não mudou, e
+# só olhando o relógio de dentro do contêiner é que se vê.
+#
+# Importa porque o calendário é montado com `new Date()`: três horas à frente,
+# entre 21h e meia-noite no horário local o servidor já está no dia seguinte, e
+# a agenda marcaria amanhã como hoje.
+RUN apk add --no-cache tzdata
+
+# ffmpeg: o corte automático de vídeo em aulas de quinze minutos.
+#
+# No RUNTIME e não só na construção — quem corta é o trabalhador que roda junto
+# do servidor, quando um instrutor envia um vídeo longo. Sem ele o produto
+# continua funcionando e os vídeos ficam inteiros, com um aviso no arranque.
+RUN apk add --no-cache ffmpeg
+
 # Usuário próprio, não o root e nem o `node` padrão da imagem.
 RUN addgroup -g 10001 -S nerdlms && adduser -u 10001 -S nerdlms -G nerdlms
 

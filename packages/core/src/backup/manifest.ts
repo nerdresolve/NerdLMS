@@ -165,7 +165,7 @@ export const FORA_DO_BACKUP: Array<{ tabela: string; motivo: string }> = [
   {
     tabela: "tenants",
     motivo:
-      "O cliente de destino já existe — é ele que recebe a restauração. Trazer a linha do backup sobrescreveria domínio, marca e configuração de quem está restaurando, e num destino diferente da origem isso é justamente o que ninguém quer.",
+      "O cliente de destino já existe, é ele que recebe a restauração. Trazer a linha do backup sobrescreveria domínio, marca e configuração de quem está restaurando, e num destino diferente da origem isso é justamente o que ninguém quer.",
   },
 ];
 
@@ -178,7 +178,7 @@ export const FORA_DO_BACKUP: Array<{ tabela: string; motivo: string }> = [
  * que não existe.
  */
 export const AVISOS_DO_BACKUP = [
-  "Os arquivos de mídia (vídeos, PDFs, imagens) não estão aqui — só as referências a eles. Restaurar em outro ambiente exige copiar o storage também.",
+  "Os arquivos de mídia (vídeos, PDFs, imagens) não estão aqui, só as referências a eles. Restaurar em outro ambiente exige copiar o storage também.",
   "As senhas vêm como hash, e não em texto. Quem restaura não passa a saber a senha de ninguém.",
   "Sessões abertas, tentativas de login e tokens de senha ficam de fora: são estado do momento, não conteúdo.",
 ] as const;

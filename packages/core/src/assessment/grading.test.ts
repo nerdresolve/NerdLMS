@@ -248,7 +248,7 @@ describe("Ordenação", () => {
 describe("Dissertativa", () => {
   const q = questao({ kind: "essay", points: 20, options: [] });
 
-  test("não corrige sozinha — vai para revisão", () => {
+  test("não corrige sozinha, vai para revisão", () => {
     const r = gradeAnswer(q, "Um texto qualquer.");
     assert.equal(r.needsReview, true);
     assert.equal(r.points, null);

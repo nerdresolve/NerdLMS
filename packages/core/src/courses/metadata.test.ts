@@ -51,7 +51,7 @@ describe("Slug", () => {
   });
 });
 
-describe("Tags — o mesmo assunto escrito de três formas", () => {
+describe("Tags, o mesmo assunto escrito de três formas", () => {
   test("normaliza para comparar", () => {
     // "NR-10", "NR10" e "nr 10" precisam colidir, senão viram três tags.
     const alvo = normalizeTagName("NR-10");
@@ -80,7 +80,7 @@ describe("Validação dos metadados", () => {
     assert.ok(erros.some((e) => e.includes("encerramento")));
   });
 
-  test("mesmo dia é válido — curso de um dia existe", () => {
+  test("mesmo dia é válido, curso de um dia existe", () => {
     assert.deepEqual(validateMetadata({ startsOn: "2026-05-10", endsOn: "2026-05-10" }), []);
   });
 

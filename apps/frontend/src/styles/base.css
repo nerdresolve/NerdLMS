@@ -1,5 +1,5 @@
 /* Base da aplicação.
-   O reset, os defaults tipográficos e o anel de foco vêm do pacote oficial
+   O reset, os defaults tipográficos e o anel de foco vêm do pacote de marca
    (`nerd-ds/tokens/base.css`). Aqui ficam apenas os acréscimos que o pacote
    não define — nada que o duplique ou o contrarie. */
 
@@ -19,11 +19,9 @@ body {
 }
 
 body {
-  /* A Plus Jakarta Sans traz um espaço estreito (0,17em). Em rótulos de 14px
-     as palavras encostam. 0,06em devolve respiro sem mexer no desenho da
-     letra e é imperceptível em texto de display. Verificado contra o arquivo
-     original: não é efeito do subset. */
-  word-spacing: 0.06em;
+  /* Sem `word-spacing`: o ajuste de 0,06em existia por causa do espaço
+     estreito da Plus Jakarta Sans (0,17em). A DM Sans tem espaço normal, e
+     manter o acréscimo abriria buracos em rótulos de 14px. */
 
   /* o pacote define fonte, cor e fundo; a transição é da aplicação,
      para a troca de tema não piscar */

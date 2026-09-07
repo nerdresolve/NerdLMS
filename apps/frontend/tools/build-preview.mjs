@@ -5,7 +5,7 @@
  *   1. o preview usa o CSS real do produto (tokens, base e o CSS da feature);
  *   2. os números exibidos vêm das funções de domínio reais sobre o seed real —
  *      nenhum percentual é digitado à mão em HTML;
- *   3. as ondas vêm de wave-paths.ts, a mesma fonte do componente React.
+ *   3. o grafismo vem de @nerdlms/core/brand/mosaic.ts, a mesma fonte do componente React.
  *
  * Uso: node --experimental-strip-types tools/build-preview.mjs
  */
@@ -13,7 +13,8 @@ import { readFile, writeFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 
-import { WAVE_SHAPES } from "../src/components/brand/wave-paths.ts";
+import { MOSAIC_SHAPES } from "@nerdlms/core/brand/mosaic.ts";
+import { buildCertificate, certificateCode } from "@nerdlms/core/reports/certificate.ts";
 import {
   admin,
   allCourses,
@@ -189,28 +190,27 @@ function linkPreviews(html) {
  * Embute a fonte no CSS do preview.
  *
  * No app a fonte é servida de /fonts; o preview é um arquivo solto que precisa
- * funcionar aberto do disco, então cada `src:` vira data URI.
+ * funcionar aberto do disco, então o `src:` vira data URI.
  *
- * Só os pesos que o protótipo realmente usa entram — embutir os oito da família
- * somaria ~215 kB à página, e o orçamento de peso (check-quality.mjs) é 220 kB
- * para a página inteira. Regular e Bold cobrem o texto e os títulos; o resto o
- * navegador sintetiza.
+ * Só Regular e Bold entram. A família tem oito arquivos, e embutir todos
+ * somaria ~215 kB a CADA uma das 21 páginas — o orçamento de peso
+ * (check-quality.mjs) é 220 kB para a página inteira. Os dois pesos cobrem
+ * texto e título; os demais o navegador sintetiza, e no protótipo isso basta.
+ *
+ * Os @font-face dos pesos NÃO embutidos são removidos: um `src:` apontando
+ * para `/fonts/` não resolve num arquivo aberto do disco, e o navegador
+ * registraria a família com uma fonte que nunca chega.
  */
 const PESOS_NO_PREVIEW = new Set(["Satoshi-Regular", "Satoshi-Bold"]);
 
 async function embedFont(css) {
-  const arquivos = [...css.matchAll(/url\("\/fonts\/([A-Za-z-]+)\.woff2"\)/g)].map((m) => m[1]);
-  if (arquivos.length === 0) return css;
+  if (!/url\("\/fonts\/Satoshi-/.test(css)) return css;
 
   const embutidos = new Map();
-  for (const nome of new Set(arquivos)) {
-    if (!PESOS_NO_PREVIEW.has(nome)) continue;
+  for (const nome of PESOS_NO_PREVIEW) {
     embutidos.set(nome, await readBase64(`public/fonts/${nome}.woff2`));
   }
 
-  // Os @font-face dos pesos não embutidos saem inteiros: um `src:` apontando
-  // para /fonts/ não resolve num arquivo aberto do disco, e o navegador
-  // registraria a família com uma fonte que nunca chega.
   return css.replace(/@font-face\{[^}]*\}/g, (bloco) => {
     const nome = bloco.match(/url\("\/fonts\/([A-Za-z-]+)\.woff2"\)/)?.[1];
     if (!nome) return bloco;
@@ -242,6 +242,11 @@ ${store}
 window.NERD_STORE = createStore();
 window.NERD_PERCENT = percentOf;
 window.NERD_SEED = ${seedJson};
+/* O catálogo que o navegador precisa para RECONTAR: por curso, os ids das
+   aulas e a duração de cada uma. Sem isto o protótipo sabe que uma aula foi
+   concluída, mas não sabe de quantas o curso é feito — e os agregados do
+   dashboard e do perfil ficam congelados no build. */
+window.NERD_CATALOG = ${catalogJson};
 window.NERD_COURSE = ${courseJson};
 window.NERD_USER = ${JSON.stringify({
     id: student.id,
@@ -274,22 +279,19 @@ async function buildIconSprite(names) {
   return `<svg class="icon-sprite" width="0" height="0" aria-hidden="true" focusable="false">${symbols.join("")}</svg>`;
 }
 
-function wave(variant, className, edgeFill = "var(--color-surface)") {
-  const shape = WAVE_SHAPES[variant];
+/* `fill-rule="evenodd"` não é decoração: sem ele o anel fecha e vira disco. */
+function mosaico(variant, className, tone = "cor") {
+  const shape = MOSAIC_SHAPES[variant];
   const paths = shape.paths
-    .map((path) => {
-      const fill = path.fill === "EDGE_FILL" ? edgeFill : (path.fill ?? "none");
-      const stroke = path.stroke ? ` stroke="${path.stroke}" stroke-width="${path.strokeWidth ?? 1.5}"` : "";
-      return `<path d="${path.d}" fill="${fill}"${stroke} />`;
-    })
+    .map((path) => `<path d="${path.d}" fill="${tone === "silhueta" ? "var(--tile-ghost)" : path.fill}" />`)
     .join("");
-  return `<svg class="${className}" viewBox="${shape.viewBox}" preserveAspectRatio="${shape.preserveAspectRatio}" aria-hidden="true" focusable="false">${paths}</svg>`;
+  return `<svg class="${className}" viewBox="${shape.viewBox}" preserveAspectRatio="${shape.preserveAspectRatio}" fill-rule="evenodd" aria-hidden="true" focusable="false">${paths}</svg>`;
 }
 
 /** Estado vazio na versão do pacote: onda suave, ícone, título, texto, ação. */
 function emptyState({ icon: iconName, title, text, action, level = 3 }) {
   return `<div class="empty">
-            ${wave("band", "empty__wave")}
+            <span class="empty__rule" aria-hidden="true"></span>
             <div class="empty__inner">
               <span class="empty__icon">${icon(iconName)}</span>
               <h${level} class="empty__title">${esc(title)}</h${level}>
@@ -311,6 +313,66 @@ function progressBar(percent, { onBrand = false, attribute = "" } = {}) {
  * @param {Array<{ marker: string, path: string }>} styles
  * @param {Record<string, string>} replacements
  */
+/**
+ * Persistência do tema no protótipo — a mesma chave do produto
+ * (`src/lib/theme.ts`, `nerd-theme`), para as duas superfícies concordarem.
+ *
+ * `sessionStorage`, e não `localStorage`: é o que a store do protótipo já usa
+ * (`packages/core/src/store/learner-store.js`) porque o ambiente de artefato
+ * onde estas páginas rodam não tem `localStorage`. No produto é `localStorage`
+ * — lá a escolha deve sobreviver a fechar a aba.
+ *
+ * Vai no `<head>` de toda página, e não num template: precisa rodar antes da
+ * primeira pintura, senão a tela aparece clara e escurece em seguida. Injetado
+ * aqui porque é idêntico nas 21 páginas — deixá-lo nos templates seria a mesma
+ * linha copiada onze vezes, e foi assim que a persistência acabou não
+ * existindo em nenhuma delas.
+ *
+ * Guarda a escolha e ressincroniza os controles: o botão da topbar troca de
+ * ícone e de rótulo, e o "Dark" da barra de QA vira "Light". Sem isso a página
+ * abriria escura com o botão dizendo que está clara.
+ */
+const THEME_BOOT = `(function () {
+  var KEY = "nerd-theme";
+
+  function lido() {
+    try { return sessionStorage.getItem(KEY) === "dark" ? "dark" : "light"; } catch (e) { return "light"; }
+  }
+
+  function aplicar(tema) {
+    var escuro = tema === "dark";
+    document.documentElement.setAttribute("data-theme", tema);
+
+    var qa = document.getElementById("qa-theme");
+    if (qa) {
+      qa.setAttribute("aria-pressed", String(escuro));
+      qa.textContent = escuro ? "Light" : "Dark";
+    }
+
+    var topo = document.getElementById("theme-toggle");
+    if (topo) {
+      topo.setAttribute("aria-pressed", String(escuro));
+      topo.setAttribute("aria-label", escuro ? "Ativar modo claro" : "Ativar modo escuro");
+      var uso = topo.querySelector("use");
+      if (uso) uso.setAttribute("href", escuro ? "#i-sun" : "#i-moon");
+    }
+  }
+
+  window.NERD_THEME = {
+    atual: lido,
+    alternar: function () {
+      var proximo = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
+      try { sessionStorage.setItem(KEY, proximo); } catch (e) {}
+      aplicar(proximo);
+    }
+  };
+
+  /* Duas passadas: agora, para o atributo valer antes da pintura; e no
+     DOMContentLoaded, quando os botões já existem para serem sincronizados. */
+  aplicar(lido());
+  document.addEventListener("DOMContentLoaded", function () { aplicar(lido()); });
+})();`;
+
 async function render(templateName, outputName, styles, replacements) {
   const seen = new Set();
   const template = await read(`preview/${templateName}`);
@@ -337,6 +399,11 @@ async function render(templateName, outputName, styles, replacements) {
 
   html = linkPreviews(html);
 
+  /* Antes de qualquer <style> ou <link>: o atributo precisa estar no <html>
+     quando o CSS for aplicado, senão a página pisca clara. */
+  html = html.replace("<head>", `<head>
+<script>${THEME_BOOT}</script>`);
+
   await writeFile(join(root, `preview/${outputName}`), html, "utf8");
   generated.add(outputName);
   console.log(`preview/${outputName} (${(html.length / 1024).toFixed(1)} kB)`);
@@ -357,8 +424,21 @@ const seedState = JSON.stringify({
   comments: comments,
 });
 
+/* webp, e não png: o logotipo da Exemplo S.A. tem degradê no sol, e em PNG
+   ficaria 5x maior — multiplicado pelas 21 páginas que o embutem. */
+/* Só id e duração: o navegador não precisa de título nem de resumo para
+   contar, e cada campo a mais é peso em 21 páginas. */
+const catalogJson = JSON.stringify(
+  allCourses.map((course) => ({
+    id: course.id,
+    lessons: course.modules.flatMap((module) =>
+      module.lessons.map((lesson) => ({ id: lesson.id, duration: lesson.durationSeconds })),
+    ),
+  })),
+);
+
 const wordmark = `data:image/png;base64,${await readBase64("public/brand/nerdresolve-wordmark.png")}`;
-const markWhite = `data:image/png;base64,${await readBase64("public/brand/nerdresolve-mark-white.png")}`;
+const markWhite = `data:image/png;base64,${await readBase64("public/brand/nerdresolve-mark.png")}`;
 const wordmarkWhite = `data:image/png;base64,${await readBase64("public/brand/nerdresolve-wordmark-white.png")}`;
 
 /* ------------------------------------------------------------------ login */
@@ -372,8 +452,8 @@ await render(
     { marker: "/* @@LOGIN@@ */", path: "src/features/auth/login.css" },
   ],
   {
+    "@@MOSAIC@@": mosaico("vertical", "brand__waves", "silhueta"),
     "@@LOGO@@": wordmarkWhite,
-    "@@SPLIT@@": wave("split", "brand__split", "var(--surface-card)"),
   },
 );
 
@@ -413,7 +493,7 @@ const featured = rows
 if (!featured?.resume) throw new Error("Seed sem curso em andamento para o hero.");
 
 const continueBlock = `<article class="continue">
-          ${wave("layered", "continue__waves")}
+          ${mosaico("layered", "continue__waves", "silhueta")}
           <div class="continue__body">
             <span class="eyebrow">${icon("play")} Continue aprendendo</span>
             <h2 class="continue__title">${esc(featured.course.title)}</h2>
@@ -453,7 +533,7 @@ const summaryBlock = (() => {
                       stroke-dasharray="${circumference.toFixed(1)}" stroke-dashoffset="${offset.toFixed(1)}" />
             </svg>
             <span class="ring__label" aria-hidden="true">
-              <span class="ring__percent">${overallPercent}%</span>
+              <span class="ring__percent" data-agg="percent">${overallPercent}%</span>
               <span class="ring__caption">concluído</span>
             </span>
           </div>
@@ -461,11 +541,11 @@ const summaryBlock = (() => {
           <dl class="stat-list">
             <div class="stat">
               <dt class="stat__label">${icon("circle-check")} Aulas concluídas</dt>
-              <dd class="stat__value">${totals.completed} de ${totals.lessons}</dd>
+              <dd class="stat__value" data-agg="lessons">${totals.completed} de ${totals.lessons}</dd>
             </div>
             <div class="stat">
               <dt class="stat__label">${icon("award")} Cursos concluídos</dt>
-              <dd class="stat__value">${totals.finished} de ${rows.length}</dd>
+              <dd class="stat__value" data-agg="courses">${totals.finished} de ${rows.length}</dd>
             </div>
             <div class="stat">
               <dt class="stat__label">${icon("clock")} Tempo assistido</dt>
@@ -476,7 +556,7 @@ const summaryBlock = (() => {
 })();
 
 const artClass = ["", " course-card__art--b", " course-card__art--c", " course-card__art--d"];
-const artWave = ["organic", "layered", "horizontal", "organic"];
+const artTile = ["art1", "art2", "art3", "art4"];
 
 /** Card de curso — usado pelo dashboard e pelo catálogo, para não divergirem. */
 /* O nível do título muda com o contexto: no dashboard os cards ficam sob a
@@ -488,11 +568,11 @@ function courseCard({ course, summary, duration, available }, extraAttributes = 
       ? `<span class="course-card__chip course-card__chip--done">${icon("circle-check-big")} Concluído</span>`
       : available
         ? `<span class="course-card__chip course-card__chip--available">${summary.total} aulas</span>`
-        : `<span class="course-card__chip">${summary.percent}%</span>`;
+        : `<span class="course-card__chip" data-card-percent>${summary.percent}%</span>`;
 
-    return `<${available ? "div" : "a"} class="course-card${available ? " course-card--available" : ""}"${available ? "" : ` href="/cursos/${esc(course.slug)}"`}${extraAttributes ? ` ${extraAttributes}` : ""}>
+    return `<${available ? "div" : "a"} class="course-card${available ? " course-card--available" : ""}"${available ? "" : ` href="/cursos/${esc(course.slug)}"`} data-card-course="${esc(course.id)}"${extraAttributes ? ` ${extraAttributes}` : ""}>
             <div class="course-card__art${artClass[course.artwork]}">
-              ${wave(artWave[course.artwork], "")}
+              ${mosaico(artTile[course.artwork], "", "silhueta")}
               ${chip}
             </div>
             <div class="course-card__body">
@@ -511,9 +591,9 @@ function courseCard({ course, summary, duration, available }, extraAttributes = 
                       : `<span class="badge badge--neutral">${icon("lock")} Matrícula pelo gestor</span>`
                   }
                 </span>`
-                    : `${progressBar(summary.percent)}
+                    : `${progressBar(summary.percent, { attribute: "data-card-bar" })}
                 <span class="course-card__count">
-                  ${icon("layers")} ${summary.completed} de ${summary.total} aulas · ${esc(formatDuration(duration))}
+                  ${icon("layers")} <span data-card-count>${summary.completed} de ${summary.total}</span> aulas · ${esc(formatDuration(duration))}
                 </span>`
                 }
               </div>
@@ -593,6 +673,7 @@ await render(
     "@@NAV@@": navMarkup,
     "@@INITIALS@@": esc(initials),
     "@@FULLNAME@@": esc(student.fullName),
+    "@@ROLE_LABEL@@": "Aluno",
     "@@GREETING@@": `${greeting(PREVIEW_HOUR)}, ${esc(student.firstName)}`,
     "@@SUBTITLE@@": "Continue de onde parou. Você está a poucas aulas do próximo certificado.",
     "@@CONTINUE@@": continueBlock,
@@ -617,7 +698,6 @@ const featuredRow = featured;
 const outline = courseOutline(featuredRow.course, featuredRow.enrollment);
 
 const heroBlock = `<section class="course-hero">
-          ${wave("blob", "course-hero__wave")}
           <div class="course-hero__body">
             <h1 class="course-hero__title">${esc(featuredRow.course.title)}</h1>
             <p class="course-hero__summary">${esc(featuredRow.course.summary)}</p>
@@ -647,7 +727,7 @@ const heroBlock = `<section class="course-hero">
             <p class="status-text" id="curso-status" role="status"></p>
           </div>
 
-          <div class="course-hero__art" aria-hidden="true">${wave("organic", "")}</div>
+          <div class="course-hero__art" aria-hidden="true">${mosaico("layered", "", "silhueta")}</div>
         </section>`;
 
 const modulesBlock = outline.modules
@@ -706,6 +786,7 @@ await render(
       .replace('href="/meus-cursos"', 'href="/meus-cursos" aria-current="location"'),
     "@@INITIALS@@": esc(initials),
     "@@FULLNAME@@": esc(student.fullName),
+    "@@ROLE_LABEL@@": "Aluno",
     "@@COURSE_TITLE@@": esc(featuredRow.course.title),
     "@@COURSE_ABOUT@@": esc(featuredRow.course.summary),
     "@@COURSE_DURATION@@": esc(outline.duration),
@@ -784,6 +865,7 @@ async function renderCatalog({ output, filter, navHref, title, subtitle, tabs, e
         .replace(`href="${navHref}"`, `href="${navHref}" aria-current="page"`),
       "@@INITIALS@@": esc(initials),
       "@@FULLNAME@@": esc(student.fullName),
+      "@@ROLE_LABEL@@": "Aluno",
       "@@TITLE@@": esc(title),
       "@@SUBTITLE@@": esc(subtitle),
       "@@TABS@@": tabsMarkup,
@@ -865,8 +947,9 @@ await render(
       .replace('href="/cursos"', 'href="/cursos" aria-current="page"'),
     "@@INITIALS@@": esc(initials),
     "@@FULLNAME@@": esc(student.fullName),
+    "@@ROLE_LABEL@@": "Aluno",
     "@@TITLE@@": "Todos os cursos",
-    "@@SUBTITLE@@": "A biblioteca completa da NerdResolve. Inscreva-se no que interessa à sua área.",
+    "@@SUBTITLE@@": "A biblioteca completa da Exemplo S.A.. Inscreva-se no que interessa à sua área.",
     "@@TABS@@": "",
     "@@TABS_HIDDEN@@": " hidden",
     "@@FILTER@@": "all",
@@ -936,9 +1019,11 @@ await render(
   ],
   {
     "@@LOGO_BRAND@@": wordmark,
-    "@@BLOB@@": wave("layered", ""),
-    "@@TILE@@": wave("organic", ""),
-    "@@STATS_WAVE@@": wave("band", "landing__stats-wave"),
+    /* A variante BRANCA também: no tema escuro o logotipo azul-marinho fica
+       sobre fundo azul-marinho e some. O CSS escolhe qual das duas aparece. */
+    "@@LOGO@@": wordmarkWhite,
+    "@@BLOB@@": mosaico("layered", "", "silhueta"),
+    "@@TILE@@": "",
     "@@STATS@@": statsMarkup,
     "@@POINTS@@": pointsMarkup,
     "@@SEED@@": seedState,
@@ -1157,6 +1242,7 @@ await render(
       .replace('href="/meus-cursos"', 'href="/meus-cursos" aria-current="location"'),
     "@@INITIALS@@": esc(initials),
     "@@FULLNAME@@": esc(student.fullName),
+    "@@ROLE_LABEL@@": "Aluno",
     "@@COURSE_SLUG@@": esc(featuredRow.course.slug),
     "@@COURSE_TITLE@@": esc(featuredRow.course.title),
     "@@COURSE_PERCENT@@": String(view.outline.progress.percent),
@@ -1184,14 +1270,18 @@ await render(
 
 const concluidos = rows.filter((row) => row.summary.status === "completed");
 
+/* `agg` liga o cartão ao recálculo do navegador: número e rótulo mudam quando
+   o aluno conclui uma aula, como mudam no produto. Ver `refreshAggregates` em
+   `preview/prototype.js`. "Tempo assistido" fica de fora — depende dos
+   segundos vistos, e o protótipo não cronometra reprodução. */
 const profileStats = [
-  { icon: "circle-check", value: `${totals.completed}`, label: `de ${totals.lessons} aulas concluídas` },
-  { icon: "award", value: `${totals.finished}`, label: `de ${rows.length} cursos concluídos` },
+  { icon: "circle-check", value: `${totals.completed}`, label: `de ${totals.lessons} aulas concluídas`, agg: "lessons" },
+  { icon: "award", value: `${totals.finished}`, label: `de ${rows.length} cursos concluídos`, agg: "courses" },
   { icon: "clock", value: formatDuration(totals.watchedSeconds), label: "de conteúdo assistido" },
-  { icon: "trending-up", value: `${overallPercent}%`, label: "do seu plano concluído" },
+  { icon: "trending-up", value: `${overallPercent}%`, label: "do seu plano concluído", agg: "percent" },
 ]
   .map(
-    (stat) => `<article class="stat-card">
+    (stat) => `<article class="stat-card"${stat.agg ? ` data-card-agg="${stat.agg}"` : ""}>
               <span class="stat-card__icon">${icon(stat.icon)}</span>
               <span class="stat-card__value">${esc(stat.value)}</span>
               <span class="stat-card__label">${esc(stat.label)}</span>
@@ -1199,19 +1289,50 @@ const profileStats = [
   )
   .join("\n            ");
 
+/* O PDF é gerado DE VERDADE, um arquivo por curso concluído, ao lado das
+   páginas — e não embutido em base64 no HTML.
+
+   Era um `<button>` sem handler nenhum: clicar não fazia nada, e o protótipo
+   prometia um download que não existia. No produto isso é um link para
+   `/api/certificado`, então a versão honesta aqui também é um LINK.
+
+   Arquivo à parte, e não data URI, porque o certificado tem ~90 kB: embutido,
+   entraria no peso da página do perfil mesmo para quem nunca clica. Assim só
+   viaja quando alguém pede. */
+const certificados = await Promise.all(
+  concluidos.map(async (row) => {
+    const arquivo = `certificado-${row.course.slug}.pdf`;
+    await writeFile(
+      join(root, `preview/${arquivo}`),
+      buildCertificate({
+        learnerName: student.fullName,
+        courseTitle: row.course.title,
+        lessons: row.summary.total,
+        durationSeconds: row.duration,
+        /* Data fixa: o protótipo é conferido por captura, e um certificado
+           que muda de data a cada build vira diferença de imagem toda vez. */
+        completedAt: "2026-08-12T12:00:00-03:00",
+        code: certificateCode(row.course.id),
+      }),
+    );
+    console.log(`preview/${arquivo}`);
+    return { row, arquivo };
+  }),
+);
+
 const certificatesBlock = concluidos.length
   ? `<div class="certificates">
-            ${concluidos
+            ${certificados
               .map(
-                (row) => `<article class="certificate">
+                ({ row, arquivo }) => `<article class="certificate">
               <span class="certificate__seal">${icon("award")}</span>
               <span class="certificate__body">
                 <h3 class="certificate__title">${esc(row.course.title)}</h3>
                 <span class="certificate__meta">${row.summary.total} aulas · ${esc(formatDuration(row.duration))}</span>
               </span>
-              <button type="button" class="btn btn--secondary" data-certificate>
+              <a class="btn btn--secondary" href="${arquivo}" download>
                 ${icon("file-text")} Baixar PDF
-              </button>
+              </a>
             </article>`,
               )
               .join("\n            ")}
@@ -1242,10 +1363,11 @@ await render(
       .replace('href="/perfil"', 'href="/perfil" aria-current="page"'),
     "@@INITIALS@@": esc(initials),
     "@@FULLNAME@@": esc(student.fullName),
-    "@@HERO_WAVE@@": wave("blob", "profile-hero__wave"),
+    "@@ROLE_LABEL@@": "Aluno",
+    "@@HERO_WAVE@@": mosaico("blob", "profile-hero__wave", "silhueta"),
     "@@PROFILE_BADGES@@": [
       `<span class="badge badge--on-brand">${icon("graduation-cap")} Aluno</span>`,
-      `<span class="badge badge--on-brand">${icon("users")} Escola Social</span>`,
+      `<span class="badge badge--on-brand">${icon("users")} Aguilhada</span>`,
       `<span class="badge badge--on-brand">${icon("calendar")} Desde março de 2026</span>`,
     ].join("\n              "),
     "@@PROFILE_STATS@@": profileStats,
@@ -1308,6 +1430,7 @@ function studioCommon(currentHref) {
     "@@NAV@@": studioNav.replace(`href="${currentHref}"`, `href="${currentHref}" aria-current="page"`),
     "@@INITIALS@@": esc(studioInitials),
     "@@FULLNAME@@": esc(instructor.fullName),
+    "@@ROLE_LABEL@@": "Instrutor",
     "@@SEED@@": seedState,
     "@@ICON_SPRITE@@": spriteHtml,
   };
@@ -1387,7 +1510,7 @@ const editorBody = `<div class="editor" id="editor" data-course-id="${esc(editin
                      aria-label="Enviar vídeo, PDF ou material">
                   <span class="dropzone__icon">${icon("file-text")}</span>
                   <span class="dropzone__title">Arraste um arquivo ou clique para selecionar</span>
-                  <span class="dropzone__hint">Vídeo MP4, PDF, planilha ou slide.</span>
+                  <span class="dropzone__hint">Vídeo MP4, PDF, planilha ou slide. O envio real depende da TASK-046.</span>
                 </div>
                 <p class="status-text" id="upload-status" role="status"></p>
               </section>
@@ -1580,6 +1703,7 @@ function adminCommon(currentHref) {
     "@@NAV@@": adminNav.replace(`href="${currentHref}"`, `href="${currentHref}" aria-current="page"`),
     "@@INITIALS@@": esc(adminInitials),
     "@@FULLNAME@@": esc(admin.fullName),
+    "@@ROLE_LABEL@@": "Administrador",
     "@@SEED@@": seedState,
     "@@ICON_SPRITE@@": spriteHtml,
   };
@@ -1610,8 +1734,8 @@ const adminStats = [
   )
   .join("\n              ");
 
-/* Distribuição por projeto — a dimensão que a plataforma atual não oferece
-   ("gestão cega", na proposta). Depende de `project` no usuário. */
+/* Distribuição por campo — a dimensão que a plataforma atual não oferece
+   ("gestão cega", na proposta). Depende de `project` no usuário: ISSUE-023. */
 const porProjeto = [...new Set(allUsers.map((user) => user.project).filter(Boolean))]
   .map((projeto) => ({
     projeto,
@@ -1662,10 +1786,10 @@ const adminBody = `<div class="engagement">
             </section>
 
             <section class="course-section">
-              <h2 class="course-section__title">Usuários ativos por projeto</h2>
+              <h2 class="course-section__title">Usuários ativos por campo</h2>
               <p class="status-text">
                 Ativo é quem acessou a plataforma nos últimos 30 dias. É a métrica que a
-                licença atual limita a 500 para todos os projetos somados.
+                licença atual limita a 500 para todos os campos somados.
               </p>
               <div class="breakdown">
                 ${activeByProject(allUsers, periodo)
@@ -1683,7 +1807,7 @@ const adminBody = `<div class="engagement">
             </section>
 
             <section class="course-section">
-              <h2 class="course-section__title">Pessoas por projeto</h2>
+              <h2 class="course-section__title">Pessoas por campo</h2>
               <div class="breakdown">
                 ${breakdown}
               </div>
@@ -1713,7 +1837,7 @@ const adminBody = `<div class="engagement">
 await render("studio.template.html", "admin.html", STUDIO_STYLES, {
   ...adminCommon("/admin"),
   "@@TITLE@@": "Painel",
-  "@@SUBTITLE@@": "Engajamento de toda a plataforma, com recorte por projeto.",
+  "@@SUBTITLE@@": "Engajamento de toda a plataforma, com recorte por campo.",
   "@@HEAD_ACTION@@": "",
   "@@STUDIO_BODY@@": adminBody,
 });
@@ -1736,7 +1860,7 @@ const userRows = allUsers
                     <span class="user-email">${esc(user.email ?? "—")}</span>
                   </td>
                   <td data-label="Perfil">${esc(PAPEL[user.role])}</td>
-                  <td data-label="Projeto">${esc(user.project ?? "—")}</td>
+                  <td data-label="Campo">${esc(user.project ?? "—")}</td>
                   <td data-label="Região">${esc(user.region ?? "—")}</td>
                   <td data-label="Situação"><span class="badge ${situacao.cls}">${situacao.label}</span></td>
                   <td data-label="">
@@ -1767,7 +1891,7 @@ const usersBody = `<div class="engagement">
                   <tr>
                     <th scope="col">Nome</th>
                     <th scope="col">Perfil</th>
-                    <th scope="col">Projeto</th>
+                    <th scope="col">Campo</th>
                     <th scope="col">Região</th>
                     <th scope="col">Situação</th>
                     <th scope="col"><span class="sr-only">Ações</span></th>
@@ -1791,7 +1915,7 @@ await render("studio.template.html", "users.html", STUDIO_STYLES, {
 /* ------------------------------------------------------------ gestor ---- */
 
 /**
- * O Gestor enxerga apenas o próprio projeto. O recorte é aplicado aqui, na
+ * O Gestor enxerga apenas o próprio campo. O recorte é aplicado aqui, na
  * origem dos dados — não escondendo linhas na tela. Esconder na interface
  * deixaria os números do agregado errados e a API aberta.
  */
@@ -1806,7 +1930,7 @@ const ativosDoProjeto = activeUsers(equipe, periodo);
 
 const managerNav = [
   { section: null, items: [
-    { label: "Painel do projeto", icon: "house", href: "/gestor" },
+    { label: "Painel do campo", icon: "house", href: "/gestor" },
     { label: "Minha equipe", icon: "users", href: "/gestor/equipe" },
   ] },
   { section: "Conta", items: [
@@ -1838,6 +1962,7 @@ function managerCommon(currentHref) {
     "@@NAV@@": managerNav.replace(`href="${currentHref}"`, `href="${currentHref}" aria-current="page"`),
     "@@INITIALS@@": esc(managerInitials),
     "@@FULLNAME@@": esc(manager.fullName),
+    "@@ROLE_LABEL@@": "Gestor",
     "@@SEED@@": seedState,
     "@@ICON_SPRITE@@": spriteHtml,
   };
@@ -1903,7 +2028,7 @@ const managerBody = `<div class="engagement">
 await render("studio.template.html", "manager.html", STUDIO_STYLES, {
   ...managerCommon("/gestor"),
   "@@TITLE@@": `Painel · ${projetoDoGestor}`,
-  "@@SUBTITLE@@": "Engajamento da sua equipe. Outros projetos não aparecem aqui.",
+  "@@SUBTITLE@@": "Engajamento da sua equipe. Outros campos não aparecem aqui.",
   "@@HEAD_ACTION@@": "",
   "@@STUDIO_BODY@@": managerBody,
 });
@@ -2103,6 +2228,7 @@ await render(
       .replace('href="/trilhas"', 'href="/trilhas" aria-current="page"'),
     "@@INITIALS@@": esc(initials),
     "@@FULLNAME@@": esc(student.fullName),
+    "@@ROLE_LABEL@@": "Aluno",
     "@@TRACKS@@": `${tracksBody}\n\n          ${recomendadosBody}`,
     "@@SEED@@": seedState,
     "@@ICON_SPRITE@@": spriteHtml,
@@ -2146,7 +2272,6 @@ const rewardsMarkup = REWARDS.map((reward) => {
 }).join("\n              ");
 
 const rewardsBody = `<section class="level-card">
-            ${wave("blob", "level-card__wave")}
             <div class="level-card__body">
               <h2 class="level-card__title">Nível ${nivel.level}</h2>
               <span class="level-card__hint">
@@ -2228,6 +2353,7 @@ await render(
       .replace('href="/conquistas"', 'href="/conquistas" aria-current="page"'),
     "@@INITIALS@@": esc(initials),
     "@@FULLNAME@@": esc(student.fullName),
+    "@@ROLE_LABEL@@": "Aluno",
     "@@REWARDS@@": rewardsBody,
     "@@SEED@@": seedState,
     "@@ICON_SPRITE@@": spriteHtml,
@@ -2346,6 +2472,7 @@ await render(
       .replace('href="/agenda"', 'href="/agenda" aria-current="page"'),
     "@@INITIALS@@": esc(initials),
     "@@FULLNAME@@": esc(student.fullName),
+    "@@ROLE_LABEL@@": "Aluno",
     "@@AGENDA@@": agendaBody,
     "@@SEED@@": seedState,
     "@@ICON_SPRITE@@": spriteHtml,

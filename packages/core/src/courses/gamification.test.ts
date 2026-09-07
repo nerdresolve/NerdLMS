@@ -60,7 +60,7 @@ describe("Moedas ganhas", () => {
     assert.equal(earningsOf(cursos, [matricula("fantasma", 99)]).coins, 0);
   });
 
-  test("terminar o curso vale mais que a soma das aulas — o bônus recompensa concluir", () => {
+  test("terminar o curso vale mais que a soma das aulas, o bônus recompensa concluir", () => {
     const soAulas = earningsOf([curso("a", 4)], [matricula("a", 3)]).coins;
     const completo = earningsOf([curso("a", 4)], [matricula("a", 4)]).coins;
     assert.ok(completo - soAulas > COINS_PER_LESSON, "o salto ao concluir precisa ser maior que uma aula");
@@ -141,8 +141,42 @@ describe("Distintivos", () => {
 
 describe("Loja", () => {
   test("mostra só o que o saldo alcança", () => {
-    const alcance = affordable(REWARDS, 800).map((reward) => reward.id);
-    assert.deepEqual(alcance.sort(), ["r2", "r4"]);
+    /* A REGRA, não a lista. A versão anterior fixava ids do catálogo
+       ("r2", "r4"), e quebrava a cada item que o RH trocasse — sem que nada
+       estivesse errado. O que precisa valer é a fronteira: o que cabe entra, o
+       que não cabe fica de fora. */
+    const saldo = 800;
+    const alcance = affordable(REWARDS, saldo);
+
+    for (const item of alcance) {
+      assert.ok(item.cost <= saldo, `${item.title} custa ${item.cost} e entrou com saldo ${saldo}`);
+    }
+
+    for (const item of REWARDS.filter((r) => !alcance.includes(r))) {
+      assert.ok(item.cost > saldo, `${item.title} custa ${item.cost} e ficou de fora`);
+    }
+  });
+
+  test("nenhuma recompensa gera custo para a empresa", () => {
+    /* A regra do catálogo, escrita como teste: recompensa que a plataforma
+       oferece e a empresa não pode honrar vira frustração com prazo marcado.
+       A lista de palavras é grosseira de propósito — ela não prova ausência de
+       custo, só pega a reincidência óbvia de quem acrescentar um item sem ler
+       o comentário do catálogo. */
+    const COMPROMETE = [
+      "folga", "vale", "crédito", "kit", "brinde", "garrafa", "caderno",
+      "almoço", "jantar", "café", "viagem", "prêmio em dinheiro", "bônus",
+    ];
+
+    for (const reward of REWARDS) {
+      const texto = `${reward.title} ${reward.description}`.toLowerCase();
+      for (const palavra of COMPROMETE) {
+        assert.ok(
+          !texto.includes(palavra),
+          `"${reward.title}" sugere custo ou compromisso de terceiro ("${palavra}")`,
+        );
+      }
+    }
   });
 
   test("todo item tem custo positivo e título", () => {

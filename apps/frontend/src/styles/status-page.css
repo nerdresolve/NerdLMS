@@ -1,6 +1,6 @@
 /* Telas de 404 e de erro.
    Usam os tokens da aplicação, e não o estilo embutido do Next: aquele ignora
-   o tema e resultava em texto violeta sobre fundo preto no modo escuro. */
+   o tema e resultava em texto azul sobre fundo preto no modo escuro. */
 
 .status-page {
   min-height: 100dvh;
@@ -43,6 +43,9 @@
   font-size: var(--text-body-size);
   color: var(--text-muted);
 }
+
+/* A saída da página. Fica separada do conteúdo e não colada nele. */
+.status-page__links { margin: var(--space-6) 0 0; font-size: var(--text-small-size); }
 
 .status-page__actions {
   display: flex;

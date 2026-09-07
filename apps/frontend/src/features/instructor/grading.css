@@ -119,3 +119,65 @@
 
 .rubric__actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); }
 .rubric__total { flex: 1 1 auto; margin: 0; font-size: var(--text-small-size); color: var(--text-body); }
+
+/* --- Fila de pedidos de reteste ------------------------------------------ */
+
+.retake-fila { display: grid; gap: var(--space-4); margin-top: var(--space-5); }
+
+.retake-fila__item {
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-5);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+}
+
+.retake-fila__cabeca { display: grid; gap: var(--space-1); }
+.retake-fila__meta { font-size: var(--text-caption-size); color: var(--text-muted); }
+
+/* O que o aluno escreveu. Citação e não parágrafo comum: é a voz de outra
+   pessoa dentro da tela de quem decide, e a distinção importa quando o texto
+   pesa numa decisão. */
+.retake-fila__nota {
+  margin: 0;
+  padding: var(--space-3) var(--space-4);
+  border-left: 3px solid var(--brand);
+  background: var(--surface-sunken);
+  font-size: var(--text-small-size);
+}
+
+.retake-fila__acoes { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); }
+.retake-fila__aviso { font-size: var(--text-caption-size); color: var(--text-muted); }
+
+/* --- Fila de avaliação de eficácia ---------------------------------------- */
+
+/* O prazo muda de cor, e é a única coisa aqui que muda de cor.
+
+   Quem abre esta tela precisa saber, sem ler, o que já venceu. Colorir o item
+   inteiro ou a borda daria um cartão vermelho que grita mais que o conteúdo;
+   colorir só a linha do prazo diz exatamente a informação que é urgente. */
+.retake-fila__meta[data-situacao="vence-em-breve"] { color: var(--warning-text); font-weight: var(--weight-medium); }
+.retake-fila__meta[data-situacao="vencida"] { color: var(--danger-text); font-weight: var(--weight-medium); }
+
+.eficacia__vereditos {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.eficacia__vereditos legend {
+  padding: 0;
+  margin-bottom: var(--space-2);
+  font-size: var(--text-small-size);
+  font-weight: var(--weight-medium);
+}
+
+/* A frase longa embaixo do rótulo curto: "Efetivo" sozinho não diz o que
+   significa, e a descrição inteira num rádio vira um parágrafo clicável. */
+.eficacia__veredito-desc {
+  display: block;
+  font-size: var(--text-caption-size);
+  color: var(--text-muted);
+}

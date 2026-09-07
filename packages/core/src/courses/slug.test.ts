@@ -12,7 +12,7 @@ describe("Slug de curso", () => {
   });
 
   test("pontuação e espaço viram um hífen só", () => {
-    assert.equal(slugify("Água  —  potável (parte 1)"), "agua-potavel-parte-1");
+    assert.equal(slugify("Água,  potável (parte 1)"), "agua-potavel-parte-1");
   });
 
   test("não começa nem termina com hífen", () => {
@@ -32,7 +32,7 @@ describe("Slug de curso", () => {
   });
 
   test("mantém números", () => {
-    assert.equal(slugify("NR 33 — Espaço Confinado"), "nr-33-espaco-confinado");
+    assert.equal(slugify("NR 33, Espaço Confinado"), "nr-33-espaco-confinado");
   });
 });
 

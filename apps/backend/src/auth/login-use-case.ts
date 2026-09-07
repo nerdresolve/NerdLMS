@@ -4,6 +4,7 @@ import { validateLoginInput } from "@nerdlms/core/validation/login.ts";
 import { findAccountByIdentifier, touchLastAccess } from "./users-repository.ts";
 import { createSession, recentFailures, recordLoginAttempt } from "./sessions-repository.ts";
 import { recordAudit } from "../audit/audit-repository.ts";
+import { passwordLoginAllowed } from "../sso/sso-repository.ts";
 
 /**
  * Caso de uso do login.
@@ -27,11 +28,20 @@ export interface LoginCommand {
   remember: boolean;
   ip: string;
   userAgent: string | null;
+  /**
+   * De qual cliente é esta tela.
+   *
+   * Só serve para uma pergunta: este cliente ainda aceita senha local? Nulo
+   * quando a requisição não permitiu identificar o cliente — e aí a senha local
+   * vale, porque o contrário trancaria todo mundo para fora por causa de um
+   * cabeçalho ausente.
+   */
+  tenantId: string | null;
 }
 
 export type LoginOutcome =
   | { status: 200; user: SessionUser; token: string; expiresAt: Date }
-  | { status: 400 | 401 | 429; error: string };
+  | { status: 400 | 401 | 403 | 429; error: string };
 
 export async function loginUseCase(command: LoginCommand): Promise<LoginOutcome> {
   /* A MESMA validação que o formulário roda no cliente. O cliente valida para
@@ -48,6 +58,24 @@ export async function loginUseCase(command: LoginCommand): Promise<LoginOutcome>
     return { status: 429, error: "Muitas tentativas. Aguarde alguns minutos e tente de novo." };
   }
 
+  /* Este cliente desligou a senha local.
+     
+     A conferência ESTAVA ESCRITA e nunca era chamada: `passwordLoginAllowed`
+     existia desde o SSO, sem nenhum ponto de uso. Quem desmarcasse a opção na
+     administração via a marca gravada e a senha continuar funcionando — e uma
+     opção de segurança que não faz o que promete é pior que a ausência dela,
+     porque quem a marcou parou de procurar.
+
+     A recusa vem ANTES de conferir a senha: comparar hash para depois recusar
+     de qualquer jeito só gasta tempo e transforma este endereço num oráculo que
+     diz, pelo tempo de resposta, se a conta existe. */
+  if (command.tenantId && !(await passwordLoginAllowed(command.tenantId))) {
+    return {
+      status: 403,
+      error: "Esta plataforma usa a conta da rede da empresa. Entre com seu usuário e senha corporativos.",
+    };
+  }
+
   const account = await findAccountByIdentifier(command.identifier);
   const result = authenticate(account, command.password);
 
@@ -59,6 +87,11 @@ export async function loginUseCase(command: LoginCommand): Promise<LoginOutcome>
   if (!result.ok) {
     await recordAudit({
       actorId: account?.id ?? null,
+      /* Quando o identificador não corresponde a ninguém, não há ator de quem
+         deduzir o cliente — e a linha era recusada pela coluna `NOT NULL`, em
+         silêncio, porque `recordAudit` nunca lança. Tentativa contra conta
+         INEXISTENTE é exatamente o rastro de quem está sondando nomes. */
+      tenantId: account?.tenant?.id ?? command.tenantId,
       actorName: account?.fullName ?? command.identifier,
       action: "login_failed",
       target: command.identifier,

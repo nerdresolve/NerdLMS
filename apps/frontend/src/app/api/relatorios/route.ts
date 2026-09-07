@@ -27,7 +27,7 @@ export async function GET(request: Request): Promise<Response> {
     return Response.json({ error: "Relatório desconhecido." }, { status: 400 });
   }
 
-  /* Filtros opcionais. Vêm da query porque o relatório é um link:
+  /* Filtros opcionais (TASK-047). Vêm da query porque o relatório é um link:
      precisa funcionar ao colar a URL, sem depender de JavaScript. Valor
      inválido é ignorado, não recusado — um relatório completo é resposta
      melhor que um erro para quem digitou o parâmetro errado. */

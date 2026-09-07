@@ -1,9 +1,9 @@
 /**
- * Recomendação de cursos.
+ * Recomendação de cursos — TASK-059.
  *
  * A proposta promete um "motor de recomendação" que sugere o próximo passo com
  * base no perfil e no histórico. Isto é a versão baseada em regras, e ela é
- * suficiente para o volume típico de um cliente: ~76 cursos e quatro unidades.
+ * suficiente para o volume da Exemplo S.A.: ~76 cursos e quatro campos.
  *
  * Duas decisões que valem mais que o algoritmo em si:
  *
@@ -15,7 +15,7 @@
  *    calibragem é ajustar números aqui, não trocar de arquitetura.
  *
  * O que esta versão NÃO faz: aprender com o comportamento coletivo. Isso exige
- * base real e é decisão de escopo à parte.
+ * base real e é decisão de escopo à parte — ver ISSUE-027.
  */
 
 import type { Course, Enrollment, User } from "./types.ts";

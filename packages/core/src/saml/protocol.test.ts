@@ -48,7 +48,7 @@ function ler(xml: string, ctx = contexto) {
   return readAssertionClaims(findElement(xml, "Assertion")!, ctx);
 }
 
-describe("SAML — o pedido de autenticação", () => {
+describe("SAML, o pedido de autenticação", () => {
   test("declara quem somos e para onde a resposta volta", () => {
     const req = buildAuthnRequest({
       issuer: "https://treinamento.acme.com.br",
@@ -78,7 +78,7 @@ describe("SAML — o pedido de autenticação", () => {
   });
 });
 
-describe("SAML — condições da asserção", () => {
+describe("SAML, condições da asserção", () => {
   test("asserção correta é lida", () => {
     const r = ler(assercao());
 
@@ -136,7 +136,7 @@ describe("SAML — condições da asserção", () => {
   });
 });
 
-describe("SAML — o e-mail vem de onde o provedor mandar", () => {
+describe("SAML, o e-mail vem de onde o provedor mandar", () => {
   test("do atributo, quando há", () => {
     const r = ler(
       assercao({

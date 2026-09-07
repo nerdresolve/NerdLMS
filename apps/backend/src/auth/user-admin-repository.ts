@@ -174,7 +174,40 @@ export async function deleteUserAccount(
 
   const anonimizados = await anonymizeActorStatements(tenantId, userId);
 
+  /* A TRILHA DE AUDITORIA VEM ANTES DO DELETE, PELO MESMO MOTIVO DO xAPI.
+
+     `audit_log.actor_id` é `ON DELETE SET NULL`, mas o `SET NULL` do banco só
+     alcança o vínculo: deixaria `actor_name` e `ip` na linha, devolvendo a
+     identidade que a exclusão acabou de tirar. E `target` guarda o e-mail da
+     própria pessoa quando a ação é o login.
+
+     Feito aqui, num UPDATE só, o `actor_id` já sai nulo e a chave estrangeira
+     não encontra mais nada para atualizar durante o DELETE. */
+  await anonymizeAuditTrail(tenantId, userId);
+
   await query(`DELETE FROM users WHERE id = $1 AND tenant_id = $2`, [userId, tenantId]);
 
   return { kind: "deleted", anonymizedStatements: anonimizados };
+}
+
+/**
+ * Tira a pessoa da trilha de auditoria sem apagar os fatos.
+ *
+ * Fica: quando, qual ação, com que desfecho. Sai: quem, de onde, e o e-mail
+ * quando ele estava no alvo — o login grava `target` como o próprio e-mail,
+ * enquanto nas demais ações o alvo é outra coisa e limpá-lo destruiria o
+ * registro de terceiros.
+ *
+ * A escrita não acontece aqui: o papel da aplicação não tem UPDATE em
+ * `audit_log` e não vai ter. Quem escreve é `anonimizar_auditoria`, criada pela
+ * migração 040 — uma função `SECURITY DEFINER` que faz exatamente isto e nada
+ * mais, e cuja execução é a única coisa concedida à aplicação.
+ */
+async function anonymizeAuditTrail(tenantId: string, userId: string): Promise<number> {
+  const linhas = await query<{ anonimizar_auditoria: string }>(
+    `SELECT anonimizar_auditoria($1, $2)`,
+    [tenantId, userId],
+  );
+
+  return Number(linhas[0]?.anonimizar_auditoria ?? 0);
 }

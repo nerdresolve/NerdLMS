@@ -1,0 +1,46 @@
+/* Formação por cargo. As classes genéricas vivem no sistema de design. */
+
+/* Espaço ENTRE os planos.
+   `.course-section` separa os filhos dela, não uma seção da seguinte. Com
+   vários planos na tela, o título do segundo encostava na tabela do primeiro e
+   se lia como parte dela. */
+.formacao-plano + .formacao-plano,
+.formacao-plano + .course-section { margin-top: var(--space-8); }
+
+.formacao__exigencias { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+
+/* A barra é um APOIO ao número, não o número.
+   Ela some para quem usa leitor de tela (`aria-hidden` no elemento) porque o
+   percentual em texto vem logo ao lado e diz a mesma coisa melhor. */
+.formacao__barra {
+  display: inline-block;
+  width: 96px; height: 8px;
+  vertical-align: middle;
+  border-radius: var(--radius-pill, 999px);
+  background: var(--surface-sunken);
+  overflow: hidden;
+}
+
+.formacao__preenchida {
+  display: block;
+  height: 100%;
+  background: var(--brand);
+  transition: width var(--duration-fast) var(--ease-standard);
+}
+
+/* Verde só quando está COMPLETO. Uma barra verde a 90% diria "quase lá" com a
+   cor de "pronto", e é justamente a diferença que decide se a pessoa assume o
+   posto. */
+.formacao__preenchida[data-completa] { background: var(--success-text); }
+
+.formacao__pronta { color: var(--success-text); font-weight: var(--weight-medium); }
+
+/* Exigência herdada: contorno tracejado.
+   A diferença precisa ser visível sem cor — quem não distingue as duas ainda
+   lê "de JR" no rótulo, e a forma reforça sem depender disso. */
+.chip[data-herdada] { border-style: dashed; }
+
+/* Excluir tem a cor do que ele é, e fica ao lado de editar — não escondido.
+   Um botão destrutivo escondido é encontrado por acidente; um visível e
+   marcado é lido antes de ser clicado. */
+.formacao__excluir { color: var(--danger-text); }

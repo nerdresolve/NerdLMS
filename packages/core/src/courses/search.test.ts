@@ -37,7 +37,7 @@ const perdas = makeCourse({
 
 const catalogo = [cloro, perdas];
 
-describe("Busca global — encontra curso e aula", () => {
+describe("Busca global, encontra curso e aula", () => {
   test("termo vazio não devolve nada", () => {
     // Sem isto, abrir a busca listaria o catálogo inteiro como se fosse
     // resultado de uma pergunta que ninguém fez.

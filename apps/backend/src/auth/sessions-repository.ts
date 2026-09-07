@@ -47,6 +47,7 @@ interface SessionRow {
   email: string | null;
   role: Role;
   project: string | null;
+  job_title: string | null;
   tenant_id: string;
   tenant_slug: string;
   tenant_name: string;
@@ -69,7 +70,7 @@ export async function findSessionUser(token: string): Promise<SessionUser | null
   const rows = await query<SessionRow>(
     /* O tenant entra por JOIN, na mesma ida ao banco: toda página precisa dele
        e uma segunda consulta por requisição custaria caro à toa. */
-    `SELECT u.id, u.full_name, u.email, u.role, u.project,
+    `SELECT u.id, u.full_name, u.email, u.role, u.project, u.job_title,
             t.id AS tenant_id, t.slug AS tenant_slug, t.name AS tenant_name,
             t.unit_label AS tenant_unit_label,
             t.logo_light_url, t.logo_dark_url, t.favicon_url, t.brand_color
@@ -93,6 +94,7 @@ export async function findSessionUser(token: string): Promise<SessionUser | null
     email: row.email,
     role: row.role,
     project: row.project,
+    jobTitle: row.job_title,
     tenant: {
       id: row.tenant_id,
       slug: row.tenant_slug,

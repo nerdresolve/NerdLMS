@@ -3,9 +3,8 @@ import Link from "next/link";
 
 import "@/styles/status-page.css";
 
-/* O nome do cliente é anexado pelo `template` do layout raiz. */
 export const metadata: Metadata = {
-  title: "Suporte",
+  title: "Suporte · Exemplo S.A.",
   robots: { index: false, follow: false },
 };
 
@@ -13,7 +12,7 @@ export const metadata: Metadata = {
  * Suporte.
  *
  * A tela de acesso linka "Fale com seu administrador" para cá, e o link caía
- * em 404. Enquanto o canal de chamados não existe, a página diz
+ * em 404. Enquanto o canal de chamados não existe (TASK-071), a página diz
  * qual é o caminho real hoje: falar com o gestor da área, que é quem cria e
  * reativa acesso pela tela de usuários.
  *
@@ -26,7 +25,7 @@ export default function SuportePage() {
       <div className="status-page__card">
         <h1 className="status-page__title">Acesso à plataforma</h1>
         <p className="status-page__text">
-          As contas são criadas pela administração da sua empresa. Se você ainda não tem acesso, ou perdeu
+          As contas são criadas pela administração da Exemplo S.A.. Se você ainda não tem acesso, ou perdeu
           o acesso que tinha, fale com o gestor da sua área: é ele quem cadastra e reativa contas.
         </p>
 

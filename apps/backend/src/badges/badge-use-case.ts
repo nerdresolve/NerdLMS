@@ -284,7 +284,7 @@ export async function revokeAwardUseCase(
     actorId: actor.id,
     actorName,
     action: "badge_revoked",
-    target: `código ${code} — ${reason}`,
+    target: `código ${code}, ${reason}`,
     outcome: "allowed",
   });
 

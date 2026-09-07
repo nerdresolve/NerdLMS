@@ -36,6 +36,7 @@ interface CourseRow {
   ends_on: Date | null;
   visibility: Course["visibility"];
   content_release: "open" | "sequential";
+  watch_guard: boolean | null;
   min_grade_percent: string | null;
   category_id: string | null;
   category_name: string | null;
@@ -53,7 +54,7 @@ interface CourseTagRow {
 /** `date` do Postgres → "AAAA-MM-DD", sem passar por fuso. */
 function isoDate(value: Date | null): string | undefined {
   if (!value) return undefined;
-  /* `toISOString` converteria para UTC e poderia recuar um dia. A data do
+  /* `toISOString()` converteria para UTC e poderia recuar um dia. A data do
      Postgres já chega no fuso local do processo, então os componentes locais
      são os corretos. */
   const ano = value.getFullYear();
@@ -70,6 +71,7 @@ interface ModuleRow {
 }
 
 interface LessonRow {
+  media_status: string | null;
   id: string;
   module_id: string;
   title: string;
@@ -108,7 +110,7 @@ export async function findAllCourses(tenantId: string): Promise<Course[]> {
               c.enrollment_mode, c.project, c.artwork,
               c.code, c.workload_minutes, c.level, c.language,
               c.objectives, c.audience, c.starts_on, c.ends_on, c.visibility,
-              c.content_release, c.min_grade_percent,
+              c.content_release, c.watch_guard, c.min_grade_percent,
               c.category_id,
               cat.name  AS category_name,
               cat.slug  AS category_slug,
@@ -130,7 +132,7 @@ export async function findAllCourses(tenantId: string): Promise<Course[]> {
     ),
     query<LessonRow>(
       `SELECT l.id, l.module_id, l.title, l.position, l.duration_seconds, l.kind, l.media_key,
-              l.text_content, l.external_url, l.page_count, l.min_seconds
+              l.text_content, l.external_url, l.page_count, l.min_seconds, l.media_status
          FROM lessons l
          JOIN modules m ON m.id = l.module_id
          JOIN courses c ON c.id = m.course_id
@@ -161,7 +163,7 @@ export async function findAllCourses(tenantId: string): Promise<Course[]> {
     const list = lessonsByModule.get(row.module_id) ?? [];
     /* `kind` só entra quando não é o padrão: com `exactOptionalPropertyTypes`,
        a chave presente valendo `undefined` é diferente de ausente, e o domínio
-       trata "vídeo" como a ausência. */
+       trata "vídeo" como a ausência (mesma regra do DEC-055). */
     const lesson: Lesson = {
       id: row.id,
       title: row.title,
@@ -172,6 +174,15 @@ export async function findAllCourses(tenantId: string): Promise<Course[]> {
       ...(row.external_url ? { externalUrl: row.external_url } : {}),
       ...(row.page_count !== null ? { pageCount: row.page_count } : {}),
       ...(row.min_seconds !== null ? { minSeconds: row.min_seconds } : {}),
+      /* Só quando NÃO está pronto: 'ready' é a esmagadora maioria das aulas, e
+         carregá-lo em todas encheria o domínio de um campo que não diz nada.
+         Mesma regra de `kind`. */
+      /* Estreitado para o que o domínio conhece: a coluna aceita três valores
+         pelo CHECK, e um quarto que aparecesse por migração futura entraria
+         aqui como texto qualquer. */
+      ...(row.media_status === "splitting" || row.media_status === "failed"
+        ? { mediaStatus: row.media_status }
+        : {}),
     };
     list.push(lesson);
     lessonsByModule.set(row.module_id, list);
@@ -208,6 +219,9 @@ export async function findAllCourses(tenantId: string): Promise<Course[]> {
     ...(isoDate(row.ends_on) ? { endsOn: isoDate(row.ends_on)! } : {}),
     ...(row.visibility ? { visibility: row.visibility } : {}),
     ...(row.content_release ? { contentRelease: row.content_release } : {}),
+    /* Só viaja quando está DESLIGADA. Ligada é o padrão, e mandar `true` em
+       toda leitura só engordaria o payload. */
+    ...(row.watch_guard === false ? { watchGuard: false } : {}),
     ...(row.min_grade_percent !== null ? { minGradePercent: Number(row.min_grade_percent) } : {}),
     ...(row.category_id && row.category_name && row.category_slug
       ? {

@@ -96,23 +96,3 @@
 }
 
 .backup__tabelas strong { font-variant-numeric: tabular-nums; }
-
-/* A confirmação de migração entre clientes.
-
-   Dentro do aviso forte, não abaixo dele: a caixa e o texto que ela confirma
-   precisam ser lidos juntos. Separá-los deixaria alguém marcando sem ter lido
-   o que está marcando. */
-.backup__confirmar {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--space-3);
-  margin-top: var(--space-4);
-  cursor: pointer;
-}
-
-.backup__confirmar input {
-  flex: none;
-  width: 18px;
-  height: 18px;
-  margin-top: 2px;
-}

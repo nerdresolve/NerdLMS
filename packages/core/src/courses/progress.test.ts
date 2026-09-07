@@ -51,7 +51,7 @@ function enrollment(progress: Record<string, number>, lastLessonId?: string): En
   });
 }
 
-describe("isLessonCompleted — limiar de 90%", () => {
+describe("isLessonCompleted, limiar de 90%", () => {
   test("89% não conclui, 90% conclui", () => {
     assert.equal(isLessonCompleted(89, 100), false);
     assert.equal(isLessonCompleted(90, 100), true);

@@ -50,6 +50,9 @@ export function MetadataPanel({
   const [endsOn, setEndsOn] = useState(course.endsOn ?? "");
   const [unlisted, setUnlisted] = useState(course.visibility === "unlisted");
   const [sequencial, setSequencial] = useState(course.contentRelease === "sequential");
+  /* Ausente conta como LIGADA: é o padrão da coluna, e o estado inicial da
+     tela não pode discordar do que o banco fará. */
+  const [travaDoPlayer, setTravaDoPlayer] = useState(course.watchGuard !== false);
   const [tags, setTags] = useState((course.tags ?? []).map((tag) => tag.name).join(", "));
 
   const [notice, setNotice] = useState<string | null>(null);
@@ -72,6 +75,7 @@ export function MetadataPanel({
       startsOn: startsOn || null,
       endsOn: endsOn || null,
       visibility: unlisted ? "unlisted" : "catalog",
+      watchGuard: travaDoPlayer,
       contentRelease: sequencial ? "sequential" : "open",
       tags: tags
         .split(",")
@@ -139,7 +143,7 @@ export function MetadataPanel({
             disabled={busy}
           />
           <p className="field__hint">
-            A carga declarada, que vai para o certificado — não a soma dos vídeos.
+            A carga declarada, que vai para o certificado, não a soma dos vídeos.
           </p>
         </div>
 
@@ -216,7 +220,7 @@ export function MetadataPanel({
             disabled={busy}
           />
           <p className="field__hint">
-            Separadas por vírgula. Tags equivalentes são reunidas — “NR-10” e “nr 10” viram a mesma.
+            Separadas por vírgula. Tags equivalentes são reunidas, “NR-10” e “nr 10” viram a mesma.
           </p>
         </div>
 
@@ -268,8 +272,31 @@ export function MetadataPanel({
             <span>
               Não listar no catálogo
               <span className="field__hint">
-                O curso continua acessível a quem for matriculado — só não aparece na busca nem na
+                O curso continua acessível a quem for matriculado, só não aparece na busca nem na
                 biblioteca.
+              </span>
+            </span>
+          </label>
+        </div>
+
+        <div className="field meta-form__wide">
+          <label className="checkbox">
+            <input
+              type="checkbox"
+              checked={travaDoPlayer}
+              onChange={(event) => setTravaDoPlayer(event.target.checked)}
+              disabled={busy}
+            />
+            <span className="checkbox__box" aria-hidden="true">
+              <Check />
+            </span>
+            <span>
+              Exigir que o vídeo seja assistido
+              <span className="field__hint">
+                Bloqueia avançar o vídeo e só libera a conclusão com 90% assistido, em tempo
+                compatível. Deixe ligado em treinamento obrigatório, onde o registro serve de
+                evidência. Desligue em conteúdo informativo, como comunicado ou orientação de
+                acesso a sistema: o progresso continua sendo registrado de qualquer forma.
               </span>
             </span>
           </label>

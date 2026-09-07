@@ -24,13 +24,13 @@ export async function findUsersByLogin(logins: string[], tenantId: string): Prom
        FROM users
       WHERE tenant_id = $1
         AND status <> 'inactive'
-        -- split_part corta o e-mail no arroba: "ana.silva@exemplo.com.br" casa
+        -- split_part corta o e-mail no arroba: "ana.silva@exemplo.com" casa
         -- com a menção "@ana.silva".
         --
         -- O lower() é necessário: email é citext e compara sem caixa, mas
         -- split_part devolve text e PERDE essa propriedade. Sem ele, um
-        -- e-mail cadastrado como "Ana.Silva@..." não casaria com "@ana.silva"
-        -- — verificado no banco antes de corrigir.
+        -- e-mail cadastrado como "Ana.Silva@..." não casaria com "@ana.silva",
+        -- verificado no banco antes de corrigir.
         AND lower(split_part(email::text, '@', 1)) = ANY($2::text[])`,
     [tenantId, logins],
   );

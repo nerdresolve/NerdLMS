@@ -176,7 +176,7 @@ describe("O que a leitura não permite", () => {
   });
 });
 
-describe("Manifesto — nota de corte do 2004", () => {
+describe("Manifesto, nota de corte do 2004", () => {
   test("lê o minNormalizedMeasure", () => {
     const xml = `<manifest>
       <metadata><schema>ADL SCORM</schema><schemaversion>2004 4th Edition</schemaversion></metadata>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { GraduationCap, Pencil, Send, Trash2 } from "lucide-react";
 
 import type { Comment } from "@nerdlms/core/courses/types.ts";
@@ -187,11 +188,11 @@ interface Props {
   authorInitials: string;
 }
 
-import { useCommentActions } from "./use-comment-actions.ts";
-
 export function CommentThread({ comments, lessonId, authorInitials, viewerId, courseAuthorId }: Props) {
+  const router = useRouter();
   const [draft, setDraft] = useState("");
-  const { enviando: sending, aviso: notice, limparAviso, executar } = useCommentActions();
+  const [sending, setSending] = useState(false);
+  const [notice, setNotice] = useState<string | null>(null);
   /* Uma caixa de resposta por vez: abrir outra fecha a anterior, senão a
      página vira várias caixas abertas e não se sabe qual está ativa. */
   const [respondendoA, setRespondendoA] = useState<string | null>(null);
@@ -223,19 +224,35 @@ export function CommentThread({ comments, lessonId, authorInitials, viewerId, co
 
   /** Publica comentário novo ou resposta: só muda o `parentId`. */
   async function publicar(texto: string, parentId?: string) {
-    const deuCerto = await executar({
-      metodo: "POST",
-      corpo: { lessonId, body: texto, ...(parentId ? { parentId } : {}) },
-      seFalhar: "Não foi possível publicar o comentário.",
-    });
+    setNotice(null);
+    setSending(true);
 
-    if (!deuCerto) return;
+    try {
+      const response = await fetch("/api/comentarios", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ lessonId, body: texto, ...(parentId ? { parentId } : {}) }),
+      });
 
-    if (parentId) {
-      setRespostaDraft("");
-      setRespondendoA(null);
-    } else {
-      setDraft("");
+      if (response.ok) {
+        /* Limpa o campo e recarrega do servidor: o comentário publicado volta
+           com id, data e o destaque que só o servidor sabe decidir. */
+        if (parentId) {
+          setRespostaDraft("");
+          setRespondendoA(null);
+        } else {
+          setDraft("");
+        }
+        router.refresh();
+        return;
+      }
+
+      const body = (await response.json().catch(() => ({}))) as { error?: string };
+      setNotice(body.error ?? "Não foi possível publicar o comentário.");
+    } catch {
+      setNotice("Não foi possível falar com o servidor. Verifique sua conexão.");
+    } finally {
+      setSending(false);
     }
   }
 
@@ -254,7 +271,7 @@ export function CommentThread({ comments, lessonId, authorInitials, viewerId, co
   }
 
   function abrirEdicao(comment: Comment) {
-    limparAviso();
+    setNotice(null);
     setEditandoId(comment.id);
     setEdicaoDraft(comment.body);
   }
@@ -263,24 +280,49 @@ export function CommentThread({ comments, lessonId, authorInitials, viewerId, co
     event.preventDefault();
     if (!editandoId || !edicaoDraft.trim()) return;
 
-    const deuCerto = await executar({
-      metodo: "PATCH",
-      corpo: { commentId: editandoId, body: edicaoDraft },
-      seFalhar: "Não foi possível salvar a edição.",
-    });
+    setNotice(null);
+    setSending(true);
 
-    if (!deuCerto) return;
+    try {
+      const response = await fetch("/api/comentarios", {
+        method: "PATCH",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ commentId: editandoId, body: edicaoDraft }),
+      });
 
-    setEditandoId(null);
-    setEdicaoDraft("");
+      if (response.ok) {
+        setEditandoId(null);
+        setEdicaoDraft("");
+        router.refresh();
+        return;
+      }
+
+      const body = (await response.json().catch(() => ({}))) as { error?: string };
+      setNotice(body.error ?? "Não foi possível salvar a edição.");
+    } catch {
+      setNotice("Não foi possível falar com o servidor. Verifique sua conexão.");
+    } finally {
+      setSending(false);
+    }
   }
 
   async function handleExcluir(commentId: string) {
-    await executar({
-      metodo: "DELETE",
-      corpo: { commentId },
-      seFalhar: "Não foi possível excluir o comentário.",
-    });
+    setNotice(null);
+    try {
+      const response = await fetch("/api/comentarios", {
+        method: "DELETE",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ commentId }),
+      });
+      if (response.ok) {
+        router.refresh();
+        return;
+      }
+      const body = (await response.json().catch(() => ({}))) as { error?: string };
+      setNotice(body.error ?? "Não foi possível excluir o comentário.");
+    } catch {
+      setNotice("Não foi possível falar com o servidor. Verifique sua conexão.");
+    }
   }
 
   async function handleSubmit(event: React.FormEvent) {
@@ -310,12 +352,12 @@ export function CommentThread({ comments, lessonId, authorInitials, viewerId, co
         <div className="composer__actions">
           <button
             type="button"
-            className="btn btn--ghost btn--sm"
+            className="btn btn--ghost btn--small"
             onClick={() => setEditandoId(null)}
           >
             Cancelar
           </button>
-          <button type="submit" className="btn btn--primary btn--sm" disabled={sending}>
+          <button type="submit" className="btn btn--primary btn--small" disabled={sending}>
             {sending ? "Salvando" : "Salvar"}
           </button>
         </div>

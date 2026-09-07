@@ -20,7 +20,7 @@ import { SESSION_COOKIE } from "@/lib/session-cookie.ts";
  * válida, devolve `null` — e é quem chama que decide se redireciona para o
  * login ou responde 404.
  *
- * Em desenvolvimento, `NERDRESOLVE_DEV_ROLE` continua permitindo simular um papel
+ * Em desenvolvimento, `NERD_DEV_ROLE` continua permitindo simular um papel
  * sem passar pelo login, para exercitar as telas. A variável é ignorada em
  * produção: lá, papel vem de sessão autenticada e de mais nada.
  */
@@ -33,8 +33,8 @@ export async function currentUser(): Promise<SessionUser | null> {
     if (user) return user;
   }
 
-  if (process.env.NODE_ENV !== "production" && process.env.NERDRESOLVE_DEV_ROLE) {
-    return devUser(process.env.NERDRESOLVE_DEV_ROLE);
+  if (process.env.NODE_ENV !== "production" && process.env.NERD_DEV_ROLE) {
+    return devUser(process.env.NERD_DEV_ROLE);
   }
 
   return null;
@@ -56,7 +56,7 @@ export async function requireUser(): Promise<SessionUser> {
  * Recorte do usuário que a checagem de permissão precisa.
  *
  * `tenantId` entra sempre: é a fronteira externa, e um ator sem tenant faz
- * `can` cair no comportamento de transição — decidir só pelo papel. Como
+ * `can()` cair no comportamento de transição — decidir só pelo papel. Como
  * toda sessão real tem tenant, o caminho de transição só existe para chamadas
  * que ainda não passam por aqui.
  */
@@ -77,7 +77,7 @@ export function actorOf(user: SessionUser): Actor {
  * `User` é o modelo de apresentação (campos opcionais, como o JSX espera). Com
  * `exactOptionalPropertyTypes`, `null` e "ausente" são coisas distintas — então
  * a ponte é explícita, e a chave é **omitida** quando não há valor, em vez de
- * virar `undefined`.
+ * virar `undefined` (mesma regra do DEC-055).
  */
 export function toDisplayUser(user: SessionUser): User {
   return {
@@ -107,7 +107,7 @@ export async function currentFeatures(): Promise<Record<string, boolean>> {
 }
 
 /**
- * Usuário simulado por `NERDRESOLVE_DEV_ROLE`, só em desenvolvimento.
+ * Usuário simulado por `NERD_DEV_ROLE`, só em desenvolvimento.
  *
  * Vem do seed em memória e não passa pelo banco — é atalho de desenvolvimento,
  * não caminho de autenticação.
@@ -115,7 +115,7 @@ export async function currentFeatures(): Promise<Record<string, boolean>> {
 async function devUser(role: string): Promise<SessionUser | null> {
   /* O tenant é buscado no banco, não fixado aqui: o id é gerado pela migração
      e inventar um faria toda consulta recortada por tenant devolver vazio. */
-  const tenant = await findTenantBySlug("lms");
+  const tenant = await findTenantBySlug("exemplo");
   if (!tenant) return null;
 
   const source =
@@ -135,6 +135,10 @@ async function devUser(role: string): Promise<SessionUser | null> {
     email: source.email ?? null,
     role: source.role,
     project: source.project ?? null,
+    /* O mock não tem função: o atalho de desenvolvimento serve para abrir as
+       telas, e uma função inventada aqui faria as trilhas por função parecerem
+       funcionar sem ninguém ter cadastrado nada. */
+    jobTitle: null,
     tenant,
   };
 }

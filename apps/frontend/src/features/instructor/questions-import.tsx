@@ -224,7 +224,7 @@ export function QuestionsImport({ courseId }: { courseId: string }) {
             {plano.criar === 1 ? "questão será criada" : "questões serão criadas"}
             {plano.erros > 0 ? (
               <span className="qimport__erros">
-                <AlertTriangle aria-hidden /> {plano.erros} com problema — não serão criadas
+                <AlertTriangle aria-hidden /> {plano.erros} com problema, não serão criadas
               </span>
             ) : null}
           </p>

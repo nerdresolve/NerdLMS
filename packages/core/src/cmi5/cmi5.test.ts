@@ -21,7 +21,7 @@ function log(...verbos: Cmi5Verb[]) {
   return { verbos };
 }
 
-describe("cmi5 — o moveOn decide, e só ele", () => {
+describe("cmi5, o moveOn decide, e só ele", () => {
   test("Completed exige concluir, e não se importa com nota", () => {
     assert.equal(moveOnSatisfeito("Completed", estado({ completed: true, passed: false })), true);
     assert.equal(moveOnSatisfeito("Completed", estado({ completed: false, passed: true })), false);
@@ -68,7 +68,7 @@ describe("cmi5 — o moveOn decide, e só ele", () => {
   });
 });
 
-describe("cmi5 — quem pode emitir o quê", () => {
+describe("cmi5, quem pode emitir o quê", () => {
   test("o conteúdo não emite satisfied", () => {
     /* Emitir `satisfied` é decidir sozinho que o curso foi cumprido, ignorando
        o `moveOn` que o autor declarou. A decisão é da plataforma. */
@@ -94,7 +94,7 @@ describe("cmi5 — quem pode emitir o quê", () => {
   });
 });
 
-describe("cmi5 — a ordem da sessão", () => {
+describe("cmi5, a ordem da sessão", () => {
   test("o caminho normal passa", () => {
     assert.equal(validarSequencia("initialized", log("launched")).ok, true);
     assert.equal(validarSequencia("completed", log("launched", "initialized")).ok, true);
@@ -157,7 +157,7 @@ describe("cmi5 — a ordem da sessão", () => {
   });
 });
 
-describe("cmi5 — o estado que sai dos verbos", () => {
+describe("cmi5, o estado que sai dos verbos", () => {
   test("quem não se pronunciou não reprovou ninguém", () => {
     /* Tratar ausência como reprovação daria "não aprovado" a quem apenas não
        terminou. */

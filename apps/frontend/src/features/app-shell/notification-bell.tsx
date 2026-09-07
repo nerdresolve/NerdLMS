@@ -128,23 +128,51 @@ export function NotificationBell() {
                   const Icon = ICON[item.kind];
                   return (
                     <li key={item.id}>
-                      <button
-                        type="button"
-                        className="bell__item"
-                        data-read={item.read}
-                        onClick={() => marcarLido(item.id)}
-                        /* Já lido não tem o que fazer ao clicar; desabilitar
-                           evita uma requisição que o servidor ignoraria. */
-                        disabled={item.read}
-                      >
-                        <span className="bell__icon" aria-hidden="true">
-                          <Icon />
-                        </span>
-                        <span className="bell__body">
-                          <span className="bell__title">{item.title}</span>
-                          <span className="bell__text">{item.body}</span>
-                        </span>
-                      </button>
+                      {/* Com destino, o aviso É um link.
+
+                          Antes isto era sempre um botão que só marcava como
+                          lido — e o já lido vinha `disabled`, então um aviso
+                          que a pessoa tinha aberto no sino não podia mais ser
+                          seguido até o que ele anunciava. Aviso é ponteiro:
+                          impedir de segui-lo é ficar só com o ruído. */}
+                      {item.link ? (
+                        <Link
+                          className="bell__item"
+                          data-read={item.read}
+                          href={item.link}
+                          onClick={() => {
+                            setAberto(false);
+                            if (!item.read) marcarLido(item.id);
+                          }}
+                        >
+                          <span className="bell__icon" aria-hidden="true">
+                            <Icon />
+                          </span>
+                          <span className="bell__body">
+                            <span className="bell__title">{item.title}</span>
+                            <span className="bell__text">{item.body}</span>
+                          </span>
+                        </Link>
+                      ) : (
+                        <button
+                          type="button"
+                          className="bell__item"
+                          data-read={item.read}
+                          onClick={() => marcarLido(item.id)}
+                          /* Sem destino e já lido, não há o que fazer ao
+                             clicar; desabilitar evita uma requisição que o
+                             servidor ignoraria. */
+                          disabled={item.read}
+                        >
+                          <span className="bell__icon" aria-hidden="true">
+                            <Icon />
+                          </span>
+                          <span className="bell__body">
+                            <span className="bell__title">{item.title}</span>
+                            <span className="bell__text">{item.body}</span>
+                          </span>
+                        </button>
+                      )}
                     </li>
                   );
                 })}

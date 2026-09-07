@@ -6,7 +6,7 @@ import type { Track } from "./tracks.ts";
 import type { Course, Enrollment } from "./types.ts";
 import { makeCourse, makeEnrollment, makeLesson, makeModule, makeUser, type CourseOptions } from "./test-fixtures.ts";
 
-const aluno = makeUser({ id: "u1", fullName: "Maria Souza", project: "Prolagos" });
+const aluno = makeUser({ id: "u1", fullName: "Maria Souza", project: "Siririzinho" });
 
 /** Aluno sem projeto — a chave é **omitida**, não atribuída como undefined. */
 const semProjeto = makeUser({ id: "u2", fullName: "Sem Projeto" });
@@ -53,7 +53,7 @@ describe("O que nunca deve ser recomendado", () => {
 describe("Prioridades", () => {
   test("treinamento obrigatório vence qualquer outro sinal", () => {
     const cursos = [
-      curso("livre", { project: "Prolagos" }),
+      curso("livre", { project: "Siririzinho" }),
       curso("obrigatorio", { enrollmentMode: "assigned" }),
     ];
     const lista = recommend({ user: aluno, courses: cursos, enrollments: [], allEnrollments: [], tracks: semTrilhas });
@@ -84,14 +84,14 @@ describe("Prioridades", () => {
   });
 
   test("curso do mesmo projeto sobe na lista", () => {
-    const cursos = [curso("outro", { project: "Escola Social" }), curso("meu", { project: "Prolagos" })];
+    const cursos = [curso("outro", { project: "Aguilhada" }), curso("meu", { project: "Siririzinho" })];
     const lista = recommend({ user: aluno, courses: cursos, enrollments: [], allEnrollments: [], tracks: semTrilhas });
     assert.equal(lista[0]?.course.id, "meu");
-    assert.match(lista[0]!.reason, /Prolagos/);
+    assert.match(lista[0]!.reason, /Siririzinho/);
   });
 
   test("popularidade entre colegas conta, mas não domina", () => {
-    const cursos = [curso("popular"), curso("doProjeto", { project: "Prolagos" })];
+    const cursos = [curso("popular"), curso("doProjeto", { project: "Siririzinho" })];
     const colegas = ["s1", "s2", "s3"].map((id) => matricula("popular", id));
     const lista = recommend({
       user: aluno,

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { ClipboardCheck, FileText } from "lucide-react";
 
 import "./grading.css";
+import { campoObrigatorio } from "@/lib/campo-obrigatorio.ts";
 
 /**
  * Fila de correção — F3-06.
@@ -77,7 +78,7 @@ export function GradingView({
   return (
     <div className="grading">
       <div className="page-head">
-        <h1 className="page-head__greeting">Correção</h1>
+        <h1 className="page-head__title">Correção</h1>
         <p className="page-head__sub">
           {vazio
             ? "Nada aguardando correção."
@@ -135,7 +136,7 @@ export function GradingView({
                       min={0}
                       max={item.maxPoints}
                       step="0.5"
-                      required
+                      {...campoObrigatorio("Informe a nota.")}
                     />
                   </div>
 
@@ -208,7 +209,7 @@ export function GradingView({
                     min={0}
                     max={item.pointsPossible}
                     step="0.5"
-                    required
+                    {...campoObrigatorio("Informe a nota.")}
                   />
                 </div>
 

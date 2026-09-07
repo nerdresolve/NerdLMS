@@ -1,6 +1,5 @@
-import type { Metadata, Viewport } from "next";
-
 import { NOME_PADRAO } from "@nerdlms/core/tenancy/branding.ts";
+import type { Metadata, Viewport } from "next";
 
 import { tenantOfRequest } from "@/lib/tenant-request.ts";
 import localFont from "next/font/local";
@@ -23,7 +22,9 @@ import "@/styles/components.css";
  * evita layout shift na troca da fonte de sistema para a da marca.
  *
  * Um arquivo por peso (a família não tem versão variável): o Next só embute no
- * HTML o preload dos que a página usa.
+ * HTML o preload dos que a página usa. O itálico é declarado à parte porque na
+ * Satoshi ele é um desenho próprio; sem isso o navegador inclinaria o romano
+ * por conta e a letra sairia deformada.
  */
 const satoshi = localFont({
   src: [
@@ -40,13 +41,14 @@ const satoshi = localFont({
   variable: "--font-satoshi",
   fallback: ["ui-sans-serif", "system-ui", "-apple-system", "Segoe UI", "Roboto", "Arial", "sans-serif"],
 });
+
 /**
  * Título e favicon saem do cliente que atende esta requisição.
  *
  * `generateMetadata` em vez de `metadata` estático: num white-label o nome na
  * aba do navegador é do cliente, e um valor fixo faria a plataforma da ACME se
- * anunciar o nome de outro cliente. O tenant vem do domínio — não há sessão
- * no layout raiz, que também serve a página pública.
+ * anunciar como Exemplo S.A.. O tenant vem do domínio — não há sessão no layout raiz,
+ * que também serve a página pública.
  */
 export async function generateMetadata(): Promise<Metadata> {
   const tenant = await tenantOfRequest();
@@ -62,7 +64,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#f5f3ff" },
+    { media: "(prefers-color-scheme: light)", color: "#f8fafc" },
     { media: "(prefers-color-scheme: dark)", color: "#08060d" },
   ],
 };

@@ -1,5 +1,5 @@
 /**
- * Fábricas de dados para teste.
+ * Fábricas de dados para teste — TASK-068.
  *
  * Existe porque o modelo ganhou campos obrigatórios (`authorId`,
  * `enrollmentMode`, `status`, `learnerId`, `enrolledBy`) e **oito fixtures

@@ -53,7 +53,6 @@ export async function POST(request: Request): Promise<Response> {
   const outcome = await requestResetUseCase({
     email: typeof body.email === "string" ? body.email : "",
     tenantId: tenant.id,
-    tenantName: tenant.name,
     origin,
     ip: clientIp(requestHeaders),
   });

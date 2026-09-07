@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { Users } from "lucide-react";
 
-import { FluidWave } from "@/components/brand/fluid-wave.tsx";
 import type { Course } from "@nerdlms/core/courses/types.ts";
 import type { TeamPageData } from "./data.ts";
 import { AssignPanel } from "./assign-panel.tsx";
@@ -43,10 +42,10 @@ export function TeamView({
   }
 
   return (
-    <div className="studio">
-      <div className="studio__head">
-        <div className="studio__head-text">
-          <h1 className="page-head__greeting">Minha equipe</h1>
+    <div className="page">
+      <div className="page-head">
+        <div className="page-head__text">
+          <h1 className="page-head__title">Minha equipe</h1>
           <p className="page-head__sub">Pessoas de {project} e o andamento de cada uma.</p>
         </div>
       </div>
@@ -90,15 +89,19 @@ export function TeamView({
                     />
                   </th>
                   <th scope="col">Pessoa</th>
-                  <th scope="col">Matrículas</th>
-                  <th scope="col">Concluídos</th>
-                  <th scope="col">Progresso médio</th>
+                  <th scope="col" data-num>Matrículas</th>
+                  <th scope="col" data-num>Concluídos</th>
+                  <th scope="col" data-num>Progresso médio</th>
                 </tr>
               </thead>
               <tbody>
                 {team.map(({ user, enrollments, completed, averagePercent }) => (
                   <tr key={user.id} data-selecionada={selecionadas.includes(user.id) || undefined}>
-                    <td className="table__check">
+                    {/* `data-label` vazio de propósito: a coluna do seletor não tem
+                        nome visível, e o rótulo do modo estreito ficaria sem texto.
+                        Vazio é a declaração de que não há rótulo; ausente seria
+                        esquecimento, e é isso que `check:tabelas` cobra. */}
+                    <td className="table__check" data-label="">
                       <label className="sr-only" htmlFor={`marcar-${user.id}`}>
                         Selecionar {user.fullName}
                       </label>
@@ -109,10 +112,10 @@ export function TeamView({
                         onChange={() => alternar(user.id)}
                       />
                     </td>
-                    <td>{user.fullName}</td>
-                    <td>{enrollments}</td>
-                    <td>{completed}</td>
-                    <td>{averagePercent}%</td>
+                    <td data-label="Pessoa">{user.fullName}</td>
+                    <td data-label="Matrículas" data-num>{enrollments}</td>
+                    <td data-label="Concluídos" data-num>{completed}</td>
+                    <td data-label="Progresso médio" data-num>{averagePercent}%</td>
                   </tr>
                 ))}
               </tbody>
@@ -120,7 +123,7 @@ export function TeamView({
           </div>
         ) : (
           <div className="empty">
-            <FluidWave variant="band" className="empty__wave" />
+            <span className="empty__rule" aria-hidden="true" />
             <div className="empty__inner">
               <span className="empty__icon">
                 <Users aria-hidden />

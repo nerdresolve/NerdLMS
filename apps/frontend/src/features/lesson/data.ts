@@ -10,6 +10,7 @@ import {
 } from "@nerdlms/backend/scorm/scorm-repository.ts";
 import type { ScormInitial } from "@/features/lesson/scorm-player.tsx";
 import { presignDownload } from "@nerdlms/backend/storage/object-storage.ts";
+import { origemDaRequisicao } from "@/lib/origem-da-requisicao.ts";
 import { findAllCourses, findEnrollments } from "@nerdlms/backend/courses/courses-repository.ts";
 import { actorOf, requireUser, toDisplayUser } from "@/lib/auth/session.ts";
 import { can } from "@nerdlms/core/auth/permissions.ts";
@@ -65,7 +66,10 @@ async function scormFor(
   const enrollmentId = await findEnrollmentId(enrollment.courseId, learnerId);
   if (!enrollmentId && !podeEditar) return {};
 
-  const src = await presignDownload(`${pacote.storagePrefix}${pacote.entryPoint}`);
+  const src = await presignDownload(
+    `${pacote.storagePrefix}${pacote.entryPoint}`,
+    (await origemDaRequisicao()) ?? undefined,
+  );
 
   /* A versão do pacote decide o vocabulário inteiro — qual API o player
      instala, quais colunas o servidor grava. Ler o acompanhamento errado
@@ -111,7 +115,7 @@ export interface LessonPageData {
  * aulas existem.
  *
  * `mediaSrc` será a URL assinada com TTL curto emitida aqui, depois de
- * confirmada a matrícula ( / ). Até lá aponta para o arquivo
+ * confirmada a matrícula (DEC-009 / TASK-011D). Até lá aponta para o arquivo
  * de demonstração, que só existe em desenvolvimento.
  */
 export async function getLessonPageData(
@@ -176,9 +180,16 @@ export async function getLessonPageData(
         /* URL assinada quando a aula tem arquivo; o clipe de demonstração
            cobre as aulas do seed, que ainda não têm vídeo próprio. A
            assinatura é emitida DEPOIS da checagem de permissão acima, e vale
-           uma hora — o arquivo não é público em momento algum. */
+           uma hora — o arquivo não é público em momento algum (DEC-009). */
+        /* Assinada contra a origem DESTA requisição: o endereço fixo da
+           configuração apontava para uma porta sem serviço, e nenhum vídeo
+           chegava a carregar. Na mesma origem do site, o `media-src 'self'`
+           da CSP também aceita. */
         mediaSrc: view.lesson.mediaKey
-          ? await presignDownload(view.lesson.mediaKey)
+          ? await presignDownload(
+              view.lesson.mediaKey,
+              (await origemDaRequisicao()) ?? undefined,
+            )
           : "/media/aula-demo.mp4",
         /* Vinha do mock até a F1-04. O download não sai daqui: a tela recebe
            só nome, tipo e tamanho, e a URL assinada é emitida por rota

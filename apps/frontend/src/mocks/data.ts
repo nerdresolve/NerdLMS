@@ -5,8 +5,9 @@
  * entrar, basta trocar as implementações em `src/mocks/repository.ts` e apagar
  * `src/mocks/` — nenhuma tela importa daqui diretamente. Ver `src/mocks/README.md`.
  *
- * Os títulos refletem o domínio da NerdResolve (saneamento) mas são invenção nossa:
- * o catálogo real tem ~70 cursos sociais e 6 para terceiros (PRD §9).
+ * Os títulos refletem o domínio da Exemplo S.A. (exploração de petróleo e gás
+ * em terra, em Sergipe) mas são invenção nossa. Campos e municípios citados
+ * são os reais da operação.
  */
 
 import type { Course, Enrollment, LessonProgress, User } from "@nerdlms/core/courses/types.ts";
@@ -33,12 +34,12 @@ function lessons(prefix: string, titles: string[], durationMinutes: number) {
 export const student: User = {
   id: "u1",
   role: "learner",
-  firstName: "Maria",
-  fullName: "Maria Souza",
-  email: "maria.souza@exemplo.com.br",
+  firstName: "Aluno",
+  fullName: "Aluno",
+  email: "maria.souza@exemplo.com",
   status: "active",
-  project: "Escola Social",
-  region: "Rio de Janeiro",
+  project: "Siririzinho",
+  region: "Rosário do Catete",
   lastAccessAt: acessoEm(1),
 };
 
@@ -47,47 +48,47 @@ export const instructors: User[] = [
   {
     id: "u2",
     role: "instructor",
-    firstName: "Rafael",
-    fullName: "Rafael Nunes",
-    email: "rafael.nunes@exemplo.com.br",
+    firstName: "Instrutor",
+    fullName: "Instrutor",
+    email: "rafael.nunes@exemplo.com",
     status: "active",
-    project: "Águas do Rio",
-    region: "Rio de Janeiro",
+    project: "Unidade Norte",
+    region: "Unidade Norte",
   },
   {
     id: "u3",
     role: "instructor",
-    firstName: "Camila",
-    fullName: "Camila Prado",
-    email: "camila.prado@exemplo.com.br",
+    firstName: "Instrutor 2",
+    fullName: "Instrutor 2",
+    email: "camila.prado@exemplo.com",
     status: "active",
-    project: "Escola Social",
-    region: "Região dos Lagos",
+    project: "Riachuelo",
+    region: "Japaratuba",
   },
 ];
 
-/** Gestor de projeto — o "Gestor" da proposta. */
+/** Gestor de projeto — o "Gestor" da proposta. Ver DEC-038. */
 export const manager: User = {
   id: "u4",
   role: "manager",
-  firstName: "Sérgio",
-  fullName: "Sérgio Bastos",
-  email: "sergio.bastos@exemplo.com.br",
+  firstName: "Gestor",
+  fullName: "Gestor",
+  email: "sergio.bastos@exemplo.com",
   status: "active",
-  project: "Prolagos",
-  region: "Região dos Lagos",
+  project: "Unidade Norte",
+  region: "Unidade Norte",
   lastAccessAt: acessoEm(2),
 };
 
 export const admin: User = {
   id: "u9",
   role: "admin",
-  firstName: "Ana",
-  fullName: "Ana Ribeiro",
-  email: "ana.ribeiro@exemplo.com.br",
+  firstName: "Administrador",
+  fullName: "Administrador",
+  email: "ana.ribeiro@exemplo.com",
   status: "active",
-  project: "Holding",
-  region: "Rio de Janeiro",
+  project: "Sede",
+  region: "Aracaju",
   lastAccessAt: acessoEm(0),
 };
 
@@ -97,30 +98,30 @@ export const courses: Course[] = [
     authorId: "u2",
     status: "published",
     enrollmentMode: "assigned",
-    slug: "tratamento-de-agua-fundamentos",
-    title: "Tratamento de Água: Fundamentos",
-    summary: "Da captação à distribuição: as etapas que tornam a água potável e segura.",
+    slug: "operacao-de-pocos-fundamentos",
+    title: "Operação de Poços: Fundamentos",
+    summary: "Do reservatório à estação coletora: as etapas que levam o óleo do poço à transferência.",
     artwork: 0,
     modules: [
       {
         id: "c1-m1",
-        title: "Captação e adução",
-        lessons: lessons("c1m1", ["Mananciais e outorga", "Captação superficial", "Adução e recalque", "Reservação"], 28),
+        title: "Reservatório e completação",
+        lessons: lessons("c1m1", ["Rocha, óleo e água", "Perfuração direcional", "Revestimento e cimentação", "Canhoneio"], 28),
       },
       {
         id: "c1-m2",
-        title: "Coagulação e floculação",
-        lessons: lessons("c1m2", ["Química da coagulação", "Dosagem de coagulante", "Floculadores", "Ensaio de jarros", "Controle operacional"], 30),
+        title: "Elevação artificial",
+        lessons: lessons("c1m2", ["Surgência e depleção", "Bombeio mecânico", "Bombeio centrífugo submerso", "Gas lift", "Escolha do método"], 30),
       },
       {
         id: "c1-m3",
-        title: "Decantação e filtração",
-        lessons: lessons("c1m3", ["Decantadores", "Filtros rápidos", "Retrolavagem", "Perda de carga", "Falhas comuns"], 26),
+        title: "Coleta e separação",
+        lessons: lessons("c1m3", ["Linhas de surgência", "Estação coletora", "Separador trifásico", "Tratamento de emulsão", "Falhas comuns"], 26),
       },
       {
         id: "c1-m4",
-        title: "Desinfecção e controle",
-        lessons: lessons("c1m4", ["Cloração", "Residual na rede", "Análises de potabilidade", "Portaria de qualidade"], 32),
+        title: "Medição e controle",
+        lessons: lessons("c1m4", ["Teste de poço", "Medição fiscal", "Análise de BSW", "Regulação da ANP"], 32),
       },
     ],
   },
@@ -129,25 +130,25 @@ export const courses: Course[] = [
     authorId: "u2",
     status: "published",
     enrollmentMode: "assigned",
-    slug: "gestao-de-perdas",
-    title: "Gestão de Perdas na Distribuição",
-    summary: "Como medir, localizar e reduzir perdas reais e aparentes na rede.",
+    slug: "integridade-de-ativos",
+    title: "Integridade de Ativos e Corrosão",
+    summary: "Como medir, localizar e conter a perda de espessura em linhas, vasos e tanques.",
     artwork: 1,
     modules: [
       {
         id: "c2-m1",
-        title: "Balanço hídrico",
-        lessons: lessons("c2m1", ["Indicadores de perda", "Macromedição", "Setorização", "Distritos de medição"], 24),
+        title: "Mecanismos de corrosão",
+        lessons: lessons("c2m1", ["Corrosão interna", "Corrosão externa", "H₂S e CO₂", "Registro de anomalias"], 24),
       },
       {
         id: "c2-m2",
-        title: "Perdas reais",
-        lessons: lessons("c2m2", ["Pesquisa de vazamento", "Geofonamento", "Pressão e vazamento", "Reparo programado"], 27),
+        title: "Inspeção em campo",
+        lessons: lessons("c2m2", ["Inspeção visual", "Medição de espessura", "Ensaio não destrutivo", "Reparo programado"], 27),
       },
       {
         id: "c2-m3",
-        title: "Perdas aparentes",
-        lessons: lessons("c2m3", ["Submedição", "Parque de hidrômetros", "Fraudes", "Recuperação de receita"], 26),
+        title: "Proteção e mitigação",
+        lessons: lessons("c2m3", ["Revestimento", "Proteção catódica", "Injeção de inibidor", "Gestão de anomalias"], 26),
       },
     ],
   },
@@ -158,18 +159,18 @@ export const courses: Course[] = [
     enrollmentMode: "assigned",
     slug: "seguranca-em-operacoes-de-campo",
     title: "Segurança em Operações de Campo",
-    summary: "Procedimentos obrigatórios para escavação, espaço confinado e trabalho em via pública.",
+    summary: "Procedimentos obrigatórios para trabalho a quente, espaço confinado e atmosfera com H₂S.",
     artwork: 2,
     modules: [
       {
         id: "c3-m1",
         title: "Fundamentos",
-        lessons: lessons("c3m1", ["Análise de risco", "EPI e EPC", "Permissão de trabalho", "Comunicação de incidentes", "Primeiros socorros"], 22),
+        lessons: lessons("c3m1", ["Análise preliminar de risco", "EPI e EPC", "Permissão de trabalho", "Comunicação de incidentes", "Primeiros socorros"], 22),
       },
       {
         id: "c3-m2",
-        title: "Escavação e via pública",
-        lessons: lessons("c3m2", ["Sinalização viária", "Escoramento de valas", "Interferências enterradas", "Reaterro", "Isolamento da área"], 30),
+        title: "Trabalho a quente",
+        lessons: lessons("c3m2", ["Liberação de área", "Teste de explosividade", "Bloqueio e etiquetagem", "Vigia de fogo", "Isolamento da área"], 30),
       },
       {
         id: "c3-m3",
@@ -179,7 +180,7 @@ export const courses: Course[] = [
       {
         id: "c3-m4",
         title: "Emergências",
-        lessons: lessons("c3m4", ["Plano de resposta", "Vazamento de cloro", "Evacuação", "Pós-ocorrência", "Registro e análise"], 28),
+        lessons: lessons("c3m4", ["Plano de resposta", "Vazamento de H₂S", "Evacuação", "Pós-ocorrência", "Registro e análise"], 28),
       },
     ],
   },
@@ -188,20 +189,20 @@ export const courses: Course[] = [
     authorId: "u3",
     status: "published",
     enrollmentMode: "open",
-    slug: "atendimento-ao-cliente",
-    title: "Atendimento ao Cliente",
-    summary: "Escuta, clareza e resolução na relação com o usuário do serviço.",
+    slug: "relacionamento-com-comunidades",
+    title: "Relacionamento com Comunidades",
+    summary: "Escuta, clareza e resolução na relação com quem vive ao redor da operação.",
     artwork: 3,
     modules: [
       {
         id: "c4-m1",
-        title: "A relação com o usuário",
-        lessons: lessons("c4m1", ["Direitos do consumidor", "Escuta ativa", "Linguagem clara", "Registro do chamado", "Prazos"], 20),
+        title: "A relação com a vizinhança",
+        lessons: lessons("c4m1", ["Direitos e deveres", "Escuta ativa", "Linguagem clara", "Registro da manifestação", "Prazos"], 20),
       },
       {
         id: "c4-m2",
         title: "Situações críticas",
-        lessons: lessons("c4m2", ["Falta d'água", "Conta em disputa", "Reclamação recorrente", "Escalonamento"], 24),
+        lessons: lessons("c4m2", ["Ruído e odor", "Dano em propriedade", "Reclamação recorrente", "Escalonamento"], 24),
       },
       {
         id: "c4-m3",
@@ -266,9 +267,9 @@ import type { Comment, LessonMaterial } from "@nerdlms/core/courses/types.ts";
 /** Anexos por aula. Chave = lessonId. */
 export const materials: Record<string, LessonMaterial[]> = {
   "c1m3-l5": [
-    { id: "m1", name: "Checklist de inspeção de filtros", kind: "pdf", sizeLabel: "480 kB" },
-    { id: "m2", name: "Planilha de perda de carga", kind: "spreadsheet", sizeLabel: "62 kB" },
-    { id: "m3", name: "Norma técnica de retrolavagem", kind: "pdf", sizeLabel: "1,2 MB" },
+    { id: "m1", name: "Checklist de inspeção do separador", kind: "pdf", sizeLabel: "480 kB" },
+    { id: "m2", name: "Planilha de acompanhamento de BSW", kind: "spreadsheet", sizeLabel: "62 kB" },
+    { id: "m3", name: "Procedimento de tratamento de emulsão", kind: "pdf", sizeLabel: "1,2 MB" },
   ],
 };
 
@@ -286,7 +287,7 @@ export const comments: Comment[] = [
     lessonId: "c1m3-l5",
     authorId: "u5",
     authorName: "João Peixoto",
-    body: "Na estação onde trabalho a perda de carga sobe muito antes das 24h previstas. Isso indica colmatação do leito?",
+    body: "Na estação onde trabalho o BSW da saída sobe muito antes do fim do turno. Isso indica arraste de água no separador?",
     createdAt: "2026-08-04T13:20:00-03:00",
     highlighted: false,
   },
@@ -296,8 +297,8 @@ export const comments: Comment[] = [
     votedByViewer: false,
     lessonId: "c1m3-l5",
     authorId: "u2",
-    authorName: "Rafael Nunes",
-    body: "Boa observação, João. Subida rápida de perda de carga costuma indicar colmatação superficial. Antes de concluir, compare a turbidez de entrada com o histórico: se ela subiu, o filtro está apenas recebendo mais sólidos. Se não subiu, investigue a retrolavagem.",
+    authorName: "Instrutor",
+    body: "Boa observação, João. Subida rápida de BSW costuma indicar emulsão estável na interface. Antes de concluir, compare a vazão de entrada com o histórico: se ela subiu, o separador está apenas recebendo mais líquido e o tempo de residência caiu. Se não subiu, investigue a dosagem de desemulsificante.",
     createdAt: "2026-08-04T15:02:00-03:00",
     parentId: "cm1",
     highlighted: true,
@@ -308,8 +309,8 @@ export const comments: Comment[] = [
     votedByViewer: false,
     lessonId: "c1m3-l5",
     authorId: "u1",
-    authorName: "Maria Souza",
-    body: "O trecho sobre expansão do leito durante a retrolavagem esclareceu uma dúvida que eu tinha há tempos. Vale rever a partir dos 12 minutos.",
+    authorName: "Aluno",
+    body: "O trecho sobre a altura da interface no separador esclareceu uma dúvida que eu tinha há tempos. Vale rever a partir dos 12 minutos.",
     createdAt: "2026-08-05T09:44:00-03:00",
     highlighted: false,
   },
@@ -320,7 +321,7 @@ export const comments: Comment[] = [
     lessonId: "c1m3-l5",
     authorId: "s2",
     authorName: "Carla Menezes",
-    body: "Uma dica prática: registre a perda de carga no início e no fim do turno. Em duas semanas você já enxerga o padrão do seu filtro sem precisar de planilha.",
+    body: "Uma dica prática: registre o nível da interface no início e no fim do turno. Em duas semanas você já enxerga o padrão do seu separador sem precisar de planilha.",
     createdAt: "2026-08-05T14:10:00-03:00",
     highlighted: false,
   },
@@ -352,7 +353,7 @@ export const comments: Comment[] = [
     votedByViewer: false,
     lessonId: "c3m3-l2",
     authorId: "u3",
-    authorName: "Camila Prado",
+    authorName: "Instrutor 2",
     body: "Não entra. O limite de 19,5% não é uma linha que separa seguro de inseguro: é o ponto em que a medição já indica que alguma coisa consumiu ou deslocou o oxigênio. Enquanto você não souber o que foi, o espaço continua sem liberação. Ventile e meça de novo. Se não voltar ao normal, o motivo está lá dentro.",
     createdAt: "2026-08-07T09:12:00-03:00",
     parentId: "cm6",
@@ -365,7 +366,7 @@ export const comments: Comment[] = [
     lessonId: "c3m3-l2",
     authorId: "s5",
     authorName: "Marcos Tavares",
-    body: "Complementando: aqui a gente adotou medir nos três níveis da vala, e não só na boca. Já achamos diferença de quase 2% entre o topo e o fundo.",
+    body: "Complementando: aqui a gente adotou medir nos três níveis do tanque, e não só na boca de visita. Já achamos diferença de quase 2% entre o topo e o fundo.",
     createdAt: "2026-08-07T10:48:00-03:00",
     highlighted: false,
   },
@@ -376,7 +377,7 @@ export const comments: Comment[] = [
     lessonId: "c4m2-l1",
     authorId: "s2",
     authorName: "Carla Menezes",
-    body: "O que fazer quando a pessoa liga pela terceira vez no mesmo dia sobre a mesma falta d'água? O protocolo continua o mesmo, mas ela já está sem paciência com o roteiro.",
+    body: "O que fazer quando a pessoa liga pela terceira vez no mesmo dia sobre o mesmo odor? O protocolo continua o mesmo, mas ela já está sem paciência com o roteiro.",
     createdAt: "2026-08-08T11:20:00-03:00",
     highlighted: false,
   },
@@ -386,7 +387,7 @@ export const comments: Comment[] = [
     votedByViewer: false,
     lessonId: "c4m2-l1",
     authorId: "u3",
-    authorName: "Camila Prado",
+    authorName: "Instrutor 2",
     body: "Nesse caso o roteiro atrapalha. Na terceira ligação a pessoa não quer a explicação de novo, quer saber o que mudou desde a última. Abra dizendo o que já foi feito e qual é a previsão atual, mesmo que a previsão seja ruim. Repetir o script do zero soa como se ninguém tivesse olhado o caso.",
     createdAt: "2026-08-08T14:05:00-03:00",
     parentId: "cm9",
@@ -399,7 +400,7 @@ export const comments: Comment[] = [
     lessonId: "c4m1-l3",
     authorId: "s7",
     authorName: "Rogério Lima",
-    body: "A parte de trocar termo técnico por linguagem comum ajudou. Aqui a gente falava \"intermitência no abastecimento\" e a pessoa entendia que era problema na casa dela.",
+    body: "A parte de trocar termo técnico por linguagem comum ajudou. Aqui a gente falava \"queima em tocha\" e a pessoa entendia que tinha pegado fogo na estação.",
     createdAt: "2026-08-09T16:30:00-03:00",
     highlighted: false,
   },
@@ -410,7 +411,7 @@ export const comments: Comment[] = [
     lessonId: "c2m2-l2",
     authorId: "s1",
     authorName: "João Peixoto",
-    body: "No geofonamento, ruído de trânsito atrapalha muito no nosso setor. Alguém consegue fazer de dia com resultado ou aqui é caso de virar noturno mesmo?",
+    body: "Na medição de espessura, a linha quente do nosso trecho dá leitura instável o dia inteiro. Alguém consegue medir com a linha em operação ou aqui é caso de esperar a parada mesmo?",
     createdAt: "2026-08-10T08:15:00-03:00",
     highlighted: false,
   },
@@ -420,8 +421,8 @@ export const comments: Comment[] = [
     votedByViewer: false,
     lessonId: "c2m2-l2",
     authorId: "u2",
-    authorName: "Rafael Nunes",
-    body: "Em via movimentada, noturno rende mais — não é preferência, é que o ruído de fundo mascara a faixa de frequência do vazamento. Se não der para ir à noite, vale a pré-localização por setor durante o dia e reservar a escuta fina para o horário calmo. Assim você não perde o dia inteiro.",
+    authorName: "Instrutor",
+    body: "Acima de 60 °C a leitura desvia, não é preferência, é que o acoplante seca e a velocidade do som no aço muda com a temperatura. Se não der para esperar a parada, use sonda de alta temperatura e aplique a correção da tabela. Sem isso, a espessura sai menor do que é e você programa reparo que não precisa.",
     createdAt: "2026-08-10T10:40:00-03:00",
     parentId: "cm12",
     highlighted: true,
@@ -433,7 +434,7 @@ export const comments: Comment[] = [
     lessonId: "c2m1-l1",
     authorId: "s4",
     authorName: "Priscila Alves",
-    body: "Fiquei na dúvida entre perda real e perda aparente no exemplo do minuto 9. Submedição de hidrômetro entra em qual das duas?",
+    body: "Fiquei na dúvida entre corrosão interna e externa no exemplo do minuto 9. Pite sob depósito na parede de baixo da linha entra em qual das duas?",
     createdAt: "2026-08-11T09:05:00-03:00",
     highlighted: false,
   },
@@ -443,8 +444,8 @@ export const comments: Comment[] = [
     votedByViewer: false,
     lessonId: "c2m1-l1",
     authorId: "u2",
-    authorName: "Rafael Nunes",
-    body: "Aparente. A água chegou e foi consumida, só não foi medida direito — é perda de faturamento, não de água. Perda real é a que não chega: vazamento, extravasamento de reservatório. A separação importa porque o combate é diferente: uma se resolve trocando hidrômetro, a outra escavando.",
+    authorName: "Instrutor",
+    body: "Interna. O ataque vem do fluido que passa dentro, e a água livre decanta justamente na geratriz de baixo, por isso o pite aparece ali. Externa é a que vem de fora: solo, umidade sob isolamento, corrente de interferência. A separação importa porque a defesa é diferente: uma se resolve com inibidor e pigagem, a outra com revestimento e proteção catódica.",
     createdAt: "2026-08-11T11:22:00-03:00",
     parentId: "cm14",
     highlighted: true,
@@ -459,20 +460,20 @@ export const catalogOnly: Course[] = [
     authorId: "u3",
     status: "published",
     enrollmentMode: "open",
-    slug: "saneamento-e-saude-publica",
-    title: "Saneamento e Saúde Pública",
-    summary: "A relação entre água tratada, esgoto coletado e indicadores de saúde na população.",
+    slug: "meio-ambiente-e-licenciamento",
+    title: "Meio Ambiente e Licenciamento",
+    summary: "Condicionantes, monitoramento e o que a operação precisa entregar ao órgão ambiental.",
     artwork: 1,
     modules: [
       {
         id: "c5-m1",
         title: "Fundamentos",
-        lessons: lessons("c5m1", ["Doenças de veiculação hídrica", "Indicadores de saúde", "O papel do saneamento"], 26),
+        lessons: lessons("c5m1", ["Legislação ambiental", "Licenças e condicionantes", "O papel da operação"], 26),
       },
       {
         id: "c5-m2",
-        title: "Território e desigualdade",
-        lessons: lessons("c5m2", ["Mapeamento de vulnerabilidade", "Universalização", "Casos brasileiros"], 30),
+        title: "Monitoramento e passivos",
+        lessons: lessons("c5m2", ["Água, solo e fauna", "Gestão de resíduos", "Recuperação de áreas"], 30),
       },
     ],
   },
@@ -481,20 +482,20 @@ export const catalogOnly: Course[] = [
     authorId: "u2",
     status: "published",
     enrollmentMode: "assigned",
-    slug: "tratamento-de-esgoto",
-    title: "Tratamento de Esgoto: Processos",
-    summary: "Do interceptor ao corpo receptor: as etapas do tratamento e os parâmetros de lançamento.",
+    slug: "processamento-de-gas",
+    title: "Processamento e Tratamento de Gás",
+    summary: "Do separador ao ponto de entrega: as etapas do condicionamento e os parâmetros de especificação.",
     artwork: 2,
     modules: [
       {
         id: "c6-m1",
-        title: "Tratamento preliminar",
-        lessons: lessons("c6m1", ["Gradeamento", "Desarenação", "Medição de vazão", "Operação"], 24),
+        title: "Condicionamento",
+        lessons: lessons("c6m1", ["Separação primária", "Desidratação", "Compressão", "Operação"], 24),
       },
       {
         id: "c6-m2",
-        title: "Tratamento biológico",
-        lessons: lessons("c6m2", ["Lodos ativados", "Reatores anaeróbios", "Controle de processo", "Lodo gerado"], 32),
+        title: "Especificação e entrega",
+        lessons: lessons("c6m2", ["Remoção de H₂S", "Ponto de orvalho", "Controle de processo", "Medição na entrega"], 32),
       },
     ],
   },
@@ -505,7 +506,7 @@ export const catalogOnly: Course[] = [
     enrollmentMode: "open",
     slug: "comunicacao-com-a-comunidade",
     title: "Comunicação com a Comunidade",
-    summary: "Como explicar obra, interrupção e tarifa para quem é afetado por elas.",
+    summary: "Como explicar obra, intervenção e impacto para quem é afetado por eles.",
     artwork: 3,
     modules: [
       {
@@ -544,15 +545,16 @@ const NOMES = [
   "Bianca Ferraz",
 ];
 
-const PROJETOS = ["Águas do Rio", "Prolagos", "Regenera Rio", "Escola Social"];
-const REGIOES = ["Rio de Janeiro", "Região dos Lagos", "Baixada Fluminense"];
+/* Campos e municípios reais da operação da Exemplo S.A. em Sergipe. */
+const PROJETOS = ["Unidade Norte", "Siririzinho", "Riachuelo", "Aguilhada"];
+const REGIOES = ["Unidade Norte", "Rosário do Catete", "Japaratuba"];
 
 function emailDe(fullName: string): string {
   return `${fullName
     .toLowerCase()
     .normalize("NFD")
     .replace(/\p{Diacritic}/gu, "")
-    .replace(/\s+/g, ".")}@exemplo.com.br`;
+    .replace(/\s+/g, ".")}@exemplo.com`;
 }
 
 export const learners: User[] = NOMES.map((fullName, index) => ({
@@ -612,17 +614,17 @@ import type { Track } from "@nerdlms/core/courses/tracks.ts";
 export const tracks: Track[] = [
   {
     id: "t1",
-    slug: "operacao-de-agua",
-    title: "Operação de Água",
-    summary: "Do manancial à torneira: a formação completa de quem opera o sistema de abastecimento.",
+    slug: "operacao-de-campo",
+    title: "Operação de Campo",
+    summary: "Do reservatório ao ponto de entrega: a formação completa de quem opera os campos.",
     courseIds: ["c1", "c2", "c6"],
     mode: "sequential",
   },
   {
     id: "t2",
     slug: "atendimento-e-comunidade",
-    title: "Atendimento e Comunidade",
-    summary: "Como falar com quem é afetado pela operação, do balcão à obra na rua.",
+    title: "Comunidade e Território",
+    summary: "Como falar com quem é afetado pela operação, do primeiro contato à prestação de contas.",
     courseIds: ["c4", "c7"],
     mode: "free",
   },
@@ -647,18 +649,46 @@ function diasDeHoje(offset: number): string {
   return d.toISOString().slice(0, 10);
 }
 
+/**
+ * Como `diasDeHoje`, mas SEM SAIR DO MÊS CORRENTE.
+ *
+ * A agenda mostra o mês de hoje, e só ele. Um evento a `+14` dias cai no mês
+ * seguinte sempre que hoje está depois do dia 16 — e o calendário aparecia com
+ * marcas só no passado, como se a plataforma estivesse parada. Não era erro de
+ * tela: era dado fora da janela que a tela mostra.
+ *
+ * Prender ao mês empilha eventos na borda quando o deslocamento é grande; por
+ * isso os deslocamentos abaixo são curtos. Some junto com o mock, quando
+ * eventos vierem do banco de verdade.
+ */
+function noMesAtual(offset: number): string {
+  const hoje = new Date();
+  const alvo = new Date(hoje);
+  alvo.setDate(alvo.getDate() + offset);
+
+  const primeiro = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
+  const ultimo = new Date(hoje.getFullYear(), hoje.getMonth() + 1, 0);
+
+  const preso = alvo < primeiro ? primeiro : alvo > ultimo ? ultimo : alvo;
+
+  const mes = String(preso.getMonth() + 1).padStart(2, "0");
+  const dia = String(preso.getDate()).padStart(2, "0");
+  return `${preso.getFullYear()}-${mes}-${dia}`;
+}
+
 export const events: CalendarEvent[] = [
-  { id: "e1", date: diasDeHoje(-14), title: "Prazo: Segurança em Operações de Campo", kind: "deadline" },
-  { id: "e2", date: diasDeHoje(-6), title: "Treinamento ao vivo: Retrolavagem", kind: "training", time: "14h às 17h", location: "ETA Guandu" },
-  { id: "e3", date: diasDeHoje(0), title: "Comunicado: nova norma de potabilidade", kind: "announcement" },
-  { id: "e4", date: diasDeHoje(7), title: "Treinamento ao vivo: Integração", kind: "training", time: "9h às 12h", location: "Online" },
-  { id: "e5", date: diasDeHoje(7), title: "Prazo: Atendimento ao Cliente", kind: "deadline" },
-  { id: "e6", date: diasDeHoje(14), title: "Semana da Água", kind: "announcement" },
+  { id: "e1", date: noMesAtual(-10), title: "Prazo: Segurança em Operações de Campo", kind: "deadline" },
+  { id: "e2", date: noMesAtual(-5), title: "Treinamento ao vivo: Bombeio mecânico", kind: "training", time: "14h às 17h", location: "Estação Unidade Norte" },
+  { id: "e3", date: noMesAtual(0), title: "Comunicado: nova norma de integridade", kind: "announcement" },
+  { id: "e4", date: noMesAtual(2), title: "Treinamento ao vivo: Integração", kind: "training", time: "9h às 12h", location: "Online" },
+  { id: "e5", date: noMesAtual(4), title: "Prazo: Relacionamento com Comunidades", kind: "deadline" },
+  { id: "e6", date: noMesAtual(7), title: "Semana da Segurança", kind: "announcement" },
 ];
 
 export const notifications: Notification[] = [
   {
     id: "n1",
+    link: "/cursos/seguranca-em-operacoes-de-campo",
     title: "Seu curso de Segurança vence em 2 dias",
     body: "Faltam 20 aulas para concluir Segurança em Operações de Campo.",
     date: diasDeHoje(-1),
@@ -667,14 +697,16 @@ export const notifications: Notification[] = [
   },
   {
     id: "n2",
+    link: "/agenda",
     title: "Novo comunicado do RH",
-    body: "A nova norma de potabilidade entra em vigor em setembro. Leia antes do treinamento do dia 13.",
+    body: "A nova norma de integridade entra em vigor em setembro. Leia antes do treinamento do dia 13.",
     date: diasDeHoje(-3),
     kind: "announcement",
     read: false,
   },
   {
     id: "n3",
+    link: "/perfil",
     title: "Distintivo conquistado: Especialista em campo",
     body: "Você concluiu 30 aulas. Continue assim.",
     date: diasDeHoje(-5),
@@ -683,8 +715,9 @@ export const notifications: Notification[] = [
   },
   {
     id: "n4",
-    title: "Rafael Nunes respondeu seu comentário",
-    body: "Em Decantação e filtração · Falhas comuns.",
+    link: "/cursos/operacao-de-pocos-fundamentos",
+    title: "Instrutor respondeu seu comentário",
+    body: "Em Coleta e separação · Falhas comuns.",
     date: diasDeHoje(-8),
     kind: "announcement",
     read: true,
@@ -700,17 +733,17 @@ import type { AuditEvent } from "@nerdlms/core/courses/audit.ts";
  * ficar registrado, e a tela precisa mostrar como isso aparece.
  */
 export const auditEvents: AuditEvent[] = [
-  { id: "a1", at: "2026-08-12T09:14:00-03:00", actorId: "u9", actorName: "Ana Ribeiro", action: "report_exported", target: "relatório de conclusão · Escola Social", outcome: "allowed", ip: "200.150.10.4" },
-  { id: "a2", at: "2026-08-12T09:02:00-03:00", actorId: "u2", actorName: "Rafael Nunes", action: "course_published", target: "Tratamento de Água: Fundamentos", outcome: "allowed", ip: "200.150.10.8" },
+  { id: "a1", at: "2026-08-12T09:14:00-03:00", actorId: "u9", actorName: "Administrador", action: "report_exported", target: "relatório de conclusão · Unidade Norte", outcome: "allowed", ip: "200.150.10.4" },
+  { id: "a2", at: "2026-08-12T09:02:00-03:00", actorId: "u2", actorName: "Instrutor", action: "course_published", target: "Operação de Poços: Fundamentos", outcome: "allowed", ip: "200.150.10.8" },
   { id: "a3", at: "2026-08-12T08:47:00-03:00", actorId: "s1", actorName: "João Peixoto", action: "access_denied", target: "progresso de outro aluno (s3)", outcome: "denied", ip: "189.44.2.19" },
   { id: "a4", at: "2026-08-12T08:46:00-03:00", actorId: "s1", actorName: "João Peixoto", action: "access_denied", target: "progresso de outro aluno (s4)", outcome: "denied", ip: "189.44.2.19" },
   { id: "a5", at: "2026-08-12T08:45:00-03:00", actorId: "s1", actorName: "João Peixoto", action: "access_denied", target: "aula de curso sem matrícula (c5)", outcome: "denied", ip: "189.44.2.19" },
-  { id: "a6", at: "2026-08-12T08:30:00-03:00", actorId: "u4", actorName: "Sérgio Bastos", action: "enrollment_created", target: "Bianca Ferraz · Segurança em Operações de Campo", outcome: "allowed", ip: "200.150.11.2" },
-  { id: "a7", at: "2026-08-11T17:20:00-03:00", actorId: "u9", actorName: "Ana Ribeiro", action: "role_changed", target: "Sérgio Bastos · aluno → gestor", outcome: "allowed", ip: "200.150.10.4" },
-  { id: "a8", at: "2026-08-11T16:05:00-03:00", actorId: "u3", actorName: "Camila Prado", action: "course_deleted", target: "Rascunho sem título", outcome: "allowed", ip: "200.150.10.9" },
-  { id: "a9", at: "2026-08-11T14:32:00-03:00", actorId: "u2", actorName: "Rafael Nunes", action: "access_denied", target: "edição de curso de outro autor (c7)", outcome: "denied", ip: "200.150.10.8" },
-  { id: "a10", at: "2026-08-11T09:00:00-03:00", actorId: "u9", actorName: "Ana Ribeiro", action: "user_invited", target: "helena.duarte@exemplo.com.br", outcome: "allowed", ip: "200.150.10.4" },
+  { id: "a6", at: "2026-08-12T08:30:00-03:00", actorId: "u4", actorName: "Gestor", action: "enrollment_created", target: "Bianca Ferraz · Segurança em Operações de Campo", outcome: "allowed", ip: "200.150.11.2" },
+  { id: "a7", at: "2026-08-11T17:20:00-03:00", actorId: "u9", actorName: "Administrador", action: "role_changed", target: "Gestor · aluno → gestor", outcome: "allowed", ip: "200.150.10.4" },
+  { id: "a8", at: "2026-08-11T16:05:00-03:00", actorId: "u3", actorName: "Instrutor 2", action: "course_deleted", target: "Rascunho sem título", outcome: "allowed", ip: "200.150.10.9" },
+  { id: "a9", at: "2026-08-11T14:32:00-03:00", actorId: "u2", actorName: "Instrutor", action: "access_denied", target: "edição de curso de outro autor (c7)", outcome: "denied", ip: "200.150.10.8" },
+  { id: "a10", at: "2026-08-11T09:00:00-03:00", actorId: "u9", actorName: "Administrador", action: "user_invited", target: "helena.duarte@exemplo.com", outcome: "allowed", ip: "200.150.10.4" },
   { id: "a11", at: "2026-08-10T19:41:00-03:00", actorId: "s6", actorName: "Helena Duarte", action: "login_failed", target: "senha incorreta (3ª tentativa)", outcome: "denied", ip: "177.20.88.3" },
-  { id: "a12", at: "2026-08-10T11:12:00-03:00", actorId: "u9", actorName: "Ana Ribeiro", action: "user_deactivated", target: "conta de teste", outcome: "allowed", ip: "200.150.10.4" },
-  { id: "a13", at: "2026-08-10T08:05:00-03:00", actorId: "u1", actorName: "Maria Souza", action: "login", target: "sessão iniciada", outcome: "allowed", ip: "191.30.7.15" },
+  { id: "a12", at: "2026-08-10T11:12:00-03:00", actorId: "u9", actorName: "Administrador", action: "user_deactivated", target: "conta de teste", outcome: "allowed", ip: "200.150.10.4" },
+  { id: "a13", at: "2026-08-10T08:05:00-03:00", actorId: "u1", actorName: "Aluno", action: "login", target: "sessão iniciada", outcome: "allowed", ip: "191.30.7.15" },
 ];

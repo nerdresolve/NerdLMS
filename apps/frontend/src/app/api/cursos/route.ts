@@ -1,3 +1,7 @@
+import { revalidatePath } from "next/cache";
+
+import { esvaziarFilaDeCortes } from "@nerdlms/backend/media/video-split-use-case.ts";
+
 import {
   addLessonUseCase,
   addModuleUseCase,
@@ -23,6 +27,30 @@ import { isUuid, readJsonObject } from "@/lib/request-body.ts";
  */
 
 export const dynamic = "force-dynamic";
+
+/**
+ * As telas que mudam quando um curso entra ou sai do catálogo.
+ *
+ * O sintoma: publicar respondia 200, o editor chamava `router.refresh()`, e o
+ * catálogo continuava sem o curso até a pessoa navegar de novo. `refresh()`
+ * atualiza A ROTA ATUAL — o editor —, e não `/cursos`, que o navegador já
+ * tinha em cache de uma visita anterior. Quem publicou vê o próprio trabalho
+ * sumido e conclui que a publicação falhou.
+ *
+ * `revalidatePath` é o servidor dizendo ao cliente que aqueles caminhos
+ * mudaram. Vale para os três sentidos: publicar coloca no catálogo, arquivar e
+ * despublicar tiram, e marcar como "não listada" também tira.
+ *
+ * `/cursos/[slug]` entra como padrão de rota, e não como endereço concreto:
+ * invalida a página de qualquer curso, que é o que se quer sem carregar o slug
+ * até aqui.
+ */
+function avisarCatalogo(): void {
+  for (const rota of ["/cursos", "/meus-cursos", "/dashboard", "/instrutor/cursos"]) {
+    revalidatePath(rota);
+  }
+  revalidatePath("/cursos/[slug]", "page");
+}
 
 export async function PATCH(request: Request): Promise<Response> {
   const user = await currentUser();
@@ -101,6 +129,9 @@ export async function PATCH(request: Request): Promise<Response> {
       endsOn: texto(body.endsOn),
       visibility: body.visibility === "unlisted" ? "unlisted" : "catalog",
       contentRelease: body.contentRelease === "sequential" ? "sequential" : "open",
+      /* Só `false` explícito desliga. Campo ausente mantém a trava, para uma
+         requisição incompleta não afrouxar o curso sem querer. */
+      watchGuard: body.watchGuard !== false,
       ...(Array.isArray(body.tags)
         ? { tags: body.tags.filter((t: unknown): t is string => typeof t === "string") }
         : {}),
@@ -109,6 +140,8 @@ export async function PATCH(request: Request): Promise<Response> {
     if (outcome.status !== 200) {
       return Response.json({ error: outcome.error }, { status: outcome.status });
     }
+    /* A visibilidade está entre os metadados: "não listada" tira do catálogo. */
+    avisarCatalogo();
     return Response.json({ ok: true });
   }
 
@@ -125,6 +158,7 @@ export async function PATCH(request: Request): Promise<Response> {
     if (outcome.status !== 200) {
       return Response.json({ error: outcome.error }, { status: outcome.status });
     }
+    avisarCatalogo();
     return Response.json({ ok: true });
   }
 
@@ -144,6 +178,10 @@ export async function PATCH(request: Request): Promise<Response> {
   if (outcome.status !== 200) {
     return Response.json({ error: outcome.error }, { status: outcome.status });
   }
+  /* Só a publicação mexe no catálogo; salvar título e resumo de um rascunho
+     não coloca nada no ar, e revalidar à toa derrubaria o cache de todo mundo
+     a cada tecla salva. */
+  if (body.publish === true) avisarCatalogo();
   return Response.json({ ok: true });
 }
 
@@ -206,6 +244,18 @@ export async function POST(request: Request): Promise<Response> {
     if (outcome.status !== 201) {
       return Response.json({ error: outcome.error }, { status: outcome.status });
     }
+
+    /* O CORTE COMEÇA DEPOIS DA RESPOSTA.
+
+       `void`, sem `await`: cortar um vídeo de uma hora leva minutos, e o
+       instrutor não pode ficar olhando uma tela travada por causa disso. A aula
+       já existe, marcada como "dividindo", e a fila é quem garante que o
+       trabalho não se perde se o processo cair no meio.
+
+       `esvaziarFilaDeCortes` nunca lança: uma falha aqui viraria uma rejeição
+       de promessa sem dono, e em Node isso derruba o processo. */
+    void esvaziarFilaDeCortes();
+
     return Response.json({ lessonId: outcome.lessonId }, { status: 201 });
   }
 

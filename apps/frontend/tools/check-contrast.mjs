@@ -1,6 +1,6 @@
 /**
  * Valida o contraste WCAG dos pares de tokens realmente usados na UI, em Light
- * e Dark. Exigência do Design System §26: qualquer ajuste
+ * e Dark. Exigência do Design System §26 e portão da TASK-016: qualquer ajuste
  * no pacote oficial ou na camada de override precisa passar por aqui.
  *
  * Uso: node tools/check-contrast.mjs   (exit 1 em caso de falha)

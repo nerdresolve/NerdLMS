@@ -185,7 +185,7 @@ function semRecorte(sql: string): boolean {
   return !PERMITIDAS.some((padrao) => padrao.test(sql));
 }
 
-describe("Isolamento entre clientes — a forma das consultas", () => {
+describe("Isolamento entre clientes, a forma das consultas", () => {
   test("toda leitura de tabela raiz declara tenant_id", async () => {
     const suspeitas: string[] = [];
 

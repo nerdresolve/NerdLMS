@@ -28,7 +28,7 @@ interface DirectoryRow {
 function toUser(row: DirectoryRow): User {
   /* Chaves opcionais são OMITIDAS quando não há valor, e não postas como
      `undefined`: com `exactOptionalPropertyTypes` as duas coisas são
-     diferentes, e o domínio trata ausência como ausência. */
+     diferentes, e o domínio trata ausência como ausência (DEC-055). */
   return {
     id: row.id,
     role: row.role,

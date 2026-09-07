@@ -5,7 +5,7 @@ import type { CourseLevel, CourseVisibility } from "@nerdlms/core/courses/types.
 import { resolveTags, setCourseTags } from "./category-repository.ts";
 import { authorizeCourse } from "./course-editor-use-case.ts";
 import { updateCourseMetadata } from "./course-metadata-repository.ts";
-import { setContentRelease } from "./unlock-repository.ts";
+import { setContentRelease, setWatchGuard } from "./unlock-repository.ts";
 
 /**
  * Salvar os metadados do curso — F2-03.
@@ -32,6 +32,8 @@ export interface CourseMetadataCommand {
   visibility?: CourseVisibility;
   /** Política de liberação do conteúdo (F2-05). */
   contentRelease?: "open" | "sequential";
+  /** Trava do player. Ausente não altera o que está gravado. */
+  watchGuard?: boolean;
   /** Nomes digitados; a resolução em ids acontece aqui. */
   tags?: string[];
 }
@@ -80,6 +82,12 @@ export async function courseMetadataUseCase(
 
   if (command.contentRelease) {
     await setContentRelease(command.courseId, command.contentRelease);
+  }
+
+  /* `!== undefined` e não truthy: `false` é um valor válido aqui, e a
+     checagem por verdade nunca conseguiria desligar a trava. */
+  if (command.watchGuard !== undefined) {
+    await setWatchGuard(command.courseId, command.watchGuard);
   }
 
   if (command.tags) {

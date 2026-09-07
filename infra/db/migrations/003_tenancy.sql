@@ -90,9 +90,20 @@ CREATE INDEX IF NOT EXISTS org_units_parent_idx ON org_units (parent_id);
 -- ficaria opcional para sempre e o isolamento seria uma sugestão.
 -- =============================================================================
 
+-- "Se ainda não houver tenant NENHUM", e não "se não houver um chamado nerdlms".
+--
+-- As duas frases significavam a mesma coisa até a 035 renomear este tenant para
+-- `exemplo`. Dali em diante, `ON CONFLICT (slug)` deixou de disparar — não
+-- existe mais nenhum `nerdlms` para conflitar — e a reexecução das migrações
+-- RECRIAVA o tenant antigo. A 035 então tentava renomear o recriado para
+-- `exemplo`, que já existia, e a chave única abortava a execução inteira:
+-- da 035 em diante nada mais era aplicado, e sobrava um tenant vazio no banco.
+--
+-- O executor roda todos os arquivos toda vez. Um seed precisa dizer o que
+-- realmente quer dizer, ou ele envelhece junto com o dado que semeou.
 INSERT INTO tenants (slug, name, unit_label)
-VALUES ('lms', 'NerdResolve Saneamento', 'Concessionária')
-ON CONFLICT (slug) DO NOTHING;
+SELECT 'lms', 'NerdResolve Saneamento', 'Concessionária'
+ WHERE NOT EXISTS (SELECT 1 FROM tenants);
 
 -- As unidades saem dos valores que já existem em `users.project`. A Holding
 -- vira raiz e as demais penduram nela: é a estrutura real da empresa, e é

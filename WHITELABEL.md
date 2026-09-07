@@ -1,36 +1,13 @@
-# NerdResolve LMS — implantar para um cliente
+# Configuração de white-label
 
 Como colocar um cliente novo na plataforma: criar o tenant, apontar o domínio,
 aplicar a identidade visual e decidir o que fica ligado.
 
-> Os exemplos usam **NerdResolve** como cliente — é a primeira implantação em
-> produção e serve de referência. Troque pelo nome do seu cliente.
-
 Um tenant é o recorte de isolamento do produto. Cada cliente tem os próprios
 cursos, pessoas, notas e configuração, e nada atravessa de um para outro — a
-separação é por `tenant_id` em 38 tabelas, e há um teste que falha o build
+separação é por `tenant_id` em 42 tabelas, e há um teste que falha o build
 quando alguém escreve uma consulta sem esse recorte
 (`apps/backend/src/tenancy/query-isolation.test.ts`).
-
----
-
-## Versão curta
-
-Se o tenant já existe e o domínio já aponta, personalizar é isto — tudo em
-**Administração → Plataforma**, sem tocar em código:
-
-| Passo | O que fazer | Onde |
-|---|---|---|
-| **1. Logo** | Suba a versão clara, a escura e o favicon | Identidade visual |
-| **2. Cor** | Cole o hexadecimal da marca. A paleta inteira sai dele | Identidade visual |
-| **3. Funcionalidades** | Ligue e desligue as 19 chaves | Funcionalidades |
-| **4. Acesso** | Cole as credenciais do Google, Microsoft, LDAP ou SAML | Acesso |
-
-Pronto. O resto deste documento é o caminho completo — criar o tenant, apontar
-o domínio, e o que conferir antes de entregar.
-
-> **Enquanto o cliente não subir a marca dele, a plataforma mostra a do
-> produto** (NerdResolve LMS). Nenhum cliente vê a marca de outro.
 
 ---
 
@@ -78,7 +55,7 @@ Guarde o `id` que volta — os próximos passos usam.
 
 ### O que cada campo faz
 
-**`slug`** — identificador interno. Aparece em log e no `NERDRESOLVE_DEFAULT_TENANT`.
+**`slug`** — identificador interno. Aparece em log e no `NERD_DEFAULT_TENANT`.
 Trocar depois quebra referências; escolha uma vez.
 
 **`domain`** — é por ele que a plataforma sabe de quem é a visita. Alguém que
@@ -88,7 +65,7 @@ cliente. A resolução está em `apps/frontend/src/lib/tenant-request.ts`, e usa
 interno do container.
 
 Sem domínio cadastrado, a requisição cai no tenant padrão
-(`NERDRESOLVE_DEFAULT_TENANT`, ou `nerdlms`). Isso é o que segura uma instalação de
+(`NERD_DEFAULT_TENANT`, ou `exemplo`). Isso é o que segura uma instalação de
 cliente único; com dois clientes, cada um **precisa** do próprio domínio, ou o
 segundo nunca é alcançado.
 
@@ -258,10 +235,9 @@ npm run compose:prod -- up -d proxy
 
 ## 5. Escolher o que fica ligado
 
-São 19 funcionalidades desligáveis, em árvore. O catálogo em
-`packages/core/src/tenancy/features.ts` define o padrão de cada uma — e o padrão
-não é o mesmo para todas: o que o produto já fazia nasce ligado, e o que impõe
-uma trava nasce desligado.
+São 16 funcionalidades desligáveis, em árvore. Sem nenhuma configuração, todas
+ficam ligadas — o catálogo em `packages/core/src/tenancy/features.ts` define o
+padrão de cada uma.
 
 ```
 comentarios
@@ -275,15 +251,8 @@ notificacoes
 gamificacao
 ├── gamificacao.distintivos
 └── gamificacao.loja
-rigor
-├── rigor.video
-└── rigor.leitura
 trilhas, agenda, certificados, favoritos, busca
 ```
-
-**A família `rigor` nasce DESLIGADA**, ao contrário das demais. São travas, e
-travas atrapalham quem não precisa delas — um curso de integração não tem o
-mesmo peso que um de segurança em espaço confinado.
 
 **A hierarquia manda.** Desligar `comentarios` desliga respostas e upvotes
 junto, independentemente do que estiver marcado neles. É o que evita o estado
@@ -304,37 +273,6 @@ ON CONFLICT (tenant_id, feature) DO UPDATE SET enabled = EXCLUDED.enabled;
 A tabela guarda **só o que o cliente mudou**. Ausência de linha significa "usa o
 padrão do produto", e é assim que uma funcionalidade nova entra ligada para
 todos sem precisar de migração de dados.
-
-### As travas de conclusão
-
-Duas funcionalidades mudam o que "concluir uma aula" significa. Valem a
-conversa com o cliente antes de ligar.
-
-**`rigor.video` — travar o avanço.** Impede arrastar a barra para um trecho
-ainda não assistido. Sem ela, arrastar até o fim marca a aula como vista sem
-ninguém ter visto — em treinamento de segurança, isso é a diferença entre o
-registro dizer a verdade e não dizer.
-
-O que ela NÃO faz: impedir voltar. Rever é parte de estudar, e travar isso
-puniria justamente quem presta atenção. Quem já assistiu até certo ponto pode
-navegar livremente até lá, hoje e depois de fechar o navegador — o ponto máximo
-fica gravado no progresso.
-
-Assistir em 1,5× ou 2× continua valendo. A trava acompanha a velocidade, e só
-recusa o que não pode ter sido reprodução.
-
-**`rigor.leitura` — confirmar a leitura.** Quem clica em "concluir" antes de
-metade do tempo estimado recebe a pergunta: *"O tempo estimado de leitura deste
-documento é de cerca de 8 minutos. Você tem certeza de que já terminou?"*
-
-É PERGUNTA, não trava, e a distinção é deliberada: bloquear por tempo puniria
-quem lê rápido e não impediria quem quer burlar — bastaria deixar a aba aberta.
-O modal faz a pessoa afirmar que leu, e é isso que ele acrescenta.
-
-A estimativa é de 300 palavras por página e 200 palavras por minuto — leitura
-atenta de material técnico. É declaradamente grosseira, e é por isso que
-alimenta uma pergunta em vez de uma trava. Documento sem contagem de páginas
-não gera pergunta nenhuma: o produto não inventa um tempo que não sabe medir.
 
 **Desligar não apaga.** O conteúdo continua no banco: some das telas e volta se
 alguém religar. Um cliente que desliga o fórum por seis meses não perde as
@@ -383,8 +321,7 @@ mesmo dia.
 Google e Microsoft **já vêm configurados** no produto — os endereços deles são
 públicos e iguais para todo mundo. O que você preenche é só o que é do cliente.
 
-Tudo acontece em **Administração → Acesso** — as quatro formas ficam na mesma
-tela, uma seção para cada.
+Tudo acontece em **Administração → Acesso**.
 
 ### Qual dos três
 
@@ -574,24 +511,9 @@ treinamentos no sistema antigo, dá para aproveitar?".
 | O que ele tem | O que fazer |
 |---|---|
 | Pacote SCORM 1.2 ou 2004 | Envie o `.zip` ao criar a aula, em **Instrutor → Meus cursos → (o curso)**. O tipo, o título e a nota de corte saem do próprio pacote |
-| Pacote H5P (`.h5p`) | Importa o conteúdo — perguntas, gabarito e o instante de cada uma no vídeo. Ver a ressalva abaixo |
 | Banco de questões de outro LMS | Exporte em QTI e importe na tela do curso, em **Instrutor → Meus cursos → (o curso)**. Aceita `.xml` (QTI 2.x e 3.0) e `.csv` |
 | Planilha de pessoas | **Administração → Usuários → Importar**. Confere antes de gravar |
 | Catálogo de cursos em planilha | **Instrutor → Meus cursos**, no bloco de importação |
-
-**Sobre o H5P.** O que atravessa é o CONTEÚDO, não a biblioteca: o código de
-renderização do H5P é GPL, e a plataforma não o distribui. As perguntas, o
-gabarito, o feedback e o instante de cada pergunta no vídeo chegam prontos — o
-trabalho que ninguém quer refazer à mão. A aparência passa a ser a do player da
-plataforma.
-
-Três tipos têm equivalente: vídeo interativo, imagem com pontos e cartões. Os
-demais são recusados com o nome do tipo na mensagem, para quem exportou saber o
-que ficou de fora.
-
-**A mídia é pedida na importação.** O pacote referencia um arquivo interno ou
-um link do YouTube, e nenhum dos dois é a mídia da plataforma — informe o
-endereço do vídeo ou da imagem ao enviar o `.h5p`.
 
 **Sobre o SCORM.** O `.zip` é o único arquivo que passa pelo servidor — os
 demais vão direto do navegador ao storage. Um pacote precisa ser descompactado,
@@ -608,9 +530,9 @@ o instrutor no próprio curso sujaria os relatórios de conclusão.
 
 | Padrão | Para quê | Onde configura |
 |---|---|---|
-| **LTI 1.3** | Uma ferramenta de fora abre dentro do curso, já sabendo quem é o aluno, e devolve a nota | Cadastro da ferramenta, por SQL — ainda sem tela |
+| **LTI 1.3** | Uma ferramenta de fora abre dentro do curso, já sabendo quem é o aluno, e devolve a nota | Cadastro da ferramenta, por SQL |
 | **xAPI** | Um simulador, um app de campo ou outro LMS registram o que a pessoa fez | Chave de API, em Integrações |
-| **cmi5** | Conteúdo externo com sessão, resultado e critério de conclusão declarado pelo autor | Cadastro da unidade, por SQL — ainda sem tela |
+| **cmi5** | Conteúdo externo com sessão, resultado e critério de conclusão declarado pelo autor | Cadastro da unidade, por SQL |
 | **Webhooks** | Avisar outro sistema quando algo acontece aqui | **Administração → Integrações** |
 | **API REST** | Ler e escrever de fora | Chave de API, com escopos |
 
@@ -630,12 +552,6 @@ armadilha:
   `/api/relatorios?tipo=progresso|usuarios|notas|cursos`.
 - **O cliente inteiro** — backup em JSON, em **Administração → Plataforma**.
   Traz o conteúdo, as pessoas, as matrículas e as notas.
-
-O mesmo arquivo serve para **migrar um cliente para outro**: restaure-o na
-plataforma de destino e marque a confirmação. Todo o conteúdo ganha
-identificadores novos e passa a pertencer ao destino; o cliente de origem não é
-alterado. O que depende de algo que o backup não carrega — uma nota lançada por
-ferramenta LTI, por exemplo — fica de fora, e a tela diz quantas linhas.
 
 ---
 
@@ -698,19 +614,47 @@ não está implementado, e a plataforma recusa em vez de fingir que funcionou.
 
 Esta é a parte que mais custa caro se passar batido.
 
-Na mesma máquina convivem dois ambientes, e os scripts do `package.json` **não
-avisam qual deles você está atingindo**:
+Na mesma máquina convivem dois ambientes. Os scripts do `package.json` hoje
+dizem qual deles você está atingindo — cada um carrega o seu `-p`:
 
 | Comando | Arquivo de ambiente | Contêineres afetados |
 |---|---|---|
-| `npm run compose` | `infra/.env` + `.env.local` | depende de qual está por último |
+| `npm run compose` | `infra/.env` + `.env.local` | `nerdlms-local-*` — **local** |
 | `npm run compose:prod` | `infra/.env` | `nerdlms-*` — **produção** |
 | `npm run compose:tunnel` | `infra/.env` + `.env.tunnel` | `nerdlms-*` via túnel |
 
-O nome dos contêineres é o que distingue de verdade:
+**Nem sempre foi assim, e vale saber por quê.** Os três comandos herdavam o
+`name: nerdlms` do próprio compose, e nenhum passava `-p`. A linha de cima
+dizia "depende de qual arquivo de ambiente está por último" — e isso estava
+errado: arquivo de ambiente troca a CONFIGURAÇÃO da pilha; quem decide QUAIS
+contêineres e QUAIS volumes o comando alcança é o nome do projeto. Como ele não
+variava, `npm run migrate` na máquina de quem desenvolve subia o banco da
+instalação anterior e migrava ele — inclusive a 035, que renomeia o tenant.
+O perigo estava documentado aqui, com um contorno manual para quem lembrasse;
+agora ele não existe. Contorno que depende de memória é defeito adiado.
 
+O nome dos contêineres continua sendo o que distingue de verdade:
+
+> **Por que alguns nomes de infraestrutura ainda dizem `nerdlms`.** O banco
+> (`nerdlms`), os papéis (`lms_migrator`, `lms_app`) e o bucket
+> (`lms-media`) são identificadores de uma instalação que já existe e tem
+> dados. Renomeá-los não é rebranding: é migração de dados, com downtime, e o
+> do bucket quebra toda URL de mídia já gravada no banco. Nada disso aparece
+> para o usuário. O que ele vê — marca, cores, textos, e-mails, certificado,
+> domínio — é Exemplo S.A..
+>
+> **O projeto do compose era um deles e deixou de ser.** Ele foi renomeado de
+> `nerdlms` para `nerdlms`. O custo é o mesmo dos outros — o nome do
+> projeto é o prefixo dos volumes, e o Docker não move conteúdo entre eles —,
+> mas aqui ele é pago uma vez, com um procedimento escrito e sem tocar em
+> nenhum dado gravado dentro do banco. Ver **Renomear o projeto do compose**,
+> logo abaixo. Numa instalação nova e vazia, não há o que pagar.
+
+- `nerdlms-local-app-1`, `nerdlms-local-db-1` — **local**, subido com
+  `-p nerdlms-local` e `infra/.env.local` (portas 8080/8443, sem TLS, e-mail em
+  log). É o par que se usa para exercitar a instalação nesta máquina sem
+  encostar em produção.
 - `nerdlms-app-1`, `nerdlms-db-1` — **produção**
-- `nerdlms-local-app-1`, `nerdlms-local-db-1` — local
 
 Confira antes, sempre:
 
@@ -718,7 +662,47 @@ Confira antes, sempre:
 docker ps --format '{{.Names}}'
 ```
 
-Para agir explicitamente sobre o ambiente local, sem depender do script:
+### Renomear o projeto do compose
+
+Só é preciso em instalação que **já subiu com o nome antigo**. Numa máquina
+nova, os volumes nascem com o nome novo e não há nada a fazer.
+
+O nome do projeto é o prefixo dos volumes: `nerdlms_db-data` e
+`nerdlms_db-data` são volumes DIFERENTES, e o Docker não copia um para o
+outro. Subir com o nome novo sem migrar dá uma instalação vazia, com os dados
+antigos intactos e invisíveis — o que é recuperável, mas assusta.
+
+```bash
+# 1. Derrube com o nome ANTIGO, explicitamente. O script já usa o novo.
+docker compose -p nerdlms -f infra/docker-compose.yml --env-file infra/.env down
+
+# 2. Copie os quatro volumes. `cp -a` preserva dono e permissão, que o
+#    Postgres exige — sem isso ele recusa iniciar.
+for v in db-data storage-data caddy-data caddy-config; do
+  docker volume create "nerdlms_$v"
+  docker run --rm -v "nerdlms_$v":/de -v "nerdlms_$v":/para alpine sh -c 'cd /de && cp -a . /para'
+done
+
+# 3. Suba com o nome novo.
+npm run up:prod
+
+# 4. Confira ANTES de apagar o que sobrou.
+docker exec nerdlms-db-1 sh -c 'psql -U $POSTGRES_USER -d $POSTGRES_DB -c "SELECT count(*) FROM users;"'
+```
+
+Só depois de conferir, e sem pressa nenhuma:
+
+```bash
+for v in db-data storage-data caddy-data caddy-config; do
+  docker volume rm "nerdlms_$v"
+done
+```
+
+**Faça `pg_dump` antes do passo 1.** A cópia de volume com o Postgres parado é
+segura, mas o backup é o que separa um contratempo de uma perda.
+
+O equivalente explícito de `npm run compose`, quando for preciso escrever à mão
+— note que é `nerdlms-local`, o mesmo que o script passa:
 
 ```bash
 docker compose -p nerdlms-local -f infra/docker-compose.yml \
@@ -739,13 +723,22 @@ docker exec nerdlms-db-1 sh -c \
 ## Migrações do banco
 
 O schema é versionado em `infra/db/migrations/`, um arquivo por mudança, em
-ordem numérica. Toda migração usa `IF NOT EXISTS`, então reaplicar é inofensivo
-— e é assim que se descobre se um ambiente ficou para trás.
+ordem numérica. Não há controle de quais já foram aplicadas: o executor roda
+**todos os arquivos, toda vez**, e é assim que se descobre se um ambiente ficou
+para trás.
 
-Para aplicar todas, em produção:
+Isso funciona porque as migrações de ESTRUTURA usam `IF NOT EXISTS`. Mas nem
+toda migração é de estrutura: a `035` é um `UPDATE` que renomeia o tenant, e a
+`002` cria papel de banco. Reaplicar essas no ambiente CERTO é inofensivo — a
+`035` filtra por `WHERE slug = 'lms'` e não acha nada na segunda vez. No
+ambiente ERRADO, é uma escrita numa base que nunca deveria tê-la recebido, e
+nenhum `IF NOT EXISTS` protege disso.
+
+Por isso o comando é escolhido pelo AMBIENTE, nunca por hábito:
 
 ```bash
-npm run migrate:prod
+npm run migrate        # nerdlms-local — a pilha desta máquina
+npm run migrate:prod   # nerdlms   — produção
 ```
 
 Cada arquivo roda numa transação própria, com `ON_ERROR_STOP=1`: um erro
@@ -782,7 +775,7 @@ deste documento.
 coluna `domain`. Confira o que chega ao servidor:
 
 ```bash
-docker exec nerdlms-app-1 sh -c 'echo $NERDRESOLVE_DEFAULT_TENANT'
+docker exec nerdlms-app-1 sh -c 'echo $NERD_DEFAULT_TENANT'
 docker exec nerdlms-db-1 psql -U lms_migrator -d nerdlms \
   -c "SELECT slug, domain FROM tenants;"
 ```
@@ -853,7 +846,3 @@ Se o cliente traz conteúdo de outro sistema:
 [ ] Questões importadas e conferidas antes de aplicar
 [ ] Pacotes SCORM enviados e abertos com uma conta matriculada
 ```
-
----
-
-<sub>**NerdResolve LMS** · Documentação de produto · © 2026 Matheus Mariath (mariathdev) — NerdResolve.<br>Uso comercial requer licença: ver [LICENSE.md](LICENSE.md).</sub>

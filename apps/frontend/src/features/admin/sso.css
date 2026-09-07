@@ -140,3 +140,47 @@
   height: 14px;
   vertical-align: -2px;
 }
+
+/* --- Grupos do diretório → papel ------------------------------------------
+
+   Uma linha por regra: nome do grupo, papel, e o botão de remover. A largura
+   do nome é a que manda porque é o único campo em que se digita algo longo — o
+   papel é uma escolha entre quatro e o botão é um ícone.
+
+   `auto` no meio, e não uma fração: com `1fr` o seletor cresceria junto do
+   campo de texto numa tela larga, e um seletor de quatro opções ocupando meia
+   tela não fica melhor, só maior. */
+.sso-adm__grupos {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: var(--space-3);
+  margin: 0;
+  padding: var(--space-5);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+}
+
+.sso-adm__grupos legend {
+  padding: 0 var(--space-2);
+  font-weight: 600;
+}
+
+.sso-adm__grupo {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+/* Numa tela estreita a linha vira duas: o nome do grupo em cima, papel e
+   remover embaixo. Espremer os três lado a lado deixaria o campo de texto com
+   menos espaço que o seletor. */
+@container (max-width: 520px) {
+  .sso-adm__grupo {
+    grid-template-columns: 1fr auto;
+  }
+
+  .sso-adm__grupo input {
+    grid-column: 1 / -1;
+  }
+}

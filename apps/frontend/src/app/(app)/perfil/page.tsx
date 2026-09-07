@@ -11,11 +11,16 @@ import { getProfilePageData } from "@/features/profile/data.ts";
 export const metadata: Metadata = { title: "Perfil" };
 
 export default async function ProfilePage() {
-  const { user, totals, certificates, badges, competencies, plans } = await getProfilePageData();
+  const { user, totals, certificates, badges, competencies, plans, assinaturaEnviadaEm } = await getProfilePageData();
 
   return (
     <AppShell fullName={user.fullName} role={user.role} currentPath="/perfil">
-      <ProfileView user={user} totals={totals} certificates={certificates} />
+      <ProfileView
+        user={user}
+        totals={totals}
+        certificates={certificates}
+        assinaturaEnviadaEm={assinaturaEnviadaEm}
+      />
 
       {/* Badges ao lado dos certificados: os dois são credencial verificável, e
           a pergunta é a mesma — "o que eu posso comprovar?". */}

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Mail } from "lucide-react";
 
 import { NOTIFICATION_CATALOG } from "@nerdlms/core/notifications/events.ts";
+import { campoObrigatorio } from "@/lib/campo-obrigatorio.ts";
 
 /**
  * Templates de e-mail por cliente — F4-05.
@@ -102,7 +103,7 @@ export function EmailTemplates({ saved }: { saved: SavedTemplate[] }) {
 
                 <button
                   type="button"
-                  className="btn btn--ghost btn--sm"
+                  className="btn btn--ghost btn--small"
                   onClick={() => setEditando(aberto ? null : evento.kind)}
                 >
                   {aberto ? "Cancelar" : atual ? "Editar" : "Personalizar"}
@@ -119,7 +120,7 @@ export function EmailTemplates({ saved }: { saved: SavedTemplate[] }) {
                       className="input"
                       id={`s-${evento.kind}`}
                       name="subject"
-                      required
+                      {...campoObrigatorio("Escreva o assunto do e-mail.")}
                       defaultValue={atual?.subject ?? ""}
                       placeholder="{{primeiroNome}}, sua nota em {{curso}} saiu"
                     />
@@ -134,11 +135,11 @@ export function EmailTemplates({ saved }: { saved: SavedTemplate[] }) {
                       id={`b-${evento.kind}`}
                       name="template"
                       rows={5}
-                      required
+                      {...campoObrigatorio("Escreva o corpo do e-mail.")}
                       defaultValue={atual?.body ?? ""}
                     />
                     <p className="field__hint">
-                      Texto simples. O visual do e-mail — logo, cores — vem da identidade da
+                      Texto simples. O visual do e-mail, logo, cores, vem da identidade da
                       plataforma.
                     </p>
                   </div>

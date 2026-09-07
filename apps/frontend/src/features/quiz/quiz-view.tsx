@@ -1,8 +1,10 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
-import { CircleCheckBig, Clock, Send } from "lucide-react";
+import { NOTA_MAXIMA, NOTA_MINIMA, notaFormatada } from "@nerdlms/core/assessment/retake.ts";
+import { PedidoDeReteste } from "./retake-request.tsx";
+import Link from "next/link";
+import { Award, CircleCheckBig, Clock, Send } from "lucide-react";
 
 import { QuestionInput, type QuestionView } from "./question-input.tsx";
 
@@ -22,6 +24,10 @@ export interface QuizStart {
   startedAt: string;
   questions: QuestionView[];
   quiz: {
+    /* O id da prova é preciso para pedir reteste, que é uma ação sobre a
+       PROVA e não sobre a tentativa: quem pede já gastou a tentativa. */
+    id: string;
+    courseId: string;
     title: string;
     timeLimitMinutes: number | null;
     questionsPerPage: number | null;
@@ -43,7 +49,6 @@ function formatClock(segundos: number): string {
 }
 
 export function QuizView({ start }: { start: QuizStart }) {
-  const router = useRouter();
 
   const [respostas, setRespostas] = useState<Record<string, unknown>>({});
   const [pagina, setPagina] = useState(0);
@@ -118,8 +123,18 @@ export function QuizView({ start }: { start: QuizStart }) {
         return;
       }
 
+      /* SEM `router.refresh()` aqui.
+
+         Ele estava, e destruía a própria tela que acabou de ser montada: o
+         refresh reexecuta o componente de servidor, que chama
+         `startQuizUseCase` — e a tentativa já foi enviada, então o servidor
+         responde "você já usou suas tentativas". O aluno terminava a prova e,
+         em vez da nota, recebia uma recusa.
+
+         O que o refresh atualizaria — progresso do curso, lista de
+         certificados — é atualizado quando a pessoa sai desta tela, que é o
+         momento em que aquilo passa a ser olhado. */
       setResultado(dados);
-      router.refresh();
     } catch {
       setErro("Não foi possível falar com o servidor.");
     } finally {
@@ -144,15 +159,51 @@ export function QuizView({ start }: { start: QuizStart }) {
               : "Não atingiu a nota"}
         </h2>
 
-        <p className="quiz-result__score">{resultado.percent}%</p>
+        {/* A nota em escala de dez, que é a escala da regra.
+
+            O percentual estava aqui e não é o que ninguém fala: a aprovação é
+            "oito", não "oitenta por cento". O valor guardado continua sendo
+            percentual — converter a coluna reescreveria histórico —, e a
+            conversão é de leitura. */}
+        <p className="quiz-result__score">
+          {notaFormatada(resultado.percent)}
+          <span className="quiz-result__escala"> / {NOTA_MAXIMA},0</span>
+        </p>
 
         <p className="quiz-result__text">
           {resultado.needsReview
             ? "Há questões dissertativas aguardando correção do instrutor. A nota final pode mudar."
             : resultado.passed
-              ? "Você atingiu a nota necessária."
-              : "Confira o material e tente de novo, se ainda tiver tentativas."}
+              ? `Você foi aprovado: atingiu a nota necessária (${NOTA_MINIMA},0). Seu certificado já pode ser emitido.`
+              : `Você não alcançou a nota necessária para aprovação (${NOTA_MINIMA},0). Você pode solicitar o reteste ao instrutor do curso pelo botão abaixo.`}
         </p>
+
+        {/* APROVADO: o certificado ali mesmo.
+
+            Quem acaba de passar não deveria ter de procurar no perfil qual
+            curso concluiu — o documento é a consequência da aprovação, e o
+            lugar de oferecê-lo é onde ela é anunciada. O caminho pelo perfil
+            fica dito ao lado, porque é lá que os certificados moram depois. */}
+        {resultado.passed && !resultado.needsReview ? (
+          <div className="quiz-result__acoes">
+            <a className="btn btn--primary" href={`/api/certificado?curso=${start.quiz.courseId}`}>
+              <Award aria-hidden /> Emitir certificado
+            </a>
+            <p className="quiz-result__nota-rodape">
+              Ele também fica disponível em <Link className="link" href="/perfil">Perfil › Certificados</Link>.
+            </p>
+          </div>
+        ) : null}
+
+        {/* Reprovou: o caminho de volta.
+
+            Sem isto a tela terminava em "tente de novo, se ainda tiver
+            tentativas" — e com uma tentativa só, isso é um beco. O reteste é
+            pedido, não autosserviço: quem decide é o instrutor, e a resposta
+            vem com o motivo escrito. */}
+        {!resultado.passed && !resultado.needsReview ? (
+          <PedidoDeReteste quizId={start.quiz.id} />
+        ) : null}
       </section>
     );
   }
@@ -161,7 +212,7 @@ export function QuizView({ start }: { start: QuizStart }) {
     <div className="quiz">
       <div className="quiz__head">
         <div>
-          <h1 className="page-head__greeting">{start.quiz.title}</h1>
+          <h1 className="page-head__title">{start.quiz.title}</h1>
           <p className="page-head__sub">
             Tentativa {start.attemptNumber} · {start.questions.length}{" "}
             {start.questions.length === 1 ? "questão" : "questões"} · {start.quiz.totalPoints} pontos

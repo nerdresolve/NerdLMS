@@ -1,5 +1,5 @@
 :root{--bp-xs:480px;--bp-sm:640px;--bp-md:768px;--bp-lg:1024px;--bp-xl:1280px;--bp-2xl:1536px;
 --content-max:1440px;--reading-max:720px;
 --sidebar-width:280px;--sidebar-collapsed:72px;--topbar-height:72px;--mobile-nav-height:64px;
---control-height-sm:36px;--control-height-md:44px;--control-height-lg:52px;
+--control-height-sm:36px;--control-height-md:44px;--control-height-lg:56px;
 --icon-xs:16px;--icon-sm:20px;--icon-md:24px;--icon-lg:32px;--icon-xl:48px}

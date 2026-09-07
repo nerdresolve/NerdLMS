@@ -28,6 +28,7 @@ import {
   notifications,
   tracks,
 } from "../../apps/frontend/src/mocks/data.ts";
+import { quizzes } from "../../apps/frontend/src/mocks/quizzes.ts";
 import { uuidForMockId } from "../../apps/frontend/src/mocks/seed-ids.ts";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
@@ -66,7 +67,7 @@ const passwordFor = (login) => login.replace(".", "");
  * exatamente o estado "convidado, ainda não acessou" que a migração 001
  * descreve, e é o que a gestão de usuários precisa exibir.
  */
-const emailOf = (user) => user.email ?? `${user.id}@exemplo.com.br`;
+const emailOf = (user) => user.email ?? `${user.id}@exemplo.com`;
 
 /**
  * "480 kB" / "1,2 MB" -> bytes.
@@ -92,7 +93,7 @@ const lessonById = new Map(
 
 /* O tenant é resolvido por subconsulta, não por UUID literal: o seed não sabe
    qual id a migração gerou, e fixar um aqui amarraria os dois arquivos. */
-const TENANT = "(SELECT id FROM tenants WHERE slug = 'lms')";
+const TENANT = "(SELECT id FROM tenants WHERE slug = 'exemplo')";
 
 /* Idem para a unidade: o texto do mock vira referência. `LIMIT 1` porque o
    nome é único dentro do tenant, e `NULL` quando o mock não tem projeto. */
@@ -142,7 +143,7 @@ for (const user of allUsers) {
   /* Só os cinco perfis nomeados têm senha. A turma entra para as telas de
      gestão terem gente de verdade, e fica sem hash — que é o estado
      "convidado" e também impede que alguém entre com uma conta de figuração. */
-  const email = login ? `${login}@exemplo.com.br` : emailOf(user);
+  const email = login ? `${login}@exemplo.com` : emailOf(user);
   const hash = login ? lit(hashPassword(passwordFor(login))) : "NULL";
   const status = login ? "active" : (user.status ?? "active");
 
@@ -377,13 +378,36 @@ const dateExpr = (iso) => {
   return `current_date + interval '${dias} days'`;
 };
 
+/**
+ * Como `dateExpr`, mas PRESO AO MÊS CORRENTE.
+ *
+ * A agenda mostra o mês de hoje, e só ele. Um evento a `+14` dias cai no mês
+ * seguinte sempre que hoje passa do dia 16, e o calendário aparece com marcas
+ * só no passado — como se a plataforma estivesse parada. Não era defeito de
+ * tela: era dado fora da janela que a tela mostra.
+ *
+ * O cálculo é feito no BANCO, e não aqui, porque o seed é aplicado quando
+ * alguém roda o comando, não quando este arquivo é gerado. Congelar a data
+ * agora traria de volta exatamente o problema que isto resolve.
+ */
+const dateExprNoMes = (iso) => {
+  const base = dateExpr(iso);
+  return (
+    `GREATEST(date_trunc('month', current_date)::date,
+` +
+    `                 LEAST((${base})::date,
+` +
+    `                       (date_trunc('month', current_date) + interval '1 month - 1 day')::date))`
+  );
+};
+
 for (const event of events) {
   w(
     `INSERT INTO events (id, tenant_id, org_unit_id, on_date, time_label, title, kind, location, project)
 ` +
       `VALUES (${uid(event.id)}, ${TENANT}, NULL,
 ` +
-      `        ${dateExpr(event.date)}, ${event.time ? lit(event.time) : "NULL"},
+      `        ${dateExprNoMes(event.date)}, ${event.time ? lit(event.time) : "NULL"},
 ` +
       `        ${lit(event.title)}, ${lit(event.kind)}, ${event.location ? lit(event.location) : "NULL"}, NULL)
 ` +
@@ -405,21 +429,103 @@ const learners = allUsers.filter((user) => user.role === "learner");
 for (const note of notifications) {
   for (const learner of learners) {
     w(
-      `INSERT INTO notifications (id, user_id, title, body, kind, created_at, read_at)
+      `INSERT INTO notifications (id, user_id, title, body, kind, created_at, read_at, link)
 ` +
         `VALUES (${uid(`${note.id}:${learner.id}`)}, ${uid(learner.id)}, ${lit(note.title)},
 ` +
         `        ${lit(note.body)}, ${lit(note.kind)}, ${dateExpr(note.date)},
 ` +
-        `        ${note.read ? dateExpr(note.date) : "NULL"})
+        `        ${note.read ? dateExpr(note.date) : "NULL"}, ${note.link ? lit(note.link) : "NULL"})
 ` +
         `ON CONFLICT (id) DO UPDATE SET
 ` +
-        `  title = EXCLUDED.title, body = EXCLUDED.body, created_at = EXCLUDED.created_at;`,
+        `  title = EXCLUDED.title, body = EXCLUDED.body, created_at = EXCLUDED.created_at,
+` +
+        `  link = EXCLUDED.link;`,
     );
   }
 }
 w();
+
+/* ----------------------------------------------------------------- provas */
+w("-- ------------------------------------------------------------------ provas");
+w("-- Uma por curso, com as questões e as alternativas. O conteúdo vem de");
+w("-- `apps/frontend/src/mocks/quizzes.ts`.");
+w("--");
+w("-- `min_grade_percent` do curso é acertado junto: sem ele, concluir as aulas");
+w("-- bastaria para o certificado e a prova viraria enfeite. É a exigência que");
+w("-- transforma a nota em consequência.");
+w();
+
+for (const quiz of quizzes) {
+  const quizId = `quiz:${quiz.courseId}`;
+  const cursoId = uid(quiz.courseId);
+
+  w(
+    `INSERT INTO quizzes (id, tenant_id, course_id, lesson_id, title, description,
+` +
+      `                     time_limit_minutes, max_attempts, passing_score, grading_method,
+` +
+      `                     shuffle_questions, shuffle_options, questions_per_page,
+` +
+      `                     sequential_navigation, feedback_mode)
+` +
+      `VALUES (${uid(quizId)}, ${TENANT}, ${cursoId}, NULL, ${lit(quiz.title)}, ${lit(quiz.description)},
+` +
+      `        ${quiz.timeLimitMinutes}, ${quiz.maxAttempts}, ${quiz.passingScore}, 'best',
+` +
+      `        false, true, 1, false, 'on_submit')
+` +
+      `ON CONFLICT (id) DO UPDATE SET
+` +
+      `  title = EXCLUDED.title, description = EXCLUDED.description,
+` +
+      `  passing_score = EXCLUDED.passing_score, max_attempts = EXCLUDED.max_attempts,
+` +
+      `  time_limit_minutes = EXCLUDED.time_limit_minutes;`,
+  );
+
+  quiz.questions.forEach((questao, iq) => {
+    const questaoId = `${quizId}:q${iq + 1}`;
+
+    w(
+      `INSERT INTO questions (id, tenant_id, category_id, course_id, kind, prompt, points, explanation, author_id)
+` +
+        `VALUES (${uid(questaoId)}, ${TENANT}, NULL, ${cursoId}, 'single_choice', ${lit(questao.prompt)},
+` +
+        `        1, ${lit(questao.explanation ?? null)}, NULL)
+` +
+        `ON CONFLICT (id) DO UPDATE SET prompt = EXCLUDED.prompt, explanation = EXCLUDED.explanation;`,
+    );
+
+    questao.options.forEach((alternativa, ia) => {
+      w(
+        `INSERT INTO question_options (id, question_id, text, is_correct, position)
+` +
+          `VALUES (${uid(`${questaoId}:o${ia + 1}`)}, ${uid(questaoId)}, ${lit(alternativa.text)},
+` +
+          `        ${alternativa.correct === true}, ${ia + 1})
+` +
+          `ON CONFLICT (id) DO UPDATE SET text = EXCLUDED.text, is_correct = EXCLUDED.is_correct,
+` +
+          `  position = EXCLUDED.position;`,
+      );
+    });
+
+    w(
+      `INSERT INTO quiz_questions (quiz_id, question_id, position, points)
+` +
+        `VALUES (${uid(quizId)}, ${uid(questaoId)}, ${iq + 1}, 1)
+` +
+        `ON CONFLICT (quiz_id, question_id) DO UPDATE SET position = EXCLUDED.position;`,
+    );
+  });
+
+  w(
+    `UPDATE courses SET min_grade_percent = ${quiz.passingScore} WHERE id = ${cursoId};`,
+  );
+  w();
+}
 
 /* ------------------------------------------------------------- materiais */
 w("-- -------------------------------------------------------------- materiais");

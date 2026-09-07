@@ -68,6 +68,109 @@
     }
   }
 
+  /* --- Agregados (dashboard e perfil) ---
+
+     Estes números eram gerados no build a partir do seed e ficavam parados:
+     concluir uma aula mudava a tela da aula e não mexia em "31 de 64" nem no
+     anel. No produto eles vêm de contagem no banco e acompanham; aqui a conta
+     é refeita no navegador, com o catálogo injetado pelo build.
+
+     Só toca em elementos marcados com `data-agg` / `data-card-*`: numa página
+     que não os tem — a de aula, por exemplo — a função não faz nada. */
+  function refreshAggregates() {
+    var catalogo = window.NERD_CATALOG;
+    if (!catalogo) return;
+
+    var totalAulas = 0;
+    var totalConcluidas = 0;
+    var cursosConcluidos = 0;
+    var porCurso = {};
+
+    catalogo.forEach(function (curso) {
+      var feitas = 0;
+      curso.lessons.forEach(function (aula) {
+        if (store.isLessonComplete(aula.id, aula.duration)) feitas += 1;
+      });
+      porCurso[curso.id] = { feitas: feitas, total: curso.lessons.length };
+
+      /* Só cursos em que a pessoa está matriculada entram no total — o
+         catálogo traz a biblioteca inteira, e somar curso alheio inflaria o
+         denominador que a tela mostra como "seu progresso". */
+      if (store.isEnrolled ? store.isEnrolled(curso.id) : true) {
+        totalAulas += curso.lessons.length;
+        totalConcluidas += feitas;
+        if (curso.lessons.length > 0 && feitas === curso.lessons.length) cursosConcluidos += 1;
+      }
+    });
+
+    var matriculados = catalogo.filter(function (curso) {
+      return store.isEnrolled ? store.isEnrolled(curso.id) : true;
+    }).length;
+
+    var alvoAulas = document.querySelector('[data-agg="lessons"]');
+    if (alvoAulas) alvoAulas.textContent = totalConcluidas + " de " + totalAulas;
+
+    var alvoCursos = document.querySelector('[data-agg="courses"]');
+    if (alvoCursos) alvoCursos.textContent = cursosConcluidos + " de " + matriculados;
+
+    var percentual = window.NERD_PERCENT(totalConcluidas, totalAulas);
+    var alvoPercent = document.querySelector('[data-agg="percent"]');
+    if (alvoPercent) alvoPercent.textContent = percentual + "%";
+
+    var anel = document.querySelector(".ring__value");
+    if (anel) {
+      /* O anel é desenhado por `stroke-dasharray`: o comprimento pintado é a
+         fração do perímetro. Sem atualizar isto, o número muda e o desenho
+         não. */
+      var raio = Number(anel.getAttribute("r") || 0);
+      var perimetro = 2 * Math.PI * raio;
+      anel.setAttribute("stroke-dasharray", perimetro.toFixed(2));
+      anel.setAttribute("stroke-dashoffset", (perimetro * (1 - percentual / 100)).toFixed(2));
+    }
+
+    /* O perfil mostra o mesmo dado noutro formato: o número no valor e o
+       denominador dentro do rótulo ("32" / "de 64 aulas concluídas"). */
+    Array.prototype.forEach.call(document.querySelectorAll("[data-card-agg]"), function (cartao) {
+      var qual = cartao.dataset.cardAgg;
+      var valor = cartao.querySelector(".stat-card__value");
+      var rotulo = cartao.querySelector(".stat-card__label");
+      if (!valor) return;
+
+      if (qual === "lessons") {
+        valor.textContent = String(totalConcluidas);
+        if (rotulo) rotulo.textContent = "de " + totalAulas + " aulas conclu\u00eddas";
+      } else if (qual === "courses") {
+        valor.textContent = String(cursosConcluidos);
+        if (rotulo) rotulo.textContent = "de " + matriculados + " cursos conclu\u00eddos";
+      } else if (qual === "percent") {
+        valor.textContent = percentual + "%";
+      }
+    });
+
+    Array.prototype.forEach.call(document.querySelectorAll("[data-card-course]"), function (card) {
+      var dados = porCurso[card.dataset.cardCourse];
+      if (!dados) return;
+      var pct = window.NERD_PERCENT(dados.feitas, dados.total);
+
+      var conta = card.querySelector("[data-card-count]");
+      if (conta) conta.textContent = dados.feitas + " de " + dados.total;
+
+      var chip = card.querySelector("[data-card-percent]");
+      if (chip) chip.textContent = pct + "%";
+
+      var barra = card.querySelector("[data-card-bar]");
+      if (barra) {
+        barra.style.setProperty("--value", pct + "%");
+        barra.setAttribute("aria-valuenow", String(pct));
+      }
+    });
+  }
+
+  /* Uma vez na carga (a página vem do build com os números do seed) e a cada
+     mudança da store. */
+  refreshAggregates();
+  store.subscribe(refreshAggregates);
+
   var completeButton = document.getElementById("concluir");
   if (completeButton) {
     var refresh = function () {

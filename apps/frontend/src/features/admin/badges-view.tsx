@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 
 import "./badges.css";
+import { campoObrigatorio } from "@/lib/campo-obrigatorio.ts";
 
 /**
  * Badges configuráveis — F6-01 (guia §19).
@@ -205,8 +206,8 @@ export function BadgesView({
       </h2>
 
       <p className="platform__hint">
-        Reconhecimentos que este cliente concede. Cada emissão ganha um código de verificação
-        público — quem recebe pode compartilhar o link, e quem confere não precisa de conta.
+        Reconhecimentos que a sua organização concede. Cada emissão ganha um código de verificação
+        público, quem recebe pode compartilhar o link, e quem confere não precisa de conta.
       </p>
 
       <form className="platform__form" onSubmit={criar}>
@@ -215,7 +216,7 @@ export function BadgesView({
             <label className="label" htmlFor="badge-nome">
               Nome
             </label>
-            <input className="input" id="badge-nome" name="name" required maxLength={80} />
+            <input className="input" id="badge-nome" name="name" {...campoObrigatorio("Dê um nome ao badge.")} maxLength={80} />
           </div>
 
           <div className="field">
@@ -240,7 +241,7 @@ export function BadgesView({
             className="input"
             id="badge-descricao"
             name="description"
-            required
+            {...campoObrigatorio("Escreva para que serve este badge.")}
             maxLength={200}
             placeholder="Formação em segurança para trabalho em altura."
           />
@@ -294,7 +295,7 @@ export function BadgesView({
             <label className="label" htmlFor="badge-curso">
               Curso
             </label>
-            <select className="select" id="badge-curso" name="courseId" required>
+            <select className="select" id="badge-curso" name="courseId" {...campoObrigatorio("Escolha o curso que concede o badge.")}>
               <option value="">Escolha o curso</option>
               {courses.map((curso) => (
                 <option key={curso.id} value={curso.id}>
@@ -310,7 +311,7 @@ export function BadgesView({
             <label className="label" htmlFor="badge-trilha">
               Trilha
             </label>
-            <select className="select" id="badge-trilha" name="trackId" required>
+            <select className="select" id="badge-trilha" name="trackId" {...campoObrigatorio("Escolha a trilha que concede o badge.")}>
               <option value="">Escolha a trilha</option>
               {tracks.map((trilha) => (
                 <option key={trilha.id} value={trilha.id}>
@@ -333,7 +334,7 @@ export function BadgesView({
               type="number"
               min={1}
               max={criterio === "grade_above" ? 100 : 9999}
-              required
+              {...campoObrigatorio("Informe o número que libera o badge.")}
             />
           </div>
         ) : null}
@@ -377,7 +378,7 @@ export function BadgesView({
                   {!badge.active ? <span className="platform__badge">Inativo</span> : null}
                   <button
                     type="button"
-                    className="btn btn--ghost btn--sm"
+                    className="btn btn--ghost btn--small"
                     onClick={() => alternar(badge)}
                   >
                     {badge.active ? "Desativar" : "Ativar"}

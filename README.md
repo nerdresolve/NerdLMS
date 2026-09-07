@@ -1,270 +1,206 @@
-<div align="center">
+# Exemplo S.A. EAD
 
-<img src="docs/brand/banner.svg" alt="NerdResolve LMS — plataforma de ensino corporativo white-label" width="100%">
+Plataforma de ensino corporativo da Exemplo S.A., mantida internamente:
+código, banco de dados e roadmap sob gestão da empresa.
 
-Um servidor, muitos clientes — cada um com seu domínio, sua marca e seu
-conjunto de funcionalidades.
+Substitui a licença atual, limitada a 500 usuários ativos para toda a empresa.
+O limite é contratual, e não técnico. O histórico de treinamento (quem cursou,
+em quê, com que nota e em que data) passa a ser mantido na base da NerdResolve
+Energy.
 
-[![Licença](https://img.shields.io/badge/licen%C3%A7a-PolyForm%20Noncommercial%201.0.0-7C3AED)](LICENSE.md) ![Testes](https://img.shields.io/badge/testes-1190%20passando-A855F7) ![Stack](https://img.shields.io/badge/Next.js%2015-React%2019-08060D) ![Banco](https://img.shields.io/badge/PostgreSQL-79%20tabelas-120F1C)
-
-**[Personalizar em 4 passos](#personalizar-em-4-passos)** · [Funcionalidades](#o-que-vem-dentro) · [Rodar](#rodar) · [Documentação](#documentação) · [Licença](#licença)
-
-</div>
-
----
-
-## O que é
-
-Uma plataforma de EAD completa, pronta para ser entregue com a cara de outra
-empresa. Alguém abre `treinamento.suaempresa.com`, vê o logo e as cores da
-empresa dela, entra com a conta corporativa e faz os cursos dela — sem nunca
-saber que o mesmo servidor atende outros clientes.
-
-A comparação de referência é o Moodle: SCORM, xAPI, LTI 1.3, cmi5, QTI,
-competências, distintivos, fórum e relatórios estão implementados. A diferença
-está em quanto disso um cliente precisa ver — aqui, cada funcionalidade liga e
-desliga por cliente, e o que fica desligado some da interface em vez de ficar
-ocupando menu.
-
-### Um servidor, muitos clientes
-
-O isolamento é por `tenant_id`, resolvido pelo domínio da requisição. Não é
-convenção: **toda tabela com dado de cliente tem a coluna, e toda consulta
-filtra por ela.**
-
-Uma consulta que esquece o recorte não dá erro — ela devolve o dado de outra
-empresa. Por isso um portão de teste lê o SQL de todos os repositórios e falha
-o build quando aparece uma leitura sem `tenant_id`: é o tipo de esquecimento
-que passa em revisão de código e só se manifesta como vazamento.
+A identidade vem do nosso site: azul #002E6D e #0075C9 do logotipo, DM Sans,
+canto reto. Os tokens estão em `apps/frontend/src/styles/nerd-ds/` e os
+arquivos de marca são gerados de lá por `apps/frontend/tools/brand-assets.py`.
 
 ---
 
-## Personalizar em 4 passos
+## O que a plataforma faz hoje
 
-**Tudo pela tela de administração. Sem tocar em código, sem recompilar nada.**
+**Aluno** acessa o curso, assiste às aulas, realiza a prova e recebe o
+certificado. O controle de progresso exige 90% de cobertura do vídeo com tempo
+de sessão compatível antes de aceitar a conclusão. O avanço para trecho não
+assistido é bloqueado; o retrocesso é liberado e a velocidade pode chegar a 2x.
 
-Entre como administrador e vá em **Administração → Plataforma**.
+**Prova** vale de 0 a 10, com aprovação em 8,0. Ela só libera quando as aulas
+do curso terminam, e o botão diz quantas faltam em vez de deixar clicar e
+recusar depois. Quem reprova tem uma tentativa; refazer depende de **pedir
+reteste ao instrutor**, que libera ou recusa com comentário obrigatório.
 
-### 1. Bota a logo
+**Certificado** é emitido em PDF, com assinatura do instrutor responsável e
+código de verificação conferido em `/validar`. A verificação avalia matrícula,
+conclusão e nota, aplicando a mesma regra usada na emissão.
 
-Três campos, três uploads:
+**Instrutor** cria curso, módulo e aula, envia vídeo, PDF ou pacote SCORM,
+monta prova, corrige dissertativa e decide os pedidos de reteste.
 
-| Campo | Onde aparece |
-|---|---|
-| **Logo clara** | Tema claro — cabeçalho e tela de login |
-| **Logo escura** | Tema escuro |
-| **Favicon** | Aba do navegador |
+**Gestor** acompanha a equipe. **Administrador** cuida de pessoas, acesso,
+auditoria, competências, distintivos, integrações e marca.
 
-> Se o cliente só tem uma versão do logo, use a mesma nos dois campos. PNG ou
-> SVG, fundo transparente.
+**Entrar pela conta da empresa** funciona por LDAP/Active Directory, SAML 2.0,
+Google ou Microsoft. O papel na plataforma vem do grupo no diretório.
 
-### 2. Muda a cor
+São 35 telas, 38 migrações e 1.214 testes automatizados.
 
-Um campo. Você escolhe **uma cor** — a da marca do cliente — e a plataforma
-inteira se ajusta: botões, links, foco, gráficos, fundo suave, borda.
+---
 
-Não existe um segundo campo para acertar depois. A paleta é derivada, e o
-contraste é resolvido sozinho: a cor é preservada onde aparece como superfície
-(quem pediu amarelo recebe amarelo no botão, não marrom) e escurecida onde
-vira texto sobre fundo claro, até alcançar 4.5:1.
-
-### 3. Escolhe o que fica ligado
-
-Uma lista de chaves. Ligue e desligue à vontade — o que sai desaparece da
-interface, dos menus e das notificações.
+## Estrutura
 
 ```
-comentarios              forum                 gamificacao
-├── respostas            ├── anexos            ├── distintivos
-└── upvotes              └── denuncias         └── loja
+apps/
+  frontend/   Next.js 15 + React 19. Telas e rotas HTTP.
+  backend/    Casos de uso, repositórios e integrações. Não é um servidor:
+              é o código que as rotas do Next chamam.
 
-notificacoes             rigor                 trilhas
-└── email                ├── video             agenda
-                         └── leitura           certificados
-                                               favoritos
-                                               busca
+packages/
+  core/       Regras de domínio. Sem framework e sem dependência de runtime.
+
+infra/
+  docker-compose.yml, .env.example
+  db/migrations/   schema PostgreSQL, aplicado em ordem
+  proxy/Caddyfile  HTTPS e headers de borda
+  tools/           conteúdo real, seed e verificação estrutural do SQL
+
+docs/
+  PLATAFORMA.md            a documentação completa: o que existe e por quê
+  PERFIS-E-ACESSOS.md      os cinco perfis, o que cada um alcança, e as contas
+  ROTEIRO-APRESENTACAO.md  o roteiro de demonstração, com tempos
+  progress.md              diário de engenharia: cada decisão técnica
+  DEPLOY.md                subir a plataforma
+  HOMOLOGACAO.md           contas, acesso e o que conferir antes de liberar
+  ENTREGA.md               como navegar o pacote
+  PRD.md                   escopo de origem, escrito para outra empresa
+  PLANO-LMS.md             os 50 itens do plano, também de origem
+  telas/                   capturas em desktop e mobile
+
+WHITELABEL.md   configurar uma instalação do zero: tenant, marca, domínio
 ```
-
-Desligar um pai desliga os filhos — é o que impede o estado incoerente de
-"upvote ligado num produto sem comentários".
-
-> **A família `rigor` nasce desligada**, ao contrário das demais. São travas de
-> conclusão — impedir de arrastar o vídeo para o fim, confirmar a leitura de um
-> documento lido rápido demais — e travas atrapalham quem não precisa delas. Um
-> curso de integração não tem o mesmo peso que um de segurança em espaço
-> confinado.
-
-### 4. Liga o acesso da empresa
-
-Quatro caminhos, combináveis, **já pré-configurados**. O cliente cola as
-credenciais e liga a chave — não há integração para montar.
-
-| Caminho | O que pedir ao cliente |
-|---|---|
-| **Google Workspace** | Client ID e secret do Google Cloud |
-| **Microsoft Entra ID** | Client ID, secret e o tenant do Azure |
-| **LDAP / Active Directory** | Host, base DN e o domínio |
-| **SAML 2.0** | Metadados do IdP — ADFS, Okta, Azure, Shibboleth |
-
-As URLs de autorização, token e JWKS do Google e da Microsoft já vêm
-preenchidas. Para SAML, a plataforma publica o próprio metadado: o cliente
-entrega ao time de identidade dele e recebe o do IdP de volta.
-
-Senha local continua disponível e pode ser **desligada** — para o cliente que
-exige que todo acesso passe pelo diretório da empresa.
-
-### E o domínio
-
-Único passo fora da tela: aponte um `CNAME` para o servidor e cadastre o
-domínio no cliente. O certificado é emitido automaticamente. Vários clientes
-convivem no mesmo servidor, cada um no seu domínio.
-
-**Pronto.** O passo a passo detalhado — com os comandos, os campos e o que
-conferir antes de entregar — está em **[WHITELABEL.md](WHITELABEL.md)**.
-
----
-
-## O que vem dentro
-
-<table>
-<tr><td width="33%" valign="top">
-
-**Aprender**
-
-Vídeo, PDF, planilha, slide, SCORM, H5P e conteúdo interativo. Trilhas com
-pré-requisito, agenda, favoritos e busca. Retomada de onde parou, em qualquer
-dispositivo.
-
-</td><td width="33%" valign="top">
-
-**Avaliar**
-
-Banco de questões, provas, tarefas com envio de arquivo e correção com
-feedback. Competências por nível, distintivos e certificados com código de
-validação pública.
-
-</td><td width="33%" valign="top">
-
-**Administrar**
-
-Turmas, matrícula em massa, relatórios, auditoria de acesso, backup e
-exportação. API com chave por escopo e webhooks.
-
-</td></tr>
-</table>
-
-### Interoperabilidade
-
-| Padrão | Situação |
-|---|---|
-| **SCORM 1.2 e 2004** | Importa o pacote e roda o runtime completo |
-| **xAPI (Tin Can)** | LRS próprio, com anonimização configurável |
-| **cmi5** | Os nove verbos, com separação de autoridade |
-| **LTI 1.3** | Provedor e consumidor, com AGS e NRPS |
-| **QTI 2.x e 3.0** | Importa e exporta banco de questões |
-| **H5P** | Importa vídeo interativo, hotspots e flashcards |
-| **CSV** | Usuários, cursos e questões |
-
-Nada disso depende de serviço externo: o LRS, o runtime SCORM, o verificador de
-assinatura SAML e o cliente LDAP são implementação própria, dentro do
-repositório.
 
 ---
 
 ## Rodar
 
-### Ver antes de instalar
-
-Abra `apps/frontend/preview/landing.html` no navegador.
-
-O protótipo navega inteiro, sem servidor nem banco: concluir aula, favoritar,
-comentar, votar, editar curso, publicar.
-
-### Subir de verdade
+Os portões não precisam de rede:
 
 ```bash
-cp infra/.env.example infra/.env     # preencha domínio, senhas e chaves
-npm install
-npm run up                           # sobe app, banco, storage e proxy
-npm run migrate                      # aplica o schema
-npm run seed                         # dados de demonstração (opcional)
-```
-
-A plataforma responde em `https://localhost`. Para publicar num domínio real,
-veja [docs/DEPLOY.md](docs/DEPLOY.md).
-
-### Portões de qualidade
-
-Todos rodam offline:
-
-```bash
-npm run verify           # tudo abaixo, de uma vez
-npm test                 # 1190 testes
+npm run test          # regras de negócio, backend e frontend
 npm run typecheck
-npm run test:a11y        # contraste WCAG AA, token a token
-npm run check:sql        # estrutura das migrações
-npm run check:encoding   # todo fonte em UTF-8
-npm run check:layers     # dependências só na direção frontend → backend → core
-npm run check:imports    # todo pacote importado está declarado
-npm run perf             # LCP, CLS, TBT, alvos de toque
+npm run lint
+npm run check:sql     # verificação estrutural das migrações
+npm run check:imports # todo pacote importado está declarado?
+npm run test:a11y     # contraste WCAG AA, por token
+npm run verify        # os acima menos o typecheck, mais as auditorias do protótipo
 ```
 
----
+`verify` **não** executa `typecheck`. Os dois comandos devem ser executados
+antes do commit.
 
-## Arquitetura
+Subir o ambiente, **nesta ordem**:
 
-```
-packages/core/     Regras de negócio. Sem I/O, sem banco, sem HTTP.
-                   É onde ficam SCORM, xAPI, SAML, LDAP, QTI e as regras
-                   de conclusão. Testável sem subir nada.
-
-apps/backend/      Casos de uso e repositórios. Todo SQL vive aqui.
-                   Não é um servidor: é o que as rotas do Next chamam.
-
-apps/frontend/     Next.js 15 e React 19. Telas e rotas de API.
-
-infra/             Compose, migrações, proxy e portões de verificação.
+```bash
+npm install
+cp infra/.env.example infra/.env    # e preencha os segredos
+npm run up
+npm run migrate
 ```
 
-A dependência é de mão única — `frontend → backend → core` — e um portão
-verifica que continua sendo. O núcleo não sabe que existe banco; o backend não
-sabe que existe React.
+A plataforma responde em <http://localhost:8080>.
+
+> **`npm run seed` traz conteúdo fictício junto.** Além das cinco contas de
+> demonstração, ele insere 7 cursos inventados com 84 aulas e 20 matrículas, e
+> todos os `INSERT` são `ON CONFLICT DO UPDATE`: rodar num banco que já tem o
+> conteúdo real da Exemplo S.A. faz o catálogo voltar a misturar os dois.
+> Num banco vazio ele é o caminho mais rápido para ter com quem entrar; num
+> banco em uso, leia `docs/HOMOLOGACAO.md` antes.
+
+### Os três ambientes não se misturam
+
+Cada script carrega o próprio nome de projeto do Compose, e é ele que separa os
+volumes. Nunca rode `docker compose` sem `-p`:
+
+| Comando | Projeto | Para quê |
+|---|---|---|
+| `npm run up`, `migrate`, `seed`, `logs` | `nerdlms-local` | desenvolvimento |
+| `npm run up:prod`, `migrate:prod` | `nerdlms` | produção |
+| `npm run publish`, `migrate:tunnel` | `nerdlms` | produção pelo túnel |
+
+### Nomes herdados que você vai encontrar
+
+O papel do banco chama `lms_migrator`, a aplicação conecta como `lms_app` e
+o bucket é `lms-media`. Não é engano nem sobra: o código foi escrito para
+outra empresa antes de virar a nossa plataforma, e esses três nomes ficaram
+sendo os de infraestrutura em uso.
+
+A renomeação exigiria migração de banco e de storage, com risco de
+indisponibilidade durante a troca, sem efeito para quem usa a plataforma. A
+migração 035 registra a transição da instalação para a Exemplo S.A..
+
+Pela mesma razão, `docs/PRD.md` e `docs/PLANO-LMS.md` falam de outra empresa:
+são os documentos de origem, e servem para entender de onde veio cada
+requisito.
 
 ---
 
-## Documentação
+## Conteúdo real
 
-| Documento | Para quê |
-|---|---|
-| [WHITELABEL.md](WHITELABEL.md) | **Implantar para um cliente novo**, do zero à entrega |
-| [docs/DEPLOY.md](docs/DEPLOY.md) | Subir a plataforma num servidor |
-| [docs/PRD.md](docs/PRD.md) | Escopo, perfis de acesso e decisões de produto |
-| [docs/HOMOLOGACAO.md](docs/HOMOLOGACAO.md) | O que conferir antes de liberar |
-| [docs/DESIGN-SYSTEM-package.md](docs/DESIGN-SYSTEM-package.md) | Tokens, componentes e regras visuais |
-| [docs/telas/](docs/telas/) | Capturas em desktop e mobile |
+Os cursos da Exemplo S.A. não moram no repositório: o vídeo pesa 522 MB e o Git
+não é lugar para isso. O que entra é o JSON com a estrutura, as provas e o
+gabarito. A importação é dividida em três ferramentas, porque a transferência
+de vídeo é demorada e sujeita a falha de rede, ao contrário da escrita no
+banco:
+
+```bash
+node infra/tools/parse-cursos.mjs <pasta>   # lê o material e gera o JSON
+node infra/tools/upload-cursos.mjs <pasta>  # manda os vídeos ao storage
+node infra/tools/import-cursos.mjs          # cria cursos, aulas e provas
+```
+
+A importação é **idempotente**: cada id deriva do código do procedimento, então
+rodar de novo depois de corrigir um gabarito atualiza sem duplicar nada.
+
+Título e resumo de cada curso são curados na tabela dentro de
+`parse-cursos.mjs`, e não no JSON: o JSON é saída e seria sobrescrito na
+execução seguinte.
+
+### Demonstrar sem esperar o vídeo
+
+```bash
+node infra/tools/cenario-demo.mjs
+```
+
+Os vídeos têm entre 56 e 85 minutos, e o controle de progresso é aplicado
+integralmente, o que inviabiliza concluir um curso durante uma demonstração. O
+script grava o progresso equivalente ao de quem assistiu ao conteúdo, nas
+mesmas tabelas usadas em operação normal, e deixa a conta de Aluno com um curso
+em cada estado previsto: prova bloqueada, prova liberada, reprovado com pedido
+em aberto e aprovado com certificado.
 
 ---
 
-## Licença
+## Leia antes de mexer
 
-**PolyForm Noncommercial License 1.0.0** — veja [LICENSE.md](LICENSE.md).
+[`docs/PLATAFORMA.md`](./docs/PLATAFORMA.md) é a documentação completa: cada
+área da plataforma, como funciona e por que foi feita assim.
 
-Você **pode** ler, modificar, redistribuir e usar para qualquer finalidade não
-comercial: estudo, pesquisa, avaliação técnica, projeto pessoal, e uso por
-instituição de ensino, órgão público ou organização sem fins lucrativos.
+[`docs/PERFIS-E-ACESSOS.md`](./docs/PERFIS-E-ACESSOS.md) tem os cinco perfis,
+o que cada um alcança, as contas de demonstração e o que acontece quando
+alguém tenta o que não pode. Há uma versão em PDF, na nossa identidade, para
+levar a reunião.
 
-Você **não pode** usar com finalidade comercial — operar a plataforma para
-clientes, vendê-la, revendê-la, oferecê-la como serviço, embuti-la em produto
-pago ou usá-la internamente numa empresa com fins lucrativos.
+[`docs/ROTEIRO-APRESENTACAO.md`](./docs/ROTEIRO-APRESENTACAO.md) é o roteiro de
+demonstração, com tempos e o que dizer em cada tela.
 
-Para licença comercial, fale com a NerdResolve: **contato@mariath.dev**
+[`docs/progress.md`](./docs/progress.md) é o diário de engenharia: cada decisão
+técnica numerada, com o motivo e o que foi descartado. É o documento que
+responde "por que está assim" quando o código sozinho não explica.
 
----
+[`docs/HOMOLOGACAO.md`](./docs/HOMOLOGACAO.md) tem as contas de demonstração e
+como a autenticação funciona.
 
-<div align="center">
+[`WHITELABEL.md`](./WHITELABEL.md) descreve a configuração de uma instalação
+do zero: tenant, marca, domínio, e-mail e autenticação pelo Active Directory.
+Aplica-se à reconfiguração da instalação atual e ao cenário de treinamento a
+terceirizados ou parceiros, com catálogo separado do interno.
 
-<img src="docs/brand/nerdresolve-mark.png" alt="" width="44">
-
-**NerdResolve LMS** — desenvolvido por [Matheus Mariath](https://github.com/mariathdev) · NerdResolve
-
-</div>
+[`docs/PRD.md`](./docs/PRD.md) e [`docs/PLANO-LMS.md`](./docs/PLANO-LMS.md) são
+os documentos de origem, escritos para outra empresa. Servem para entender de
+onde vem cada requisito; não descrevem a nossa instalação.

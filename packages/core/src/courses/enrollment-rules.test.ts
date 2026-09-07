@@ -28,7 +28,7 @@ describe("Auto-matrícula", () => {
     }  });
 
   test("curso atribuído só entra pelo gestor", () => {
-    // É o treinamento obrigatório. Deixar o aluno entrar sozinho
+    // É o treinamento obrigatório (DEC-039). Deixar o aluno entrar sozinho
     // apagaria a diferença entre os dois modos de matrícula.
     const course = makeCourse({ id: "c1", authorId: "u2", status: "published", enrollmentMode: "assigned" });
     const decision = canSelfEnroll(course, false);

@@ -14,9 +14,9 @@ export type LessonStatus = "not_started" | "in_progress" | "completed";
  * Tipo de conteúdo da aula.
  *
  * SCORM está aqui porque a proposta promete upload de "SCORM, vídeo, imagem,
- * slide, doc" e já está em uso. **A conclusão de uma aula SCORM não segue
+ * slide, doc" e a Exemplo S.A. já usa hoje. **A conclusão de uma aula SCORM não segue
  * a regra dos 90%**: quem decide é o próprio pacote, pela API dele. Misturar as
- * duas fontes daria dois donos para a mesma verdade.
+ * duas fontes daria dois donos para a mesma verdade. Ver DEC-041.
  */
 /**
  * O que a aula É.
@@ -28,6 +28,15 @@ export type LessonStatus = "not_started" | "in_progress" | "completed";
 export type LessonKind = ContentKind;
 
 export interface Lesson {
+  /**
+   * Estado do arquivo de mídia. Ausente é o normal: pronto.
+   *
+   * `splitting` é o vídeo longo esperando o corte automático em aulas de
+   * quinze minutos; `failed` é o corte que não deu certo depois das tentativas.
+   * A tela precisa dizer as duas coisas — uma aula com o vídeo inteiro parecendo
+   * pronta é pior que uma aula que avisa que ainda está sendo preparada.
+   */
+  mediaStatus?: "splitting" | "failed";
   id: string;
   title: string;
   /** Duração total em segundos. Para SCORM é estimativa, não critério. */
@@ -80,11 +89,11 @@ export interface Course {
   /**
    * Como a pessoa entra no curso.
    *
-   * `open`: o aluno se inscreve sozinho — é o caso dos cursos livres e da
-   * Escola Social, que mira 30 mil pessoas externas. Matricular uma a uma
-   * nessa escala é inviável.
+   * `open`: o aluno se inscreve sozinho — é o caso dos cursos livres e dos
+   * abertos a terceirizados, que numa operação de campo somam milhares de
+   * pessoas. Matricular uma a uma nessa escala é inviável.
    * `assigned`: alguém matricula — treinamento obrigatório, atribuído pelo
-   * gestor do projeto.
+   * gestor do campo. Ver DEC-039.
    */
   enrollmentMode: "open" | "assigned";
   /** Projeto a que o curso pertence, quando não for aberto a todos. */
@@ -143,6 +152,14 @@ export interface Course {
    * inserir uma aula no meio.
    */
   contentRelease?: "open" | "sequential";
+  /**
+   * A trava do player vale neste curso?
+   *
+   * Ausente é LIGADA. O padrão precisa ser o restritivo: um curso importado
+   * sem o campo, ou uma leitura que esqueça a coluna, não pode liberar o
+   * avanço em silêncio.
+   */
+  watchGuard?: boolean;
   /**
    * Nota mínima para o certificado, em percentual (F3-09).
    *
@@ -234,7 +251,7 @@ export interface User {
   email?: string;
   /**
    * Último acesso registrado. É o que define "usuário ativo" no relatório de
-   * período — a métrica que hoje está travada em 500 pela licença.
+   * período — a métrica que hoje está travada em 500 pela licença. Ver DEC-040.
    */
   lastAccessAt?: string;
   /**
@@ -243,9 +260,9 @@ export interface User {
    */
   status?: "active" | "pending" | "inactive";
   /**
-   * Projeto a que a pessoa pertence: Águas do Rio, Prolagos, Regenera Rio ou
-   * Escola Social. Sem este campo os relatórios por projeto não existem
-   *.
+   * Campo a que a pessoa pertence: Unidade Norte, Siririzinho, Riachuelo,
+   * Aguilhada. Sem este campo os relatórios por unidade não existem
+   * (ISSUE-023).
    */
   project?: string;
   /** Região, pelo mesmo motivo. */

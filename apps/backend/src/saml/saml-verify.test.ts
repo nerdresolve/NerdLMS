@@ -92,7 +92,7 @@ function temChaves(): boolean {
   return idp !== null && outro !== null;
 }
 
-describe("SAML — asserção legítima", () => {
+describe("SAML, asserção legítima", () => {
   test("uma asserção assinada pelo provedor é validada", (t) => {
     if (!temChaves()) return t.skip("openssl não disponível");
 
@@ -132,7 +132,7 @@ describe("SAML — asserção legítima", () => {
   });
 });
 
-describe("SAML — os ataques", () => {
+describe("SAML, os ataques", () => {
   test("adulterar o e-mail depois de assinado é barrado", (t) => {
     if (!temChaves()) return t.skip("openssl não disponível");
 

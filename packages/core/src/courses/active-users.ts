@@ -1,5 +1,5 @@
 /**
- * Usuários ativos por período �.
+ * Usuários ativos por período — DEC-040.
  *
  * "Usuário ativo" é a métrica que hoje está travada em 500 pela licença e a que
  * o levantamento pede no relatório de período. Havia três leituras possíveis
@@ -30,7 +30,7 @@ export function lastDays(days: number, reference: Date): Period {
 }
 
 /** `true` se a pessoa acessou dentro do período. Exportado porque o filtro
-    dos relatórios precisa da mesma regra: duas cópias divergiriam
+    dos relatórios (TASK-047) precisa da mesma regra: duas cópias divergiriam
     no tratamento de data ausente e de data inválida. */
 export function accessedWithin(user: User, period: Period): boolean {
   if (!user.lastAccessAt) return false;

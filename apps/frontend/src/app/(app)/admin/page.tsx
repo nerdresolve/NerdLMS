@@ -1,28 +1,10 @@
 import type { Metadata } from "next";
 
-import { requireUser } from "@/lib/auth/session.ts";
-import { lowerUnit, pluralOfUnit } from "@nerdlms/core/tenancy/unit-label.ts";
-
-import { AppShell } from "@/features/app-shell/app-shell.tsx";
-import { AdminView } from "@/features/admin/admin-view.tsx";
-import { getAdminPageData } from "@/features/admin/data.ts";
+import { AdminPanel } from "@/features/admin/admin-panel.tsx";
 
 export const metadata: Metadata = { title: "Painel da plataforma · Admin" };
 
+/** A mesma tela que `/dashboard` serve a um administrador, por link direto. */
 export default async function AdminPage() {
-  const { tenant } = await requireUser();
-  const { admin, stats, byProject, audit, alerts } = await getAdminPageData();
-
-  return (
-    <AppShell fullName={admin.fullName} role={admin.role} currentPath="/admin">
-      <AdminView
-        stats={stats}
-        byProject={byProject}
-        audit={audit}
-        alerts={alerts}
-        unitLower={lowerUnit(tenant.unitLabel)}
-        unitPlural={pluralOfUnit(tenant.unitLabel)}
-      />
-    </AppShell>
-  );
+  return <AdminPanel currentPath="/admin" />;
 }

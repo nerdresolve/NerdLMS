@@ -20,7 +20,10 @@
   height: auto;
   padding-block: var(--space-2);
   resize: vertical;
-  line-height: var(--line-body);
+  /* `--line-body` não existe no sistema de design: o nome dele é
+     `--text-body-lh`. Sem definição e sem fallback, o navegador descartava a
+     declaração inteira e a altura de linha caía na herdada. */
+  line-height: var(--text-body-lh);
 }
 
 .forum__list { display: flex; flex-direction: column; gap: var(--space-2); margin: 0; padding: 0; list-style: none; }
@@ -88,7 +91,7 @@
   margin: 0;
   font-size: var(--text-small-size);
   color: var(--text-body);
-  line-height: var(--line-body);
+  line-height: var(--text-body-lh);
   /* Preserva as quebras que a pessoa escreveu, sem aceitar HTML. */
   white-space: pre-wrap;
   overflow-wrap: anywhere;

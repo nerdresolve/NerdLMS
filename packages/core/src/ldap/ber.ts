@@ -22,10 +22,15 @@
 
 /** As etiquetas BER que este módulo usa. */
 export const TAG = {
+  BOOLEAN: 0x01,
   INTEGER: 0x02,
   OCTET_STRING: 0x04,
   ENUMERATED: 0x0a,
   SEQUENCE: 0x30,
+  /* O SET aparece na resposta da busca: os VALORES de um atributo vêm num
+     conjunto, porque `memberOf` tem um por grupo e `mail` costuma ter um só.
+     O protocolo não distingue os dois casos — quem lê é que decide. */
+  SET: 0x31,
 } as const;
 
 /**
@@ -142,4 +147,45 @@ export function decodeInteger(value: Buffer): number {
   let n = 0;
   for (const byte of value) n = n * 256 + byte;
   return n;
+}
+
+/**
+ * Um booleano BER.
+ *
+ * `0xff` para verdadeiro, e não `0x01`: o padrão manda "qualquer byte diferente
+ * de zero", mas o DER — que vários servidores exigem mesmo em BER — só aceita
+ * todos os bits ligados. Escrever `0xff` funciona nos dois; escrever `0x01`
+ * funciona em quase todos, e o "quase" aparece no cliente errado.
+ */
+export function encodeBoolean(valor: boolean): Buffer {
+  return encode(TAG.BOOLEAN, Buffer.from([valor ? 0xff : 0x00]));
+}
+
+export function encodeSet(...partes: Buffer[]): Buffer {
+  return encode(TAG.SET, Buffer.concat(partes));
+}
+
+/**
+ * Todos os elementos de um conteúdo, em sequência.
+ *
+ * Uma SEQUENCE do BER não diz quantos filhos tem: eles são lidos até o
+ * conteúdo acabar. Percorrer com `decode` e somar `totalLength` é o laço que
+ * cada leitor repetiria — aqui ele existe uma vez.
+ *
+ * Um elemento ilegível INTERROMPE a lista em vez de derrubar tudo. Quem chamou
+ * recebe o que deu para ler e decide: numa busca, é a diferença entre perder um
+ * atributo e perder o login.
+ */
+export function decodeAll(conteudo: Buffer): BerElement[] {
+  const elementos: BerElement[] = [];
+  let posicao = 0;
+
+  while (posicao < conteudo.length) {
+    const elemento = decode(conteudo, posicao);
+    if (!elemento || elemento.totalLength <= 0) break;
+    elementos.push(elemento);
+    posicao += elemento.totalLength;
+  }
+
+  return elementos;
 }

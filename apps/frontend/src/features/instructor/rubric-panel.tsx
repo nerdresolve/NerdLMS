@@ -31,7 +31,7 @@ export function RubricPanel({
 }) {
   const router = useRouter();
 
-  const [nome, setNome] = useState(rubricName ?? `Rubrica — ${assignmentTitle}`);
+  const [nome, setNome] = useState(rubricName ?? `Rubrica: ${assignmentTitle}`);
   const [linhas, setLinhas] = useState<CriterionDraft[]>(
     criteria.length > 0
       ? criteria.map((c) => ({
@@ -180,7 +180,7 @@ export function RubricPanel({
         <div className="rubric__actions">
           <button
             type="button"
-            className="btn btn--secondary btn--sm"
+            className="btn btn--secondary btn--small"
             disabled={busy}
             onClick={() =>
               setLinhas((atuais) => [...atuais, { name: "", description: "", maxPoints: "" }])

@@ -44,7 +44,7 @@ export const ENROLLMENT_REFUSAL_MESSAGE: Record<EnrollmentRefusal, string> = {
  * incompleto, e matricular alguém nele encheria o painel da pessoa com um
  * curso que some depois.
  *
- * `assigned` é o treinamento obrigatório, atribuído pelo gestor.
+ * `assigned` é o treinamento obrigatório, atribuído pelo gestor (DEC-039).
  * Deixar o aluno entrar sozinho esvaziaria a distinção entre os dois modos.
  */
 export function canSelfEnroll(course: EnrollableCourse, alreadyEnrolled: boolean): EnrollmentDecision {
@@ -62,7 +62,7 @@ export function canSelfEnroll(course: EnrollableCourse, alreadyEnrolled: boolean
  * duas existem:
  *
  * - `assigned` aqui é o caso NORMAL, não a recusa. O treinamento obrigatório é
- *   justamente o que o gestor atribui; curso `open` também pode ser
+ *   justamente o que o gestor atribui (DEC-039); curso `open` também pode ser
  *   atribuído, porque nada impede o gestor de inscrever a equipe num curso que
  *   a pessoa também poderia pegar sozinha;
  *

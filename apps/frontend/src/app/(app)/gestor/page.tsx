@@ -1,26 +1,10 @@
 import type { Metadata } from "next";
 
-import { requireUser } from "@/lib/auth/session.ts";
-import { lowerUnit } from "@nerdlms/core/tenancy/unit-label.ts";
-
-import { AppShell } from "@/features/app-shell/app-shell.tsx";
-import { ManagerView } from "@/features/manager/manager-view.tsx";
-import { getManagerPageData } from "@/features/manager/data.ts";
+import { ManagerPanel } from "@/features/manager/manager-panel.tsx";
 
 export const metadata: Metadata = { title: "Painel do projeto · Gestor" };
 
+/** A mesma tela que `/dashboard` serve a um gestor, por link direto. */
 export default async function ManagerPage() {
-  const { tenant } = await requireUser();
-  const { manager, project, stats, courses } = await getManagerPageData();
-
-  return (
-    <AppShell fullName={manager.fullName} role={manager.role} currentPath="/gestor">
-      <ManagerView
-        project={project}
-        stats={stats}
-        courses={courses}
-        unitLower={lowerUnit(tenant.unitLabel)}
-      />
-    </AppShell>
-  );
+  return <ManagerPanel currentPath="/gestor" />;
 }

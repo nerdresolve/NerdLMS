@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { AppShell } from "@/features/app-shell/app-shell.tsx";
+import { Breadcrumb } from "@/components/breadcrumb.tsx";
 import { AnalyticsView } from "@/features/admin/analytics-view.tsx";
 import { getAnalyticsPageData } from "@/features/admin/data.ts";
 
@@ -19,7 +20,8 @@ export default async function AnalyticsPage({
   const { admin, analytics, courses, selectedCourseId } = await getAnalyticsPageData(curso);
 
   return (
-    <AppShell fullName={admin.fullName} role={admin.role} currentPath="/admin/analytics">
+    <AppShell
+      topbar={<Breadcrumb items={[{ label: "Administração", href: "/admin" }, { label: "Indicadores" }]} />} fullName={admin.fullName} role={admin.role} currentPath="/admin/analytics">
       {/* O curso vai na URL, não no estado: o relatório fica compartilhável, e
           é o que se espera de um número que alguém vai mandar para outra
           pessoa. Mesma decisão da exportação de relatórios. */}

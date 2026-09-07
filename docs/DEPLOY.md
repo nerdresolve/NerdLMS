@@ -1,6 +1,22 @@
-# NerdResolve LMS — implantação
+# Implantação — `lms.exemplo.com`
 
-> Exemplo real: `lms.exemplo.com`, a primeira implantação em produção.
+> **O domínio ainda não é o da Exemplo S.A..** `lms.exemplo.com` é o
+> endereço de demonstração em uso, e o nome vem do cliente para quem o produto
+> foi especificado antes desta implantação. O endereço sai de `SITE_ADDRESS` no
+> `infra/.env`: não há domínio fixo em código.
+>
+> **O certificado imprime o domínio declarado no banco.** O endereço de
+> conferência sai da coluna `domain` da tabela `tenants`, e não de código.
+> Vazia, o rodapé imprime "Confira o código com a área de treinamento" em vez
+> de um endereço — antes ele trazia `lms.exemplo.com/validar` escrito à
+> mão, e quem tentasse conferir batia numa porta fechada.
+>
+> Para que o certificado leve o endereço, declare o domínio depois que o DNS
+> apontar para esta instalação:
+>
+> ```sql
+> UPDATE tenants SET domain = 'lms.exemplo.com.br' WHERE slug = 'exemplo';
+> ```
 
 A publicação é por **Cloudflare Tunnel**: o container `cloudflared` abre a
 conexão de dentro para fora, e o TLS público termina na borda da Cloudflare.
@@ -25,19 +41,28 @@ Duas coisas, e só a segunda não vem no clone.
 ### 1. Clonar
 
 ```bash
-git clone https://github.com/mariathdev/nerdlms.git
+git clone https://github.com/NerdResolve-Energy/nerdlms.git
 cd nerdlms
 npm install
 ```
 
-`infra/.env` **vem junto**, com domínio, segredos do banco, chave de sessão e
-credencial de SMTP já preenchidos. É o motivo de o repositório ser privado, e a
-razão pela qual acesso a ele equivale a acesso à produção.
+### 2. Os dois arquivos que o clone NÃO traz
 
-### 2. O token do túnel
+Nenhum dos dois está no repositório. Os dois precisam vir por um canal seguro,
+da máquina atual ou do cofre de senhas.
 
-Este é o único arquivo que o Git não carrega — o token dá controle do túnel, e
-por isso fica fora do repositório:
+**`infra/.env`** carrega domínio, senha do banco, chave de sessão, chaves do
+storage e credencial de SMTP. Sem ele, `npm run up` para em
+`defina no .env` — falha clara, e é o comportamento desejado.
+
+> O comentário no `.gitignore` diz que este arquivo "É VERSIONADO por decisão
+> explícita", mas o padrão `.env` logo abaixo o exclui, e ele **não está** no
+> repositório. Os dois lados da contradição são defensáveis, e a escolha é de
+> quem opera: versionar troca segurança por um deploy de um `git clone` só.
+> Enquanto ninguém decidir, vale o que acontece hoje, que é o mais seguro
+> — o arquivo fica fora.
+
+**`infra/.env.tunnel`** guarda o `TUNNEL_TOKEN`, que dá controle do túnel:
 
 ```bash
 cp infra/.env.tunnel.example infra/.env.tunnel
@@ -143,20 +168,16 @@ importam antes de usuários reais entrarem:
    Depois, um pedido real de recuperação: em `npm run publish:logs` **não**
    deve aparecer o bloco `e-mail não enviado`. Se aparecer `Falha ao enviar
    e-mail por SMTP`, o motivo está logo abaixo, no mesmo log.
-2. **Números da página inicial** — os valores ("+10 mil alunos", "94% de
-   satisfação") vêm da referência visual, não de dados reais. Publicar assim é
-   risco jurídico e de reputação.
-3. **CSP** — usa `'unsafe-inline'` em `script-src`. Nenhuma origem
+2. **O domínio do certificado.** `tenants.domain` está vazio, então o PDF sai
+   sem endereço de conferência — correto, e ainda assim incompleto: quem
+   recebe o documento fica dependendo da área de treinamento para validar o
+   código. Depois que o DNS apontar para cá, rode o `UPDATE` do começo deste
+   documento e emita um certificado de teste para ver o endereço no rodapé.
+3. **ISSUE-028** — a CSP usa `'unsafe-inline'` em `script-src`. Nenhuma origem
    externa executa script, mas a proteção contra inline injetado está aberta.
-4. **Os segredos estão no histórico do Git.** `infra/.env` é versionado de
-   propósito, para o deploy sair de um `git clone` só. O custo: senha do banco,
-   `SESSION_SECRET`, chaves do storage e a credencial de `contato@mariath.dev`
-   ficam legíveis para qualquer pessoa com acesso ao repositório, hoje ou
-   depois — e apagar o arquivo não os remove do histórico.
-
-   Enquanto o repositório for privado e de uma pessoa só, é uma troca
-   defensável. Deixa de ser ao adicionar colaborador, e é por isso que estes
-   valores devem ser rotacionados antes de qualquer usuário real entrar:
+4. **Rotacionar os segredos.** O `infra/.env` da máquina atual foi escrito para
+   demonstração e circulou por canais de desenvolvimento. Antes de qualquer
+   usuário real entrar, gere valores novos:
 
    ```bash
    openssl rand -base64 36    # POSTGRES_PASSWORD, APP_DB_PASSWORD,
@@ -185,8 +206,11 @@ gunzip -c nerdlms.sql.gz | npm run compose:tunnel -- exec -T db \
 Se forem só dados de homologação, é mais simples rodar `npm run seed` na nova e
 descartar os antigos — o seed é reaplicável e reproduz o mesmo estado.
 
-Os arquivos de mídia ficam no volume `storage-data` e não entram no `pg_dump`.
-Enquanto upload de material não existir, ele está vazio.
+Os arquivos de mídia ficam no volume `storage-data` e **não entram no
+`pg_dump`**. Ele guarda os vídeos das aulas: hoje são 522 MB, e sem eles o
+banco restaurado tem os cursos com aulas que não abrem. Migrando de máquina,
+ou o volume vai junto, ou `node infra/tools/upload-cursos.mjs` roda de novo a
+partir do material de origem.
 
 ## Backup
 
@@ -207,13 +231,11 @@ npm run migrate:tunnel   # se houver migração nova
 reaproveita a imagem existente — o código novo não entraria e o servidor
 seguiria servindo a versão anterior, sem erro nenhum para denunciar.
 
-Se o `git pull` trouxer mudança no `infra/.env`, ela chega junto: o arquivo é
-versionado. Alteração feita direto no servidor, por outro lado, conflita no
-próximo pull — o certo é editar no repositório e puxar.
+O `git pull` **não** traz mudança de `infra/.env`: o arquivo não está no
+repositório. Variável nova aparece primeiro no `infra/.env.example`, e cabe a
+quem atualiza o servidor copiá-la para o `.env` de lá. Se esquecer, o Compose
+para no `defina no .env` da variável que falta, em vez de subir com o valor
+padrão errado.
 
 As migrações são reaplicáveis: rodar de novo sobre um banco já migrado não
 quebra nem duplica.
-
----
-
-<sub>**NerdResolve LMS** · Documentação de produto · © 2026 Matheus Mariath (mariathdev) — NerdResolve.<br>Uso comercial requer licença: ver [LICENSE.md](../LICENSE.md).</sub>
