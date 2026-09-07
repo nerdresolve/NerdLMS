@@ -63,3 +63,22 @@ Thumbs.db
 .idea/
 .vscode/*
 !.vscode/extensions.json
+
+# ---------------------------------------------------------------------------
+# Protótipo gerado.
+#
+# `apps/frontend/preview/*.html` sai de `*.template.html` + o CSS real do
+# produto, por `npm run preview`. São 5,9 MB — mais da metade do repositório —
+# que mudam a cada ajuste de estilo e produzem diff ilegível.
+#
+# Os `.template.html` ficam versionados: são a fonte. A CI roda `npm run
+# preview` antes de `npm run quality`, então os portões continuam valendo.
+#
+# Para ver o protótipo depois de clonar:  npm run preview
+# ---------------------------------------------------------------------------
+apps/frontend/preview/*.html
+!apps/frontend/preview/*.template.html
+# O PDF de certificado que `certificate-preview.py` gera para conferência
+# visual leva o nome do curso no arquivo — dado de quem instalou, não do
+# produto.
+apps/frontend/preview/*.pdf

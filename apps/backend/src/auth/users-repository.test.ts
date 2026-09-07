@@ -12,7 +12,7 @@ import { fileURLToPath } from "node:url";
  * aí que morava o defeito: `citext` ignora maiúsculas, mas o resultado de
  * `coluna || 'texto'` é `text`, e a comparação volta a ser sensível.
  *
- * Na prática: `USER.MOCK@NERDRESOLVEENERGY.COM` entrava (comparação direta com a
+ * Na prática: `USER.MOCK@EXEMPLO.COM` entrava (comparação direta com a
  * coluna citext) e `USER.MOCK` não (passava pela concatenação). O cast de
  * volta para `citext` é o que iguala os dois caminhos, e este teste existe
  * para que ninguém o remova sem perceber.
@@ -51,7 +51,7 @@ describe("SQL do login, insensível a maiúsculas no identificador", () => {
         sql,
         /::citext/i,
         "concatenação com email (citext) sem cast de volta: " +
-          "`USER.MOCK` deixaria de entrar enquanto `USER.MOCK@NERDRESOLVEENERGY.COM` entraria",
+          "`USER.MOCK` deixaria de entrar enquanto `USER.MOCK@EXEMPLO.COM` entraria",
       );
     }
   });
