@@ -747,9 +747,16 @@ a.btn--ghost:hover { background: var(--surface-sunken); color: var(--text-brand)
   .table thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
   .table tbody tr { display: grid; gap: var(--space-2); padding: var(--space-4); }
   .table tbody tr + tr { border-top: 1px solid var(--border-subtle); }
-  .table td { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); padding: 0; }
+  /* `flex-wrap` + `min-width: 0` no valor: sem os dois, um e-mail longo não
+     quebra, empurra a linha e encosta na borda do cartão. Com eles, o rótulo
+     fica em cima e o valor desce inteiro quando não cabe ao lado. */
+  .table td { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: var(--space-1) var(--space-4); padding: 0; }
   .table tbody tr + tr td { border-top: none; }
-  .table td::before { content: attr(data-label); font-size: var(--text-caption-size); color: var(--text-muted); }
+  .table td::before { content: attr(data-label); font-size: var(--text-caption-size); color: var(--text-muted); flex: none; }
+  /* O valor da célula é o que sobra do flex e precisa poder encolher e quebrar:
+     `overflow-wrap` corta dentro da palavra quando nem quebrando cabe, que é o
+     caso de e-mail e de URL. */
+  .table td > * { min-width: 0; overflow-wrap: anywhere; }
   .table td:last-child { text-align: right; }
   .table__bar { width: 100%; max-width: 160px; }
 }

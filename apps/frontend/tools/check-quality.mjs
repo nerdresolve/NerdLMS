@@ -15,7 +15,7 @@ import { dirname, join } from "node:path";
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 
 /** Peso máximo por página, em kB. Acima disso o carregamento começa a doer. */
-const PAGE_BUDGET_KB = 225;
+const PAGE_BUDGET_KB = 200;
 /** Peso máximo de um asset servido em public/. */
 const ASSET_BUDGET_KB = 120;
 
@@ -84,12 +84,11 @@ for (const page of pages) {
      mostra três vezes o peso que o usuário baixa uma vez.
 
      ATENÇÃO AO CALIBRAR: o desconto é proporcional ao peso da marca, então uma
-     marca PESADA afrouxa o portão e uma marca leve o aperta. A marca anterior
-     era um degradê de ~66 kB e descontava ~116 kB nesta página (repetida três
-     vezes); a atual é chapada, quantizada em 64 cores, e desconta ~19 kB. O
-     número medido subiu 18 kB — e ainda assim a página encolheu 37 kB no que o
-     navegador realmente baixa. Se este portão reprovar por 1 ou 2 kB depois de
-     uma troca de marca, confira o peso REAL antes de mexer no orçamento. */
+     marca PESADA afrouxa o portão e uma marca leve o aperta. Se este portão
+     reprovar por 1 ou 2 kB depois de uma troca de marca, meça o peso REAL —
+     conteúdo + a marca UMA vez, que é o que o navegador baixa — antes de mexer
+     no orçamento. Trocar a marca por uma mais leve APERTA o número medido sem
+     que a página tenha piorado. */
   const brand = brandBase64.reduce((total, data) => {
     let posicao = html.indexOf(data);
     let soma = 0;

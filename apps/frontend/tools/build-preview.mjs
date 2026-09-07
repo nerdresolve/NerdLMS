@@ -358,11 +358,29 @@ const THEME_BOOT = `(function () {
   document.addEventListener("DOMContentLoaded", function () { aplicar(lido()); });
 })();`;
 
+/**
+ * Tira os comentarios do CSS antes de embutir no prototipo.
+ *
+ * O CSS do produto e comentado a serio: o porque de cada regra, o defeito que
+ * ela corrige. Isso vale no fonte e nao vale aqui, onde sao ~39 kB repetidos em
+ * cada uma das 21 paginas geradas e ninguem le comentario dentro de um `<style>`
+ * inline. Quem quer o porque abre o arquivo em `src/styles/`.
+ *
+ * A alternancia consome STRINGS antes de tentar casar um comentario, para que
+ * um `/*` dentro de `content: "..."` nao seja lido como abertura de bloco. Nao
+ * existe nenhum hoje; custaria caro descobrir isso depois.
+ */
+function semComentarios(css) {
+  return css
+    .replace(/"(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'|\/\*[\s\S]*?\*\//g, (m) => (m.startsWith("/*") ? "" : m))
+    .replace(/\n{3,}/g, "\n\n");
+}
+
 async function render(templateName, outputName, styles, replacements) {
   const seen = new Set();
   const template = await read(`preview/${templateName}`);
   const css = [];
-  for (const { path } of styles) css.push(await embedFont(await readCss(path, seen)));
+  for (const { path } of styles) css.push(semComentarios(await embedFont(await readCss(path, seen))));
 
   const parts = {
     ...Object.fromEntries(styles.map(({ marker }, index) => [marker, css[index].trim()])),
