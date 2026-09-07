@@ -47,7 +47,7 @@ export default async function LoginPage({
 
             <p className="brand__tagline">
               <strong>Aprender transforma.</strong>
-              Energia move.
+              Conhecimento move.
             </p>
 
             {/* Régua da marca: os três acentos em blocos retos, no lugar do

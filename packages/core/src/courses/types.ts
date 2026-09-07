@@ -260,8 +260,8 @@ export interface User {
    */
   status?: "active" | "pending" | "inactive";
   /**
-   * Campo a que a pessoa pertence: Unidade Norte, Siririzinho, Riachuelo,
-   * Aguilhada. Sem este campo os relatórios por unidade não existem
+   * Campo a que a pessoa pertence: Unidade Central, Unidade Leste, Unidade Oeste,
+   * Unidade Sul. Sem este campo os relatórios por unidade não existem
    * (ISSUE-023).
    */
   project?: string;

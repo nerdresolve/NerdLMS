@@ -18,27 +18,20 @@ import "@/styles/base.css";
 import "@/styles/components.css";
 
 /**
- * Satoshi, servida do próprio domínio. `next/font/local` cuida do preload e
+ * Manrope, servida do próprio domínio. `next/font/local` cuida do preload e
  * evita layout shift na troca da fonte de sistema para a da marca.
  *
- * Um arquivo por peso (a família não tem versão variável): o Next só embute no
- * HTML o preload dos que a página usa. O itálico é declarado à parte porque na
- * Satoshi ele é um desenho próprio; sem isso o navegador inclinaria o romano
- * por conta e a letra sairia deformada.
+ * Arquivo único e VARIÁVEL: o eixo `wght` vai de 200 a 800, então um download
+ * de 24 kB cobre todos os pesos. Uma família estática equivalente seriam oito
+ * arquivos e ~215 kB.
+ *
+ * Sem entrada de itálico porque a Manrope não publica um desenho itálico
+ * próprio — o navegador inclina o romano. Ver `styles/fonts.css`.
  */
-const satoshi = localFont({
-  src: [
-    { path: "../../public/fonts/Satoshi-Light.woff2", weight: "300", style: "normal" },
-    { path: "../../public/fonts/Satoshi-Regular.woff2", weight: "400", style: "normal" },
-    { path: "../../public/fonts/Satoshi-Italic.woff2", weight: "400", style: "italic" },
-    { path: "../../public/fonts/Satoshi-Medium.woff2", weight: "500", style: "normal" },
-    { path: "../../public/fonts/Satoshi-MediumItalic.woff2", weight: "500", style: "italic" },
-    { path: "../../public/fonts/Satoshi-Bold.woff2", weight: "700", style: "normal" },
-    { path: "../../public/fonts/Satoshi-BoldItalic.woff2", weight: "700", style: "italic" },
-    { path: "../../public/fonts/Satoshi-Black.woff2", weight: "800", style: "normal" },
-  ],
+const manrope = localFont({
+  src: [{ path: "../../public/fonts/manrope.woff2", weight: "200 800", style: "normal" }],
   display: "swap",
-  variable: "--font-satoshi",
+  variable: "--font-manrope",
   fallback: ["ui-sans-serif", "system-ui", "-apple-system", "Segoe UI", "Roboto", "Arial", "sans-serif"],
 });
 
@@ -71,7 +64,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="pt-BR" className={satoshi.variable} data-theme="light" suppressHydrationWarning>
+    <html lang="pt-BR" className={manrope.variable} data-theme="light" suppressHydrationWarning>
       <head>
         {/* Aplica o tema salvo antes da primeira pintura. Num efeito do React
             só correria depois da hidratação, e a tela piscaria clara antes de

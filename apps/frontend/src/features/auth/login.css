@@ -58,15 +58,19 @@
 .brand__logo { width: min(58%, 230px); height: auto; }
 .brand__tagline { margin: 0; font-size: var(--text-body); color: rgba(255,255,255,0.86); max-width: 26ch; }
 .brand__tagline strong { display: block; font-weight: var(--weight-semibold); color: var(--text-on-brand); }
+/* Três faixas, não um degradê: o corte seco é o que faz a régua ler como
+   elemento de marca em vez de enfeite. As cores são os acentos do grafismo
+   (`--tile-*`), então ela acompanha a personalização do cliente — num tenant
+   com marca própria as três viram tons da cor dele, e não um arco-íris fixo. */
 .brand__rule {
   display: block;
   width: 84px;
   height: 6px;
   background: linear-gradient(
     to right,
-    var(--tile-sun) 0 33.34%,
-    var(--tile-leaf) 33.34% 66.67%,
-    var(--tile-blue) 66.67% 100%
+    var(--tile-leaf) 0 33.34%,
+    var(--tile-blue) 33.34% 66.67%,
+    var(--tile-sun) 66.67% 100%
   );
 }
 

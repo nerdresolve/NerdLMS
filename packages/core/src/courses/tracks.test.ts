@@ -116,7 +116,7 @@ describe("Robustez", () => {
 
 describe("visibleTracks", () => {
   const geral: Track = { ...sequencial, id: "geral" };
-  const deSiririzinho: Track = { ...sequencial, id: "siririzinho", project: "Siririzinho" };
+  const deLeste: Track = { ...sequencial, id: "leste", project: "Unidade Leste" };
   const deOperador: Track = { ...sequencial, id: "operador", jobTitle: "Operador de Campo" };
 
   test("trilha sem alvo aparece para todos", () => {
@@ -125,10 +125,10 @@ describe("visibleTracks", () => {
   });
 
   test("trilha de local só aparece para quem é do local", () => {
-    const daUnidade = visibleTracks([geral, deSiririzinho], { project: "Siririzinho" });
-    assert.deepEqual(daUnidade.map((t) => t.id), ["geral", "siririzinho"]);
+    const daUnidade = visibleTracks([geral, deLeste], { project: "Unidade Leste" });
+    assert.deepEqual(daUnidade.map((t) => t.id), ["geral", "leste"]);
 
-    const deOutra = visibleTracks([geral, deSiririzinho], { project: "Aguilhada" });
+    const deOutra = visibleTracks([geral, deLeste], { project: "Unidade Sul" });
     assert.deepEqual(deOutra.map((t) => t.id), ["geral"]);
   });
 
@@ -144,21 +144,21 @@ describe("visibleTracks", () => {
     const cruzada: Track = {
       ...sequencial,
       id: "cruzada",
-      project: "Siririzinho",
+      project: "Unidade Leste",
       jobTitle: "Operador de Campo",
     };
 
-    const certo = { project: "Siririzinho", jobTitle: "Operador de Campo" };
+    const certo = { project: "Unidade Leste", jobTitle: "Operador de Campo" };
     assert.deepEqual(visibleTracks([cruzada], certo).map((t) => t.id), ["cruzada"]);
 
     /* Cada dimensão sozinha não basta: é o cruzamento que define o treinamento
        obrigatório de cada um. */
     assert.deepEqual(
-      visibleTracks([cruzada], { project: "Aguilhada", jobTitle: "Operador de Campo" }),
+      visibleTracks([cruzada], { project: "Unidade Sul", jobTitle: "Operador de Campo" }),
       [],
     );
     assert.deepEqual(
-      visibleTracks([cruzada], { project: "Siririzinho", jobTitle: "Supervisor" }),
+      visibleTracks([cruzada], { project: "Unidade Leste", jobTitle: "Supervisor" }),
       [],
     );
   });

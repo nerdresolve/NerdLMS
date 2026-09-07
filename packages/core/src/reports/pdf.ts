@@ -39,7 +39,7 @@ export interface PdfText {
 /**
  * Cor em RGB, cada canal de 0 a 1 — é a escala do PDF, não 0–255.
  *
- * `rgb("#0A33CC")` converte de hexadecimal, que é como a marca está escrita
+ * `rgb("#7C3AED")` converte de hexadecimal, que é como a marca está escrita
  * nos tokens do Design System.
  */
 export interface PdfColor {

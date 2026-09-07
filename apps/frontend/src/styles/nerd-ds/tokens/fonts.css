@@ -1,9 +1,5 @@
-/* A NerdResolve usa Satoshi. Auto-hospedada em `public/fonts/` — nenhum request
-   a CDN de terceiro. Ver `public/fonts/LEIA-ME.md` para trocar a família. */
-@font-face{font-family:"Satoshi";src:url("/fonts/Satoshi-Light.woff2") format("woff2");font-weight:300;font-style:normal;font-display: swap}
-@font-face{font-family:"Satoshi";src:url("/fonts/Satoshi-Regular.woff2") format("woff2");font-weight:400;font-style:normal;font-display: swap}
-@font-face{font-family:"Satoshi";src:url("/fonts/Satoshi-Italic.woff2") format("woff2");font-weight:400;font-style:italic;font-display: swap}
-@font-face{font-family:"Satoshi";src:url("/fonts/Satoshi-Medium.woff2") format("woff2");font-weight:500;font-style:normal;font-display: swap}
-@font-face{font-family:"Satoshi";src:url("/fonts/Satoshi-Bold.woff2") format("woff2");font-weight:700;font-style:normal;font-display: swap}
-@font-face{font-family:"Satoshi";src:url("/fonts/Satoshi-Black.woff2") format("woff2");font-weight:800;font-style:normal;font-display: swap}
-:root{--font-sans:"Satoshi",ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;--font-mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace}
+/* A NerdResolve usa Manrope (SIL Open Font License 1.1). Auto-hospedada em
+   `public/fonts/` — nenhum request a CDN de terceiro. Arquivo único e variável:
+   o eixo `wght` cobre 200–800. Ver `public/fonts/LEIA-ME.md` para trocar. */
+@font-face{font-family:"Manrope";src:url("/fonts/manrope.woff2") format("woff2");font-weight:200 800;font-style:normal;font-display: swap}
+:root{--font-sans:"Manrope",ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;--font-mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace}

@@ -16,7 +16,7 @@ function conta(overrides: Partial<AccountRecord> = {}): AccountRecord {
     fullName: "Usuário Mock",
     email: "user.mock@exemplo.com",
     role: "learner",
-    project: "Aguilhada",
+    project: "Unidade Sul",
     jobTitle: "Operador de Campo",
     status: "active",
     passwordHash: hashPassword("usermock"),

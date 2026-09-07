@@ -69,8 +69,8 @@ function dimensaoAlcanca(doAlvo: string | null, daPessoa: string | null): boolea
  * A trilha alcança esta pessoa?
  *
  * As duas dimensões precisam casar. Uma trilha de "Operador de Campo" em
- * "Unidade Norte" não vale para o operador de Riachuelo nem para o supervisor de
- * Unidade Norte — é o cruzamento que define o treinamento obrigatório de cada um.
+ * "Unidade Central" não vale para o operador de Unidade Oeste nem para o supervisor de
+ * Unidade Central — é o cruzamento que define o treinamento obrigatório de cada um.
  */
 export function trilhaAlcanca(alvo: AlvoDaTrilha, pessoa: PessoaAlcancada): boolean {
   return (
@@ -147,8 +147,8 @@ export function matrizDeTreinamento(
   for (const { rotulo, pessoas: doGrupo } of porFuncao.values()) {
     /* Uma trilha entra na linha se alcança QUALQUER pessoa daquela função.
 
-       Não basta olhar a função: uma trilha de "Operador · Unidade Norte" alcança
-       os operadores de Unidade Norte e não os de Riachuelo, e os dois grupos estão
+       Não basta olhar a função: uma trilha de "Operador · Unidade Central" alcança
+       os operadores de Unidade Central e não os de Unidade Oeste, e os dois grupos estão
        nesta mesma linha. A tela mostra o que aquela função encontra pela
        organização; o cruzamento com o local aparece no rótulo da trilha. */
     const alcancam = trilhas.filter((trilha) =>

@@ -57,10 +57,10 @@
   /* Sidebar. Sólida, não branco translúcido sobre a marca, para poder ser
      auditada por contraste — é onde o usuário passa o dia. */
   --sidebar-bg: var(--violet-700);
-  --sidebar-bg-deep: #00214f; /* o navy da marca um passo abaixo do --blue-700 */
-  --sidebar-text: #c5d8ec;    /* 8.94:1 sobre o navy */
+  --sidebar-bg-deep: var(--violet-800); /* um degrau abaixo do --violet-700 */
+  --sidebar-text: #ede9fe;    /* 9.23:1 sobre o violeta da sidebar */
   --sidebar-text-strong: #ffffff;
-  --sidebar-section: #a9c4de; /* 7.22:1 — rótulo de seção, menor e mais claro */
+  --sidebar-section: #ddd1fe; /* 7.63:1 — rótulo de seção, menor e mais claro */
   --sidebar-hover: rgba(255, 255, 255, 0.10);
   --sidebar-active: var(--violet-500);
   --sidebar-border: rgba(255, 255, 255, 0.14);
@@ -89,21 +89,21 @@
 }
 
 [data-theme="dark"] {
-  --gradient-brand: linear-gradient(150deg, #0b3560 0%, #051a33 55%, #00060f 100%);
+  --gradient-brand: linear-gradient(150deg, #4c1d95 0%, #2a0f52 55%, #0d0618 100%);
 
   /* A forma clareia e o halo escurece: no claro é o contrário. O que importa
      é a ORDEM — halo, forma e página precisam ser três valores distintos, em
      qualquer tema. */
-  --landing-art: linear-gradient(145deg, #17568f 0%, #0e3357 58%, #0a2440 100%);
-  --landing-halo: #0a1d31;
+  --landing-art: linear-gradient(145deg, #6d28d9 0%, #3b1478 58%, #241046 100%);
+  --landing-halo: #1a0e33;
 
   /* No escuro a sidebar não pode ser a marca: o navy sobre um fundo já navy
      apaga a divisão entre menu e conteúdo. Ela vira a superfície de card. */
   --sidebar-bg: var(--surface-card);
   --sidebar-bg-deep: var(--surface-page);
-  --sidebar-text: #aec3d8;
+  --sidebar-text: #c7c0d6;
   --sidebar-text-strong: #f2f8fd;
-  --sidebar-section: #93a7bb;
+  --sidebar-section: #a49eb2;
   --sidebar-active: var(--violet-600);
   --sidebar-border: var(--border-subtle);
 }

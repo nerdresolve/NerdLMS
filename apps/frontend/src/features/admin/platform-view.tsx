@@ -208,7 +208,7 @@ export function PlatformView({
               id={`${formId}-cor`}
               name="brandColor"
               type="text"
-              placeholder="#0A33CC"
+              placeholder="#7C3AED"
               defaultValue={branding.brandColor ?? ""}
               pattern="#[0-9a-fA-F]{6}"
             />

@@ -14,7 +14,7 @@ import { can } from "@nerdlms/core/auth/permissions.ts";
  */
 
 const aluno = { id: "u1", role: "learner" as const, tenantId: "t1" };
-const gestor = { id: "u4", role: "manager" as const, tenantId: "t1", project: "Siririzinho" };
+const gestor = { id: "u4", role: "manager" as const, tenantId: "t1", project: "Unidade Leste" };
 
 describe("Permissão de matricular OUTRA pessoa", () => {
   test("o aluno não matricula outra pessoa", () => {

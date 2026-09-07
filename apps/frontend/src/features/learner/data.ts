@@ -76,8 +76,8 @@ export interface TracksPageData {
 /**
  * Trilhas visíveis e cursos recomendados.
  *
- * `visibleTracks` recorta por projeto: uma trilha de Siririzinho não faz sentido
- * para quem é da Aguilhada, e mostrá-la só geraria pedido de acesso.
+ * `visibleTracks` recorta por projeto: uma trilha de Unidade Leste não faz sentido
+ * para quem é da Unidade Sul, e mostrá-la só geraria pedido de acesso.
  */
 export async function getTracksPageData(): Promise<TracksPageData> {
   const { user, allCourses, mine } = await learnerContext();

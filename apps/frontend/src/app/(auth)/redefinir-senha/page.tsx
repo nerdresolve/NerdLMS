@@ -46,7 +46,7 @@ export default async function ResetPage({
 
             <p className="brand__tagline">
               <strong>Aprender transforma.</strong>
-              Energia move.
+              Conhecimento move.
             </p>
           </section>
 

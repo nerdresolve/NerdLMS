@@ -56,10 +56,10 @@ describe("Convite e edição de usuário", () => {
       fullName: "Nome",
       email: "a@b.com",
       role: "manager",
-      project: "Siririzinho",
+      project: "Unidade Leste",
     });
     assert.equal(decision.ok, true);
-    assert.equal(decision.ok && decision.project, "Siririzinho");
+    assert.equal(decision.ok && decision.project, "Unidade Leste");
   });
 
   test("aluno sem projeto passa: só gestor exige recorte", () => {
