@@ -15,7 +15,7 @@
 # `apps/frontend`. Só o `--workspace` abaixo sabe onde ele está.
 # =============================================================================
 
-FROM node:22-alpine AS deps
+FROM node:26-alpine AS deps
 WORKDIR /app
 COPY package.json package-lock.json ./
 COPY apps/frontend/package.json ./apps/frontend/
@@ -42,7 +42,7 @@ RUN test -f package-lock.json || { \
     cp -R node_modules /prod_modules && \
     npm ci --workspace @nerdlms/frontend --workspace @nerdlms/backend --workspace @nerdlms/core --include-workspace-root
 
-FROM node:22-alpine AS build
+FROM node:26-alpine AS build
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY package.json package-lock.json ./
@@ -55,7 +55,7 @@ ENV NEXT_TELEMETRY_DISABLED=1
 # `next build` roda dentro do app; o script da raiz já delega para o workspace.
 RUN npm run build
 
-FROM node:22-alpine AS runtime
+FROM node:26-alpine AS runtime
 WORKDIR /app
 
 ENV NODE_ENV=production \
