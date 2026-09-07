@@ -11,6 +11,7 @@ import {
   Check,
   ClipboardCheck,
   GraduationCap,
+  FileText,
   Home,
   LayoutDashboard,
   LogOut,
@@ -42,9 +43,11 @@ import { BRANDING_PADRAO, NOME_PADRAO } from "@nerdlms/core/tenancy/branding.ts"
 import { useFeatures } from "@/features/tenant/feature-context.tsx";
 import { useTenant } from "@/features/tenant/tenant-context.tsx";
 import { GlobalSearch } from "./global-search.tsx";
+import { AccountMenu } from "./account-menu.tsx";
 import { NotificationBell } from "./notification-bell.tsx";
 
 import "./app-shell.css";
+import { HOME, areaDoPapel, rotuloDoPainel } from "@nerdlms/core/auth/home.ts";
 
 interface NavItem {
   label: string;
@@ -65,11 +68,22 @@ interface NavGroup {
   items: NavItem[];
 }
 
+/**
+ * O painel do próprio papel, sozinho no topo e acima de qualquer seção.
+ *
+ * O rótulo muda com o papel porque a tela muda: o instrutor chega no
+ * engajamento dos cursos que assina, o gestor no andamento da equipe, o
+ * administrador na visão da organização. Chamar as quatro de "Dashboard"
+ * esconderia justamente a diferença que importa.
+ */
+function homeGroupFor(role: Role): NavGroup {
+  return { items: [{ label: rotuloDoPainel(role), href: HOME, icon: Home }] };
+}
+
 /** Navegação do aluno — a base que todo papel enxerga. */
 const LEARNER_GROUPS: NavGroup[] = [
   {
     items: [
-      { label: "Dashboard", href: "/dashboard", icon: Home },
       { label: "Meus cursos", href: "/meus-cursos", icon: GraduationCap },
       { label: "Concluídos", href: "/concluidos", icon: Check },
     ],
@@ -86,9 +100,12 @@ const LEARNER_GROUPS: NavGroup[] = [
     section: "Biblioteca",
     items: [
       { label: "Todos os cursos", href: "/cursos", icon: BookMarked },
+      /* A biblioteca fica em "Biblioteca" pela razão óbvia: é o acervo de
+         documentos da organização, e o bloco já se chama assim. */
+      { label: "Documentos", href: "/biblioteca", icon: FileText },
       { label: "Favoritos", href: "/favoritos", icon: Star, feature: "favoritos" },
       /* "Configurações" (/configuracoes) continua fora: a tela ainda não
-         existe, e link para 404 é pior que item ausente. */
+         existe, e link para 404 é pior que item ausente. Ver ISSUE-029. */
     ],
   },
 ];
@@ -104,7 +121,13 @@ const ACCOUNT_GROUP: NavGroup = {
 const INSTRUCTOR_GROUP: NavGroup = {
   section: "Instrutor",
   items: [
-    { label: "Meus cursos", href: "/instrutor/cursos", icon: PenSquare },
+    /* "Cursos que ensino", e não "Meus cursos".
+
+       O menu do instrutor tinha DOIS itens com o mesmo rótulo: um levava aos
+       cursos que ele faz, outro aos que ele dá. O mesmo nome para duas coisas
+       diferentes na mesma lista obriga a pessoa a clicar para descobrir qual é
+       qual, e a errar metade das vezes. */
+    { label: "Cursos que ensino", href: "/instrutor/cursos", icon: PenSquare },
     { label: "Correção", href: "/instrutor/correcao", icon: ClipboardCheck },
     { label: "Engajamento", href: "/instrutor/engajamento", icon: BarChart3 },
   ],
@@ -127,6 +150,12 @@ const ADMIN_GROUP: NavGroup = {
     { label: "Plataforma", href: "/admin/plataforma", icon: SlidersHorizontal },
     { label: "Badges", href: "/admin/badges", icon: Award },
     { label: "Competências", href: "/admin/competencias", icon: Target },
+    /* "Trilhas e matriz", e não "Trilhas": o menu do administrador trazia
+       DOIS itens chamados "Trilhas" — este, de montar, e o do bloco de
+       aprender, de percorrer. É o mesmo defeito que "Cursos que ensino"
+       corrigiu logo acima, e o rótulo agora é o título da própria tela. */
+    { label: "Trilhas e matriz", href: "/admin/trilhas", icon: Route },
+    { label: "Formação", href: "/admin/formacao", icon: GraduationCap },
     { label: "Analytics", href: "/admin/analytics", icon: TrendingUp },
     { label: "Integrações", href: "/admin/integracoes", icon: Plug },
     { label: "Acesso", href: "/admin/acesso", icon: ShieldCheck },
@@ -143,12 +172,48 @@ const ADMIN_GROUP: NavGroup = {
  * A navegação só evita oferecer o que a pessoa não pode abrir.
  */
 export function navGroupsFor(role: Role): NavGroup[] {
-  const groups = [...LEARNER_GROUPS];
-  if (role === "instructor" || role === "admin") groups.push(INSTRUCTOR_GROUP);
-  if (role === "manager") groups.push(MANAGER_GROUP);
-  if (role === "admin") groups.push(ADMIN_GROUP);
-  groups.push(ACCOUNT_GROUP);
-  return groups;
+  /* O TRABALHO VEM ANTES DO ESTUDO.
+
+     A ordem era a inversa: quem entrava para dar aula via oito links de aluno
+     — Dashboard, Meus cursos, Concluídos, Trilhas, Conquistas, Agenda, Todos
+     os cursos, Favoritos — antes de chegar à área de instrutor. O menu
+     descrevia a pessoa como aluno que por acaso ensina, quando é o contrário:
+     ela abriu a plataforma para corrigir prova. */
+  const trabalho: NavGroup[] = [];
+  if (role === "instructor" || role === "admin") trabalho.push(INSTRUCTOR_GROUP);
+  if (role === "manager") trabalho.push(MANAGER_GROUP);
+  if (role === "admin") trabalho.push(ADMIN_GROUP);
+
+  /* O painel do papel já está no topo, servido por `/dashboard`. A rota de
+     área mostra a MESMA tela por link direto, então repeti-la no grupo poria o
+     mesmo conteúdo duas vezes no menu. Filtrado pelo `href`, porque os dois
+     lugares chamam a tela por nomes diferentes. */
+  const area = areaDoPapel(role);
+  const semDuplicata = trabalho
+    .map((grupo) => ({ ...grupo, items: grupo.items.filter((item) => item.href !== area) }))
+    .filter((grupo) => grupo.items.length > 0);
+
+  /* O bloco do aluno ganha título quando divide o menu com uma área de
+     trabalho. Sozinho ele não precisa: para quem só estuda, "Meu aprendizado"
+     seria rotular a plataforma inteira.
+
+     E quando ganha, o "Aprender" seguinte sai: os dois títulos nomeavam a
+     mesma coisa em sequência, e o menu do administrador mostrava "MEU
+     APRENDIZADO" e logo abaixo "APRENDER" como se fossem áreas diferentes.
+     São o mesmo assunto, e viram um bloco só. */
+  const comArea = semDuplicata.length > 0;
+
+  const aprendizado = LEARNER_GROUPS.map((grupo, indice) => {
+    if (!comArea) return grupo;
+    if (indice === 0) return { ...grupo, section: "Meu aprendizado" };
+    if (grupo.section === "Aprender") {
+      const { section: _fora, ...semTitulo } = grupo;
+      return semTitulo;
+    }
+    return grupo;
+  });
+
+  return [homeGroupFor(role), ...semDuplicata, ...aprendizado, ACCOUNT_GROUP];
 }
 
 /** Navegação do aluno. Mantida como export para o gerador do protótipo. */
@@ -359,23 +424,27 @@ export function AppShell({ fullName, currentPath, currentKind = "page", role = "
         Ir para o conteúdo
       </a>
 
-      {/*.app é o container das consultas @container;.shell é consultado */}
+      {/* .app é o container das consultas @container; .shell é consultado */}
       <div className="app">
         <div className="shell" data-sidebar={collapsed ? "collapsed" : "expanded"}>
         <aside className="sidebar">
           <div className="sidebar__head">
-            {/* Variante BRANCA: a sidebar é violeta escuro nos dois temas
-                (`--sidebar-bg` é #03115E no claro e a superfície escura no
-                dark), e a marca violeta sumia contra ela.
+            {/* Variante BRANCA: a sidebar é azul-marinho nos dois temas
+                (`--sidebar-bg` é o #4C1D95 da marca no claro e a superfície
+                escura no dark), e o logotipo azul sumia contra ela.
+
+                O SÍMBOLO (sol e folha) entra na versão colorida também aqui:
+                amarelo e verde dão 11.8:1 e 8.8:1 sobre o navy — não existe
+                variante branca dele, e inventar uma apagaria a marca.
 
                 `sizes` evita baixar a variante de 640px para uma marca de
-                132px: sem ele o Next serve a maior do srcset.
+                132px: sem ele o Next serve a maior do srcset (ISSUE-030).
 
-                width/height são os do ARQUIVO (wordmark 600×165, mark
-                228×117). Estavam ambos como 600×170 — proporção errada nos
-                dois, e no `mark` grosseiramente: 3.53 contra 1.95 reais. */}
-            <Image className="sidebar__logo" src={logoDark} alt={tenantName} width={600} height={165} sizes="132px" priority />
-            <Image className="sidebar__mark" src={logoDark} alt={tenantName} width={228} height={117} sizes="34px" />
+                width/height são os do ARQUIVO: wordmark 400×170, símbolo
+                176×238. Errar a proporção aqui reserva a caixa errada e a
+                página salta quando a imagem chega. */}
+            <Image className="sidebar__logo" src={logoDark} alt={tenantName} width={400} height={170} sizes="132px" priority />
+            <Image className="sidebar__mark" src="/brand/nerdresolve-mark.png" alt={tenantName} width={228} height={117} sizes="30px" />
             <button
               type="button"
               className="sidebar__toggle"
@@ -407,12 +476,12 @@ export function AppShell({ fullName, currentPath, currentKind = "page", role = "
 
             {/* Duas variantes, uma visível por tema (o CSS decide).
                 A topbar acompanha `--surface-card`: branca no claro, quase
-                preta no escuro — e a marca violeta cai para 3.37:1 ali. Trocar
+                preta no escuro — e o navy da marca cai para 1.26:1 ali. Trocar
                 por CSS evita depender de estado do React, que no primeiro
                 render ainda não sabe o tema. A escondida não é baixada: o
                 `display:none` impede a requisição. */}
-            <Image className="topbar__logo topbar__logo--light" src={logoLight} alt={tenantName} width={600} height={165} sizes="92px" />
-            <Image className="topbar__logo topbar__logo--dark" src={logoDark} alt="" aria-hidden width={600} height={165} sizes="92px" />
+            <Image className="topbar__logo topbar__logo--light" src={logoLight} alt={tenantName} width={400} height={170} sizes="92px" />
+            <Image className="topbar__logo topbar__logo--dark" src={logoDark} alt="" aria-hidden width={400} height={170} sizes="92px" />
             {topbar ? <div className="topbar__context">{topbar}</div> : null}
             <span className="topbar__spacer" />
 
@@ -427,12 +496,7 @@ export function AppShell({ fullName, currentPath, currentKind = "page", role = "
               {dark ? <Sun aria-hidden /> : <Moon aria-hidden />}
             </button>
             <NotificationBell />
-            {/* O nome acessível precisa CONTER o texto visível (WCAG 2.5.3):
-                com `aria-label="Sua conta"` sobre as iniciais, quem navega por
-                voz dizia "MS" e o comando não encontrava o botão. */}
-            <Link className="icon-button icon-button--avatar" href="/perfil" aria-label={`${initialsOf(fullName)} — sua conta`}>
-              {initialsOf(fullName)}
-            </Link>
+            <AccountMenu fullName={fullName} role={role} initials={initialsOf(fullName)} />
           </header>
 
             <main className="content" id="conteudo">
@@ -457,7 +521,7 @@ export function AppShell({ fullName, currentPath, currentKind = "page", role = "
       >
         <div className="sidebar__head">
           {/* Branca pelo mesmo motivo da sidebar: o drawer usa o mesmo fundo. */}
-          <Image className="sidebar__logo" src={logoDark} alt={tenantName} width={600} height={165} sizes="132px" />
+          <Image className="sidebar__logo" src={logoDark} alt={tenantName} width={400} height={170} sizes="132px" />
           <button ref={closeButtonRef} type="button" className="sidebar__toggle" aria-label="Fechar menu" onClick={closeDrawer}>
             <X aria-hidden />
           </button>

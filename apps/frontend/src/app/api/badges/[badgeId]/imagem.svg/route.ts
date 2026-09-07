@@ -30,7 +30,7 @@ export async function GET(
 
   const svg = badgeSvg(
     badge.name,
-    tenant?.branding?.brandColor ?? "#7C3AED",
+    tenant?.branding?.brandColor ?? "#0A33CC",
     /* As iniciais do badge: "NR-10 Básico" vira "NR". É o que cabe num círculo
        de 200px e ainda distingue um badge do outro na lista de um perfil. */
     badge.name.replace(/[^\p{L}\p{N}]/gu, "").slice(0, 2),

@@ -15,6 +15,7 @@ import { isUuid, readJsonObject } from "@/lib/request-body.ts";
 
 export const dynamic = "force-dynamic";
 
+import { LIMITE_DE_NOME, LIMITE_DE_TEXTO, textoDeEntrada } from "@nerdlms/core/validation/texto.ts";
 export async function POST(request: Request): Promise<Response> {
   const user = await currentUser();
   if (!user) return Response.json({ error: "Sessão exigida." }, { status: 401 });
@@ -43,7 +44,7 @@ export async function POST(request: Request): Promise<Response> {
     if (typeof item !== "object" || item === null) return [];
     const c = item as Record<string, unknown>;
 
-    const name = typeof c.name === "string" ? c.name.trim() : "";
+    const name = textoDeEntrada(c.name, LIMITE_DE_NOME) ?? "";
     const maxPoints = typeof c.maxPoints === "number" ? c.maxPoints : Number.NaN;
 
     if (name === "" || !Number.isFinite(maxPoints) || maxPoints <= 0) return [];
@@ -52,7 +53,7 @@ export async function POST(request: Request): Promise<Response> {
       {
         name,
         maxPoints,
-        description: typeof c.description === "string" ? c.description : null,
+        description: textoDeEntrada(c.description, LIMITE_DE_TEXTO) || null,
       },
     ];
   });

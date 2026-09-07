@@ -1,0 +1,8 @@
+
+
+/* Aula com vídeo sendo cortado, e aula cujo corte falhou.
+
+   Cor E texto, nunca só cor: quem não distingue as duas continua lendo o que
+   aconteceu. */
+.editor-lesson__preparando { font-size: var(--text-caption-size); color: var(--warning-text); }
+.editor-lesson__falhou { font-size: var(--text-caption-size); color: var(--danger-text); }

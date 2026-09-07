@@ -116,14 +116,50 @@ describe("Robustez", () => {
 
 describe("visibleTracks", () => {
   const geral: Track = { ...sequencial, id: "geral" };
-  const dePrologos: Track = { ...sequencial, id: "prolagos", project: "Prolagos" };
+  const deSiririzinho: Track = { ...sequencial, id: "siririzinho", project: "Siririzinho" };
+  const deOperador: Track = { ...sequencial, id: "operador", jobTitle: "Operador de Campo" };
 
-  test("trilha sem projeto aparece para todos", () => {
-    assert.deepEqual(visibleTracks([geral], undefined).map((t) => t.id), ["geral"]);
+  test("trilha sem alvo aparece para todos", () => {
+    assert.deepEqual(visibleTracks([geral]).map((t) => t.id), ["geral"]);
+    assert.deepEqual(visibleTracks([geral], {}).map((t) => t.id), ["geral"]);
   });
 
-  test("trilha de projeto só aparece para quem é do projeto", () => {
-    assert.deepEqual(visibleTracks([geral, dePrologos], "Prolagos").map((t) => t.id), ["geral", "prolagos"]);
-    assert.deepEqual(visibleTracks([geral, dePrologos], "Escola Social").map((t) => t.id), ["geral"]);
+  test("trilha de local só aparece para quem é do local", () => {
+    const daUnidade = visibleTracks([geral, deSiririzinho], { project: "Siririzinho" });
+    assert.deepEqual(daUnidade.map((t) => t.id), ["geral", "siririzinho"]);
+
+    const deOutra = visibleTracks([geral, deSiririzinho], { project: "Aguilhada" });
+    assert.deepEqual(deOutra.map((t) => t.id), ["geral"]);
+  });
+
+  test("trilha de função só aparece para quem tem a função", () => {
+    const operador = visibleTracks([geral, deOperador], { jobTitle: "Operador de Campo" });
+    assert.deepEqual(operador.map((t) => t.id), ["geral", "operador"]);
+
+    const supervisor = visibleTracks([geral, deOperador], { jobTitle: "Supervisor" });
+    assert.deepEqual(supervisor.map((t) => t.id), ["geral"]);
+  });
+
+  test("as duas dimensões se cruzam", () => {
+    const cruzada: Track = {
+      ...sequencial,
+      id: "cruzada",
+      project: "Siririzinho",
+      jobTitle: "Operador de Campo",
+    };
+
+    const certo = { project: "Siririzinho", jobTitle: "Operador de Campo" };
+    assert.deepEqual(visibleTracks([cruzada], certo).map((t) => t.id), ["cruzada"]);
+
+    /* Cada dimensão sozinha não basta: é o cruzamento que define o treinamento
+       obrigatório de cada um. */
+    assert.deepEqual(
+      visibleTracks([cruzada], { project: "Aguilhada", jobTitle: "Operador de Campo" }),
+      [],
+    );
+    assert.deepEqual(
+      visibleTracks([cruzada], { project: "Siririzinho", jobTitle: "Supervisor" }),
+      [],
+    );
   });
 });

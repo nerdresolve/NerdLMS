@@ -1,0 +1,65 @@
+-- 035 — O ponto de personalização do cliente da instalação.
+--
+-- A migração 003 cria o tenant padrão como `lms` / "NerdResolve LMS". É o nome
+-- do PRODUTO, e é o que a plataforma mostra até alguém dizer o contrário.
+--
+-- Esta migração existe para ser EDITADA por quem implanta. No repositório ela
+-- não faz nada: um fork que rodasse um UPDATE com o nome de outra empresa
+-- entregaria toda instalação nova com a marca errada.
+--
+-- POR QUE RENOMEAR, E NÃO CRIAR UM SEGUNDO TENANT
+--
+-- Tudo que existe no banco — usuários, cursos, trilhas, auditoria — aponta
+-- para o tenant de 003 por `tenant_id`. Criar um segundo deixaria a instalação
+-- com os dados no antigo e o acesso caindo no novo: a plataforma abriria
+-- vazia. Renomear preserva as referências, que é o que se quer numa instalação
+-- que muda de dono, não de conteúdo.
+--
+-- COMO PERSONALIZAR
+--
+-- Descomente o bloco abaixo e troque os três valores:
+--
+--   slug        identificador em minúsculas, sem espaço (`acme`)
+--   name        o nome que aparece na aba do navegador e nas telas públicas
+--   unit_label  como o cliente chama a unidade organizacional dele, no
+--               SINGULAR — "Filial", "Campo", "Regional", "Loja". A
+--               pluralização é do domínio (`core/tenancy/unit-label.ts`),
+--               não deste arquivo.
+--
+-- `brand_color` e as logos ficam NULAS de propósito: nulo significa "usa o
+-- padrão do produto". Preenchendo `brand_color`, `paletteToCss` passa a
+-- sobrescrever os tokens com uma paleta DERIVADA daquela cor — o que é o
+-- desejado para um cliente com marca própria, e indesejado enquanto a marca
+-- for a do produto. Ver `docs/PERSONALIZACAO.md`.
+--
+-- `domain` também fica nulo: quem preenche é a implantação, com o domínio real
+-- (ver WHITELABEL.md). Sem domínio cadastrado, a requisição cai no tenant
+-- padrão — que é exatamente este.
+
+BEGIN;
+
+-- ----------------------------------------------------------------------------
+-- DESCOMENTE E EDITE para a sua instalação.
+-- ----------------------------------------------------------------------------
+--
+-- UPDATE tenants
+--    SET slug       = 'acme',
+--        name       = 'ACME S.A.',
+--        unit_label = 'Filial'
+--  WHERE slug = 'lms'
+--    -- Cinto e suspensório: num banco que já tenha os dois, renomear daria
+--    -- violação de chave única e abortaria tudo o que vem depois. Deixar de
+--    -- renomear é recuperável; abortar a migração no meio, não.
+--    AND NOT EXISTS (SELECT 1 FROM tenants WHERE slug = 'acme');
+--
+-- -- A raiz da hierarquia nasce como "Holding" na 003. Se o cliente chama de
+-- -- outra coisa — Sede, Matriz, Direção —, é aqui que muda. As unidades
+-- -- filhas vieram de `users.project` e não são tocadas: renomear unidade de
+-- -- gente é operação de administração, não de implantação.
+-- UPDATE org_units
+--    SET name = 'Sede'
+--  WHERE parent_id IS NULL
+--    AND name = 'Holding'
+--    AND tenant_id = (SELECT id FROM tenants WHERE slug = 'acme');
+
+COMMIT;

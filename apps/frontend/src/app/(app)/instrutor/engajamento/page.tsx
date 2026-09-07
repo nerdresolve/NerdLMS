@@ -1,17 +1,20 @@
 import type { Metadata } from "next";
 
-import { AppShell } from "@/features/app-shell/app-shell.tsx";
-import { EngagementView } from "@/features/instructor/engagement-view.tsx";
-import { getEngagementPageData } from "@/features/instructor/data.ts";
+import { Breadcrumb } from "@/components/breadcrumb.tsx";
+import { InstructorPanel } from "@/features/instructor/instructor-panel.tsx";
 
-export const metadata: Metadata = { title: "Engajamento · Instrutor" };
+export const metadata: Metadata = { title: "Painel do instrutor" };
 
+/** A mesma tela que `/dashboard` serve a um instrutor, por link direto. */
 export default async function EngagementPage() {
-  const { instructor, summary, learners, courses } = await getEngagementPageData();
-
   return (
-    <AppShell fullName={instructor.fullName} role={instructor.role} currentPath="/instrutor/engajamento">
-      <EngagementView summary={summary} learners={learners} courses={courses} />
-    </AppShell>
+    <InstructorPanel
+      currentPath="/instrutor/engajamento"
+      topbar={
+        <Breadcrumb
+          items={[{ label: "Instrutor", href: "/instrutor/cursos" }, { label: "Painel" }]}
+        />
+      }
+    />
   );
 }

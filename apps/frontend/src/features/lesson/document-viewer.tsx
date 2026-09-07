@@ -87,7 +87,7 @@ export function DocumentViewer({
           <div className="doc__nav">
             <button
               type="button"
-              className="btn btn--secondary btn--sm"
+              className="btn btn--secondary btn--small"
               disabled={pagina <= 1}
               onClick={() => irPara(pagina - 1)}
             >
@@ -101,7 +101,7 @@ export function DocumentViewer({
 
             <button
               type="button"
-              className="btn btn--primary btn--sm"
+              className="btn btn--primary btn--small"
               disabled={pagina >= total}
               onClick={() => irPara(pagina + 1)}
             >
@@ -113,7 +113,7 @@ export function DocumentViewer({
         {/* Baixar é sempre oferecido: o visualizador embutido não serve a quem
             usa leitor de tela com o PDF aberto no aplicativo próprio. */}
         <p className="doc__actions">
-          <a className="btn btn--ghost btn--sm" href={src} download>
+          <a className="btn btn--ghost btn--small" href={src} download>
             <Download aria-hidden /> Baixar o arquivo
           </a>
         </p>
@@ -124,6 +124,11 @@ export function DocumentViewer({
   if (kind === "image") {
     return (
       <div className="doc">
+        {/* `<img>` e não `next/image`: a origem é um material ENVIADO pelo
+            instrutor, servido pelo storage do tenant. O otimizador do Next
+            precisaria de cada host liberado em `images.remotePatterns`, e um
+            white-label não sabe de antemão de qual domínio virá o arquivo. */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img className="doc__image" src={src} alt={title} />
       </div>
     );
@@ -162,7 +167,7 @@ export function DocumentViewer({
         <FileText aria-hidden />
       </span>
       <p className="doc__text">
-        {KIND_LABEL[kind]} — abra no aplicativo do seu computador.
+        {KIND_LABEL[kind]}, abra no aplicativo do seu computador.
       </p>
       <a className="btn btn--primary" href={src} download>
         <Download aria-hidden /> Baixar {KIND_LABEL[kind].toLowerCase()}

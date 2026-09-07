@@ -20,7 +20,7 @@ function questao(over: Partial<Parameters<typeof questaoParaQti>[0]> = {}) {
   };
 }
 
-describe("QTI — a ida e a volta", () => {
+describe("QTI, a ida e a volta", () => {
   test("exportar e reimportar preserva a questão", () => {
     /* É o teste que dá sentido aos dois módulos: se o que sai não volta igual,
        a exportação é decorativa. */
@@ -99,7 +99,7 @@ describe("QTI — a ida e a volta", () => {
   });
 });
 
-describe("QTI — o banco inteiro", () => {
+describe("QTI, o banco inteiro", () => {
   test("várias questões num arquivo, e a volta reconhece todas", () => {
     const banco = [
       questao(),
@@ -134,7 +134,7 @@ describe("QTI — o banco inteiro", () => {
   });
 });
 
-describe("QTI — detalhes que quebram em silêncio", () => {
+describe("QTI, detalhes que quebram em silêncio", () => {
   test("o escape de & vem primeiro", () => {
     /* Depois dos outros, transformaria o `&` que ele mesmo escreveu em
        `&amp;lt;`, e o destino mostraria `&lt;` literal na tela. */

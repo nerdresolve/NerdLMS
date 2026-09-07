@@ -45,7 +45,7 @@ describe("Um critério de cada vez", () => {
   });
 });
 
-describe("Critérios COMBINADOS — o que o guia §11 pede", () => {
+describe("Critérios COMBINADOS, o que o guia §11 pede", () => {
   test("todos precisam ser atendidos", () => {
     const regras: UnlockRule[] = [
       { kind: "course_completed", requiredCourseId: "c1" },
@@ -96,7 +96,7 @@ describe("Critérios que ainda não têm como ser avaliados", () => {
   });
 });
 
-describe("Liberação sequencial — F2-05", () => {
+describe("Liberação sequencial: F2-05", () => {
   const curso = makeCourse({
     id: "c1",
     modules: [

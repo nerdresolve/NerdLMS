@@ -26,7 +26,7 @@
 
 .landing__logo { width: 108px; height: auto; }
 
-/* A marca violeta desaparece contra o fundo escuro da landing; a branca some
+/* A marca azul desaparece contra o fundo escuro da landing; a branca some
    contra o claro. Só uma das duas fica visível, escolhida pelo tema. */
 .landing__logo--dark { display: none; }
 [data-theme="dark"] .landing__logo--light { display: none; }
@@ -71,7 +71,7 @@
   font-weight: var(--weight-extrabold);
   text-wrap: balance;
 }
-/* A palavra que carrega a promessa é a única em violeta. */
+/* A palavra que carrega a promessa é a única em azul. */
 .landing__title em { font-style: normal; color: var(--text-brand); }
 
 .landing__lead {
@@ -100,24 +100,33 @@
 }
 @container (min-width: 960px) { .landing__art { max-width: none; } }
 
-/* Forma orgânica assimétrica, não um círculo: é a assinatura da referência.
-   Feita com border-radius em oito valores — sem clip-path e sem custo de
-   composição extra. */
+/* A forma É uma primitiva da marca em escala de hero: quadrado com dois cantos
+   OPOSTOS arredondados — o mesmo `canto` da grade de formas.
+
+   Antes era um blob orgânico assimétrico, assinatura da marca anterior. Curva
+   à mão-livre não existe em nenhuma peça da Exemplo S.A.: lá tudo é módulo,
+   canto reto e círculo. */
 .landing__blob {
   position: absolute;
   inset: 9% 7% 7% 9%;
-  border-radius: 58% 42% 38% 62% / 46% 64% 36% 54%;
-  background: linear-gradient(145deg, var(--violet-600) 0%, var(--violet-800) 58%, var(--violet-950) 100%);
+  border-radius: 46% 0 46% 0;
+  background: var(--landing-art);
   overflow: hidden;
 }
 .landing__blob svg { position: absolute; inset: 0; width: 100%; height: 100%; }
 
-/* Halo claro atrás da forma, como na referência. */
+/* Halo claro atrás: a MESMA forma, um pouco maior. Um eco.
+
+   Os cantos eram espelhados (`0 46% 0 46%` contra `46% 0 46% 0`), na ideia de
+   repetir o par que a grade faz ao alternar a rotação de uma peça. Na tela deu
+   outra coisa: onde a forma da frente é arredondada, o halo mostrava um canto
+   reto saindo por baixo — e o conjunto lia como duplicata desalinhada, não
+   como composição. Mesmo raio, e a sobreposição vira profundidade. */
 .landing__halo {
   position: absolute;
   inset: 0;
-  border-radius: 44% 56% 62% 38% / 58% 40% 60% 42%;
-  background: var(--surface-brand-subtle);
+  border-radius: 46% 0 46% 0;
+  background: var(--landing-halo);
 }
 
 /* Mesmo tratamento do MediaPlaceholder do kit oficial: superfície de marca com
@@ -129,12 +138,11 @@
   place-items: center;
   width: 34%;
   aspect-ratio: 4 / 3;
-  background: linear-gradient(135deg, var(--violet-600) 0%, var(--violet-500) 55%, var(--violet-400) 100%);
+  background: linear-gradient(135deg, var(--violet-700) 0%, var(--violet-500) 55%, var(--violet-400) 100%);
   border: 3px solid var(--surface-card);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-lg);
 }
-.landing__tile svg:not(.icon) { position: absolute; inset: 0; width: 100%; height: 100%; }
 .landing__tile .icon { position: relative; width: 22px; height: 22px; color: rgba(255, 255, 255, 0.9); }
 .landing__tile--a { top: 18%; right: -2%; }
 .landing__tile--b { bottom: 12%; left: 0; }
@@ -157,33 +165,34 @@
 .landing__badge--c { bottom: 24%; right: 6%; }
 
 /* ===== Faixa de números ===== */
-.landing__stats-wrap { position: relative; margin-top: auto; }
-.landing__stats-wave { display: block; width: 100%; height: 96px; }
+/* Os números, dentro da coluna do hero.
 
+   Já foram uma faixa de largura inteira com fundo de cor (137px de altura para
+   três dados no terço esquerdo) e depois uma linha entre dois filetes. Os dois
+   tinham o mesmo defeito: uma seção inteira da página delimitada para conter
+   quase nada, e um vazio enorme à direita em qualquer alinhamento.
+
+   O lugar deles é aqui. São a prova do que o título promete, então ficam junto
+   dele — e a coluna, que antes terminava nos botões e deixava um buraco até a
+   dobra, passa a fechar. */
 .landing__stats {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--space-6) var(--space-4);
-  width: 100%;
-  max-width: var(--content-max);
-  margin: 0 auto;
-  padding: var(--space-6) var(--space-5) var(--space-10);
-  background: var(--surface-brand-subtle);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-5) var(--space-10);
+  margin: var(--space-4) 0 0;
+  padding-top: var(--space-6);
+  border-top: 1px solid var(--border-subtle);
+  align-self: stretch;
 }
-@container (min-width: 860px) {
-  .landing__stats { grid-template-columns: repeat(4, minmax(0, 1fr)); padding: var(--space-8) var(--space-12) var(--space-12); }
-}
-/* A faixa precisa sangrar até as bordas, mas o conteúdo respeita o grid. */
-.landing__stats-bleed { background: var(--surface-brand-subtle); }
 
 .landing__stat { display: flex; flex-direction: column; gap: var(--space-1); }
 /* Semanticamente o rótulo (dt) precede o valor (dd); visualmente o número vem
    primeiro, como na referência. Ordem de leitura preservada. */
 .landing__stat-value { order: -1; }
 .landing__stat-value {
-  font-size: var(--text-h2-size);
-  line-height: var(--text-h2-lh);
-  letter-spacing: var(--text-h2-tracking);
+  font-size: var(--text-h1-size);
+  line-height: var(--text-h1-lh);
+  letter-spacing: var(--text-h1-tracking);
   font-weight: var(--weight-bold);
   color: var(--text-brand);
   font-variant-numeric: tabular-nums;

@@ -81,10 +81,6 @@ function rotulo(tabela: string): string {
 
 export function BackupView() {
   const [conferido, setConferido] = useState<Conferido | null>(null);
-
-  /* A confirmação de migração vive fora do `conferido`: ela é uma decisão de
-     quem está olhando, não uma propriedade do arquivo. */
-  const [migrar, setMigrar] = useState(false);
   const [arquivo, setArquivo] = useState<File | null>(null);
   const [busy, setBusy] = useState(false);
   const [aviso, setAviso] = useState<string | null>(null);
@@ -117,7 +113,6 @@ export function BackupView() {
       }
 
       setConferido(dados);
-      setMigrar(false);
       setArquivo(escolhido);
     } catch {
       setAviso("Não foi possível falar com o servidor.");
@@ -131,21 +126,15 @@ export function BackupView() {
 
     const total = conferido.conteudo.reduce((soma, item) => soma + item.linhas, 0);
 
-    const ehMigracao = conferido.deOutroCliente;
-
-    /* A pergunta muda com a operação. Restaurar e migrar fazem coisas
-       diferentes com o mesmo arquivo, e uma confirmação genérica esconderia
-       justamente a diferença que importa. */
-    const pergunta = ehMigracao
-      ? `Migrar ${total} registros de \"${conferido.origem.tenantSlug}\" para este cliente?\n\n`
-        + "Todo o conteúdo ganha identificadores novos e passa a pertencer a este cliente.\n"
-        + "O cliente de origem NÃO é alterado.\n\n"
-        + "Esta ação fica registrada na auditoria."
-      : `Restaurar ${total} registros de \"${conferido.origem.tenantSlug}\"?\n\n`
-        + "O que já existe NÃO será sobrescrito — só entram registros novos.\n\n"
-        + "Esta ação fica registrada na auditoria.";
-
-    if (!confirm(pergunta)) return;
+    if (
+      !confirm(
+        `Restaurar ${total} registros de "${conferido.origem.tenantSlug}"?\n\n` +
+          "O que já existe NÃO será sobrescrito, só entram registros novos.\n\n" +
+          "Esta ação fica registrada na auditoria.",
+      )
+    ) {
+      return;
+    }
 
     setBusy(true);
     setAviso(null);
@@ -154,10 +143,7 @@ export function BackupView() {
       const corpo = new FormData();
       corpo.append("arquivo", arquivo);
 
-      const resposta = await fetch(
-        `/api/backup?restaurar=1${ehMigracao ? "&migrar=1" : ""}`,
-        { method: "POST", body: corpo },
-      );
+      const resposta = await fetch("/api/backup?restaurar=1", { method: "POST", body: corpo });
       const dados = (await resposta.json().catch(() => ({}))) as {
         total?: number;
         ignoradas?: Record<string, number>;
@@ -176,7 +162,6 @@ export function BackupView() {
           (ignoradas ? ` ${ignoradas} já existiam e foram mantidos como estavam.` : ""),
       );
       setConferido(null);
-      setMigrar(false);
       setArquivo(null);
     } catch {
       setAviso("Não foi possível falar com o servidor.");
@@ -192,8 +177,8 @@ export function BackupView() {
       </h2>
 
       <p className="platform__hint">
-        O backup leva os <strong>registros</strong> deste cliente — pessoas, cursos, matrículas,
-        notas e histórico. Guarde o arquivo fora da plataforma.
+        O backup leva os <strong>registros</strong> da sua organização, pessoas, cursos,
+        matrículas, notas e histórico. Guarde o arquivo fora da plataforma.
       </p>
 
       {/* O aviso vem ANTES do botão, não depois: quem baixa precisa saber o que
@@ -202,7 +187,7 @@ export function BackupView() {
         <AlertTriangle aria-hidden />
         <div>
           <p>
-            <strong>Os vídeos, PDFs e imagens não vão no arquivo</strong> — só as referências a
+            <strong>Os vídeos, PDFs e imagens não vão no arquivo</strong>, só as referências a
             eles. Restaurar em outro ambiente exige copiar o storage também.
           </p>
           <p>
@@ -214,7 +199,7 @@ export function BackupView() {
 
       <div className="backup__acoes">
         <a className="btn btn--primary" href="/api/backup" download>
-          <Download aria-hidden /> Baixar backup do cliente
+          <Download aria-hidden /> Baixar backup da organização
         </a>
       </div>
 
@@ -223,7 +208,7 @@ export function BackupView() {
       <p className="platform__hint">
         A restauração <strong>não sobrescreve</strong>: o que já existe fica como está, e só
         entram registros que faltam. Serve para recuperar o que se perdeu e para trazer conteúdo
-        do mesmo cliente. O <strong>histórico de auditoria não volta</strong> — ele sai no
+        da mesma organização. O <strong>histórico de auditoria não volta</strong>, ele sai no
         arquivo, mas restaurá-lo faria a mesma ação aparecer duas vezes.
       </p>
 
@@ -240,7 +225,6 @@ export function BackupView() {
             accept=".json,application/json"
             onChange={() => {
               setConferido(null);
-      setMigrar(false);
               setConcluido(null);
             }}
           />
@@ -256,7 +240,7 @@ export function BackupView() {
           <h4 className="backup__subtitulo">O que há neste arquivo</h4>
 
           <p className="backup__origem">
-            Backup {conferido.escopo === "curso" ? "de curso" : "de cliente"} —{" "}
+            Backup {conferido.escopo === "curso" ? "de curso" : "de cliente"},{" "}
             <strong>{conferido.origem.courseSlug ?? conferido.origem.tenantSlug}</strong>, gerado
             em {new Date(conferido.geradoEm).toLocaleDateString("pt-BR", { timeZone: "UTC" })}
           </p>
@@ -264,30 +248,11 @@ export function BackupView() {
           {conferido.deOutroCliente ? (
             <div className="backup__aviso backup__aviso--forte" role="alert">
               <AlertTriangle aria-hidden />
-              <div>
-                <p>
-                  Este backup é de <strong>outro cliente</strong> ({conferido.origem.tenantSlug}).
-                  Trazê-lo para cá é <strong>migrar conteúdo entre clientes</strong>, não
-                  restaurar — todo o conteúdo ganha identificadores novos e passa a pertencer a
-                  este cliente.
-                </p>
-
-                {/* A confirmação é uma caixa, não um segundo botão: obriga um
-                    ato deliberado e deixa o estado visível antes do clique.
-                    Um "Migrar" ao lado de "Restaurar" seria escolhido por
-                    engano por quem só olha a posição. */}
-                <label className="backup__confirmar">
-                  <input
-                    type="checkbox"
-                    checked={migrar}
-                    onChange={(evento) => setMigrar(evento.currentTarget.checked)}
-                  />
-                  <span>
-                    Entendo que isto traz o conteúdo de {conferido.origem.tenantSlug} para este
-                    cliente.
-                  </span>
-                </label>
-              </div>
+              <p>
+                Este backup é de <strong>outra organização</strong> ({conferido.origem.tenantSlug}) e{" "}
+                <strong>não pode ser restaurado aqui</strong>. A restauração só funciona na mesma
+                organização que gerou o arquivo.
+              </p>
             </div>
           ) : null}
 
@@ -301,31 +266,18 @@ export function BackupView() {
           </ul>
 
           <div className="backup__acoes">
-            <button
-              type="button"
-              className="btn btn--primary"
-              onClick={restaurar}
-              /* Migração sem a confirmação marcada não é oferecida: o botão
-                 existe, e fica inerte até o ato deliberado. */
-              disabled={busy || (conferido.deOutroCliente && !migrar)}
-            >
-              <Upload aria-hidden />
-              {busy
-                ? conferido.deOutroCliente
-                  ? "Migrando…"
-                  : "Restaurando…"
-                : conferido.deOutroCliente
-                  ? "Migrar para este cliente"
-                  : "Restaurar"}
-            </button>
+            {/* Sem botão quando o backup é de outro cliente: oferecer uma ação
+                que será recusada é fazer a pessoa descobrir no erro. */}
+            {conferido.deOutroCliente ? null : (
+              <button type="button" className="btn btn--primary" onClick={restaurar} disabled={busy}>
+                <Upload aria-hidden /> {busy ? "Restaurando…" : "Restaurar"}
+              </button>
+            )}
 
             <button
               type="button"
               className="btn btn--ghost"
-              onClick={() => {
-                setConferido(null);
-                setMigrar(false);
-              }}
+              onClick={() => setConferido(null)}
               disabled={busy}
             >
               Cancelar

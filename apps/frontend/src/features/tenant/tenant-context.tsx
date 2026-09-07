@@ -8,8 +8,8 @@ import { lowerUnit, pluralOfUnit } from "@nerdlms/core/tenancy/unit-label.ts";
 /**
  * O cliente da sessão, disponível às telas.
  *
- * Existe por causa do vocabulário: um cliente chama suas unidades de
- * "Concessionária", uma rede de varejo chamaria de "Filial". A palavra estava
+ * Existe por causa do vocabulário: a Exemplo S.A. chama suas unidades de
+ * "Campo", uma rede de varejo chamaria de "Filial". A palavra estava
  * escrita no JSX — "Projeto" em cinco lugares — e num white-label isso é o
  * mesmo que fixar o nome de um cliente no produto.
  *

@@ -20,10 +20,10 @@ function expectErrors(result: ReturnType<typeof validateLoginInput>) {
   return (result as Extract<typeof result, { ok: false }>).errors;
 }
 
-describe("validateLoginInput — identificador", () => {
+describe("validateLoginInput, identificador", () => {
   test("aceita email e normaliza para minúsculas", () => {
-    const value = expectOk(validateLoginInput({ identifier: "Maria.Souza@exemplo.com.br", password: VALID_PASSWORD }));
-    assert.equal(value.identifier, "maria.souza@exemplo.com.br");
+    const value = expectOk(validateLoginInput({ identifier: "Maria.Souza@exemplo.com", password: VALID_PASSWORD }));
+    assert.equal(value.identifier, "maria.souza@exemplo.com");
     assert.equal(value.identifierKind, "email");
   });
 
@@ -43,7 +43,7 @@ describe("validateLoginInput — identificador", () => {
   });
 
   test("rejeita email malformado", () => {
-    for (const bad of ["ana@", "@exemplo.com", "ana@nerdlms", "a n a@exemplo.com"]) {
+    for (const bad of ["ana@", "@exemplo.com", "ana@exemplo", "a n a@exemplo.com"]) {
       assert.equal(expectErrors(validateLoginInput({ identifier: bad, password: VALID_PASSWORD })).identifier, LOGIN_MESSAGES.emailInvalid, bad);
     }
   });
@@ -60,7 +60,7 @@ describe("validateLoginInput — identificador", () => {
   });
 });
 
-describe("validateLoginInput — senha", () => {
+describe("validateLoginInput, senha", () => {
   test("rejeita ausente e curta", () => {
     assert.equal(expectErrors(validateLoginInput({ identifier: "ana@exemplo.com", password: "" })).password, LOGIN_MESSAGES.passwordRequired);
     assert.equal(expectErrors(validateLoginInput({ identifier: "ana@exemplo.com", password: "1234567" })).password, LOGIN_MESSAGES.passwordTooShort);
@@ -78,7 +78,7 @@ describe("validateLoginInput — senha", () => {
   });
 });
 
-describe("validateLoginInput — entrada não confiável", () => {
+describe("validateLoginInput, entrada não confiável", () => {
   test("não quebra com tipos inesperados", () => {
     for (const bad of [null, undefined, 42, "texto", [], { identifier: 1, password: {} }]) {
       const result = validateLoginInput(bad);

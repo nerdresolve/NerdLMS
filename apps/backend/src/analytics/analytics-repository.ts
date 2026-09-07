@@ -243,3 +243,48 @@ export async function enrollmentsByDepartment(
     completed: row.completed,
   }));
 }
+
+/**
+ * Em que tentativa cada pessoa passou, nas provas dos cursos de um autor.
+ *
+ * Uma linha por matrícula que enviou ao menos uma tentativa. `passou_na` é o
+ * MENOR número de tentativa aprovada, e vem nulo para quem ainda não passou.
+ *
+ * A conta fica em `@nerdlms/core/assessment/aproveitamento.ts`. Aqui só o que
+ * exige o banco: percorrer o histórico de tentativas em memória seria carregar
+ * todas elas para responder uma distribuição.
+ *
+ * `submitted_at IS NOT NULL` porque tentativa aberta e não enviada não é
+ * tentativa: ela existe desde o instante em que a pessoa abre a prova, e
+ * contá-la inflaria o denominador com quem só olhou.
+ */
+export async function tentativasAteAprovar(
+  tenantId: string,
+  authorId: string,
+  courseId?: string,
+): Promise<Array<{ courseId: string; passouNa: number | null; tentativas: number }>> {
+  const rows = await query<{
+    course_id: string;
+    passou_na: number | null;
+    tentativas: string;
+  }>(
+    `SELECT c.id AS course_id,
+            min(qa.attempt_number) FILTER (WHERE qa.passed) AS passou_na,
+            count(*) AS tentativas
+       FROM quiz_attempts qa
+       JOIN quizzes q ON q.id = qa.quiz_id
+       JOIN courses c ON c.id = q.course_id
+      WHERE c.tenant_id = $1
+        AND c.author_id = $2
+        AND ($3::uuid IS NULL OR c.id = $3::uuid)
+        AND qa.submitted_at IS NOT NULL
+      GROUP BY c.id, qa.enrollment_id`,
+    [tenantId, authorId, courseId ?? null],
+  );
+
+  return rows.map((row) => ({
+    courseId: row.course_id,
+    passouNa: row.passou_na,
+    tentativas: Number(row.tentativas),
+  }));
+}

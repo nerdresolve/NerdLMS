@@ -139,6 +139,7 @@ export async function completeSsoLogin(command: CallbackCommand): Promise<Callba
   if (!assinado) {
     await recordAudit({
       actorId: null,
+      tenantId: command.tenantId,
       actorName: `sso:${config.provider}`,
       action: "sso_login_failed",
       target: "assinatura inválida",
@@ -163,6 +164,7 @@ export async function completeSsoLogin(command: CallbackCommand): Promise<Callba
   if (!validado.ok) {
     await recordAudit({
       actorId: null,
+      tenantId: command.tenantId,
       actorName: `sso:${config.provider}`,
       action: "sso_login_failed",
       target: validado.error,

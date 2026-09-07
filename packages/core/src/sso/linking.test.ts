@@ -17,7 +17,7 @@ function entrada(over: Partial<LinkInput> = {}): LinkInput {
   };
 }
 
-describe("SSO — vínculo de conta", () => {
+describe("SSO, vínculo de conta", () => {
   test("quem já tem vínculo entra direto", () => {
     const d = decideLink(
       entrada({ linked: { provider: "google", subject: "sub-123", userId: "u-1" } }),
@@ -77,7 +77,7 @@ describe("SSO — vínculo de conta", () => {
   });
 });
 
-describe("SSO — conta desativada", () => {
+describe("SSO, conta desativada", () => {
   test("conta inativa não entra, mesmo com vínculo", () => {
     /* É o acesso que uma empresa mais quer cortar no dia de um desligamento.
        Sem esta conferência, desligar alguém no painel deixaria o SSO aberto. */
@@ -115,7 +115,7 @@ describe("SSO — conta desativada", () => {
   });
 });
 
-describe("SSO — o vínculo manda mais que o e-mail", () => {
+describe("SSO, o vínculo manda mais que o e-mail", () => {
   test("e-mail trocado no provedor não perde a conta", () => {
     /* Quem casa e troca de sobrenome recebe outro endereço e continua a mesma
        pessoa. O vínculo é por `sub` justamente por isso. */

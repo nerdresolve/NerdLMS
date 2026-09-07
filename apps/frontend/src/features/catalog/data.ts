@@ -1,6 +1,7 @@
 import "server-only";
 
 import { findAllCourses, findEnrollments } from "@nerdlms/backend/courses/courses-repository.ts";
+import { estadoDasProvas } from "@nerdlms/backend/assessment/retake-repository.ts";
 import { requireUser, toDisplayUser } from "@/lib/auth/session.ts";
 import { toCatalogEntries, toLibraryEntries, type CatalogEntry, type LibraryEntry } from "@nerdlms/core/courses/catalog.ts";
 import type { User } from "@nerdlms/core/courses/types.ts";
@@ -20,12 +21,31 @@ export interface LibraryPageData {
 /**
  * Camada de dados do catálogo. Só devolve cursos em que o aluno está
  * matriculado — `toCatalogEntries` descarta curso sem matrícula, e a
- * verificação passa a ser feita no banco na.
+ * verificação passa a ser feita no banco na TASK-006.
  */
 export async function getCatalogPageData(): Promise<CatalogPageData> {
   const user = await requireUser();
-  const [courses, mine] = await Promise.all([findAllCourses(user.tenant.id), findEnrollments(user.id)]);
-  return { student: toDisplayUser(user), entries: toCatalogEntries(courses, mine) };
+  const [courses, mine, provas] = await Promise.all([
+    findAllCourses(user.tenant.id),
+    findEnrollments(user.id),
+    /* A melhor nota por curso. Sem ela, "Concluídos" saía das AULAS e listava
+       curso cuja prova não foi feita — o aluno via o curso entre os concluídos
+       e o certificado era recusado. */
+    estadoDasProvas(user.id),
+  ]);
+
+  const notas = new Map(
+    [...provas.entries()].map(([courseId, estado]) => [courseId, estado.melhorPercentual]),
+  );
+
+  /* Curso arquivado não entra: foi retirado de circulação, e continuar
+     oferecendo o que foi retirado é a mesma incoerência de outro ângulo. */
+  const emCirculacao = courses.filter((course) => course.status !== "archived");
+
+  return {
+    student: toDisplayUser(user),
+    entries: toCatalogEntries(emCirculacao, mine, notas),
+  };
 }
 
 /**

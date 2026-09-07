@@ -1,6 +1,6 @@
 import type { GradingMethod, QuizSettings } from "@nerdlms/core/assessment/quiz-rules.ts";
 
-import { query } from "../db/pool.ts";
+import { query, withTransaction } from "../db/pool.ts";
 
 /**
  * Provas e tentativas — F3-03.
@@ -199,18 +199,80 @@ export async function findAttempt(attemptId: string): Promise<Attempt | null> {
  * o UNIQUE `(quiz, matrícula, número)` recusaria a segunda. Assim a segunda
  * recebe o número seguinte.
  */
-export async function startAttempt(quizId: string, enrollmentId: string): Promise<Attempt> {
-  const rows = await query<AttemptRow>(
-    `INSERT INTO quiz_attempts (quiz_id, enrollment_id, attempt_number)
-     VALUES ($1, $2,
-             COALESCE((SELECT max(attempt_number) FROM quiz_attempts
-                        WHERE quiz_id = $1 AND enrollment_id = $2), 0) + 1)
-     RETURNING id, quiz_id, enrollment_id, attempt_number, started_at, submitted_at,
-               score_points, score_percent, passed, needs_review`,
-    [quizId, enrollmentId],
-  );
+/**
+ * O que fazer diante das tentativas que já existem.
+ *
+ * `"nova"` cria; uma tentativa devolve ELA (a que está aberta); `null` recusa.
+ */
+export type EscolhaDaTentativa = (anteriores: Attempt[]) => "nova" | Attempt | null;
 
-  return toAttempt(rows[0]!);
+/**
+ * Começa uma tentativa sem deixar duas nascerem no mesmo instante.
+ *
+ * O QUE ACONTECIA ANTES
+ *
+ * A sequência era ler as tentativas, contar, decidir e inserir — e nada
+ * segurava o intervalo entre contar e inserir. Dezesseis pedidos disparados
+ * na mesma barreira, com UMA vaga disponível, criaram CINCO tentativas: todas
+ * leram a contagem antes de qualquer inserção e todas se acharam no direito.
+ * O teto de tentativas deixava de existir para quem soubesse abrir dezesseis
+ * conexões, que é o esforço de um laço de três linhas.
+ *
+ * POR QUE O ÍNDICE ÚNICO NÃO SALVAVA
+ *
+ * Vale entender, porque a intuição diz que salvaria. `quiz_attempts` tem
+ * UNIQUE (quiz_id, enrollment_id, attempt_number), e o número saía de
+ * `max(attempt_number) + 1` dentro do próprio INSERT. Em READ COMMITTED cada
+ * comando enxerga o que já foi confirmado — então as transações liam máximos
+ * diferentes, escolhiam números diferentes e nenhuma colidia. Índice único só
+ * arbitra quando os concorrentes disputam a MESMA chave; aqui eles se
+ * afastavam sozinhos.
+ *
+ * A TRAVA É NA MATRÍCULA
+ *
+ * É ela que dá o direito de fazer a prova, e é sobre ela que as tentativas
+ * concorrem. Quem chega junto espera na trava e só então conta — contar antes
+ * de travar é contar o passado, e foi exatamente esse o defeito.
+ *
+ * A REGRA NÃO MUDA DE LUGAR
+ *
+ * `escolher` é a mesma decisão que o caso de uso já tomava, executada agora
+ * com os dados relidos dentro da trava. Reescrevê-la em SQL a deixaria em dois
+ * lugares, e a segunda cópia envelheceria calada.
+ */
+export async function iniciarTentativa(
+  quizId: string,
+  enrollmentId: string,
+  escolher: EscolhaDaTentativa,
+): Promise<Attempt | null> {
+  return withTransaction(async (executar) => {
+    await executar(`SELECT id FROM enrollments WHERE id = $1 FOR UPDATE`, [enrollmentId]);
+
+    const anteriores = await executar<AttemptRow>(
+      `SELECT id, quiz_id, enrollment_id, attempt_number, started_at, submitted_at,
+              score_points, score_percent, passed, needs_review
+         FROM quiz_attempts
+        WHERE quiz_id = $1 AND enrollment_id = $2
+        ORDER BY attempt_number`,
+      [quizId, enrollmentId],
+    );
+
+    const decisao = escolher(anteriores.map(toAttempt));
+    if (decisao === null) return null;
+    if (decisao !== "nova") return decisao;
+
+    const rows = await executar<AttemptRow>(
+      `INSERT INTO quiz_attempts (quiz_id, enrollment_id, attempt_number)
+       VALUES ($1, $2,
+               COALESCE((SELECT max(attempt_number) FROM quiz_attempts
+                          WHERE quiz_id = $1 AND enrollment_id = $2), 0) + 1)
+       RETURNING id, quiz_id, enrollment_id, attempt_number, started_at, submitted_at,
+                 score_points, score_percent, passed, needs_review`,
+      [quizId, enrollmentId],
+    );
+
+    return toAttempt(rows[0]!);
+  });
 }
 
 /**
@@ -301,4 +363,42 @@ export async function submitAttempt(
   );
 
   return rows.length > 0;
+}
+
+export interface AulasDoCurso {
+  total: number;
+  concluidas: number;
+}
+
+/**
+ * Quantas aulas o curso tem e quantas esta matrícula concluiu.
+ *
+ * Uma contagem, e não `courseProgress`: aquela função precisa do curso inteiro
+ * carregado — módulos, aulas, metadados — para responder um número que o banco
+ * dá em duas linhas de SQL. Numa checagem que roda a cada abertura de prova, a
+ * diferença aparece.
+ *
+ * Aula concluída é a que tem `completed_at`, o mesmo critério que a tela do
+ * curso usa. Contar por `watched_seconds` daria outro número, e o aluno veria
+ * "faltam 2 aulas" numa tela e "curso concluído" na outra.
+ */
+export async function aulasDoCurso(
+  courseId: string,
+  enrollmentId: string,
+): Promise<AulasDoCurso> {
+  const rows = await query<{ total: string; concluidas: string }>(
+    `SELECT count(l.id) AS total,
+            count(p.lesson_id) FILTER (WHERE p.completed_at IS NOT NULL) AS concluidas
+       FROM modules m
+       JOIN lessons l ON l.module_id = m.id
+       LEFT JOIN lesson_progress p
+              ON p.lesson_id = l.id AND p.enrollment_id = $2
+      WHERE m.course_id = $1`,
+    [courseId, enrollmentId],
+  );
+
+  return {
+    total: Number(rows[0]?.total ?? 0),
+    concluidas: Number(rows[0]?.concluidas ?? 0),
+  };
 }

@@ -1,8 +1,16 @@
 import Link from "next/link";
-import { Award, CheckCircle2, Clock, GraduationCap, Layers, Play } from "lucide-react";
+import {
+  Award,
+  CheckCircle2,
+  ClipboardList,
+  Clock,
+  GraduationCap,
+  Layers,
+  Play,
+} from "lucide-react";
 
-import { FluidWave } from "@/components/brand/fluid-wave.tsx";
-import type { WaveVariant } from "@/components/brand/wave-paths.ts";
+import { BrandMosaic } from "@/components/brand/brand-mosaic.tsx";
+import type { MosaicVariant } from "@nerdlms/core/brand/mosaic.ts";
 import {
   courseDurationSeconds,
   courseProgress,
@@ -11,6 +19,10 @@ import {
   resumePoint,
   type ProgressSummary,
 } from "@nerdlms/core/courses/progress.ts";
+import {
+  ROTULO_CURTO_DO_ESTADO,
+  type EstadoDoCurso,
+} from "@nerdlms/core/courses/completion.ts";
 import type { Course, Enrollment, Student } from "@nerdlms/core/courses/types.ts";
 
 import "./dashboard.css";
@@ -32,7 +44,7 @@ export function ProgressBar({ percent, onBrand = false }: { percent: number; onB
 }
 
 const ART_CLASS = ["", " course-card__art--b", " course-card__art--c", " course-card__art--d"] as const;
-const ART_WAVE: WaveVariant[] = ["organic", "layered", "horizontal", "organic"];
+const ART_TILE: MosaicVariant[] = ["art1", "art2", "art3", "art4"];
 
 /**
  * @param level nível do título. No dashboard os cards ficam sob a seção
@@ -43,21 +55,33 @@ export function CourseCard({
   course,
   summary,
   level = 3,
+  estado,
 }: {
   course: Course;
   summary: ProgressSummary;
   level?: 2 | 3;
+  estado?: EstadoDoCurso | undefined;
 }) {
-  const done = summary.status === "completed";
+  /* O selo "Concluído" segue o estado do CURSO, e não o das aulas: com prova
+     obrigatória, terminar o conteúdo não fecha o curso. Sem `estado` — quem
+     montou a lista sem saber das provas — vale o de antes. */
+  const done = estado ? estado === "concluido" : summary.status === "completed";
   const Title = `h${level}` as "h2" | "h3";
 
   return (
     <Link className="course-card" href={`/cursos/${course.slug}`}>
       <div className={`course-card__art${ART_CLASS[course.artwork]}`}>
-        <FluidWave variant={ART_WAVE[course.artwork] ?? "organic"} />
+        <BrandMosaic variant={ART_TILE[course.artwork] ?? "organic"} tone="silhueta" />
         {done ? (
           <span className="course-card__chip course-card__chip--done">
             <CheckCircle2 aria-hidden /> Concluído
+          </span>
+        ) : estado === "falta-prova" ? (
+          /* O percentual das aulas NÃO serve aqui. Ele estampava "100%" num
+             curso que ainda depende da prova, e o número é o que a pessoa lê
+             antes de qualquer palavra do cartão: ela concluiria que acabou. */
+          <span className="course-card__chip course-card__chip--prova">
+            <ClipboardList aria-hidden /> {ROTULO_CURTO_DO_ESTADO["falta-prova"]}
           </span>
         ) : (
           <span className="course-card__chip">{summary.percent}%</span>
@@ -82,7 +106,7 @@ export function CourseCard({
 export function CoursesEmptyState() {
   return (
     <div className="empty">
-      <FluidWave variant="band" className="empty__wave" />
+      <span className="empty__rule" aria-hidden="true" />
       <div className="empty__inner">
         <span className="empty__icon">
           <GraduationCap aria-hidden />
@@ -171,15 +195,27 @@ export function ProgressSummaryCard({ totals }: { totals: Totals }) {
 
 export interface DashboardData {
   student: Student;
-  entries: Array<{ course: Course; enrollment: Enrollment }>;
+  entries: Array<{
+    course: Course;
+    enrollment: Enrollment;
+    /**
+     * O estado do CURSO, prova incluída.
+     *
+     * Sem ele o painel contava como concluído quem terminou as aulas e ainda
+     * devia a prova — e o mesmo curso aparecia com selo de "Concluído" no
+     * cartão enquanto o certificado era recusado.
+     */
+    estado?: EstadoDoCurso;
+  }>;
   /** Hora local do aluno, para a saudação. */
   hour: number;
 }
 
 export function DashboardView({ student, entries, hour }: DashboardData) {
-  const rows = entries.map(({ course, enrollment }) => ({
+  const rows = entries.map(({ course, enrollment, estado }) => ({
     course,
     enrollment,
+    estado,
     summary: courseProgress(course, enrollment),
     resume: resumePoint(course, enrollment),
   }));
@@ -187,7 +223,9 @@ export function DashboardView({ student, entries, hour }: DashboardData) {
   const totals: Totals = {
     lessons: rows.reduce((sum, row) => sum + row.summary.total, 0),
     completed: rows.reduce((sum, row) => sum + row.summary.completed, 0),
-    finishedCourses: rows.filter((row) => row.summary.status === "completed").length,
+    finishedCourses: rows.filter((row) =>
+      row.estado ? row.estado === "concluido" : row.summary.status === "completed",
+    ).length,
     totalCourses: rows.length,
     watchedSeconds: rows.reduce(
       (sum, row) => sum + Object.values(row.enrollment.progress).reduce((acc, item) => acc + item.watchedSeconds, 0),
@@ -201,21 +239,37 @@ export function DashboardView({ student, entries, hour }: DashboardData) {
     .sort((a, b) => b.summary.percent - a.summary.percent)[0];
 
   return (
-    <>
+    /* A mesma coluna dos outros três painéis. Antes esta tela montava o próprio
+       ritmo com margens soltas — 32px sob o cabeçalho, 48px sob a faixa — e as
+       quatro portas de entrada do produto não batiam entre si. */
+    <div className="page">
       <div className="page-head">
-        <h1 className="page-head__greeting">
-          {greeting(hour)}, {student.firstName}
-        </h1>
-        {/* A frase anterior prometia "a poucas aulas do próximo certificado"
-            para todo mundo, inclusive para quem está em 0%. O texto agora
-            descreve a tela em vez de afirmar algo que pode ser falso. */}
-        <p className="page-head__sub">Seus cursos, o progresso de cada um e o que ficou pela metade.</p>
+        <div className="page-head__text">
+          <h1 className="page-head__title">
+            {greeting(hour)}, {student.firstName}
+          </h1>
+          {/* A frase anterior prometia "a poucas aulas do próximo certificado"
+              para todo mundo, inclusive para quem está em 0%; a seguinte
+              descrevia a tela com uma imagem ("o que ficou pela metade") que
+              nada na tela sustenta. O subtítulo agora diz o que a página traz,
+              no mesmo tom dos outros painéis. */}
+          <p className="page-head__sub">Seus cursos e o progresso em cada um.</p>
+        </div>
       </div>
 
-      <section className="spotlight" aria-label="Sua jornada">
+      {/* SEM CURSO EM ANDAMENTO A FAIXA TEM UM CARTÃO SÓ.
+
+          A grade é de duas colunas — 2,1fr para "Continue aprendendo" e 1fr
+          para o resumo. Quando não há aula a retomar, o resumo caía sozinho na
+          coluna larga e ficava metade vazio, com o gráfico encostado à
+          esquerda. Com um cartão só, a faixa passa a ter uma coluna. */}
+      <section
+        className={`spotlight${featured?.resume ? "" : " spotlight--sozinha"}`}
+        aria-label="Sua jornada"
+      >
         {featured?.resume ? (
           <article className="continue">
-            <FluidWave variant="layered" className="continue__waves" />
+            <BrandMosaic variant="layered" className="continue__waves" tone="silhueta" />
             <div className="continue__body">
               <span className="eyebrow">
                 <Play aria-hidden /> Continue aprendendo
@@ -263,12 +317,15 @@ export function DashboardView({ student, entries, hour }: DashboardData) {
           <CoursesEmptyState />
         ) : (
           <div className="course-grid">
-            {rows.map(({ course, summary }) => (
-              <CourseCard key={course.id} course={course} summary={summary} />
+            {rows.map(({ course, summary, estado }) => (
+              /* `estado` também: sem ele o selo "Concluído" voltava a sair das
+                 aulas, e o cartão contradizia a contagem logo acima — que já
+                 conta o curso como pendente enquanto a prova não sai. */
+              <CourseCard key={course.id} course={course} summary={summary} estado={estado} />
             ))}
           </div>
         )}
       </section>
-    </>
+    </div>
   );
 }

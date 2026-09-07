@@ -4,7 +4,6 @@ import { useCallback, useRef, useState } from "react";
 import Link from "next/link";
 import { ArrowLeft, ArrowRight, Bookmark, Check, CircleCheckBig, Clock, FileText, ListVideo, Play, X } from "lucide-react";
 
-import { FluidWave } from "@/components/brand/fluid-wave.tsx";
 import { ProgressBar } from "@/features/dashboard/dashboard-view.tsx";
 import { VideoPlayer } from "./video-player.tsx";
 import { DocumentViewer } from "./document-viewer.tsx";
@@ -46,7 +45,7 @@ function Pager({ neighbour, direction }: { neighbour: LessonNeighbour | null; di
 interface Props {
   course: Course;
   view: LessonViewData;
-  /** URL assinada do vídeo, emitida pelo servidor. */
+  /** URL assinada do vídeo, emitida pelo servidor (DEC-009). */
   mediaSrc: string;
   materials: LessonMaterial[];
   comments: Comment[];
@@ -63,6 +62,7 @@ interface Props {
    mas ainda não é lido aqui, então não é desestruturado. */
 export function LessonView({
   view,
+  course,
   mediaSrc,
   materials,
   comments,
@@ -77,7 +77,7 @@ export function LessonView({
   /* O download é em dois passos: a rota confere a permissão e devolve uma URL
      assinada de vida curta, e o navegador então busca o arquivo direto no
      storage. O arquivo não passa pelo processo do Next — um PDF grande
-     atravessando o servidor ocuparia o event loop. */
+     atravessando o servidor ocuparia o event loop (DEC-009). */
   async function baixar(material: LessonMaterial) {
     setMaterialNotice(null);
 
@@ -107,11 +107,6 @@ export function LessonView({
      a posição para frente (`GREATEST`), então perder a última não retrocede
      nada. */
   const ultimoEnvio = useRef(0);
-
-  /* Quando esta aula abriu. `useRef` e não `useState`: o valor é fixado na
-     montagem e nunca muda, e guardá-lo em estado provocaria um render extra
-     sem que nada aparecesse diferente na tela. */
-  const abertaEm = useRef(Date.now());
 
   const enviarProgresso = useCallback(
     (currentSeconds: number) => {
@@ -204,11 +199,14 @@ export function LessonView({
         {(view.lesson.kind ?? "video") === "video" ? (
           <VideoPlayer
             src={mediaSrc}
-            label={`Aula ${view.index} — ${view.lesson.title}`}
+            label={`Aula ${view.index}: ${view.lesson.title}`}
             resumeAtSeconds={view.resumeAtSeconds}
-            watchedUpTo={view.watchedUpToSeconds}
             onProgress={handleProgress}
             onPause={handlePause}
+            /* Ausente é `true`, e a leitura só manda `false` quando a trava
+               está desligada. O player usa isso para dois efeitos: soltar a
+               barra e oferecer o miniplayer. */
+            travado={course.watchGuard !== false}
           />
         ) : view.lesson.kind === "scorm" && scorm ? (
           /* O SCORM traz o próprio player: o conteúdo controla a navegação, o
@@ -268,12 +266,7 @@ export function LessonView({
             >
               <Bookmark aria-hidden />
             </button>
-            <CompleteLessonButton
-              lessonId={view.lesson.id}
-              completed={view.completed}
-              {...(view.lesson.pageCount ? { pageCount: view.lesson.pageCount } : {})}
-              openedAt={abertaEm.current}
-            />
+            <CompleteLessonButton lessonId={view.lesson.id} completed={view.completed} />
           </div>
         </div>
 
@@ -307,7 +300,7 @@ export function LessonView({
             </>
           ) : (
             <div className="empty">
-              <FluidWave variant="band" className="empty__wave" />
+              <span className="empty__rule" aria-hidden="true" />
               <div className="empty__inner">
                 <span className="empty__icon">
                   <FileText aria-hidden />
@@ -365,7 +358,7 @@ export function LessonView({
             <div className="rail__module" key={module.id}>
               <div className="rail__module-head">
                 <span className="rail__module-title">
-                  Módulo {index + 1} — {module.title}
+                  Módulo {index + 1}: {module.title}
                 </span>
                 <span className="rail__module-percent" data-complete={module.progress.percent === 100}>
                   {module.progress.percent}%

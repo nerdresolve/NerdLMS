@@ -1,6 +1,5 @@
 import { ShieldAlert, ScrollText } from "lucide-react";
 
-import { FluidWave } from "@/components/brand/fluid-wave.tsx";
 import { isSensitive, type AuditAction } from "@nerdlms/core/courses/audit.ts";
 import type { AuditPageData } from "./data.ts";
 
@@ -31,6 +30,7 @@ const ACTION_LABEL: Record<AuditAction, string> = {
   competency_configured: "Configurou competências",
   competency_attested: "Atestou competência",
   competency_revoked: "Revogou competência",
+  effectiveness_reviewed: "Avaliou eficácia do treinamento",
   user_deactivated: "Desativou usuário",
   role_changed: "Alterou papel",
   config_changed: "Configuração da plataforma",
@@ -56,14 +56,14 @@ function formatMoment(iso: string): string {
  *
  * A tabela é somente leitura por desenho, não por falta de tempo: registro que
  * se edita não prova nada, e o banco recusa UPDATE e DELETE nesta tabela
- *.
+ * (DEC-048).
  */
 export function AuditView({ summary, events, alerts }: Omit<AuditPageData, "admin">) {
   return (
-    <div className="studio">
-      <div className="studio__head">
-        <div className="studio__head-text">
-          <h1 className="page-head__greeting">Auditoria</h1>
+    <div className="page">
+      <div className="page-head">
+        <div className="page-head__text">
+          <h1 className="page-head__title">Auditoria</h1>
           <p className="page-head__sub">
             Quem fez o quê, quando e se foi permitido. O registro não pode ser alterado nem apagado.
           </p>
@@ -110,9 +110,9 @@ export function AuditView({ summary, events, alerts }: Omit<AuditPageData, "admi
               <tbody>
                 {events.map((event) => (
                   <tr key={event.id}>
-                    <td className="audit-time">{formatMoment(event.at)}</td>
-                    <td>{event.actorName}</td>
-                    <td>
+                    <td data-label="Quando" className="audit-time">{formatMoment(event.at)}</td>
+                    <td data-label="Quem">{event.actorName}</td>
+                    <td data-label="Ação">
                       {ACTION_LABEL[event.action]}
                       {isSensitive(event) ? (
                         <>
@@ -121,8 +121,8 @@ export function AuditView({ summary, events, alerts }: Omit<AuditPageData, "admi
                         </>
                       ) : null}
                     </td>
-                    <td className="audit-target">{event.target}</td>
-                    <td>
+                    <td data-label="Alvo" className="audit-target">{event.target}</td>
+                    <td data-label="Resultado">
                       <span className={`badge${event.outcome === "denied" ? " badge--denied" : " badge--success"}`}>
                         {event.outcome === "denied" ? "Negado" : "Permitido"}
                       </span>
@@ -134,7 +134,7 @@ export function AuditView({ summary, events, alerts }: Omit<AuditPageData, "admi
           </div>
         ) : (
           <div className="empty">
-            <FluidWave variant="band" className="empty__wave" />
+            <span className="empty__rule" aria-hidden="true" />
             <div className="empty__inner">
               <span className="empty__icon">
                 <ScrollText aria-hidden />

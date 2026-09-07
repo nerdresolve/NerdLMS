@@ -25,11 +25,10 @@ import {
   findFrameworks,
   findPlans,
 } from "@nerdlms/backend/competencies/competency-repository.ts";
-import { findTracks } from "@nerdlms/backend/courses/tracks-repository.ts";
+import { findAllTracks } from "@nerdlms/backend/courses/tracks-repository.ts";
 import { findWebhooks } from "@nerdlms/backend/api/webhook-repository.ts";
 import { allProviders } from "@nerdlms/backend/sso/sso-repository.ts";
-import { allDirectories } from "@nerdlms/backend/ldap/ldap-repository.ts";
-import { samlProvider } from "@nerdlms/backend/saml/saml-repository.ts";
+import { allDirectories, groupRoles } from "@nerdlms/backend/ldap/ldap-repository.ts";
 
 import { headers } from "next/headers";
 import { notFound } from "next/navigation";
@@ -46,8 +45,9 @@ import type {
   PlatformFeature,
 } from "@/features/admin/platform-view.tsx";
 import type { HookRow, KeyRow } from "@/features/admin/integrations-view.tsx";
-import type { LdapRow, SamlRow, SsoProviderRow } from "@/features/admin/sso-view.tsx";
-import { publicOrigin, ssoRedirectUri } from "@/lib/sso-redirect.ts";
+import type { SsoProviderRow } from "@/features/admin/sso-view.tsx";
+import type { LdapDirectoryRow } from "@/features/admin/ldap-view.tsx";
+import { ssoRedirectUri } from "@/lib/sso-redirect.ts";
 import type { BadgeItem, CourseOption } from "@/features/admin/badges-view.tsx";
 import type { AnalyticsData } from "@/features/admin/analytics-view.tsx";
 import type {
@@ -283,9 +283,10 @@ export async function getBadgesPageData(): Promise<BadgesPageData> {
   const [badges, courses, tracks] = await Promise.all([
     findBadges(user.tenant.id),
     findAllCourses(user.tenant.id),
-    /* `null` de projeto: a configuração de badge é do cliente inteiro, não de
-       uma unidade — quem administra escolhe entre todas as trilhas. */
-    findTracks(user.tenant.id, null),
+    /* A configuração de badge é do cliente inteiro, não de uma unidade: quem
+       administra escolhe entre TODAS as trilhas, e não entre as que alcançam a
+       própria conta dele. */
+    findAllTracks(user.tenant.id),
   ]);
 
   return {
@@ -384,14 +385,9 @@ export async function getAnalyticsPageData(courseId?: string): Promise<Analytics
 export interface SsoPageData {
   admin: ReturnType<typeof toDisplayUser>;
   providers: SsoProviderRow[];
-  directories: LdapRow[];
-  saml: SamlRow | null;
   /** A URL de retorno a cadastrar no provedor. */
   redirectUri: string;
-  /** Onde a asserção SAML deve chegar. O provedor precisa deste endereço. */
-  samlAcsUrl: string;
-  /** Como esta plataforma se identifica para o provedor SAML. */
-  samlEntityId: string;
+  diretorios: LdapDirectoryRow[];
 }
 
 /**
@@ -403,8 +399,15 @@ export interface SsoPageData {
  */
 export async function getSsoPageData(): Promise<SsoPageData> {
   const user = await requireAdmin();
-  const headersDaRequisicao = await headers();
-  const provedores = await allProviders(user.tenant.id);
+  const [provedores, diretorios] = await Promise.all([
+    allProviders(user.tenant.id),
+    allDirectories(user.tenant.id),
+  ]);
+
+  /* Os mapas de grupo vêm por diretório, e são poucos: no máximo três linhas,
+     uma por tipo de diretório. Uma consulta por linha aqui é mais legível que
+     uma junção que teria de reagrupar em memória do mesmo jeito. */
+  const mapas = await Promise.all(diretorios.map((d) => groupRoles(d.id)));
 
   return {
     admin: toDisplayUser(user),
@@ -425,8 +428,12 @@ export async function getSsoPageData(): Promise<SsoPageData> {
       enabled: p.enabled,
       allowPasswordLogin: p.allowPasswordLogin,
     })),
-
-    directories: (await allDirectories(user.tenant.id)).map((d) => ({
+    redirectUri: ssoRedirectUri(await headers()),
+    /* A SENHA DA CONTA DE SERVIÇO NÃO SAI DAQUI — só o fato de existir uma.
+       Mesma regra da chave secreta do OIDC: quem já a configurou não precisa
+       relê-la, e mandá-la ao navegador a poria no HTML de uma página que
+       alguém pode deixar aberta. */
+    diretorios: diretorios.map((d, i) => ({
       id: d.id,
       kind: d.kind,
       displayName: d.displayName,
@@ -434,39 +441,19 @@ export async function getSsoPageData(): Promise<SsoPageData> {
       port: d.port,
       domain: d.domain,
       baseDn: d.baseDn,
-      dnTemplate: d.dnTemplate,
+      dnTemplate: d.kind === "generico" ? d.dnTemplate : null,
       allowSelfSigned: d.allowSelfSigned,
       allowedDomains: d.allowedDomains.join(", "),
       allowJit: d.allowJit,
       jitRole: d.jitRole,
       enabled: d.enabled,
+      allowPasswordLogin: d.allowPasswordLogin,
+      serviceDn: d.serviceDn || null,
+      temSenhaDeServico: d.servicePasswordEncrypted !== null,
+      searchBase: d.searchBase,
+      syncProfile: d.syncProfile,
+      requireGroup: d.requireGroup,
+      groupRoles: mapas[i] ?? [],
     })),
-
-    saml: await (async () => {
-      const s = await samlProvider(user.tenant.id);
-      if (!s) return null;
-
-      return {
-        id: s.id,
-        displayName: s.displayName,
-        idpEntityId: s.idpEntityId,
-        ssoUrl: s.ssoUrl,
-        /* Os certificados VÃO para a tela — são públicos por definição, e quem
-           configura precisa ver quais estão cadastrados para saber se a
-           rotação já foi feita. É o oposto da chave secreta do OIDC. */
-        certificates: s.certificates,
-        spEntityId: s.spEntityId,
-        allowedDomains: s.allowedDomains.join(", "),
-        allowJit: s.allowJit,
-        jitRole: s.jitRole,
-        enabled: s.enabled,
-      };
-    })(),
-
-    redirectUri: ssoRedirectUri(headersDaRequisicao),
-    samlAcsUrl: `${publicOrigin(headersDaRequisicao)}/api/saml/retorno`,
-    /* O `entityId` padrão é o endereço da plataforma: é o que o cliente
-       cadastra no provedor, e um valor que ele não precisa inventar. */
-    samlEntityId: publicOrigin(headersDaRequisicao),
   };
 }

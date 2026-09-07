@@ -3,10 +3,14 @@ import { gradeAnswer, scoreAttempt } from "@nerdlms/core/assessment/grading.ts";
 import {
   ATTEMPT_REFUSAL_MESSAGE,
   canStartAttempt,
+  escolhaDaTentativa,
   isExpired,
   shuffleWithSeed,
 } from "@nerdlms/core/assessment/quiz-rules.ts";
 
+import { emitStatement } from "../xapi/emit.ts";
+import { recordGrade } from "./assignment-repository.ts";
+import { retestesAprovados } from "./retake-repository.ts";
 import { findEnrollmentId } from "./enrollment-lookup.ts";
 import { findQuizQuestions, type Question } from "./question-repository.ts";
 import {
@@ -15,8 +19,9 @@ import {
   findAttempts,
   findQuiz,
   saveAnswer,
+  aulasDoCurso,
   saveGrades,
-  startAttempt,
+  iniciarTentativa,
   submitAttempt,
   type Attempt,
   type Quiz,
@@ -91,6 +96,28 @@ export async function startQuizUseCase(command: StartCommand): Promise<StartOutc
     return { status: 400, error: "Esta prova ainda não tem questões." };
   }
 
+  /* A PROVA É O FIM DO CURSO, NÃO UM ATALHO.
+
+     Sem isto, dava para abrir a prova sem ter assistido nada — e quem acertasse
+     por eliminação concluiria o curso sem o conteúdo, que é justamente o que um
+     treinamento obrigatório existe para impedir.
+
+     A checagem é no servidor pelo mesmo motivo de sempre: esconder o botão na
+     tela não impede um POST direto. E a mensagem diz QUANTAS faltam, porque
+     "conclua as aulas" manda a pessoa procurar sozinha o que falta. */
+  const aulas = await aulasDoCurso(quiz.courseId, enrollmentId);
+
+  if (aulas.total > 0 && aulas.concluidas < aulas.total) {
+    const faltam = aulas.total - aulas.concluidas;
+    return {
+      status: 403,
+      error:
+        faltam === 1
+          ? "Falta 1 aula para liberar a prova."
+          : `Faltam ${faltam} aulas para liberar a prova.`,
+    };
+  }
+
   const anteriores = await findAttempts(quiz.id, enrollmentId);
 
   /* Tentativa em andamento e ainda no prazo: devolve ELA, não uma nova.
@@ -106,13 +133,52 @@ export async function startQuizUseCase(command: StartCommand): Promise<StartOutc
   }
 
   const usadas = anteriores.filter((a) => a.submittedAt).length;
-  const decision = canStartAttempt(quiz, usadas, new Date());
+
+  /* CADA RETESTE APROVADO VALE UMA TENTATIVA A MAIS.
+
+     A prova nasce com uma só: `max_attempts = 1`. A segunda chance existe, mas
+     alguém precisa conceder — e é aqui que a concessão vira tentativa. Somar
+     ao teto, em vez de descontar do usado, mantém `canStartAttempt` sem saber
+     que reteste existe: ela continua respondendo "cabe outra tentativa?", que é
+     a pergunta dela. */
+  const liberados = await retestesAprovados(quiz.id, enrollmentId);
+  const teto = (quiz.maxAttempts ?? 1) + liberados;
+
+  /* A MESMA decisão, em duas alturas.
+
+     Aqui ela roda com leitura solta, e serve para a MENSAGEM: é este passo que
+     sabe dizer "a prova está fechada" ou "solicite um reteste". Logo abaixo ela
+     roda de novo dentro da trava, com os dados relidos, e é essa que vale. A
+     de cima pode ficar velha entre a leitura e a escrita; a de baixo, não. */
+  const podeComecar = (anteriores: Attempt[]) =>
+    escolhaDaTentativa({ ...quiz, maxAttempts: teto }, anteriores, new Date());
+
+  const decision = canStartAttempt({ ...quiz, maxAttempts: teto }, usadas, new Date());
 
   if (!decision.allow) {
+    /* "Sem tentativas" é o caso em que o aluno PODE pedir reteste, e a
+       mensagem genérica não dizia isso — quem lesse "você já usou todas as
+       tentativas" concluiria que acabou. */
+    if (decision.reason === "no_attempts_left") {
+      return {
+        status: 403,
+        error: "Você já usou suas tentativas. Solicite um reteste ao instrutor.",
+      };
+    }
     return { status: 403, error: ATTEMPT_REFUSAL_MESSAGE[decision.reason] };
   }
 
-  const attempt = await startAttempt(quiz.id, enrollmentId);
+  const attempt = await iniciarTentativa(quiz.id, enrollmentId, podeComecar);
+
+  /* Nulo só acontece quando outro pedido tomou a vaga entre a decisão de cima e
+     a trava — a corrida perdida. A resposta é a mesma que a pessoa veria se
+     tivesse chegado um instante depois, porque é exatamente isso que houve. */
+  if (!attempt) {
+    return {
+      status: 403,
+      error: "Você já usou suas tentativas. Solicite um reteste ao instrutor.",
+    };
+  }
 
   return { status: 200, attempt, quiz, questions: await questoesDaTentativa(quiz, attempt) };
 }
@@ -203,6 +269,64 @@ export async function submitQuizUseCase(command: SubmitCommand): Promise<SubmitO
   const score = scoreAttempt(notas, quiz.totalPoints, quiz.passingScore);
 
   const gravou = await submitAttempt(command.attemptId, score);
+
+  /* A NOTA DA PROVA PRECISA CHEGAR AO BOLETIM.
+
+     Isto faltava, e o buraco só apareceu quando os cursos passaram a exigir
+     nota mínima: a tentativa guardava o percentual em `quiz_attempts` e nada
+     era gravado em `grade_entries`. Como é o boletim que o certificado
+     consulta, quem fizesse a prova e tirasse cem continuaria sem certificado —
+     para sempre, sem nenhuma mensagem explicando.
+
+     `grade_entries` já tinha a coluna `quiz_id`, esperando por isto. O
+     lançamento nunca atualiza: refazer a prova lança outra entrada, e a
+     anterior fica como histórico — é a regra do gatilho da migração 012.
+
+     Só quando não há correção manual pendente. Uma prova com questão
+     dissertativa fecha a nota quando o instrutor corrige; lançar antes gravaria
+     um percentual que ainda vai mudar. */
+  if (gravou && !score.needsReview && command.actor.tenantId) {
+    await recordGrade({
+      tenantId: command.actor.tenantId,
+      enrollmentId: attempt.enrollmentId,
+      quizId: quiz.id,
+      pointsEarned: score.points,
+      pointsPossible: quiz.totalPoints,
+      reason: "Correção automática da prova",
+    });
+  }
+
+  /* O RESULTADO DA PROVA TAMBÉM VAI PARA O LRS.
+
+     `passed` e `failed` estavam no vocabulário desde o começo e nada os
+     emitia: o único emissor era o progresso de aula. Quem consultasse o LRS
+     perguntando "quem foi aprovado neste treinamento" recebia lista vazia,
+     mesmo com as tentativas todas gravadas — e é essa a pergunta que uma
+     auditoria de treinamento obrigatório faz.
+
+     Só quando a nota é final. Prova com questão dissertativa fecha quando o
+     instrutor corrige, e anunciar reprovação antes disso seria desmentido pela
+     correção — mesma razão pela qual `recordGrade` acima espera.
+
+     `emitStatement` nunca lança: um statement que falha não pode derrubar a
+     prova que a pessoa acabou de entregar. */
+  if (gravou && !score.needsReview && command.actor.tenantId) {
+    await emitStatement({
+      tenantId: command.actor.tenantId,
+      userId: command.actor.id,
+      verb: score.passed ? "passed" : "failed",
+      objectPath: `/provas/${quiz.id}`,
+      objectName: quiz.title,
+      courseId: quiz.courseId,
+      result: {
+        success: score.passed,
+        completion: true,
+        /* `scaled` é de 0 a 1 no padrão; o percentual daqui é de 0 a 100. */
+        score: { scaled: score.percent / 100 },
+      },
+    });
+  }
+
   if (!gravou) {
     /* Outra requisição enviou primeiro — dois cliques no botão. Não é erro: o
        resultado é o mesmo, e responder falha confundiria quem clicou. */

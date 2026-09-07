@@ -24,13 +24,13 @@ export function middleware(_request: NextRequest) {
     "frame-ancestors 'none'",
     "object-src 'none'",
     "img-src 'self' data: blob:",
-    // vídeo é hospedagem própria: servido pela mesma origem via proxy
+    // vídeo é hospedagem própria (DEC-009): servido pela mesma origem via proxy
     "media-src 'self' blob:",
-    // a fonte é auto-hospedada: nenhuma origem externa
+    // a fonte é auto-hospedada (DEC-017): nenhuma origem externa
     "font-src 'self'",
     "style-src 'self' 'unsafe-inline'",
     /*
-     * `'unsafe-inline'` é dívida consciente, registrada como.
+     * `'unsafe-inline'` é dívida consciente, registrada como ISSUE-012.
      *
      * O certo é nonce. Foi tentado três vezes — com `x-nonce`, com a CSP também
      * no header da requisição, com e sem `'strict-dynamic'` — e no `output:

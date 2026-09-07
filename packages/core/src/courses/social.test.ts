@@ -46,7 +46,7 @@ describe("Orçamento semanal", () => {
 });
 
 describe("Quem pode votar", () => {
-  test("não vota no próprio comentário — é a fraude mais óbvia da economia", () => {
+  test("não vota no próprio comentário, é a fraude mais óbvia da economia", () => {
     const meu = comentario("c1", 0, "u1");
     assert.deepEqual(canUpvote(semVotos, meu, "u1"), { allowed: false, reason: "proprio-comentario" });
   });
@@ -100,7 +100,7 @@ describe("Relevância", () => {
     assert.deepEqual(relevantIds([comentario("c1", 0)]), []);
   });
 
-  test("empate vai para o mais antigo — quem ajudou primeiro não perde lugar", () => {
+  test("empate vai para o mais antigo, quem ajudou primeiro não perde lugar", () => {
     const antigo = comentario("antigo", 3, "a", "2026-08-01T09:00:00-03:00");
     const novo = comentario("novo", 3, "b", "2026-08-05T09:00:00-03:00");
     assert.deepEqual(relevantIds([novo, antigo]), ["antigo", "novo"]);
@@ -135,7 +135,7 @@ describe("Destaques do período", () => {
     assert.equal(top[1]?.userId, "b");
   });
 
-  test("quem não recebeu voto não aparece — a lista reconhece, não expõe", () => {
+  test("quem não recebeu voto não aparece, a lista reconhece, não expõe", () => {
     assert.deepEqual(highlights([comentario("1", 0, "b")], nomes), []);
   });
 

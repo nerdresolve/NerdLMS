@@ -132,6 +132,7 @@ export async function completeSamlLogin(
   if (!validada.ok) {
     await recordAudit({
       actorId: null,
+      tenantId: command.tenantId,
       actorName: "saml",
       action: "sso_login_failed",
       target: validada.error,

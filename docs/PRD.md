@@ -1,10 +1,27 @@
-# PRD — NerdResolve LMS
+# PRD — Plataforma de Ensino NerdResolve
 
-> Escrito a partir do primeiro cliente (NerdResolve). O que vale como requisito de
-> produto está aqui; o que era específico do cliente virou configuração.
-
-> Onde a proposta original e a definição de perfis divergem, a divergência está
-> marcada com **⚠ A CONFIRMAR** — não foi resolvida por conta própria.
+> ## Documento de origem, não da instalação da Exemplo S.A.
+>
+> Este PRD descreve o escopo **como foi especificado para o cliente anterior**,
+> uma empresa de saneamento com 27 mil colaboradores e quatro projetos. A
+> plataforma foi construída a partir dele e depois implantada na Exemplo S.A.,
+> que é outra empresa, de outro porte e de outro setor.
+>
+> Ele continua aqui porque é de onde vem cada requisito: quem pergunta "por que
+> existe unidade organizacional com hierarquia?" ou "por que o catálogo pagina
+> no servidor desde o começo?" acha a resposta neste documento, e em nenhum
+> outro. Reescrevê-lo trocando os nomes destruiria isso e não criaria um PRD da
+> Exemplo S.A. — criaria uma ficção com os dois misturados.
+>
+> **Para o que a plataforma faz hoje**, veja [`../README.md`](../README.md).
+> **Para as decisões técnicas**, [`progress.md`](./progress.md).
+>
+> Fonte: `Projeto_Plataforma_NERD_VM.pdf` (proposta executiva FollowLeads) e a
+> definição de perfis passada pelo cliente. Este documento resolve a ISSUE-002,
+> que bloqueava schema e autenticação desde o primeiro ciclo.
+>
+> Onde a proposta e a definição de perfis divergem, a divergência está marcada
+> com **⚠ A CONFIRMAR** — não foi resolvida por conta própria.
 
 ---
 
@@ -47,7 +64,7 @@ Três perfis, conforme definição do cliente:
 - **Matricula** a equipe nos treinamentos obrigatórios.
 - Não cria nem edita conteúdo: isso é do Instructor.
 
-### Decisões tomadas
+### Decisões tomadas (ciclo 24)
 
 As três divergências abertas foram resolvidas com base no que a proposta promete
 e no que o levantamento revela. O raciocínio está registrado porque a decisão
@@ -147,7 +164,7 @@ desde o schema, não depois.
 
 ---
 
-## 10. Decisões de tecnologia e economia
+## 10. Decisões de tecnologia e economia (ciclo 31)
 
 ### Player de vídeo: continuamos sem framework de player
 
@@ -175,7 +192,7 @@ quem assiste em campo, com 4G instável. Só que isso não vem do player: vem do
 Video.js e Plyr usam por baixo.
 
 **Decisão**: manter o player próprio e adotar `hls.js` quando o streaming
-adaptativo entrar. Ganhamos a funcionalidade que importa, sem
+adaptativo entrar (TASK-061). Ganhamos a funcionalidade que importa, sem
 importar um framework de interface para obter um recurso de rede, e sem tocar
 na aparência aprovada.
 
@@ -230,7 +247,7 @@ Números e restrições que vieram do levantamento e que mudam decisões técnic
 | Atende **Águas do Rio, Prolagos, Regenera Rio e Escola Social** | Existe uma dimensão **projeto/empresa** no modelo de dados, não só usuário e curso. Relatórios por projeto dependem disso. |
 | Plataforma atual limita a **500 usuários ativos** para todos os projetos somados, em "ondas" de alunos | É a dor central. Na plataforma própria não há limite comercial — mas "usuário ativo" precisa ser definido para o relatório de período ativo. |
 | Hoje a Kessia **cadastra aluno por aluno e envia o link** | A jornada de cadastro precisa encolher. É requisito explícito, não conveniência. |
-| Customização depende da REVO | Backoffice próprio é o que elimina essa fila. |
+| Customização depende da REVO | Backoffice próprio é o que elimina essa fila. Reforça a ISSUE-017. |
 | Conteúdo: **vídeo, PDF e SCORM** | SCORM não é "mais um upload": é um pacote com runtime próprio e API de rastreio. Precisa de decisão de escopo. |
 | **~70 cursos** (social) e **6** (terceiros) | Volume modesto. O gargalo é de usuários, não de catálogo. |
 | Aulas de **30 a 60 minutos**, uma de 2 horas | Vídeo de até 2h por upload próprio: pensar em tamanho de arquivo, retomada de upload e seek. |
@@ -312,10 +329,6 @@ A proposta vende governança. Em código isso significa:
 - **A tag Professor é derivada**, não declarada: o servidor decide se destaca a
   resposta olhando papel + autoria do curso. Se fosse um campo do payload,
   qualquer aluno se passaria por professor.
-- **Progresso é validado**: o cliente não pode declarar conclusão.
+- **Progresso é validado**: o cliente não pode declarar conclusão (DEC-009).
 - **Exclusão de curso por Instructor exige autoria**; por Admin, não. Este é o
   teste de IDOR mais óbvio da plataforma e está coberto.
-
----
-
-<sub>**NerdResolve LMS** · Documentação de produto · © 2026 Matheus Mariath (mariathdev) — NerdResolve.<br>Uso comercial requer licença: ver [LICENSE.md](../LICENSE.md).</sub>

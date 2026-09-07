@@ -41,7 +41,7 @@ function asserçao(over: {
   </saml:Assertion>`;
 }
 
-describe("SAML — leitura da assinatura", () => {
+describe("SAML, leitura da assinatura", () => {
   test("assinatura bem formada é lida", () => {
     const r = readSignature(findElement(asserçao(), "Assertion")!);
 
@@ -79,7 +79,7 @@ describe("SAML — leitura da assinatura", () => {
   });
 });
 
-describe("SAML — SHA-1 é recusado por nome", () => {
+describe("SAML: SHA-1 é recusado por nome", () => {
   test("digest SHA-1 não passa", () => {
     /* Colisão de SHA-1 é demonstrada desde 2017. Aceitá-lo "por
        compatibilidade" tornaria a validação decorativa. */
@@ -121,7 +121,7 @@ describe("SAML — SHA-1 é recusado por nome", () => {
   });
 });
 
-describe("SAML — XML Signature Wrapping", () => {
+describe("SAML: XML Signature Wrapping", () => {
   test("a assinatura tem de cobrir a asserção que vamos LER", () => {
     /* O ataque: o documento traz a asserção verdadeira (assinada, com o
        e-mail de quem assinou) e a forjada (com o e-mail do atacante). O
@@ -144,7 +144,7 @@ describe("SAML — XML Signature Wrapping", () => {
     assert.equal(referenciaCobre(assinatura.ok ? assinatura.ref : ({} as never), elemento).ok, true);
   });
 
-  test("URI vazia — o documento inteiro — é recusada", () => {
+  test("URI vazia, o documento inteiro, é recusada", () => {
     /* Sem saber qual elemento foi coberto, não dá para garantir que é o que
        estamos lendo. */
     const elemento = findElement(asserçao({ uri: "" }), "Assertion")!;

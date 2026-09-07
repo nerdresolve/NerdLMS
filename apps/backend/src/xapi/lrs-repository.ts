@@ -322,7 +322,7 @@ export async function activitySummary(
 export const LGPD_NOTA_XAPI =
   "Statements guardam actor_mbox. A exclusão de conta desliga actor_id (SET NULL) " +
   "mas não limpa o e-mail: o gatilho de imutabilidade recusa UPDATE. Rotina " +
-  "administrativa pendente — ver PLANO-LMS, F6-03.";
+  "administrativa pendente, ver PLANO-LMS, F6-03.";
 
 /**
  * Anonimiza os statements de uma pessoa — LGPD, direito à eliminação.

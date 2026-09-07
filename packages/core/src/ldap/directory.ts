@@ -41,7 +41,7 @@ export const DIRECTORY_PRESETS: DirectoryPreset[] = [
     defaultPort: 636,
     requires: "domain",
     hint:
-      "O domínio do Active Directory, como aparece no login das pessoas — normalmente o mesmo do e-mail corporativo.",
+      "O domínio do Active Directory, como aparece no login das pessoas, normalmente o mesmo do e-mail corporativo.",
   },
   {
     id: "openldap",
@@ -154,4 +154,31 @@ export function buildBindDn(input: {
     .replaceAll("{base}", base);
 
   return { ok: true, dn };
+}
+
+/**
+ * A base da busca, deduzida do domínio.
+ *
+ * `empresa.local` vira `DC=empresa,DC=local`. É a tradução mecânica que o
+ * Active Directory usa para nomear a raiz de um domínio, e ela existe aqui para
+ * que quem configura não precise saber que ela existe: o domínio já foi
+ * informado no campo do login, e pedir a mesma coisa noutro formato é pedir
+ * duas vezes.
+ *
+ * Quem tem árvore grande — ou quer limitar a busca a uma OU — informa a base à
+ * mão e este cálculo não é usado.
+ *
+ * Cada pedaço é escapado pela regra do DN: um domínio com caractere especial é
+ * patológico, mas montar o DN sem escapar seria confiar em nunca encontrá-lo.
+ */
+export function baseDnDoDominio(domain: string | null | undefined): string {
+  const limpo = (domain ?? "").trim();
+  if (!limpo) return "";
+
+  return limpo
+    .split(".")
+    .map((parte) => parte.trim())
+    .filter(Boolean)
+    .map((parte) => `DC=${escapeDnValue(parte)}`)
+    .join(",");
 }

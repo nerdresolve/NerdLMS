@@ -1,6 +1,3 @@
-import { randomUUID } from "node:crypto";
-
-import { remapearIds, type Linha } from "@nerdlms/core/backup/remissao.ts";
 import { can, type Actor } from "@nerdlms/core/auth/permissions.ts";
 import {
   AVISOS_DO_BACKUP,
@@ -14,7 +11,6 @@ import {
 import {
   chavePrimariaDe,
   colunasDe,
-  colunasDeReferencia,
   contarTabelas,
   lerTabela,
   lerTabelaDoCurso,
@@ -131,15 +127,6 @@ export interface RestoreCommand {
   actorName: string;
   /** O conteúdo do arquivo, ainda como texto. */
   conteudo: string;
-  /**
-   * Migrar conteúdo de OUTRO cliente para este.
-   *
-   * Exige confirmação explícita porque é operação diferente de restaurar: não
-   * é "recuperar o que eu perdi", é "trazer o conteúdo de outra empresa". Sem
-   * esta bandeira, um backup de outro cliente continua sendo recusado — o
-   * padrão é o que NÃO move dado entre clientes.
-   */
-  migrarDeOutroCliente?: boolean;
 }
 
 export interface RestoreResult {
@@ -148,16 +135,6 @@ export interface RestoreResult {
   /** Tabela → quantas foram puladas por já existirem. */
   ignoradas: Record<string, number>;
   total: number;
-  /**
-   * Linhas que a migração não pôde trazer.
-   *
-   * Só em migração entre clientes: são as que existem por causa de algo que
-   * o backup não carrega — uma nota lançada por ferramenta LTI, por exemplo.
-   * Zero numa restauração normal.
-   */
-  descartadas: number;
-  /** Vínculos opcionais que se perderam no caminho. */
-  anuladas: number;
 }
 
 export type RestoreOutcome =
@@ -221,27 +198,27 @@ export async function restaurarBackup(command: RestoreCommand): Promise<RestoreO
   const conferido = await conferirBackup(command);
   if (conferido.status !== 200) return conferido;
 
-  /* RESTAURAR E MIGRAR SÃO OPERAÇÕES DIFERENTES.
+  /* RESTAURAÇÃO É NO MESMO CLIENTE. Migrar para outro exige mais que isto.
    *
-   * Restaurar reaproveita os UUIDs de origem, e é assim que as chaves
-   * estrangeiras entre as linhas continuam válidas. Num cliente diferente,
-   * esses mesmos UUIDs já existem — são as linhas do cliente de origem — e o
-   * `ON CONFLICT DO NOTHING` pularia todas: uma migração que diz ter
-   * funcionado e não moveu nada.
+   * As linhas carregam os UUIDs de origem, e é assim que as chaves estrangeiras
+   * entre elas continuam válidas. Num cliente diferente, esses mesmos UUIDs já
+   * existem — são as linhas do cliente de origem, na mesma tabela — e o
+   * `ON CONFLICT DO NOTHING` pula TODAS. O resultado é uma migração que diz ter
+   * funcionado e não moveu nada, que é pior que uma que recusa.
    *
-   * Migrar reemite cada id e reescreve toda referência a ele
-   * (`remapearIds`). Por isso exige a bandeira: o padrão continua sendo o que
-   * NÃO move dado entre clientes.
+   * Fazer de verdade exige reemitir cada UUID e reescrever toda referência a
+   * ele, de forma consistente entre 45 tabelas. É trabalho próprio, e está
+   * registrado como lacuna do §24 ("migrar tenant") no plano.
    *
-   * Recusar aqui, e não só na tela: a tela avisa, mas quem chama a rota
-   * direto também precisa da recusa. */
-  if (conferido.deOutroCliente && !command.migrarDeOutroCliente) {
+   * Recusar aqui, e não na tela: a tela avisa, mas quem chama a rota direto
+   * também precisa da recusa. */
+  if (conferido.deOutroCliente) {
     return {
       status: 400,
       error:
         `Este backup é do cliente "${conferido.origem.tenantSlug}". ` +
-        "Restaurar aqui é MIGRAR conteúdo entre clientes, e exige confirmação — " +
-        "marque a opção correspondente se é isso que você quer.",
+        "A restauração só funciona no mesmo cliente que gerou o arquivo, " +
+        "migrar conteúdo entre clientes ainda não está disponível.",
     };
   }
 
@@ -252,63 +229,6 @@ export async function restaurarBackup(command: RestoreCommand): Promise<RestoreO
 
   const arquivo = validado.arquivo;
   const tenantId = command.actor.tenantId!;
-
-  /* Contados fora do bloco de migração: entram no resultado, e o resultado é
-     montado depois. */
-  let descartadasNaMigracao = 0;
-  let anuladasNaMigracao = 0;
-
-  /* MIGRAÇÃO: os ids são reemitidos antes de qualquer escrita.
-   *
-   * As colunas de referência vêm do SCHEMA, não de uma lista aqui — são 181
-   * chaves estrangeiras, e uma lista escrita à mão envelheceria na primeira
-   * migração de schema, deixando alguma referência apontando para o cliente
-   * de origem. */
-  if (conferido.deOutroCliente) {
-    const remissao = remapearIds(
-      arquivo.dados as Record<string, Linha[]>,
-      await colunasDeReferencia(),
-      tenantId,
-      () => randomUUID(),
-    );
-
-    /* REFERÊNCIA ÓRFÃ RECUSA A MIGRAÇÃO INTEIRA.
-     *
-     * Ela aponta para um id do cliente de origem que o backup não trouxe.
-     * Gravar assim deixaria uma linha do destino dependendo de dado que não é
-     * dele — vazamento entre clientes, e do tipo que ninguém percebe até
-     * alguém abrir a linha e encontrar o vazio. A mensagem diz onde. */
-    if (remissao.orfas.length > 0) {
-      const primeira = remissao.orfas[0]!;
-
-      return {
-        status: 400,
-        error:
-          `O arquivo tem ${remissao.orfas.length} ${remissao.orfas.length === 1 ? "referência que aponta" : "referências que apontam"} ` +
-          `para fora dele (a primeira em ${primeira.tabela}.${primeira.coluna}). ` +
-          "Gere o backup completo do cliente de origem, não o de um curso isolado.",
-      };
-    }
-
-    /* O que se perdeu no caminho vai para o LOG e para a auditoria, não some.
-
-       Uma nota lançada por ferramenta LTI não migra: sem a ferramenta, ela
-       não é nada. Quem migrou precisa saber disso — e a alternativa, que é
-       migrar em silêncio, deixaria alguém descobrir a diferença ao conferir
-       um boletim meses depois. */
-    if (remissao.descartadas.length > 0 || remissao.anuladas > 0) {
-      console.warn(
-        "[backup] migração entre clientes:",
-        `${remissao.descartadas.length} linhas descartadas,`,
-        `${remissao.anuladas} vínculos anulados`,
-      );
-    }
-
-    descartadasNaMigracao = remissao.descartadas.length;
-    anuladasNaMigracao = remissao.anuladas;
-
-    arquivo.dados = remissao.dados as typeof arquivo.dados;
-  }
 
   const inseridas: Record<string, number> = {};
   const ignoradas: Record<string, number> = {};
@@ -406,16 +326,7 @@ export async function restaurarBackup(command: RestoreCommand): Promise<RestoreO
     outcome: "allowed",
   });
 
-  return {
-    status: 200,
-    resultado: {
-      inseridas,
-      ignoradas,
-      total,
-      descartadas: descartadasNaMigracao,
-      anuladas: anuladasNaMigracao,
-    },
-  };
+  return { status: 200, resultado: { inseridas, ignoradas, total } };
 }
 
 /** O tamanho do backup antes de gerá-lo, para a tela avisar. */

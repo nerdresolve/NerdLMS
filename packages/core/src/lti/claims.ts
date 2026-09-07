@@ -13,6 +13,8 @@
  * quebraria a interoperabilidade, que é o ponto inteiro do LTI.
  */
 
+import { NOME_PADRAO } from "../tenancy/branding.ts";
+
 const NS = "https://purl.imsglobal.org/spec/lti/claim";
 const NS_AGS = "https://purl.imsglobal.org/spec/lti-ags/claim";
 const NS_NRPS = "https://purl.imsglobal.org/spec/lti-nrps/claim";
@@ -59,15 +61,6 @@ export interface LaunchInput {
   userName: string;
   userEmail: string | null;
   role: PlatformRole;
-
-  /**
-   * O nome do CLIENTE, para a ferramenta saber de onde veio o launch.
-   *
-   * É o nome da empresa, não o do produto: a ferramenta externa distingue
-   * instalações por aqui, e um valor fixo faria todos os clientes aparecerem
-   * como a mesma origem.
-   */
-  platformName: string;
 
   /** O contexto: o curso. */
   contextId: string;
@@ -142,8 +135,8 @@ export function resourceLinkClaims(input: LaunchInput): Record<string, unknown> 
        launch e para distinguir instalações. */
     [`${NS}/tool_platform`]: {
       guid: input.issuer,
-      name: input.platformName,
-      product_family_code: "nerdresolve-lms",
+      name: NOME_PADRAO,
+      product_family_code: "nerdlms",
       version: "1.0",
     },
 
@@ -302,7 +295,7 @@ export const CLAIM_MESSAGE: Record<ClaimError, string> = {
   missing_nonce: "O token não tem `nonce`.",
   wrong_audience: "O token não foi emitido para esta plataforma.",
   expired: "O token expirou.",
-  not_yet_valid: "O token foi emitido no futuro — confira o relógio do servidor.",
+  not_yet_valid: "O token foi emitido no futuro, confira o relógio do servidor.",
   wrong_message_type: "O tipo de mensagem não é o esperado para esta etapa.",
   missing_deployment: "O token não tem `deployment_id`.",
 };

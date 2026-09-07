@@ -2,26 +2,17 @@
    Composição editorial (Design System §12): o hero "Continue aprendendo" é o
    elemento dominante; a grade de cursos é secundária. Não é uma malha de cards. */
 
-/* ===== Cabeçalho da página ===== */
-.page-head { margin-bottom: var(--space-8); }
-.page-head__greeting {
-  margin: 0 0 var(--space-1);
-  font-size: var(--text-h1-size);
-  line-height: var(--text-h1-lh);
-  font-weight: var(--weight-bold);
-  letter-spacing: var(--tracking-tight);
-}
-.page-head__sub { margin: 0; color: var(--text-muted); }
-
 /* ===== Faixa principal ===== */
 .spotlight {
   display: grid;
   grid-template-columns: 1fr;
   gap: var(--space-5);
-  margin-bottom: var(--space-12);
 }
 @container (min-width: 900px) {
   .spotlight { grid-template-columns: minmax(0, 2.1fr) minmax(280px, 1fr); }
+  /* O resumo é o único cartão: ocupa a largura que precisa e não a coluna
+     larga de um vizinho que não existe. */
+  .spotlight--sozinha { grid-template-columns: minmax(280px, 420px); }
 }
 
 /* --- Continue aprendendo (Design System §13) --- */
@@ -39,7 +30,6 @@
 }
 @container (min-width: 900px) { .continue { padding: var(--space-10); min-height: 300px; } }
 
-.continue__waves { position: absolute; inset: 0; width: 100%; height: 100%; z-index: -1; }
 
 /* Véu sobre a onda no lado do texto: a linha fina do Fluid Wave cruzava a
    legenda do progresso. Também estabiliza o contraste do texto branco. */
@@ -48,7 +38,7 @@
   position: absolute;
   inset: 0;
   z-index: -1;
-  background: linear-gradient(100deg, rgba(7, 18, 58, 0.58) 0%, rgba(7, 18, 58, 0.30) 58%, transparent 82%);
+  background: linear-gradient(100deg, rgba(0, 11, 27, 0.58) 0%, rgba(0, 11, 27, 0.30) 58%, transparent 82%);
 }
 .continue__body { display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-4); max-width: 42ch; }
 
@@ -85,7 +75,7 @@
   max-width: 420px;
   padding: var(--space-3) var(--space-4);
   margin-inline: calc(var(--space-4) * -1);
-  background: rgba(7, 18, 58, 0.28);
+  background: rgba(0, 11, 27, 0.28);
   border-radius: var(--radius-md);
   backdrop-filter: blur(2px);
 }
@@ -129,20 +119,6 @@
 .stat__value { font-weight: var(--weight-semibold); font-variant-numeric: tabular-nums; }
 
 /* ===== Seção de cursos ===== */
-.section-head {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: var(--space-4);
-  margin-bottom: var(--space-5);
-}
-.section-head__title {
-  margin: 0;
-  font-size: var(--text-h3-size);
-  line-height: var(--text-h3-lh);
-  font-weight: var(--weight-semibold);
-}
-
 .course-grid { display: grid; grid-template-columns: 1fr; gap: var(--space-5); }
 @container (min-width: 640px) { .course-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @container (min-width: 1180px) { .course-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
@@ -150,6 +126,14 @@
 .course-card {
   display: flex;
   flex-direction: column;
+  /* TODOS OS CARTÕES DA LINHA COM A MESMA ALTURA.
+
+     Sem isto, o cartão de um curso sem resumo termina mais alto que os
+     vizinhos e a grade fica com degraus — o olho lê o buraco como defeito,
+     não como "este curso tem menos texto". A altura é ditada pelo mais alto
+     da linha, e o miolo se estica; `justify-content` empurra os metadados
+     para o rodapé, que é onde eles se alinham entre cartões. */
+  height: 100%;
   overflow: hidden;
   background: var(--surface-card);
   border: 1px solid var(--border-subtle);
@@ -166,7 +150,18 @@
 
 /* Capa gerada: sem imagem estática, funciona em dark mode e escala sem perda. */
 .course-card__art { position: relative; aspect-ratio: 16 / 9; background: var(--gradient-brand); overflow: hidden; }
-.course-card__art svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+/* O grafismo é ACENTO na capa, não papel de parede.
+
+   Cobrindo os 16/9 inteiros, cada capa virava um mosaico saturado — e numa
+   grade de sete cartões o olho não tinha onde descansar: sete anéis amarelos
+   do mesmo tamanho, em ritmo, disputando com os títulos. No material da NerdResolve
+   Energy a grade de formas aparece UMA vez por peça, em bloco, com o resto da
+   superfície em cor cheia. Aqui vale o mesmo: o campo de marca domina e o
+   grafismo ancora no canto. */
+/* Encostado à direita e SANGRANDO para fora: o grafismo é uma grade infinita,
+   e mostrá-lo inteiro dentro da capa o transforma num carimbo com borda. No
+   material da Exemplo S.A. a grade é sempre cortada pelo limite da peça. */
+.course-card__art svg { position: absolute; inset: 0 -7% 0 auto; width: 56%; height: 100%; }
 .course-card__art--b { background: linear-gradient(140deg, var(--brand-accent), var(--brand) 60%, var(--brand-deep)); }
 .course-card__art--c { background: linear-gradient(200deg, var(--brand-deep), var(--brand) 70%); }
 .course-card__art--d { background: linear-gradient(120deg, var(--brand), var(--brand-deep)); }
@@ -192,7 +187,24 @@
 .course-card__chip svg { position: static; width: 13px; height: 13px; }
 .course-card__chip--done { color: var(--success-text); }
 
-.course-card__body { display: flex; flex-direction: column; gap: var(--space-3); flex: 1; padding: var(--space-5); }
+/* Falta a prova: nem concluído nem em andamento comum. A cor de aviso é a que
+   já significa "há algo pendente de sua parte" no resto do produto. */
+.course-card__chip--prova { color: var(--warning-text); }
+
+/* O miolo ocupa a sobra e empurra o rodapé para baixo.
+
+   `justify-content: space-between` é o que faz a contagem de aulas e a barra
+   de progresso ficarem na MESMA linha em todos os cartões, mesmo quando um tem
+   resumo de duas linhas e o outro nenhum. Sem isso, cada rodapé para onde o
+   texto acabou, e a grade perde a régua horizontal. */
+.course-card__body {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--space-3);
+  flex: 1;
+  padding: var(--space-5);
+}
 .course-card__title { margin: 0; font-size: var(--text-body-lg-size); font-weight: var(--weight-semibold); line-height: 1.35; }
 .course-card__summary {
   margin: 0;

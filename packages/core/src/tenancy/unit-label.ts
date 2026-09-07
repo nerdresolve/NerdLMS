@@ -1,10 +1,10 @@
 /**
  * Flexão do rótulo da unidade organizacional.
  *
- * A palavra que nomeia a unidade é escolha do cliente — "Concessionária" para
- * uma concessionária, "Filial" para uma rede de varejo, "Diretoria" para uma estatal — e
- * aparece no meio de frases: "Visão consolidada de todas as concessionárias".
- * Sem flexionar, a legenda ficaria "de todas as Concessionária".
+ * A palavra que nomeia a unidade é escolha do cliente — "Campo" para a NerdResolve
+ * Energy, "Filial" para uma rede de varejo, "Diretoria" para uma estatal — e
+ * aparece no meio de frases: "Visão consolidada de todos os campos". Sem
+ * flexionar, a legenda ficaria "de todos os Campo".
  *
  * Vive no domínio, e não no componente, para o servidor também poder usá-la:
  * há telas que montam esse texto sem passar pelo contexto do React.

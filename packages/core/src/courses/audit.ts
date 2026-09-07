@@ -1,5 +1,5 @@
 /**
- * Auditoria de sistema.
+ * Auditoria de sistema — TASK-058.
  *
  * A proposta promete "rastreabilidade total das ações na plataforma". O que
  * isso significa em código, e por que a tela vem antes da API:
@@ -52,6 +52,11 @@ export type AuditAction =
   | "competency_configured"
   | "competency_attested"
   | "competency_revoked"
+  /* Eficácia do treinamento: o instrutor volta depois da conclusão e registra
+     se o desempenho mudou. É evidência de conformidade, e mora em tabela
+     própria — aqui fica só o rastro de que a avaliação aconteceu, com quem e
+     quando, junto das demais ações de gestão. */
+  | "effectiveness_reviewed"
   /* SSO (F5-04): entrar pelo provedor da empresa é `login`, como qualquer
      outro. Estas duas são o que só o SSO produz — a recusa do provedor, que
      não é senha errada e não conta para o bloqueio por força bruta, e o

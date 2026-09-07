@@ -1,4 +1,14 @@
-# NerdResolve LMS — Design System
+> **Documento histórico.** Este é o README do pacote NERDRESOLVE Design System como
+> ele chegou, e por isso continua falando de NERDRESOLVE, Plus Jakarta Sans e
+> `#0A33CC`. A plataforma não usa mais esses valores: a marca é a Exemplo S.A.,
+> a fonte é DM Sans e o azul é `#4C1D95`. O pacote foi bifurcado em
+> `apps/frontend/src/styles/nerd-ds/`, que mantém a MESMA estrutura de arquivos
+> e nomes de token — só as cores, a tipografia e os raios mudaram. Este texto
+> fica para explicar de onde vieram as decisões que sobreviveram (escala de
+> espaçamento, dimensões de layout, inventário de componentes, régua de
+> acessibilidade), que são a maioria.
+
+# NERDRESOLVE Design System
 
 NERDRESOLVE is a corporate digital learning platform (LMS). Students sign in, browse a course catalog, watch
 video lessons, track their progress module by module, move between lessons and discuss each lesson in
@@ -19,7 +29,8 @@ from the same tokens and components rather than one-off page styling.
 | <https://github.com/lucide-icons/lucide> | The 50 icon SVGs in `assets/icons/` (ISC licence) |
 
 Explore those repositories yourself for deeper context — `mariathdev/nerdlms` also carries
-the engineering standards the product is built to. Note that the repo's `design.md` names **Inter** and a different blue ramp; where the spec and
+`contexts/CLAUDE.md` and `docs/progress.md`, which describe the engineering standards the product is
+built to. Note that the repo's `design.md` names **Inter** and a different blue ramp; where the spec and
 the approved visual reference disagree, **the reference wins** (Plus Jakarta Sans, `#0A33CC`). The
 spec's non-visual rules (spacing, layout dimensions, a11y, component inventory) are adopted as-is.
 
@@ -253,7 +264,3 @@ body copy without the navy protection gradient.
 3. **Photography.** None supplied — see `MediaPlaceholder` above.
 4. **`nerdlms-pilot`** was empty, so no product code informed the recreation; screens are built from the
    approved reference image plus the written spec.
-
----
-
-<sub>**NerdResolve LMS** · Documentação de produto · © 2026 Matheus Mariath (mariathdev) — NerdResolve.<br>Uso comercial requer licença: ver [LICENSE.md](../LICENSE.md).</sub>

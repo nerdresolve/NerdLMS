@@ -1,5 +1,4 @@
 import { TABELAS_DO_BACKUP, type TabelaDoBackup } from "@nerdlms/core/backup/manifest.ts";
-import type { ColunaDeReferencia } from "@nerdlms/core/backup/remissao.ts";
 
 import { query } from "../db/pool.ts";
 
@@ -295,79 +294,4 @@ export async function chavePrimariaDe(tabela: string): Promise<string[]> {
   );
 
   return rows.map((row) => row.coluna);
-}
-
-/**
- * As colunas que apontam para outra linha, lidas do SCHEMA.
- *
- * Do banco e não de uma lista em código: são 181 chaves estrangeiras, e uma
- * lista escrita à mão envelheceria na primeira migração. O que envelhece em
- * silêncio aqui deixa uma referência apontando para o cliente errado — o pior
- * defeito que a migração entre clientes poderia ter.
- *
- * O resultado é cacheado pelo tempo do processo: o schema não muda entre duas
- * requisições, e a consulta ao catálogo do Postgres não é barata.
- */
-let cacheDeReferencias: ColunaDeReferencia[] | null = null;
-
-export async function colunasDeReferencia(): Promise<ColunaDeReferencia[]> {
-  if (cacheDeReferencias) return cacheDeReferencias;
-
-  const rows = await query<{
-    tabela: string;
-    coluna: string;
-    destino: string;
-    aceitaNulo: boolean;
-  }>(
-    `SELECT c.conrelid::regclass::text   AS tabela,
-            a.attname                    AS coluna,
-            c.confrelid::regclass::text  AS destino,
-            /* attnotnull é o oposto do que precisamos: a coluna aceita nulo
-               quando NÃO é obrigatória. É o que decide, numa migração entre
-               clientes, se uma referência ausente anula a coluna ou recusa a
-               operação inteira. */
-            NOT a.attnotnull             AS "aceitaNulo"
-       FROM pg_constraint c
-       JOIN pg_attribute a
-         ON a.attrelid = c.conrelid
-        AND a.attnum = ANY (c.conkey)
-      WHERE c.contype = 'f'
-        AND c.connamespace = 'public'::regnamespace`,
-  );
-
-  /* QUAIS COLUNAS DESCARTAM A LINHA, lido do próprio schema.
-   *
-   * Uma coluna opcional que aparece num CHECK "exatamente uma origem" não
-   * pode ser anulada: a linha existe por causa dela. `grade_entries` é o caso
-   * — nota de prova, de tarefa ou de ferramenta LTI, e uma só. Anular a do
-   * LTI produz uma nota sem origem, que o banco recusa.
-   *
-   * Derivar do CHECK em vez de listar à mão: uma lista aqui envelheceria na
-   * primeira origem de nota nova, e o erro só apareceria numa migração. */
-  const exclusivas = await query<{ tabela: string; coluna: string }>(
-    /* UMA LINHA POR COLUNA, sem `array_agg`.
-
-       O driver entrega `array_agg` como TEXTO — `"{a,b,c}"`, não um array —, e
-       iterar sobre isso percorre caracteres em vez de nomes. O `Set` ficava
-       cheio de letras soltas, nenhuma coluna era marcada, e a migração
-       quebrava no CHECK do banco com um erro que não apontava para cá. */
-    `SELECT c.conrelid::regclass::text AS tabela,
-            a.attname                 AS coluna
-       FROM pg_constraint c
-       JOIN pg_attribute a
-         ON a.attrelid = c.conrelid
-        AND a.attnum = ANY (c.conkey)
-      WHERE c.contype = 'c'
-        AND c.connamespace = 'public'::regnamespace
-        AND pg_get_constraintdef(c.oid) LIKE '%IS NOT NULL))::integer%= 1)%'`,
-  );
-
-  const descartam = new Set(exclusivas.map((e) => `${e.tabela}.${e.coluna}`));
-
-  cacheDeReferencias = rows.map((r) => ({
-    ...r,
-    ...(descartam.has(`${r.tabela}.${r.coluna}`) ? { descartaLinha: true } : {}),
-  }));
-
-  return cacheDeReferencias;
 }

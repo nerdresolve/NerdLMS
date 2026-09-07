@@ -20,6 +20,8 @@ import {
   updateCourse,
 } from "./course-editor-repository.ts";
 import { recordAudit } from "../audit/audit-repository.ts";
+import { TETO_DA_AULA_SEGUNDOS } from "@nerdlms/core/courses/cortes-do-video.ts";
+import { enfileirarCorte } from "../media/video-split-repository.ts";
 
 /**
  * Casos de uso da edição de curso.
@@ -209,6 +211,30 @@ export async function addLessonUseCase(
       minSeconds: command.minSeconds ?? null,
     },
   );
+
+  /* VÍDEO LONGO VAI PARA A FILA DE CORTE.
+
+     A aula nasce com o arquivo inteiro e marcada como "dividindo"; o
+     trabalhador a substitui pelas partes. Cortar aqui dentro deixaria o
+     instrutor esperando minutos numa tela travada, e qualquer tempo limite no
+     caminho perderia o trabalho com o arquivo já no bucket.
+
+     A decisão usa a duração DECLARADA, que é o que se sabe agora — o
+     instrutor digita os minutos. O trabalhador mede o arquivo e, se ele já
+     couber, não corta nada: quem tem razão sobre a duração é o vídeo. */
+  if (kind === "video" && mediaKey && command.actor.tenantId) {
+    const declarada = durationFromMinutes(command.durationMinutes);
+
+    if (declarada > TETO_DA_AULA_SEGUNDOS) {
+      await enfileirarCorte({
+        tenantId: command.actor.tenantId,
+        lessonId,
+        courseId,
+        mediaKey,
+      });
+    }
+  }
+
   return { status: 201, lessonId };
 }
 

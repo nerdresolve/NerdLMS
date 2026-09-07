@@ -156,3 +156,13 @@ export async function setContentRelease(
 ): Promise<void> {
   await query(`UPDATE courses SET content_release = $2 WHERE id = $1`, [courseId, release]);
 }
+
+/**
+ * Liga ou desliga a trava do player do curso.
+ *
+ * Fica junto de `setContentRelease` porque são a mesma natureza de ajuste: as
+ * duas decidem como o conteúdo é consumido, e nenhuma altera o conteúdo.
+ */
+export async function setWatchGuard(courseId: string, ligada: boolean): Promise<void> {
+  await query(`UPDATE courses SET watch_guard = $2 WHERE id = $1`, [courseId, ligada]);
+}

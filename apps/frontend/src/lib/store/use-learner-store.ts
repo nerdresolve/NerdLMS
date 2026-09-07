@@ -2,7 +2,7 @@
 
 import { useSyncExternalStore } from "react";
 
-// Módulo em JS puro, compartilhado com o protótipo. Os tipos vêm
+// Módulo em JS puro, compartilhado com o protótipo (ver DEC-031). Os tipos vêm
 // do JSDoc do próprio arquivo, com `checkJs` — não é mais preciso suprimir nada.
 //
 // A store mora em `@nerdlms/core`; este arquivo é o que a liga ao React, e por

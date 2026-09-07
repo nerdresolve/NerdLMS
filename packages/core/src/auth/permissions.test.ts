@@ -170,21 +170,21 @@ describe("Falha fechada", () => {
   });
 });
 
-describe("Manager — o Gestor da proposta", () => {
-  const gestor: Actor = { id: "u5", role: "manager", project: "Prolagos" };
+describe("Manager, o Gestor da proposta", () => {
+  const gestor: Actor = { id: "u5", role: "manager", project: "Siririzinho" };
 
   test("lê o engajamento do próprio projeto, não o de outro", () => {
-    assert.equal(can(gestor, "read", { kind: "analytics", scope: "project", project: "Prolagos" }), true);
-    assert.equal(can(gestor, "read", { kind: "analytics", scope: "project", project: "Águas do Rio" }), false);
+    assert.equal(can(gestor, "read", { kind: "analytics", scope: "project", project: "Siririzinho" }), true);
+    assert.equal(can(gestor, "read", { kind: "analytics", scope: "project", project: "Unidade Norte" }), false);
   });
 
-  test("não vê o engajamento da plataforma inteira — isso é do admin", () => {
+  test("não vê o engajamento da plataforma inteira, isso é do admin", () => {
     assert.equal(can(gestor, "read", { kind: "analytics", scope: "platform" }), false);
   });
 
   test("gerencia gente do próprio projeto, nunca de outro", () => {
-    assert.equal(can(gestor, "create", { kind: "user", project: "Prolagos" }), true);
-    assert.equal(can(gestor, "create", { kind: "user", project: "Escola Social" }), false);
+    assert.equal(can(gestor, "create", { kind: "user", project: "Siririzinho" }), true);
+    assert.equal(can(gestor, "create", { kind: "user", project: "Aguilhada" }), false);
     assert.equal(can(gestor, "create", { kind: "user" }), false, "usuário sem projeto não é dele");
   });
 
@@ -195,7 +195,7 @@ describe("Manager — o Gestor da proposta", () => {
     );
   });
 
-  test("não cria, edita nem publica curso — conteúdo é do instrutor", () => {
+  test("não cria, edita nem publica curso, conteúdo é do instrutor", () => {
     const curso: Resource = { kind: "course", authorId: "u2", status: "published" };
     for (const action of ["create", "update", "delete", "publish"] as const) {
       assert.equal(can(gestor, action, curso), false, action);
@@ -212,26 +212,26 @@ describe("Manager — o Gestor da proposta", () => {
 
   test("gestor sem projeto definido não enxerga nada", () => {
     const semProjeto: Actor = { id: "u6", role: "manager" };
-    assert.equal(can(semProjeto, "read", { kind: "analytics", scope: "project", project: "Prolagos" }), false);
-    assert.equal(can(semProjeto, "create", { kind: "user", project: "Prolagos" }), false);
+    assert.equal(can(semProjeto, "read", { kind: "analytics", scope: "project", project: "Siririzinho" }), false);
+    assert.equal(can(semProjeto, "create", { kind: "user", project: "Siririzinho" }), false);
   });
 });
 
 describe("Recorte por projeto para os demais papéis", () => {
   test("instrutor não lê engajamento de projeto", () => {
-    assert.equal(can(author, "read", { kind: "analytics", scope: "project", project: "Prolagos" }), false);
+    assert.equal(can(author, "read", { kind: "analytics", scope: "project", project: "Siririzinho" }), false);
   });
 
   test("aluno não lê engajamento de projeto", () => {
-    assert.equal(can(learner, "read", { kind: "analytics", scope: "project", project: "Prolagos" }), false);
+    assert.equal(can(learner, "read", { kind: "analytics", scope: "project", project: "Siririzinho" }), false);
   });
 
   test("admin lê qualquer recorte", () => {
-    assert.equal(can(admin, "read", { kind: "analytics", scope: "project", project: "Prolagos" }), true);
+    assert.equal(can(admin, "read", { kind: "analytics", scope: "project", project: "Siririzinho" }), true);
   });
 });
 
-describe("Comentário — editar é do autor, moderar é do dono do curso", () => {
+describe("Comentário, editar é do autor, moderar é do dono do curso", () => {
   const meu: Resource = { kind: "comment", authorId: learner.id, courseAuthorId: author.id };
   const alheio: Resource = { kind: "comment", authorId: otherLearner.id, courseAuthorId: author.id };
 
@@ -239,7 +239,7 @@ describe("Comentário — editar é do autor, moderar é do dono do curso", () =
     assert.equal(can(learner, "update", meu), true);
   });
 
-  test("ninguém edita comentário alheio — nem admin, nem o dono do curso", () => {
+  test("ninguém edita comentário alheio, nem admin, nem o dono do curso", () => {
     // Moderar é REMOVER, e remover deixa rastro em auditoria. Reescrever a fala
     // de alguém mantendo o nome dessa pessoa embaixo seria pôr palavras na boca
     // dela: um "eu concordo" poderia virar "eu discordo" sem sinal nenhum.
@@ -274,7 +274,7 @@ describe("Comentário — editar é do autor, moderar é do dono do curso", () =
   });
 });
 
-describe("Curso arquivado — aposenta sem expulsar", () => {
+describe("Curso arquivado, aposenta sem expulsar", () => {
   const arquivado = (enrolled?: boolean): Resource => ({
     kind: "course",
     authorId: author.id,
@@ -311,7 +311,7 @@ describe("Curso arquivado — aposenta sem expulsar", () => {
   });
 });
 
-describe("Fronteira de tenant — nada atravessa", () => {
+describe("Fronteira de tenant, nada atravessa", () => {
   const T1 = "tenant-nerdlms";
   const T2 = "tenant-acme";
 
@@ -369,7 +369,7 @@ describe("Fronteira de tenant — nada atravessa", () => {
     );
   });
 
-  test("sem tenant declarado, decide o papel — não vira permissão implícita", () => {
+  test("sem tenant declarado, decide o papel, não vira permissão implícita", () => {
     // A transição: chamadas antigas ainda não informam tenant. A ausência não
     // pode virar "pode tudo" nem "não pode nada" — quem decide continua sendo
     // a regra de papel, como antes desta mudança.

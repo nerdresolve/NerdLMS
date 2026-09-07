@@ -8,6 +8,7 @@ import { Bell, BellOff, Lock, MessageSquare, Pin, Plus } from "lucide-react";
 import type { ForumTopic } from "@nerdlms/backend/forum/forum-repository.ts";
 
 import "./forum.css";
+import { campoObrigatorio } from "@/lib/campo-obrigatorio.ts";
 
 /**
  * Fórum do curso — F4-01.
@@ -78,7 +79,7 @@ export function ForumView({
   return (
     <div className="forum">
       <div className="page-head">
-        <h1 className="page-head__greeting">Fórum</h1>
+        <h1 className="page-head__title">Fórum</h1>
         <p className="page-head__sub">
           Dúvidas e discussões de {courseTitle}. {topics.length}{" "}
           {topics.length === 1 ? "tópico" : "tópicos"}.
@@ -95,7 +96,7 @@ export function ForumView({
               className="input"
               id="topico-titulo"
               name="title"
-              required
+              {...campoObrigatorio("Escreva o título do tópico.")}
               placeholder="Dúvida sobre a questão 3 da prova"
             />
           </div>
@@ -109,10 +110,10 @@ export function ForumView({
               id="topico-corpo"
               name="body"
               rows={5}
-              required
+              {...campoObrigatorio("Escreva a sua dúvida.")}
             />
             <p className="field__hint">
-              Use @nome para mencionar alguém — a pessoa recebe um aviso.
+              Use @nome para mencionar alguém, a pessoa recebe um aviso.
             </p>
           </div>
 
@@ -168,14 +169,14 @@ export function ForumView({
                 <div className="forum-topic__actions">
                   <button
                     type="button"
-                    className="btn btn--ghost btn--sm"
+                    className="btn btn--ghost btn--small"
                     onClick={() => void moderar(topico.id, "pinned", !topico.pinned)}
                   >
                     {topico.pinned ? "Desafixar" : "Fixar"}
                   </button>
                   <button
                     type="button"
-                    className="btn btn--ghost btn--sm"
+                    className="btn btn--ghost btn--small"
                     onClick={() => void moderar(topico.id, "closed", !topico.closed)}
                   >
                     {topico.closed ? "Reabrir" : "Fechar"}
@@ -233,7 +234,7 @@ export function SubscribeButton({
   }
 
   return (
-    <button type="button" className="btn btn--secondary btn--sm" disabled={busy} onClick={alternar}>
+    <button type="button" className="btn btn--secondary btn--small" disabled={busy} onClick={alternar}>
       {subscribed ? <BellOff aria-hidden /> : <Bell aria-hidden />}
       {subscribed ? "Parar de acompanhar" : "Acompanhar"}
     </button>

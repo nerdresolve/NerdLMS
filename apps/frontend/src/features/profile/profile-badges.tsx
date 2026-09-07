@@ -103,7 +103,7 @@ export function ProfileBadges({ badges }: { badges: ProfileBadge[] }) {
 
       <p className="pbadges__hint">
         Cada badge tem um link público de verificação. Quem abrir vê o que você conquistou, sem
-        precisar de conta — e sem ver o seu e-mail.
+        precisar de conta, e sem ver o seu e-mail.
       </p>
 
       <ul className="pbadges">
@@ -145,14 +145,14 @@ export function ProfileBadges({ badges }: { badges: ProfileBadge[] }) {
                 <div className="pbadges__acoes">
                   <button
                     type="button"
-                    className="btn btn--ghost btn--sm"
+                    className="btn btn--ghost btn--small"
                     onClick={() => copiarLink(badge.code)}
                   >
                     <Link2 aria-hidden /> {copiado === badge.code ? "Copiado" : "Copiar link"}
                   </button>
 
                   <a
-                    className="btn btn--ghost btn--sm"
+                    className="btn btn--ghost btn--small"
                     href={`/badge/${badge.code}`}
                     target="_blank"
                     rel="noreferrer"

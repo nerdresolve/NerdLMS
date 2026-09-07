@@ -5,21 +5,14 @@ import { BadgeCheck, CircleAlert, Clock, GraduationCap } from "lucide-react";
 import { verifyCertificateUseCase } from "@nerdlms/backend/reports/certificate-use-case.ts";
 import { formatDuration } from "@nerdlms/core/courses/progress.ts";
 
-import { NOME_PADRAO } from "@nerdlms/core/tenancy/branding.ts";
-
-import { tenantOfRequest } from "@/lib/tenant-request.ts";
 import "@/styles/status-page.css";
 import "./validar.css";
+import { CampoCodigo } from "./campo-codigo.tsx";
 
-export async function generateMetadata(): Promise<Metadata> {
-  const tenant = await tenantOfRequest();
-  const nome = tenant?.name ?? NOME_PADRAO;
-
-  return {
-    title: "Validar certificado",
-    description: `Confira a autenticidade de um certificado emitido pela plataforma de ensino da ${nome}.`,
-  };
-}
+export const metadata: Metadata = {
+  title: "Validar certificado · Exemplo S.A.",
+  description: "Confira a autenticidade de um certificado emitido pela plataforma de ensino da Exemplo S.A..",
+};
 
 /* Consulta o banco a cada visita: um certificado emitido hoje precisa validar
    hoje, e a página é leve. */
@@ -73,17 +66,7 @@ export default async function ValidarPage({
             Código de verificação
           </label>
           <div className="validar__row">
-            <input
-              className="input"
-              id="codigo"
-              name="codigo"
-              defaultValue={codigo}
-              placeholder="Ex.: F645CAEB5BCB"
-              maxLength={16}
-              autoComplete="off"
-              spellCheck={false}
-              required
-            />
+            <CampoCodigo codigo={codigo} />
             <button type="submit" className="btn btn--primary">
               Conferir
             </button>

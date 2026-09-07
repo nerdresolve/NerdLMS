@@ -70,7 +70,7 @@ function textoDe(entries: ZipEntry[], caminho: string): string {
   return entries.find((e) => e.path === caminho)?.data.toString("utf8") ?? "";
 }
 
-describe("ZIP — leitura de um pacote normal", () => {
+describe("ZIP, leitura de um pacote normal", () => {
   test("lê arquivos comprimidos e não comprimidos", () => {
     const zip = montarZip([
       { nome: "imsmanifest.xml", conteudo: "<manifest/>" },
@@ -122,7 +122,7 @@ describe("ZIP — leitura de um pacote normal", () => {
   });
 });
 
-describe("ZIP — as defesas", () => {
+describe("ZIP, as defesas", () => {
   test("zip slip: caminho com .. é RECUSADO", () => {
     /* O ataque clássico: `../../etc/senha` escreveria fora do prefixo do
        pacote. É por isso que o caminho é conferido antes de virar chave. */
@@ -197,7 +197,7 @@ describe("ZIP — as defesas", () => {
   });
 });
 
-describe("ZIP — achar o manifesto", () => {
+describe("ZIP, achar o manifesto", () => {
   test("na raiz, como o padrão manda", () => {
     const r = readZip(
       montarZip([
@@ -250,7 +250,7 @@ describe("ZIP — achar o manifesto", () => {
   });
 });
 
-describe("ZIP — a barra do Windows", () => {
+describe("ZIP, a barra do Windows", () => {
   test("barra invertida no caminho vira barra normal", () => {
     /* O `Compress-Archive` do Windows grava `assets\app.js`, e foi assim que
        um pacote real chegou no primeiro teste. Sem normalizar, a chave no

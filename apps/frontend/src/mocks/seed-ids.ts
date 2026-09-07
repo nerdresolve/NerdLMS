@@ -7,7 +7,7 @@ import { createHash } from "node:crypto";
  * de sortear garante que `c1` seja sempre o mesmo UUID — é o que permite o seed
  * ser reaplicado com `ON CONFLICT (id)` sem duplicar nada, e é o que permite
  * traduzir o id da sessão de volta para o id do mock enquanto os dois mundos
- * coexistem.
+ * coexistem (TASK-006).
  *
  * A função vive aqui, e não dentro do gerador de seed, porque **os dois lados
  * precisam concordar**: `infra/tools/build-seed.mjs` a usa para escrever o SQL,

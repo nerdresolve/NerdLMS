@@ -97,7 +97,7 @@ export function Reorderable({
   }
 
   return (
-    <div className="reorder">
+    <div>
       <ol className="reorder__list">
         {lista.map((item, index) => (
           <li

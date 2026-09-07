@@ -1,15 +1,21 @@
 /**
- * Regras do catálogo.
+ * Regras do catálogo — TASK-017.
  *
  * Filtro, busca e ordenação são puros e ficam aqui em vez de dentro do
  * componente: a mesma regra vai valer no servidor quando a lista passar a ser
- * paginada pelo banco, e assim os dois lados não divergem.
+ * paginada pelo banco (TASK-006), e assim os dois lados não divergem.
  */
 
 import { courseProgress, type ProgressSummary } from "./progress.ts";
+import { estadoDoCurso, type EstadoDoCurso } from "./completion.ts";
 import type { Course, Enrollment } from "./types.ts";
 
-export type CatalogFilter = "all" | "in_progress" | "completed" | "saved";
+export type CatalogFilter =
+  | "all"
+  | "not_started"
+  | "in_progress"
+  | "completed"
+  | "saved";
 export type CatalogSort = "continue" | "alphabetical" | "progress";
 
 /**
@@ -24,6 +30,18 @@ export interface CatalogItem {
   /** Resumo completo: o card mostra "X de Y aulas", não só o percentual. */
   summary: ProgressSummary;
   saved: boolean;
+  /**
+   * O estado do CURSO, que não é o das aulas.
+   *
+   * Com prova obrigatória, terminar as aulas não fecha o curso — e o filtro
+   * "Concluídos" saía de `summary.status`, listando curso cuja prova não foi
+   * feita. O aluno via o curso entre os concluídos e o certificado era
+   * recusado; a tela prometia o que a regra negava.
+   *
+   * Ausente quando quem montou a lista não tinha o estado das provas em mãos:
+   * aí vale o das aulas, que é o comportamento de antes.
+   */
+  estado?: EstadoDoCurso;
 }
 
 export interface CatalogEntry extends CatalogItem {
@@ -112,26 +130,56 @@ function matches(entry: CatalogItem, term: string): boolean {
     .every((word) => haystack.includes(word));
 }
 
-export function toCatalogEntries(courses: Course[], enrollments: Enrollment[]): CatalogEntry[] {
+export function toCatalogEntries(
+  courses: Course[],
+  enrollments: Enrollment[],
+  /** Melhor percentual por curso, quando se sabe. Ver `estado` em `CatalogItem`. */
+  notas?: Map<string, number | null>,
+): CatalogEntry[] {
   return courses.flatMap((course) => {
     const enrollment = enrollments.find((item) => item.courseId === course.id);
     if (!enrollment) return [];
+
+    const summary = courseProgress(course, enrollment);
 
     return [
       {
         course,
         enrollment,
-        summary: courseProgress(course, enrollment),
+        summary,
         saved: enrollment.saved === true,
+        ...(notas
+          ? {
+              estado: estadoDoCurso(summary, {
+                notaMinima: course.minGradePercent ?? null,
+                melhorPercentual: notas.get(course.id) ?? null,
+              }),
+            }
+          : {}),
       },
     ];
   });
 }
 
+/**
+ * Concluído é o estado do CURSO — prova incluída, quando há.
+ *
+ * `estado` ausente cai no das aulas: é o comportamento de quem chama sem
+ * saber das provas, e mantém funcionando quem ainda não passou a informar.
+ */
+const concluido = (entry: CatalogItem): boolean =>
+  entry.estado ? entry.estado === "concluido" : entry.summary.status === "completed";
+
 const FILTERS: Record<CatalogFilter, (entry: CatalogItem) => boolean> = {
   all: () => true,
-  in_progress: (entry) => entry.summary.status === "in_progress",
-  completed: (entry) => entry.summary.status === "completed",
+  /* Os três estados abaixo são mutuamente exclusivos e cobrem o conjunto
+     inteiro, de modo que somados reproduzem o total de "Todos". "Salvos"
+     atravessa os três e fica de fora dessa soma. */
+  not_started: (entry) => entry.summary.status === "not_started" && !concluido(entry),
+  /* "Em andamento" inclui quem terminou as aulas e ainda deve a prova. Sem
+     isso, o curso não apareceria em nenhum dos três. */
+  in_progress: (entry) => !concluido(entry) && entry.summary.status !== "not_started",
+  completed: concluido,
   saved: (entry) => entry.saved,
 };
 
@@ -174,6 +222,7 @@ export function queryCatalog<T extends CatalogItem>(entries: T[], query: Catalog
 export function catalogCounts(entries: CatalogItem[]): Record<CatalogFilter, number> {
   return {
     all: entries.length,
+    not_started: entries.filter(FILTERS.not_started).length,
     in_progress: entries.filter(FILTERS.in_progress).length,
     completed: entries.filter(FILTERS.completed).length,
     saved: entries.filter(FILTERS.saved).length,

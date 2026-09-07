@@ -110,7 +110,7 @@ export function TopicView({
           {!topic.closed && !aninhada ? (
             <button
               type="button"
-              className="btn btn--ghost btn--sm"
+              className="btn btn--ghost btn--small"
               onClick={() => setRespondendo(respondendo === post.id ? null : post.id)}
             >
               Responder
@@ -122,7 +122,7 @@ export function TopicView({
           {post.authorId !== viewerId ? (
             <button
               type="button"
-              className="btn btn--ghost btn--sm"
+              className="btn btn--ghost btn--small"
               onClick={() => {
                 const motivo = window.prompt("Por que esta mensagem deve ser revista?");
                 if (motivo?.trim()) {
@@ -137,7 +137,7 @@ export function TopicView({
           {canModerate ? (
             <button
               type="button"
-              className="btn btn--ghost btn--sm"
+              className="btn btn--ghost btn--small"
               onClick={() =>
                 void acao(
                   { postId: post.id, hide: !post.hidden, reason: post.hidden ? null : "Conteúdo impróprio" },
@@ -156,7 +156,7 @@ export function TopicView({
               Sua resposta
             </label>
             <textarea className="input forum__textarea" id={`r-${post.id}`} name="body" rows={3} />
-            <button type="submit" className="btn btn--primary btn--sm" disabled={busy}>
+            <button type="submit" className="btn btn--primary btn--small" disabled={busy}>
               <Send aria-hidden /> Responder
             </button>
           </form>
@@ -169,7 +169,7 @@ export function TopicView({
     <div className="forum">
       <div className="forum__head">
         <div>
-          <h1 className="page-head__greeting">{topic.title}</h1>
+          <h1 className="page-head__title">{topic.title}</h1>
           <p className="page-head__sub">
             {topic.authorName}
             {topic.closed ? " · tópico fechado" : ""}

@@ -108,7 +108,7 @@ describe("learnerRows", () => {
     ]);
   });
 
-  test("descarta matrícula de curso fora do recorte — é assim que o instrutor não vê turma alheia", () => {
+  test("descarta matrícula de curso fora do recorte, é assim que o instrutor não vê turma alheia", () => {
     const a = curso("a", 4);
     assert.deepEqual(learnerRows([a], [matricula("z", "s1", 4)]), []);
   });

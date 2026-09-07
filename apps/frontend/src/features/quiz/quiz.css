@@ -35,9 +35,13 @@
 }
 .quiz__timer svg { width: 16px; height: 16px; }
 
-/* Menos de um minuto: o aviso é por cor E por peso, nunca só por cor. */
+/* Menos de um minuto: o aviso é por cor E por peso, nunca só por cor.
+
+   `--danger-text` é o nome que o sistema de design usa; `--text-danger` não
+   existe, e a regra caía no vermelho fixo do fallback — escuro demais para ler
+   no tema escuro, justamente no momento em que o relógio está acabando. */
 .quiz__timer[data-baixo] {
-  color: var(--text-danger, #b42318);
+  color: var(--danger-text);
   border-color: currentColor;
   font-weight: var(--weight-bold);
 }
@@ -60,7 +64,8 @@
   font-size: var(--text-body-size);
   font-weight: var(--weight-semibold);
   color: var(--text-title);
-  line-height: var(--line-heading);
+  /* O enunciado usa o corpo em peso forte, então a altura é a do corpo. */
+  line-height: var(--text-body-lh);
 }
 
 .quiz-options { display: flex; flex-direction: column; gap: var(--space-2); }
@@ -157,3 +162,59 @@
   color: var(--text-brand);
 }
 .quiz-result__text { margin: 0; font-size: var(--text-small-size); color: var(--text-muted); }
+
+/* O que fazer depois do resultado.
+
+   Aprovado leva ao certificado; reprovado, ao pedido de reteste. Nos dois
+   casos há UMA ação óbvia — a tela que termina sem saída faz a pessoa voltar
+   pelo navegador e perder o contexto do que acabou de acontecer. */
+.quiz-result__acoes {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-3);
+  margin-top: var(--space-5);
+}
+
+.quiz-result__nota-rodape {
+  margin: 0;
+  font-size: var(--text-caption-size);
+  color: var(--text-muted);
+}
+
+/* A escala ao lado da nota: menor e apagada, porque o número é que importa. */
+.quiz-result__escala { font-size: 0.5em; color: var(--text-muted); font-weight: 400; }
+
+/* --- Pedido de reteste ---------------------------------------------------- */
+
+.retake { display: grid; justify-items: center; gap: var(--space-2); margin-top: var(--space-5); }
+
+/* Estado "solicitado": não é botão, é informação. Fica em caixa discreta para
+   não competir com a nota, que continua sendo o assunto da tela. */
+.retake--aguardando {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-5);
+  text-align: left;
+  background: var(--surface-sunken);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+}
+.retake--aguardando svg { width: var(--icon-sm); height: var(--icon-sm); flex: none; color: var(--text-muted); }
+.retake--aguardando p { margin: var(--space-1) 0 0; font-size: var(--text-small-size); color: var(--text-muted); }
+
+/* O diálogo. `<dialog>` nativo já centraliza e escurece o fundo pelo
+   `::backdrop`; o que resta é a caixa. */
+.retake-modal {
+  width: min(92vw, 460px);
+  padding: var(--space-6);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-card);
+  background: var(--surface-card);
+  color: var(--text-body);
+}
+.retake-modal::backdrop { background: rgb(0 0 0 / 0.55); }
+
+.retake-modal__titulo { margin: 0 0 var(--space-2); font-size: var(--text-h3-size); color: var(--text-title); }
+.retake-modal__texto { margin: 0 0 var(--space-5); font-size: var(--text-small-size); color: var(--text-muted); }
+.retake-modal__acoes { display: flex; justify-content: flex-end; gap: var(--space-3); margin-top: var(--space-5); }

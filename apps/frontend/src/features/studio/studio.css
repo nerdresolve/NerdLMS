@@ -2,10 +2,6 @@
    O que hoje depende da REVO: cadastrar curso, módulo, aula e material.
    Usa os mesmos primitivos do resto da plataforma — não é "tela de admin". */
 
-.studio { display: flex; flex-direction: column; gap: var(--space-8); max-width: var(--content-max); }
-
-.studio__head { display: flex; align-items: flex-start; gap: var(--space-4); flex-wrap: wrap; }
-.studio__head-text { flex: 1; min-width: 240px; }
 
 /* ===== Lista de cursos do instrutor ===== */
 .studio-list { display: flex; flex-direction: column; gap: var(--space-3); }
@@ -149,38 +145,9 @@
 .engagement__stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-4); }
 @container (min-width: 720px) { .engagement__stats { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
 
-/* Tabela que vira lista em tela estreita: cada linha carrega o rótulo da
-   coluna em data-label e ele aparece quando as colunas somem. */
-.table-wrap { overflow-x: auto; border: 1px solid var(--border-subtle); border-radius: var(--radius-card); background: var(--surface-card); }
-.table { width: 100%; border-collapse: collapse; font-size: var(--text-small-size); }
-.table th,
-.table td { padding: var(--space-3) var(--space-4); text-align: left; }
-.table thead th {
-  font-size: var(--text-overline-size);
-  letter-spacing: var(--text-overline-tracking);
-  text-transform: uppercase;
-  font-weight: var(--weight-bold);
-  color: var(--text-muted);
-  border-bottom: 1px solid var(--border-subtle);
-  white-space: nowrap;
-}
-.table tbody tr + tr td { border-top: 1px solid var(--border-subtle); }
-.table td:last-child,
-.table th:last-child { text-align: right; }
-.table__name { font-weight: var(--weight-semibold); color: var(--text-title); }
-.table__bar { width: 120px; }
-.table__percent { font-variant-numeric: tabular-nums; font-weight: var(--weight-semibold); color: var(--text-title); }
-
-@container (max-width: 720px) {
-  .table thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
-  .table tbody tr { display: grid; gap: var(--space-2); padding: var(--space-4); }
-  .table tbody tr + tr { border-top: 1px solid var(--border-subtle); }
-  .table td { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); padding: 0; }
-  .table tbody tr + tr td { border-top: none; }
-  .table td::before { content: attr(data-label); font-size: var(--text-caption-size); color: var(--text-muted); }
-  .table td:last-child { text-align: right; }
-  .table__bar { width: 100%; max-width: 160px; }
-}
+/* A tabela do produto (`.table`, `.table-wrap`) mora em styles/components.css:
+   nove telas a usam, e deixá-la aqui deixava sem estilo quem não carregasse
+   este arquivo. As variações continuam por conta de cada tela. */
 
 /* ===== Admin — TASK-048 ===== */
 .admin-toolbar { display: flex; align-items: center; gap: var(--space-3); flex-wrap: wrap; }
@@ -191,14 +158,33 @@
 .user-email { font-size: var(--text-caption-size); color: var(--text-muted); overflow-wrap: anywhere; }
 
 /* Situação do usuário. Cada estado tem cor E texto — nunca só a cor. */
-.badge--pending { background: var(--warning-surface); color: var(--warning-text); }
-.badge--inactive { background: var(--surface-sunken); color: var(--text-muted); }
 
 .table__actions { display: flex; gap: var(--space-2); justify-content: flex-end; }
 
 /* Distribuição por projeto: barra simples, sem biblioteca de gráfico. */
-.breakdown { display: flex; flex-direction: column; gap: var(--space-4); }
-.breakdown__row { display: grid; gap: var(--space-2); }
+/* Rótulo e número, um por linha. Sobrou para os contadores da auditoria, que
+   não têm colunas para virar tabela — as outras duas listas que usavam isto
+   tinham, e viraram.
+
+   Era uma pilha de texto solto: rótulo em cima, número embaixo, sem moldura.
+   Ao lado de uma tabela e de quatro cartões, lia-se como dado que ninguém
+   terminou de formatar. Agora é um cartão com as mesmas bordas de `.table-wrap`,
+   e o número alinha à direita como número. */
+.breakdown {
+  display: flex;
+  flex-direction: column;
+  background: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-card);
+}
+.breakdown__row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+}
+.breakdown__row + .breakdown__row { border-top: 1px solid var(--border-subtle); }
 .breakdown__head { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-3); }
 .breakdown__label { font-size: var(--text-small-size); color: var(--text-body); }
 .breakdown__value { font-size: var(--text-small-size); font-weight: var(--weight-semibold); color: var(--text-title); font-variant-numeric: tabular-nums; }
@@ -224,7 +210,6 @@
 .audit-ip { font-family: var(--font-mono); font-size: 11.5px; color: var(--text-faint); }
 
 /* Resultado negado: cor, ícone e a palavra — nunca só a cor. */
-.badge--denied { background: var(--danger-surface); color: var(--danger-text); }
 
 /* Cada fato do card é um bloco próprio: sem isto, o ícone de alunos encosta no
    texto anterior e "8h 40min" e "5 alunos" viram uma palavra só. */
@@ -267,18 +252,17 @@
   .invite-form > .btn { grid-column: 1 / -1; justify-self: start; }
   .invite-form > .notice { grid-column: 1 / -1; }
 }
-.btn--small {
-  padding: var(--space-1) var(--space-2);
-  font-size: var(--text-caption-size);
-}
 
 /* ===== Recortes do relatório (TASK-047) =====
    Vive aqui porque o painel do admin já importa esta folha. */
+/* Sem margem própria: o cartão é filho direto de `.page`, e a coluna já separa
+   os irmãos em 32px. Com a margem, o vão até o alerta seguinte era de 64 — o
+   dobro de qualquer outro espaço da tela, e o único lugar do painel onde a
+   página parecia ter um buraco. */
 .report-filters {
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
-  margin-bottom: var(--space-8);
   padding: var(--space-5);
   background: var(--surface-card);
   border: 1px solid var(--border-subtle);
@@ -409,7 +393,7 @@
   height: auto;
   padding-block: var(--space-2);
   resize: vertical;
-  line-height: var(--line-body);
+  line-height: var(--text-body-lh);
 }
 
 /* A dica dentro do rótulo da caixa de seleção precisa de bloco próprio: em
@@ -550,15 +534,43 @@
   font-size: var(--text-caption-size);
 }
 
-/* Preferências de notificação — F4-04. */
-.prefs__col { width: 8rem; text-align: center; }
-.prefs__desc {
-  display: block;
-  margin-top: var(--space-1);
+/* O que já está anexado. Ocupa a linha inteira abaixo do campo de envio —
+   `flex-basis: 100%` num container que quebra —, porque a lista pertence à
+   aula e não ao campo. */
+.editor-materials__anexos {
+  flex: 1 1 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0 0 0 var(--space-4);
+  list-style: none;
+}
+
+.editor-materials__anexo {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
   font-size: var(--text-caption-size);
-  font-weight: var(--weight-regular);
   color: var(--text-muted);
 }
+.editor-materials__anexo svg { width: 14px; height: 14px; flex: none; }
+
+/* O nome trunca em vez de empurrar o botão para fora: nome de arquivo enviado
+   por gente pode ter qualquer comprimento. */
+.editor-materials__nome {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  /* `--text-body`, não `--text-muted`: o nome do arquivo é o conteúdo da
+     linha, e o rótulo em volta é que é secundário. */
+  color: var(--text-body);
+}
+
+/* `.prefs__col` e `.prefs__desc` também foram para styles/components.css,
+   pelo mesmo motivo: o perfil precisa das duas e não carrega este arquivo. */
 
 /* Textos de e-mail — F4-05. */
 .templates { display: flex; flex-direction: column; gap: var(--space-2); margin: 0; padding: 0; list-style: none; }
@@ -577,3 +589,46 @@
 }
 .templates__form { display: flex; flex-direction: column; gap: var(--space-3); margin-top: var(--space-3); }
 .templates__form .btn { align-self: flex-start; }
+
+/* O arquivo da aula, na lista do editor.
+
+   Sem esta marca, aula com vídeo e aula vazia ficavam idênticas — e quem abria
+   um curso importado via uma casca. O link é discreto de propósito: informa que
+   há conteúdo e dá como conferir, sem competir com o título da aula. */
+.editor-lesson__arquivo {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-caption-size);
+  color: var(--brand);
+  text-decoration: none;
+}
+.editor-lesson__arquivo:hover { text-decoration: underline; }
+.editor-lesson__arquivo svg { width: 14px; height: 14px; }
+
+/* "Sem arquivo" não é erro: aula de texto não tem anexo. Por isso fica em tom
+   apagado, e não em cor de alerta. */
+.editor-lesson__sem-arquivo {
+  font-size: var(--text-caption-size);
+  color: var(--text-faint);
+}
+
+/* A leitura do aproveitamento: aparece só quando há dados que a sustentem, e
+   por isso precisa se distinguir da tabela em vez de parecer mais uma linha. */
+.engagement__leitura {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  margin: var(--space-4) 0 0;
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--surface-brand-subtle);
+  color: var(--text-body);
+  font-size: var(--text-small-size);
+  line-height: var(--text-small-lh);
+}
+.engagement__leitura svg { width: 15px; height: 15px; flex: none; margin-top: 2px; color: var(--text-brand); }
+
+/* A faixa de quem ainda não passou fecha a soma da tabela, e não é um
+   resultado como os outros: fica sublinhada em cor de atenção. */
+.table tbody tr[data-sem-aprovacao="true"] td { color: var(--text-muted); }

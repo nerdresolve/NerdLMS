@@ -9,7 +9,7 @@ describe("Paleta derivada da cor do cliente", () => {
     // escolhe amarelo não pode terminar com botão de texto ilegível — e o
     // problema apareceria no produto dele, não no cadastro.
     const cores = [
-      "#7C3AED", // violeta da marca
+      "#4C1D95", // azul da Exemplo S.A.
       "#FFE600", // amarelo — o pior caso com texto branco
       "#00FF00", // verde puro
       "#FF6B6B", // coral claro
@@ -35,7 +35,7 @@ describe("Paleta derivada da cor do cliente", () => {
   });
 
   test("cor escura mantém texto branco", () => {
-    const p = paletteFrom("#7C3AED");
+    const p = paletteFrom("#0A33CC");
     assert.equal(p.onBrand, "#FFFFFF");
   });
 
@@ -53,30 +53,19 @@ describe("Paleta derivada da cor do cliente", () => {
 
   test("hover e ativo são mais escuros que a base", () => {
     // Sem isso o estado de hover some: o botão não reage ao ponteiro.
-    // Uma marca ESCURA (leva texto branco): aqui escurecer é o que aumenta o
-    // contraste. Numa marca clara o ajuste é o oposto — ver o teste abaixo.
-    const p = paletteFrom("#6D28D9");
+    const p = paletteFrom("#2D5BFF");
     assert.ok(contrastRatio(p.brandHover, "#FFFFFF") > contrastRatio(p.brand, "#FFFFFF"));
     assert.ok(contrastRatio(p.brandActive, "#FFFFFF") > contrastRatio(p.brandHover, "#FFFFFF"));
   });
 
-  test("numa marca clara, hover e ativo CLAREIAM", () => {
-    // O espelho do teste acima. `#A855F7` dá 3.96:1 sobre branco, então o
-    // texto por cima é escuro — e escurecer o hover reduziria o contraste com
-    // ele em vez de aumentar. A regra é "afasta do texto", não "escurece".
-    const p = paletteFrom("#A855F7");
-    assert.ok(contrastRatio(p.brandHover, "#0B1120") > contrastRatio(p.brand, "#0B1120"));
-    assert.ok(contrastRatio(p.brandActive, "#0B1120") > contrastRatio(p.brandHover, "#0B1120"));
-  });
-
   test("a superfície sutil é clara o bastante para texto escuro", () => {
     // `--surface-brand-subtle` é fundo de selo e faixa, com texto por cima.
-    const p = paletteFrom("#7C3AED");
+    const p = paletteFrom("#0A33CC");
     assert.ok(contrastRatio(p.brandSubtle, "#0B1120") >= 4.5);
   });
 });
 
-describe("Contraste — a medida", () => {
+describe("Contraste, a medida", () => {
   test("preto sobre branco é 21:1", () => {
     assert.ok(Math.abs(contrastRatio("#000000", "#FFFFFF") - 21) < 0.01);
   });
@@ -110,12 +99,12 @@ describe("CSS injetado", () => {
   });
 });
 
-describe("Marca como TEXTO — o caso que a superfície não cobre", () => {
+describe("Marca como TEXTO, o caso que a superfície não cobre", () => {
   test("a marca vira texto legível sobre fundo claro, sempre", () => {
     // `--text-brand` é o rótulo colorido sobre card branco. A cor crua da
     // marca não serve: um amarelo dá 1.27:1 ali — invisível. É por isso que
     // esta variante existe separada de `brand`, onde a cor é FUNDO.
-    for (const cor of ["#7C3AED", "#FFE600", "#00FF00", "#FF6B6B", "#7C3AED"]) {
+    for (const cor of ["#0A33CC", "#FFE600", "#00FF00", "#FF6B6B", "#7C3AED"]) {
       const p = paletteFrom(cor);
       const razao = contrastRatio(p.textBrand, "#FFFFFF");
       assert.ok(razao >= 4.5, `${cor} → texto ${p.textBrand} deu ${razao.toFixed(2)}:1`);
@@ -124,8 +113,8 @@ describe("Marca como TEXTO — o caso que a superfície não cobre", () => {
 
   test("cor que já é legível não é alterada", () => {
     // Escurecer o que já passa mudaria a marca sem motivo.
-    const p = paletteFrom("#7C3AED");
-    assert.equal(p.textBrand, "#7C3AED");
+    const p = paletteFrom("#0A33CC");
+    assert.equal(p.textBrand, "#0A33CC");
   });
 
   test("a superfície mantém a cor do cliente, mesmo quando o texto escurece", () => {

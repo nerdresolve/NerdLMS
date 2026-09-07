@@ -184,7 +184,7 @@ export function InteractivePlayer({ lessonId }: { lessonId: string }) {
           </>
         ) : (
           <>
-            {conteudo.summary.answered} de {conteudo.summary.total} respondidas — faltam{" "}
+            {conteudo.summary.answered} de {conteudo.summary.total} respondidas, faltam{" "}
             {conteudo.canComplete.remaining}
           </>
         )}
@@ -216,6 +216,11 @@ export function InteractivePlayer({ lessonId }: { lessonId: string }) {
 
       {conteudo.kind === "image_hotspots" && conteudo.mediaUrl ? (
         <div className="iplayer__imagem">
+          {/* Mesmo motivo do visualizador de documentos: a imagem é conteúdo
+              de aula enviado pelo cliente, de host desconhecido em tempo de
+              build. E aqui os pontos clicáveis são posicionados em percentual
+              sobre ela — o redimensionamento do otimizador moveria os alvos. */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={conteudo.mediaUrl} alt={conteudo.title} className="iplayer__media" />
 
           {conteudo.items.map((item) => (

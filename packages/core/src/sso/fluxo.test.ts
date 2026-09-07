@@ -17,7 +17,7 @@ import { providerPreset, resolveEndpoint } from "./providers.ts";
 
 const AGORA = 1_800_000_000;
 
-describe("SSO — o caminho feliz, ponta a ponta", () => {
+describe("SSO, o caminho feliz, ponta a ponta", () => {
   test("Google: da URL de autorização até a decisão de vincular", () => {
     const preset = providerPreset("google")!;
 

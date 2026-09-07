@@ -1,10 +1,11 @@
 /**
- * Conteúdo da tela de acesso inicial.
+ * Conteúdo da tela de acesso inicial — TASK-021.
  *
  * Os números eram da referência visual: "+10 mil alunos", "94% de satisfação".
- * Numa página pública, com a marca do cliente, isso é afirmação sobre o negócio
- * de outra empresa — e nenhum deles era verdade (o banco tinha 13 pessoas e 7
- * cursos). Agora vêm de contagem real, montada por quem chama.
+ * Numa página pública, com a marca da Exemplo S.A., isso é afirmação sobre o
+ * negócio de uma empresa real — e nenhum deles era verdade (o banco tinha 13
+ * pessoas e 7 cursos). Agora vêm de contagem real, montada por quem chama
+ * (ISSUE-009).
  *
  * Satisfação saiu de vez: não existe pesquisa, então não há de onde tirar o
  * número. Inventar uma métrica de percepção é pior que omiti-la.
@@ -26,7 +27,7 @@ export const LANDING_POINTS: LandingPoint[] = [
   {
     icon: "book-open",
     title: "Cursos da operação",
-    text: "Tratamento, distribuição, trabalho de campo e atendimento ao usuário.",
+    text: "Operação de poços, integridade de ativos, segurança de campo e meio ambiente.",
   },
   {
     icon: "clock",

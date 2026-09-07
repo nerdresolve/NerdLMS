@@ -1,25 +1,19 @@
+import { NOME_PADRAO } from "@nerdlms/core/tenancy/branding.ts";
 import type { Metadata } from "next";
 import Image from "next/image";
 
-import { BRANDING_PADRAO, NOME_PADRAO } from "@nerdlms/core/tenancy/branding.ts";
-
-import { FluidWave } from "@/components/brand/fluid-wave.tsx";
+import { BrandMosaic } from "@/components/brand/brand-mosaic.tsx";
 import { LoginForm } from "@/features/auth/login-form.tsx";
+import { loginMode } from "@/features/auth/login-mode.ts";
 import { SsoButtons } from "@/features/auth/sso-buttons.tsx";
 import { ssoOptionsForLogin } from "@/features/auth/sso-options.ts";
-import { tenantOfRequest } from "@/lib/tenant-request.ts";
 import "@/features/auth/login.css";
 
-export async function generateMetadata(): Promise<Metadata> {
-  const tenant = await tenantOfRequest();
-  const nome = tenant?.name ?? NOME_PADRAO;
-
-  return {
-    title: "Entrar",
-    description: `Acesse a plataforma de ensino da ${nome}.`,
-    robots: { index: false, follow: false },
-  };
-}
+export const metadata: Metadata = {
+  title: "Entrar · Exemplo S.A.",
+  description: "Acesse a plataforma de ensino da Exemplo S.A..",
+  robots: { index: false, follow: false },
+};
 
 /* Os provedores vêm do banco a cada visita: ligar o SSO na administração tem
    de refletir na tela de login sem esperar por revalidação de cache. */
@@ -31,60 +25,44 @@ export default async function LoginPage({
   searchParams: Promise<{ erro?: string }>;
 }) {
   const { erro } = await searchParams;
-  const sso = await ssoOptionsForLogin();
-  const tenant = await tenantOfRequest();
-
-  /* A marca do cliente, com a do produto como reserva. Sem isto, a primeira
-     tela que alguém vê traz o logo de outro cliente. */
-  const nome = tenant?.name ?? NOME_PADRAO;
-  const logo = tenant?.branding.logoDarkUrl ?? BRANDING_PADRAO.logoDark;
+  const [sso, modo] = await Promise.all([ssoOptionsForLogin(), loginMode()]);
 
   return (
     <main className="page">
       <div className="viewport">
         <div className="auth">
           <section className="brand">
-            <FluidWave variant="vertical" className="brand__waves" />
+            <BrandMosaic variant="vertical" className="brand__waves" tone="silhueta" />
 
-            {/* Versão branca: este logo fica sobre o gradiente violeta da marca. A
+            {/* Versão branca: este logo fica sobre o gradiente azul da marca. A
                 colorida some no fundo — é escura sobre escuro. */}
             <Image
               className="brand__logo"
-              src={logo}
-              alt={nome}
-              width={600}
-              height={165}
+              src="/brand/nerdresolve-wordmark-white.png"
+              alt={NOME_PADRAO}
+              width={400}
+              height={170}
               priority
             />
 
             <p className="brand__tagline">
               <strong>Aprender transforma.</strong>
-              Conhecimento move.
+              Energia move.
             </p>
 
-            <svg className="brand__squiggle" viewBox="0 0 72 12" fill="none" aria-hidden="true" focusable="false">
-              <path
-                d="M1 7C7 1 13 1 19 7s12 6 18 0 12-6 18 0 12 6 16 2"
-                stroke="currentColor"
-                strokeWidth={1.5}
-                strokeLinecap="round"
-              />
-            </svg>
-
-            <FluidWave variant="edge" className="brand__edge" />
+            {/* Régua da marca: os três acentos em blocos retos, no lugar do
+                rabisco à mão-livre que havia aqui. Traço à mão-livre não é
+                vocabulário da Exemplo S.A. — o material dela é todo módulo,
+                canto reto e círculo. */}
+            <span className="brand__rule" aria-hidden="true" />
           </section>
-
-          {/* Fora do `.brand` de propósito: a onda cruza a divisa entre as duas
-              colunas, e o `overflow: hidden` do painel violeta a recortaria
-              exatamente na emenda — que é onde ela precisa aparecer. */}
-          <FluidWave variant="split" className="brand__split" />
 
           <section className="form-panel">
             <div className="form-panel__inner">
               <h1 className="title">Bem-vindo de volta!</h1>
               <p className="subtitle">Acesse sua conta para continuar.</p>
 
-              <LoginForm />
+              <LoginForm diretorio={modo.diretorio} senhaLocal={modo.senhaLocal} />
 
               {/* O separador e os botões vêm juntos do componente: sem
                   provedor configurado, um "ou continue com" sobre nada seria

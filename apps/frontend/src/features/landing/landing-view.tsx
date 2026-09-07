@@ -2,8 +2,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { BookOpen, Clock, GraduationCap, Mail, TrendingUp, Users } from "lucide-react";
 
-import { FluidWave } from "@/components/brand/fluid-wave.tsx";
+import { BrandMosaic } from "@/components/brand/brand-mosaic.tsx";
 import { LANDING_POINTS, type LandingStat } from "@nerdlms/core/landing.ts";
+import { NOME_PADRAO } from "@nerdlms/core/tenancy/branding.ts";
 
 import "./landing.css";
 
@@ -20,28 +21,15 @@ const POINT_ICONS = {
   "trending-up": TrendingUp,
 } as const;
 
-export function LandingView({
-  stats,
-  nome,
-  logoLight,
-  logoDark,
-}: {
-  stats: LandingStat[];
-  /* A marca do cliente. Vem de cima porque quem resolve o tenant é a rota:
-     esta tela é a primeira coisa que alguém de fora vê, e trazia o logo de um
-     cliente fixo no JSX. */
-  nome: string;
-  logoLight: string;
-  logoDark: string;
-}) {
+export function LandingView({ stats }: { stats: LandingStat[] }) {
   return (
     <div className="landing">
       <header className="landing__header">
-        {/* Duas variantes, uma por tema: no escuro a marca violeta quase some
+        {/* Duas variantes, uma por tema: no escuro a marca azul quase some
             contra o fundo. O CSS decide, então vale já no primeiro render —
             estado do React ainda não sabe o tema nessa hora. */}
-        <Image className="landing__logo landing__logo--light" src={logoLight} alt={nome} width={600} height={165} priority />
-        <Image className="landing__logo landing__logo--dark" src={logoDark} alt="" aria-hidden width={600} height={165} />
+        <Image className="landing__logo landing__logo--light" src="/brand/nerdresolve-wordmark.png" alt={NOME_PADRAO} width={600} height={165} priority />
+        <Image className="landing__logo landing__logo--dark" src="/brand/nerdresolve-wordmark-white.png" alt="" aria-hidden width={600} height={165} />
         <span className="landing__header-spacer" />
         <nav className="landing__header-actions" aria-label="Acesso">
           <Link className="btn btn--secondary" href="#sobre">
@@ -59,8 +47,8 @@ export function LandingView({
             Treinamento da <em>operação</em>, no seu ritmo
           </h1>
           <p className="landing__lead">
-            Os cursos da sua empresa em um lugar só. A aula retoma de onde você parou, no computador
-            ou no celular.
+            Os cursos da Exemplo S.A. em um lugar só. A aula retoma de onde você parou, no
+            computador ou no celular.
           </p>
           <div className="landing__actions">
             <Link className="btn btn--primary" href="/login">
@@ -70,12 +58,31 @@ export function LandingView({
               Saiba mais
             </Link>
           </div>
+
+          {/* Os números vivem DENTRO do hero, sob os botões.
+
+              Eram uma seção própria, de largura inteira, entre o hero e o
+              "Sobre": três dados pequenos ocupando 10% de uma faixa e 90% de
+              vazio, com filete em cima e embaixo para delimitar quase nada.
+              Aqui eles têm função — sustentam a promessa do título — e de
+              quebra preenchem a coluna, que terminava nos botões e deixava um
+              buraco até a dobra. */}
+          {stats.length > 0 ? (
+            <dl className="landing__stats">
+              {stats.map((stat) => (
+                <div className="landing__stat" key={stat.label}>
+                  <dt className="landing__stat-label">{stat.label}</dt>
+                  <dd className="landing__stat-value">{stat.value}</dd>
+                </div>
+              ))}
+            </dl>
+          ) : null}
         </div>
 
         <div className="landing__art" aria-hidden="true">
           <span className="landing__halo" />
           <span className="landing__blob">
-            <FluidWave variant="layered" />
+            <BrandMosaic variant="layered" tone="silhueta" />
           </span>
 
           <span className="landing__badge landing__badge--a">
@@ -90,28 +97,11 @@ export function LandingView({
 
           {["a", "b"].map((position) => (
             <span key={position} className={`landing__tile landing__tile--${position}`}>
-              <FluidWave variant="organic" />
               <Users aria-hidden className="icon" />
             </span>
           ))}
         </div>
       </main>
-
-      {stats.length > 0 ? (
-      <div className="landing__stats-wrap">
-        <FluidWave variant="band" className="landing__stats-wave" />
-        <div className="landing__stats-bleed">
-          <dl className="landing__stats">
-            {stats.map((stat) => (
-              <div className="landing__stat" key={stat.label}>
-                <dt className="landing__stat-label">{stat.label}</dt>
-                <dd className="landing__stat-value">{stat.value}</dd>
-              </div>
-            ))}
-          </dl>
-        </div>
-      </div>
-      ) : null}
 
       <section className="landing__about" id="sobre" aria-labelledby="sobre-titulo">
         <h2 className="landing__about-title" id="sobre-titulo">
@@ -135,8 +125,8 @@ export function LandingView({
 
       <footer className="landing__footer">
         <div className="landing__footer-inner">
-          <Image className="landing__footer-logo landing__logo--light" src={logoLight} alt={nome} width={600} height={165} />
-          <Image className="landing__footer-logo landing__logo--dark" src={logoDark} alt="" aria-hidden width={600} height={165} />
+          <Image className="landing__footer-logo landing__logo--light" src="/brand/nerdresolve-wordmark.png" alt={NOME_PADRAO} width={600} height={165} />
+          <Image className="landing__footer-logo landing__logo--dark" src="/brand/nerdresolve-wordmark-white.png" alt="" aria-hidden width={600} height={165} />
           <span>Plataforma de ensino corporativo.</span>
           <span className="landing__header-spacer" />
           <span>O acesso é liberado pelo seu gestor.</span>

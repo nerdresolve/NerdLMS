@@ -9,6 +9,9 @@ import {
 import { levelsByCompetency, planProgress } from "@nerdlms/core/competencies/proficiency.ts";
 
 import { findAllCourses, findEnrollments } from "@nerdlms/backend/courses/courses-repository.ts";
+import { signatureUpdatedAt } from "@nerdlms/backend/auth/users-repository.ts";
+import { estadoDasProvas } from "@nerdlms/backend/assessment/retake-repository.ts";
+import { cursoConcluido } from "@nerdlms/core/courses/completion.ts";
 import { requireUser, toDisplayUser } from "@/lib/auth/session.ts";
 import { courseDurationSeconds, courseProgress } from "@nerdlms/core/courses/progress.ts";
 import type { ProfileCertificate, ProfileTotals } from "./profile-view.tsx";
@@ -45,6 +48,8 @@ export interface ProfilePageData {
   badges: ProfileBadge[];
   competencies: ProfileCompetency[];
   plans: ProfilePlan[];
+  /** Data em que a assinatura atual foi enviada, já formatada. */
+  assinaturaEnviadaEm: string | null;
 }
 
 /** Números da jornada e certificados, derivados do progresso real do aluno. */
@@ -71,8 +76,20 @@ export async function getProfilePageData(): Promise<ProfilePageData> {
   };
   totals.percent = totals.lessons === 0 ? 0 : Math.round((totals.completedLessons / totals.lessons) * 100);
 
+  /* O estado da prova de cada curso deste aluno.
+
+     Sem isto, a lista de certificados saía de "aulas concluídas" — e oferecia
+     download que o servidor recusava por falta de nota. A tela prometia o que
+     a regra negava, e quem visse aquilo concluiria que o sistema quebrou. */
+  const provas = await estadoDasProvas(user.id);
+
   const certificates: ProfileCertificate[] = rows
-    .filter((row) => row.summary.status === "completed")
+    .filter((row) =>
+      cursoConcluido(row.summary, {
+        notaMinima: row.course.minGradePercent ?? null,
+        melhorPercentual: provas.get(row.course.id)?.melhorPercentual ?? null,
+      }),
+    )
     .map((row) => ({
       course: row.course,
       summary: row.summary,
@@ -142,5 +159,22 @@ export async function getProfilePageData(): Promise<ProfilePageData> {
     ),
   }));
 
-  return { user: toDisplayUser(user), totals, certificates, badges, competencies, plans };
+  /* Só a DATA do envio, nunca os bytes.
+
+     A assinatura convertida tem dezenas de quilobytes e não é renderizável
+     por `<img>` — é RGB cru, não PNG. Mandá-la ao navegador engordaria a
+     página do perfil para exibir algo que ela não sabe desenhar. */
+  const enviadaEm = await signatureUpdatedAt(user.id);
+
+  return {
+    user: toDisplayUser(user),
+    totals,
+    certificates,
+    badges,
+    competencies,
+    plans,
+    assinaturaEnviadaEm: enviadaEm
+      ? new Intl.DateTimeFormat("pt-BR", { dateStyle: "long" }).format(enviadaEm)
+      : null,
+  };
 }

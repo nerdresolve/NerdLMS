@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 
 import { actorParaCmi5, buildLaunchUrl } from "./launch.ts";
 
-describe("cmi5 — a URL de launch", () => {
+describe("cmi5, a URL de launch", () => {
   test("leva os cinco parâmetros do padrão", () => {
     const url = new URL(
       buildLaunchUrl("https://conteudo.exemplo/au1", {
@@ -22,7 +22,7 @@ describe("cmi5 — a URL de launch", () => {
     assert.ok(url.searchParams.get("activityId"));
   });
 
-  test("o TOKEN não vai na URL — vai o endereço para buscá-lo", () => {
+  test("o TOKEN não vai na URL, vai o endereço para buscá-lo", () => {
     /* A URL do iframe aparece no histórico do navegador e no `Referer` de tudo
        que o conteúdo carregar. Um token ali seria uma credencial em texto em
        dois lugares que não controlamos. */
@@ -57,7 +57,7 @@ describe("cmi5 — a URL de launch", () => {
   });
 });
 
-describe("cmi5 — o ator", () => {
+describe("cmi5, o ator", () => {
   test("identifica por CONTA, não por e-mail", () => {
     /* O conteúdo é de terceiro. Mandar o e-mail entregaria dado pessoal a quem
        só precisa saber que é a mesma pessoa entre uma sessão e outra. */

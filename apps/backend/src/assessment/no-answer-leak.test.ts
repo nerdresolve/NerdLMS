@@ -28,14 +28,14 @@ describe("O tipo que vai para o aluno", () => {
     /* O bloco da interface, não o arquivo inteiro: o resto do módulo lida com
        a questão completa, e ali os campos são legítimos. */
     const inicio = fonte.indexOf("export interface QuestionForLearner");
-    assert.ok(inicio > 0, "a interface do aluno sumiu — o vazamento perdeu a barreira");
+    assert.ok(inicio > 0, "a interface do aluno sumiu, o vazamento perdeu a barreira");
 
     const bloco = fonte.slice(inicio, fonte.indexOf("}", inicio));
 
     for (const campo of REVELADORES) {
       assert.ok(
         !bloco.includes(campo),
-        `QuestionForLearner declara \`${campo}\` — isso entrega a resposta a quem abrir o inspetor`,
+        `QuestionForLearner declara \`${campo}\`, isso entrega a resposta a quem abrir o inspetor`,
       );
     }
   });

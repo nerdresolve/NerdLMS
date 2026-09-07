@@ -28,20 +28,6 @@
   }
 }
 
-/* A onda fica ACIMA da arte, não atrás: na referência a forma violeta invade a
-   imagem e é ela que faz a transição entre texto e foto. Atrás, sobrava uma
-   borda vertical reta. */
-.course-hero__wave {
-  position: absolute;
-  inset: auto -10% -30% 30%;
-  /* SVG é elemento substituído: sem largura explícita ele usa o tamanho
-     intrínseco em vez de respeitar left/right. */
-  width: 80%;
-  height: 150%;
-  z-index: 1;
-  opacity: 0.55;
-  pointer-events: none;
-}
 
 /* Mesmo véu do hero do dashboard, pelo mesmo motivo. */
 .course-hero::before {
@@ -49,7 +35,7 @@
   position: absolute;
   inset: 0;
   z-index: -1;
-  background: linear-gradient(100deg, rgba(7, 18, 58, 0.5) 0%, rgba(7, 18, 58, 0.15) 48%, transparent 74%);
+  background: linear-gradient(100deg, rgba(0, 11, 27, 0.5) 0%, rgba(0, 11, 27, 0.15) 48%, transparent 74%);
 }
 
 /* O conteúdo precisa ficar acima da onda que agora sobe. */
@@ -232,3 +218,122 @@
 /* Cartão de leitura: largura confortável para texto corrido (§10). */
 .card--reading { max-width: var(--reading-max); }
 .course-about__meta { margin-top: var(--space-4); }
+
+/* --- A prova do curso ----------------------------------------------------
+
+   Fica depois dos módulos, com peso visual próprio: é o único item da lista
+   que não é aula, e tratá-la como mais uma linha faria dela a última coisa que
+   alguém nota — quando é a que decide o certificado. */
+.course-quiz {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-4);
+  margin-top: var(--space-5);
+  padding: var(--space-5);
+  background: var(--surface-brand-subtle);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-card);
+}
+
+.course-quiz__icon {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  flex: none;
+  background: var(--brand);
+  border-radius: var(--radius-sm);
+  color: var(--text-on-brand);
+}
+
+.course-quiz__icon svg { width: var(--icon-md); height: var(--icon-md); }
+
+/* Ocupa o espaço que sobrar, para o botão ir para a direita; `min-width: 0`
+   deixa o texto quebrar em vez de esticar a caixa numa tela estreita. */
+.course-quiz__body { flex: 1 1 220px; min-width: 0; }
+
+.course-quiz__title { margin: 0; font-size: var(--text-body-size); font-weight: 600; color: var(--text-title); }
+.course-quiz__meta { margin: var(--space-1) 0 0; font-size: var(--text-caption-size); color: var(--text-muted); }
+.course-quiz__hint { margin: var(--space-2) 0 0; font-size: var(--text-caption-size); color: var(--text-muted); }
+
+/* Não é botão, e não deve parecer um: quem não tem matrícula não tem para onde
+   clicar, e um botão desabilitado convida ao clique que não acontece. */
+.course-quiz__travada {
+  flex: none;
+  font-size: var(--text-caption-size);
+  color: var(--text-muted);
+}
+
+/* --- A aba "Sobre" -------------------------------------------------------
+
+   Os campos aqui já eram coletados no editor e não chegavam ao aluno. O que
+   esta parte precisa é hierarquia: o resumo continua sendo prosa, os objetivos
+   viram lista de conferência, e o restante é ficha técnica, que se lê por
+   varredura e não por leitura corrida. */
+
+.course-about__titulo {
+  margin: var(--space-6) 0 var(--space-3);
+  font-size: var(--text-h4-size);
+  line-height: var(--text-h4-lh);
+  color: var(--text-title);
+}
+
+.course-about__objetivos {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.course-about__objetivos li {
+  display: grid;
+  grid-template-columns: 18px 1fr;
+  gap: var(--space-3);
+  align-items: start;
+  font-size: var(--text-small-size);
+  line-height: var(--text-body-lh);
+}
+.course-about__objetivos svg {
+  width: 15px;
+  height: 15px;
+  margin-top: 3px;
+  color: var(--success-text);
+}
+
+/* Ficha em duas colunas onde couber. `auto-fit` com mínimo evita a coluna
+   estreita demais que uma grade fixa produziria no celular. */
+.course-about__ficha {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+  gap: var(--space-4);
+  margin: var(--space-6) 0 0;
+  padding: var(--space-5) 0 0;
+  border-top: 1px solid var(--border-subtle);
+}
+.course-about__ficha dt {
+  font-size: var(--text-caption-size);
+  text-transform: uppercase;
+  letter-spacing: var(--text-overline-tracking);
+  color: var(--text-muted);
+}
+.course-about__ficha dd {
+  margin: var(--space-1) 0 0;
+  font-size: var(--text-small-size);
+  font-weight: var(--weight-semibold);
+  color: var(--text-title);
+}
+
+/* Aviso de campo em branco, visível só para quem edita o curso. */
+.course-about__pendente {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  margin: var(--space-5) 0 0;
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--warning-surface);
+  color: var(--text-body);
+  font-size: var(--text-caption-size);
+}
+.course-about__pendente svg { width: 14px; height: 14px; flex: none; margin-top: 2px; }

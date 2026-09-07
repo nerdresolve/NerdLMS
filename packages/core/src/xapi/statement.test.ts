@@ -13,7 +13,7 @@ import {
 /** Um statement mínimo válido, para os testes variarem uma coisa por vez. */
 function valido(over: Record<string, unknown> = {}) {
   return {
-    actor: { mbox: "mailto:maria@exemplo.com.br", name: "Maria Souza" },
+    actor: { mbox: "mailto:maria@exemplo.com", name: "Maria Souza" },
     verb: {
       id: "http://adlnet.gov/expapi/verbs/completed",
       display: { "pt-BR": "completou", "en-US": "completed" },
@@ -26,14 +26,14 @@ function valido(over: Record<string, unknown> = {}) {
   };
 }
 
-describe("xAPI — statements — F6-03", () => {
+describe("xAPI, statements: F6-03", () => {
   test("aceita o statement mínimo", () => {
     const resultado = validateStatement(valido());
 
     assert.equal(resultado.ok, true);
     if (!resultado.ok) return;
 
-    assert.equal(resultado.statement.actorEmail, "maria@exemplo.com.br");
+    assert.equal(resultado.statement.actorEmail, "maria@exemplo.com");
     assert.equal(resultado.statement.verbId, "http://adlnet.gov/expapi/verbs/completed");
     assert.equal(resultado.statement.verbDisplay, "completou");
     assert.equal(resultado.statement.objectType, "Activity");
@@ -157,8 +157,8 @@ describe("xAPI — statements — F6-03", () => {
   });
 
   test("o e-mail do ator perde o mailto: e a caixa", () => {
-    assert.equal(actorEmail({ mbox: "mailto:Maria@Exemplo.com.BR" }), "maria@exemplo.com.br");
-    assert.equal(actorEmail({ mbox: "maria@exemplo.com.br" }), "maria@exemplo.com.br");
+    assert.equal(actorEmail({ mbox: "mailto:Maria@exemplo.com" }), "maria@exemplo.com");
+    assert.equal(actorEmail({ mbox: "maria@exemplo.com" }), "maria@exemplo.com");
     assert.equal(actorEmail({}), null);
 
     /* O que não é e-mail não vira e-mail. */
@@ -181,7 +181,7 @@ describe("xAPI — statements — F6-03", () => {
        daqui da aula 5 de outro cliente, e o que permite rastrear de volta. */
     const statement = buildStatement({
       baseUrl: "https://ead.exemplo.com.br",
-      actorEmail: "maria@exemplo.com.br",
+      actorEmail: "maria@exemplo.com",
       actorName: "Maria Souza",
       verb: "completed",
       objectPath: "/aulas/abc-123",
@@ -191,7 +191,7 @@ describe("xAPI — statements — F6-03", () => {
 
     assert.equal(statement.object.id, "https://ead.exemplo.com.br/aulas/abc-123");
     assert.equal(statement.verb.id, VERBS.completed.id);
-    assert.equal(statement.actor.mbox, "mailto:maria@exemplo.com.br");
+    assert.equal(statement.actor.mbox, "mailto:maria@exemplo.com");
     assert.equal(statement.result?.completion, true);
 
     /* E o que a plataforma gera precisa passar na própria validação. */

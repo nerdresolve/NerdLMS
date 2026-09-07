@@ -81,7 +81,7 @@ const DEPENDENCIAS: Array<[filho: string, pai: string]> = [
   ["audit_log", "users"],
 ];
 
-describe("Manifesto de backup — F5-06", () => {
+describe("Manifesto de backup: F5-06", () => {
   test("a ordem das tabelas respeita as chaves estrangeiras", () => {
     /* O teste que pegou dois erros reais quando foi escrito:
        `question_categories` vinha antes de `courses`, e `unlock_rules` antes de
@@ -191,7 +191,7 @@ describe("Manifesto de backup — F5-06", () => {
       formato: 1,
       escopo: "tenant",
       geradoEm: "2026-08-24T00:00:00.000Z",
-      origem: { tenantId: "abc", tenantSlug: "lms" },
+      origem: { tenantId: "abc", tenantSlug: "exemplo" },
       avisos: [],
       dados: { users: [{ id: "1" }], courses: [] },
     });
@@ -204,7 +204,7 @@ describe("Manifesto de backup — F5-06", () => {
       formato: 1,
       escopo: "tenant",
       geradoEm: "2026-08-24T00:00:00.000Z",
-      origem: { tenantId: "abc", tenantSlug: "lms" },
+      origem: { tenantId: "abc", tenantSlug: "exemplo" },
       avisos: [],
       dados: { users: [{ id: "1" }, { id: "2" }], courses: [], lessons: [{ id: "3" }] },
     };

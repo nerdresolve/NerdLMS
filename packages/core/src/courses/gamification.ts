@@ -1,5 +1,5 @@
 /**
- * Gamificação.
+ * Gamificação — TASK-054.
  *
  * A proposta promete "moedas, badges e sistema de recompensas" e o levantamento
  * pede gamificação explicitamente. O objetivo declarado é converter acesso em
@@ -143,7 +143,7 @@ export const BADGES: BadgeDefinition[] = [
   {
     id: "mil-moedas",
     title: "Mil moedas",
-    description: "Acumulou 1.000 moedas.",
+    description: "Acumulou 1.000 moedas NerdResolve.",
     icon: "star",
     earned: (e) => e.coins >= 1000,
   },
@@ -164,12 +164,49 @@ export interface Reward {
   cost: number;
 }
 
-/** Itens da loja. O catálogo real é decisão do RH. */
+/**
+ * Itens da loja.
+ *
+ * NENHUM GERA CUSTO PARA A EMPRESA, e essa é a regra que define o catálogo.
+ *
+ * A primeira versão trazia dia de folga, kit da marca, vale-livro e café com a
+ * liderança. Todos foram retirados: os três primeiros custam dinheiro, e o
+ * quarto custa agenda da diretoria — uma promessa que a plataforma faz e outra
+ * pessoa paga. Recompensa que o sistema oferece e a empresa não pode honrar é
+ * pior que não ter recompensa: ela vira frustração com prazo marcado.
+ *
+ * O que sobra é reconhecimento, que é digital e a própria plataforma entrega:
+ * um selo, um destaque, um documento. Custa zero e não depende de ninguém
+ * aprovar caso a caso.
+ *
+ * O catálogo definitivo continua sendo decisão do RH (ISSUE-025) — o que mudou
+ * é o critério que ele precisa respeitar.
+ */
 export const REWARDS: Reward[] = [
-  { id: "r1", title: "Dia de folga", description: "Um dia de descanso a combinar com a liderança.", cost: 3000 },
-  { id: "r2", title: "Kit da marca", description: "Garrafa térmica e caderno da marca.", cost: 800 },
-  { id: "r3", title: "Vale-livro", description: "Crédito para um livro técnico à sua escolha.", cost: 1200 },
-  { id: "r4", title: "Café com a liderança", description: "Uma conversa de 30 minutos com a diretoria da sua área.", cost: 300 },
+  {
+    id: "r1",
+    title: "Selo de destaque no perfil",
+    description: "Um selo permanente no seu perfil, visível para a equipe.",
+    cost: 300,
+  },
+  {
+    id: "r2",
+    title: "Certificado de destaque",
+    description: "Um documento de reconhecimento pelo desempenho no período.",
+    cost: 800,
+  },
+  {
+    id: "r3",
+    title: "Menção no mural da equipe",
+    description: "Seu nome no destaque do mês, na página inicial da sua unidade.",
+    cost: 1200,
+  },
+  {
+    id: "r4",
+    title: "Trilha guiada de especialização",
+    description: "Acesso antecipado a uma trilha avançada da sua área.",
+    cost: 3000,
+  },
 ];
 
 /** Itens que o saldo alcança agora. */

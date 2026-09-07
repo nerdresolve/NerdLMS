@@ -33,6 +33,14 @@ UPDATE scorm_tracking
 -- Sem a segunda metade, uma linha vazia dos dois lados passaria — e seria um
 -- acompanhamento que não acompanha nada, difícil de notar até alguém abrir um
 -- relatório e ver a coluna em branco.
+-- `ADD CONSTRAINT` não aceita `IF NOT EXISTS`, e o executor roda TODOS os
+-- arquivos toda vez: sem o `DROP` antes, reaplicar esta migração falhava aqui
+-- com "constraint already exists" — e, com `ON_ERROR_STOP=1`, tudo o que vem
+-- depois da 030 nunca chegava a rodar. É a convenção que as outras treze
+-- migrações com restrição já seguiam; esta era a única fora dela.
+ALTER TABLE scorm_tracking
+  DROP CONSTRAINT IF EXISTS scorm_tracking_uma_versao;
+
 ALTER TABLE scorm_tracking
   ADD CONSTRAINT scorm_tracking_uma_versao CHECK (
     (lesson_status IS NOT NULL AND completion_status IS NULL)

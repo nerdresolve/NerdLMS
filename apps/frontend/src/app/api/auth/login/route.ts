@@ -1,9 +1,10 @@
 import { cookies, headers } from "next/headers";
 
-import { loginUseCase } from "@nerdlms/backend/auth/login-use-case.ts";
+import { signInUseCase } from "@nerdlms/backend/auth/sign-in-use-case.ts";
 
 import { SESSION_COOKIE } from "@/lib/session-cookie.ts";
 import { readJsonObject } from "@/lib/request-body.ts";
+import { tenantOfRequest } from "@/lib/tenant-request.ts";
 
 /**
  * POST /api/auth/login
@@ -12,6 +13,11 @@ import { readJsonObject } from "@/lib/request-body.ts";
  * transforma o resultado em resposta e cookie. Toda a regra — validação,
  * bloqueio por tentativa, verificação de senha, emissão de sessão — mora em
  * `@nerdlms/backend`.
+ *
+ * É a PORTA ÚNICA: a mesma requisição serve para quem entra pelo diretório da
+ * empresa e para quem entra com senha guardada aqui. Qual dos dois caminhos vai
+ * ser tentado, e em que ordem, é decisão de `signInUseCase` — e é de propósito
+ * que ela não seja da tela, onde qualquer pessoa a editaria no navegador.
  *
  * O arquivo continua aqui porque no Next a rota **é** o arquivo: movê-lo para
  * `apps/backend` faria o endpoint deixar de existir.
@@ -34,13 +40,15 @@ export async function POST(request: Request): Promise<Response> {
   }
 
   const requestHeaders = await headers();
+  const tenant = await tenantOfRequest();
 
-  const outcome = await loginUseCase({
+  const outcome = await signInUseCase({
     identifier: typeof body.identifier === "string" ? body.identifier : "",
     password: typeof body.password === "string" ? body.password : "",
     remember: body.remember === true,
     ip: clientIp(requestHeaders),
     userAgent: requestHeaders.get("user-agent"),
+    tenantId: tenant?.id ?? null,
   });
 
   if (outcome.status !== 200) {

@@ -25,7 +25,7 @@ function step(over: Partial<LessonStep> = {}): LessonStep {
   };
 }
 
-describe("Analytics avançado — F6-06", () => {
+describe("Analytics avançado: F6-06", () => {
   test("o funil mostra onde as pessoas param", () => {
     /* É a métrica que diz o que consertar: "40% de conclusão" não é acionável;
        "metade para na aula 3" diz exatamente onde olhar. */
@@ -205,7 +205,7 @@ describe("Analytics avançado — F6-06", () => {
     assert.ok(m.stickiness >= 0);
   });
 
-  test("sem atividade nenhuma, tudo é zero — não NaN", () => {
+  test("sem atividade nenhuma, tudo é zero, não NaN", () => {
     const m = habitMetrics([], 0, 0);
 
     assert.equal(m.dau, 0);

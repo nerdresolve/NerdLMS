@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>@@COURSE_TITLE@@ · NerdResolve</title>
+<title>@@COURSE_TITLE@@ · Exemplo S.A.</title>
 <style>
 /* Gerado por tools/build-preview.mjs — não editar este arquivo.
    Fontes: src/styles/tokens.css, src/styles/base.css, src/styles/components.css,
@@ -54,8 +54,8 @@ body[data-device="mobile"] .app { max-width: 390px; margin-inline: auto; border-
 <div class="shell" id="shell" data-sidebar="expanded">
   <aside class="sidebar">
     <div class="sidebar__head">
-      <img class="sidebar__logo" src="@@LOGO@@" alt="NerdResolve" width="600" height="165" />
-      <img class="sidebar__mark" src="@@MARK@@" alt="NerdResolve" width="220" height="120" />
+      <img class="sidebar__logo" src="@@LOGO@@" alt="Exemplo S.A." width="400" height="170" />
+      <img class="sidebar__mark" src="@@MARK@@" alt="Exemplo S.A." width="176" height="238" />
       <button type="button" class="sidebar__toggle" id="sidebar-toggle" aria-expanded="true" aria-label="Recolher menu">
         <svg class="icon" aria-hidden="true" focusable="false"><use href="#i-panel-left"/></svg>
       </button>
@@ -77,7 +77,8 @@ body[data-device="mobile"] .app { max-width: 390px; margin-inline: auto; border-
       <button type="button" class="icon-button topbar__menu" id="drawer-open" aria-label="Abrir menu" aria-expanded="false" aria-controls="drawer">
         <svg class="icon" aria-hidden="true" focusable="false"><use href="#i-menu"/></svg>
       </button>
-      <img class="topbar__logo" src="@@LOGO_BRAND@@" alt="NerdResolve" width="600" height="165" />
+      <img class="topbar__logo topbar__logo--light" src="@@LOGO_BRAND@@" alt="Exemplo S.A." width="400" height="170" />
+      <img class="topbar__logo topbar__logo--dark" src="@@LOGO@@" alt="" aria-hidden="true" width="400" height="170" />
       <div class="topbar__context">
         <nav class="breadcrumb" aria-label="Trilha de navegação">
           <a href="/meus-cursos">Meus cursos</a>
@@ -94,7 +95,29 @@ body[data-device="mobile"] .app { max-width: 390px; margin-inline: auto; border-
       <button type="button" class="icon-button topbar__search-icon" aria-label="Buscar"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-search"/></svg></button>
       <button type="button" class="icon-button" id="theme-toggle" aria-pressed="false" aria-label="Ativar modo escuro"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-moon"/></svg></button>
       <button type="button" class="icon-button topbar__notifications" aria-label="Notificações"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-bell"/></svg></button>
-      <button type="button" class="icon-button icon-button--avatar" aria-label="Sua conta">@@INITIALS@@</button>
+      <div class="account">
+        <!-- O nome acessível precisa CONTER o texto visível (WCAG 2.5.3): com
+             "Sua conta" sozinho, quem navega por voz diz "MS" e o comando não
+             encontra o botão. -->
+        <button type="button" class="icon-button icon-button--avatar" id="account-button"
+                aria-label="@@INITIALS@@ — sua conta" aria-haspopup="true"
+                aria-expanded="false" aria-controls="account-panel">@@INITIALS@@</button>
+
+        <div class="account__catcher" id="account-catcher" role="presentation" hidden></div>
+
+        <div class="account__panel" id="account-panel" aria-label="Sua conta" hidden>
+          <div class="account__head">
+            <span class="account__name">@@FULLNAME@@</span>
+            <span class="account__role">@@ROLE_LABEL@@</span>
+          </div>
+          <a class="account__item" href="/perfil">
+            <svg class="icon" aria-hidden="true" focusable="false"><use href="#i-user"/></svg> Ver perfil
+          </a>
+          <a class="account__item account__item--exit" href="/sair">
+            <svg class="icon" aria-hidden="true" focusable="false"><use href="#i-log-out"/></svg> Sair
+          </a>
+        </div>
+      </div>
     </header>
 
     <main class="content" id="conteudo">
@@ -136,7 +159,7 @@ body[data-device="mobile"] .app { max-width: 390px; margin-inline: auto; border-
 <div class="drawer-backdrop" id="drawer-backdrop" data-open="false"></div>
 <div class="drawer" id="drawer" data-open="false" role="dialog" aria-modal="true" aria-label="Menu" hidden>
   <div class="sidebar__head">
-    <img class="sidebar__logo" src="@@LOGO@@" alt="NerdResolve" width="600" height="165" />
+    <img class="sidebar__logo" src="@@LOGO@@" alt="Exemplo S.A." width="400" height="170" />
     <button type="button" class="sidebar__toggle" id="drawer-close" aria-label="Fechar menu">
       <svg class="icon" aria-hidden="true" focusable="false"><use href="#i-x"/></svg>
     </button>
@@ -169,15 +192,55 @@ body[data-device="mobile"] .app { max-width: 390px; margin-inline: auto; border-
 
 
   /* --- Alternador de tema (produto, não QA) --- */
+  /* --- Menu da conta ---
+
+     O avatar era um link direto para o perfil, e "Sair" só existia no pé da
+     barra lateral — que some no mobile e com o menu recolhido.
+
+     Sem `role="menu"`: aquele papel obriga navegação por setas, e anunciá-lo
+     sem implementar o teclado promete um comportamento que não existe. São
+     dois links num painel; Tab percorre e Enter ativa. */
+  var accountBtn = document.getElementById("account-button");
+  var accountPanel = document.getElementById("account-panel");
+  var accountCatcher = document.getElementById("account-catcher");
+
+  if (accountBtn && accountPanel && accountCatcher) {
+    var fecharConta = function (devolverFoco) {
+      accountPanel.hidden = true;
+      accountCatcher.hidden = true;
+      accountBtn.setAttribute("aria-expanded", "false");
+      document.removeEventListener("keydown", onContaKey);
+      if (devolverFoco) accountBtn.focus();
+    };
+
+    var onContaKey = function (event) {
+      if (event.key === "Escape") fecharConta(true);
+    };
+
+    accountBtn.addEventListener("click", function () {
+      if (accountPanel.hidden) {
+        accountPanel.hidden = false;
+        accountCatcher.hidden = false;
+        accountBtn.setAttribute("aria-expanded", "true");
+        document.addEventListener("keydown", onContaKey);
+        /* O foco entra no painel: sem isto, quem usa teclado teria de dar Tab
+           para trás por cima da barra inteira para chegar em "Sair". */
+        var primeiro = accountPanel.querySelector(".account__item");
+        if (primeiro) primeiro.focus();
+      } else {
+        fecharConta(false);
+      }
+    });
+
+    accountCatcher.addEventListener("click", function () { fecharConta(false); });
+  }
+
+  /* Ícone, rótulo e gravação ficam no NERD_THEME: é a mesma escolha que a
+     barra de QA troca, e duplicar a lógica deixaria as duas fora de sincronia
+     — que é como o tema deixou de sobreviver à navegação. Ver THEME_BOOT. */
   var themeToggle = document.getElementById("theme-toggle");
   if (themeToggle) {
-    themeToggle.addEventListener("click", function () {
-      var dark = root.getAttribute("data-theme") === "dark";
-      root.setAttribute("data-theme", dark ? "light" : "dark");
-      themeToggle.setAttribute("aria-pressed", String(!dark));
-      themeToggle.setAttribute("aria-label", dark ? "Ativar modo escuro" : "Ativar modo claro");
-      themeToggle.querySelector("use").setAttribute("href", dark ? "#i-moon" : "#i-sun");
-    });
+    themeToggle.addEventListener("click", function () { window.NERD_THEME.alternar(); });
   }
 
   var shell = document.getElementById("shell");

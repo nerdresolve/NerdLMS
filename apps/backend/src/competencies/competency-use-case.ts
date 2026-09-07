@@ -349,7 +349,7 @@ export async function revokeEvidenceUseCase(
     actorId: actor.id,
     actorName,
     action: "competency_revoked",
-    target: `evidência ${evidenceId} — ${reason}`,
+    target: `evidência ${evidenceId}, ${reason}`,
     outcome: "allowed",
   });
 

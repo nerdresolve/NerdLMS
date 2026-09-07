@@ -89,7 +89,7 @@ export default async function BadgePublicoPage({
 
   return (
     <main className="status-page">
-      <div className="status-page__card badge-publico">
+      <div className="status-page__card">
         <p className={`badge-publico__estado badge-publico__estado--${estado.classe}`}>
           <Icone aria-hidden /> {estado.rotulo}
         </p>

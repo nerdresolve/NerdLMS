@@ -17,18 +17,18 @@ function hashEmail(email: string, salt: string): string {
   return `sha256$${createHash("sha256").update(email.toLowerCase() + salt).digest("hex")}`;
 }
 
-describe("Open Badges 2.0 — F6-01", () => {
+describe("Open Badges 2.0: F6-01", () => {
   test("o emissor aponta para o próprio domínio", () => {
     const issuer = openBadgeIssuer({
       baseUrl: BASE,
-      tenantName: "NerdResolve Saneamento",
-      email: "treinamento@exemplo.com.br",
+      tenantName: "Exemplo S.A.",
+      email: "treinamento@exemplo.com",
     });
 
     assert.equal(issuer["@context"], "https://w3id.org/openbadges/v2");
     assert.equal(issuer.type, "Issuer");
     assert.equal(issuer.id, `${BASE}/api/badges/issuer`);
-    assert.equal(issuer.name, "NerdResolve Saneamento");
+    assert.equal(issuer.name, "Exemplo S.A.");
   });
 
   test("o emissor sem e-mail não inventa campo vazio", () => {
@@ -39,7 +39,7 @@ describe("Open Badges 2.0 — F6-01", () => {
     assert.equal("email" in issuer, false);
   });
 
-  test("o badge tem imagem — o padrão exige", () => {
+  test("o badge tem imagem, o padrão exige", () => {
     /* Sem `image`, o documento não renderiza em nenhum leitor externo. */
     const classe = openBadgeClass({
       baseUrl: BASE,
@@ -62,7 +62,7 @@ describe("Open Badges 2.0 — F6-01", () => {
     /* A assertion é um documento público — é o que o verificador busca.
        O e-mail em texto transformaria cada badge compartilhado num endereço
        exposto a quem coletar. */
-    const email = "maria.souza@exemplo.com.br";
+    const email = "maria.souza@exemplo.com";
 
     const assertion = openBadgeAssertion(
       {
@@ -95,7 +95,7 @@ describe("Open Badges 2.0 — F6-01", () => {
         baseUrl: BASE,
         code: "ABC123DEF456",
         badgeId: "b1",
-        recipientEmail: "Maria.Souza@exemplo.com.br",
+        recipientEmail: "Maria.Souza@exemplo.com",
         salt: "sal",
         awardedAt: "2026-03-01T12:00:00.000Z",
         expiresAt: null,
@@ -107,7 +107,7 @@ describe("Open Badges 2.0 — F6-01", () => {
     const recipient = assertion.recipient as Record<string, unknown>;
 
     /* Caixa diferente, mesmo hash: e-mail não distingue maiúscula. */
-    assert.equal(recipient.identity, hashEmail("maria.souza@exemplo.com.br", "sal"));
+    assert.equal(recipient.identity, hashEmail("maria.souza@exemplo.com", "sal"));
   });
 
   test("a emissão revogada continua acessível e se declara revogada", () => {
@@ -175,7 +175,7 @@ describe("Open Badges 2.0 — F6-01", () => {
   test("o SVG escapa o que vem de fora", () => {
     /* O nome do badge é digitado por alguém do cliente e vai para dentro de um
        documento XML servido pela plataforma. */
-    const svg = badgeSvg('Badge <script>alert("x")</script>', "#7C3AED", "BA");
+    const svg = badgeSvg('Badge <script>alert("x")</script>', "#0A33CC", "BA");
 
     assert.equal(svg.includes("<script>"), false);
     assert.ok(svg.includes("&lt;script&gt;"));
@@ -188,7 +188,7 @@ describe("Open Badges 2.0 — F6-01", () => {
     const comInjecao = badgeSvg("X", '" onload="alert(1)', "X");
 
     assert.equal(comInjecao.includes("onload"), false);
-    assert.ok(comInjecao.includes("#7C3AED"));
+    assert.ok(comInjecao.includes("#0A33CC"));
 
     const valida = badgeSvg("X", "#FF0000", "X");
     assert.ok(valida.includes("#FF0000"));

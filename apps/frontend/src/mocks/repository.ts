@@ -2,7 +2,7 @@
  * A costura entre as telas e a origem dos dados.
  *
  * Toda camada de dados de feature importa **daqui**, nunca de `data.ts`.
- * Quando o PostgreSQL entrar, este arquivo passa a consultar o
+ * Quando o PostgreSQL entrar (TASK-006), este arquivo passa a consultar o
  * banco e `src/mocks/data.ts` é apagado — nenhuma tela muda.
  *
  * Enquanto isso, é um reexport puro. A indireção existe exatamente para que a

@@ -24,7 +24,7 @@ export interface FeatureDefinition {
   /**
    * Ligada quando o cliente não disse nada.
    *
-   * O padrão é `true` para o que já está em uso: um cliente existente não
+   * O padrão é `true` para o que a Exemplo S.A. já usa hoje: um cliente existente não
    * pode perder funcionalidade porque o catálogo nasceu. Recurso novo entra
    * desligado, para ninguém ser surpreendido por uma tela que apareceu
    * sozinha.
@@ -144,34 +144,6 @@ export const FEATURE_CATALOG: FeatureDefinition[] = [
     label: "Busca global",
     description: "A lupa da barra do topo, que procura em cursos e aulas.",
     defaultOn: true,
-  },
-
-  /* Rigor de conclusão.
-     
-     A família existe porque nem todo treinamento tem o mesmo peso: um curso de
-     integração e um de segurança de trabalho em espaço confinado não podem ser
-     concluídos do mesmo jeito. O que segue são travas, e travas atrapalham
-     quem não precisa delas — por isso todas nascem DESLIGADAS. */
-  {
-    key: "rigor",
-    label: "Rigor de conclusão",
-    description:
-      "As travas que exigem que a aula seja realmente vista antes de contar como feita. Desligado, quem clica em concluir conclui.",
-    defaultOn: false,
-  },
-  {
-    key: "rigor.video",
-    label: "Travar o avanço do vídeo",
-    description:
-      "Impede pular para a frente em trecho ainda não assistido. Rever o que já passou continua livre.",
-    defaultOn: false,
-  },
-  {
-    key: "rigor.leitura",
-    label: "Confirmar leitura de documento",
-    description:
-      "Quem conclui antes do tempo estimado de leitura recebe uma confirmação. Não impede: pergunta.",
-    defaultOn: false,
   },
 ];
 

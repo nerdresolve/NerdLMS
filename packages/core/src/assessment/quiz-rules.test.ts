@@ -4,10 +4,12 @@ import assert from "node:assert/strict";
 import {
   canStartAttempt,
   deadlineFor,
+  escolhaDaTentativa,
   finalScore,
   isExpired,
   shuffleWithSeed,
   type QuizSettings,
+  type TentativaRegistrada,
 } from "./quiz-rules.ts";
 
 const prova = (over: Partial<QuizSettings> = {}): QuizSettings => ({
@@ -166,5 +168,65 @@ describe("Randomização estável", () => {
   test("lista vazia ou de um item não quebra", () => {
     assert.deepEqual(shuffleWithSeed([], "x"), []);
     assert.deepEqual(shuffleWithSeed(["só"], "x"), ["só"]);
+  });
+});
+
+describe("escolhaDaTentativa: o teto que a corrida furava", () => {
+  const AGORA = new Date("2026-03-10T12:00:00Z");
+
+  /** Uma prova com uma tentativa e uma hora de cronômetro. */
+  const PROVA = prova({ maxAttempts: 1, timeLimitMinutes: 60 });
+
+  function enviada(minutosAtras: number): TentativaRegistrada {
+    const inicio = new Date(AGORA.getTime() - minutosAtras * 60_000);
+    return { startedAt: inicio, submittedAt: new Date(inicio.getTime() + 60_000) };
+  }
+
+  test("sem tentativa nenhuma, cria", () => {
+    assert.equal(escolhaDaTentativa(PROVA, [], AGORA), "nova");
+  });
+
+  test("com o teto gasto, recusa", () => {
+    assert.equal(escolhaDaTentativa(PROVA, [enviada(120)], AGORA), null);
+  });
+
+  test("A CORRIDA: com o teto gasto, nenhuma leitura concorrente cria", () => {
+    /* Este é o teste que o defeito não tinha. Dezesseis pedidos disparados na
+       mesma barreira criaram CINCO tentativas porque cada um contou antes de
+       qualquer inserção. Agora a decisão roda dentro da trava, relendo — e a
+       relei­tura é esta lista, que já tem a tentativa gasta. Se algum dia ela
+       voltar a devolver "nova" aqui, o teto voltou a ser opcional. */
+    const gastas = [enviada(120)];
+
+    for (let pedido = 0; pedido < 16; pedido += 1) {
+      assert.equal(escolhaDaTentativa(PROVA, gastas, AGORA), null, `pedido ${pedido}`);
+    }
+  });
+
+  test("tentativa aberta e no prazo volta ELA, sem criar outra", () => {
+    const aberta: TentativaRegistrada = { startedAt: new Date(AGORA.getTime() - 10 * 60_000) };
+    assert.equal(escolhaDaTentativa(PROVA, [aberta], AGORA), aberta);
+  });
+
+  test("recarregar a página dezesseis vezes devolve sempre a MESMA tentativa", () => {
+    const aberta: TentativaRegistrada = { startedAt: new Date(AGORA.getTime() - 10 * 60_000) };
+
+    for (let pedido = 0; pedido < 16; pedido += 1) {
+      assert.equal(escolhaDaTentativa(PROVA, [aberta], AGORA), aberta, `pedido ${pedido}`);
+    }
+  });
+
+  test("abandonada e vencida não consome a chance", () => {
+    /* Começou há duas horas numa prova de uma hora e nunca enviou: o prazo
+       venceu. Não houve envio, então a chance continua de pé. */
+    const vencida: TentativaRegistrada = { startedAt: new Date(AGORA.getTime() - 120 * 60_000) };
+    assert.equal(escolhaDaTentativa(PROVA, [vencida], AGORA), "nova");
+  });
+
+  test("o reteste aprovado entra como teto maior, e vale uma vez só", () => {
+    const comReteste = prova({ maxAttempts: 2, timeLimitMinutes: 60 });
+
+    assert.equal(escolhaDaTentativa(comReteste, [enviada(120)], AGORA), "nova");
+    assert.equal(escolhaDaTentativa(comReteste, [enviada(120), enviada(100)], AGORA), null);
   });
 });

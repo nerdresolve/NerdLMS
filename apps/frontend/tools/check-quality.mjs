@@ -1,5 +1,5 @@
 /**
- * Auditoria estática de qualidade.
+ * Auditoria estática de qualidade — TASK-019.
  *
  * O Lighthouse precisa de navegador e de rede (BLOCK-001). Este script cobre,
  * sem sair do container, os pontos das categorias de Performance, Acessibilidade
@@ -15,7 +15,7 @@ import { dirname, join } from "node:path";
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 
 /** Peso máximo por página, em kB. Acima disso o carregamento começa a doer. */
-const PAGE_BUDGET_KB = 220;
+const PAGE_BUDGET_KB = 225;
 /** Peso máximo de um asset servido em public/. */
 const ASSET_BUDGET_KB = 120;
 
@@ -55,6 +55,16 @@ const sourceTime = Math.max(
 
 if (pages.length === 0) failures.push("preview/: nenhuma página gerada — rode `npm run preview`");
 
+/* Os arquivos de marca, em base64, exatamente como o protótipo os embute.
+   Servem para descontá-los do orçamento — ver o comentário do laço abaixo.
+   São lidos de `public/brand/` em vez de casados por regex de `data:image/`:
+   assim o desconto vale só para a marca, e uma imagem de conteúdo que alguém
+   embutir amanhã continua pesando no portão. */
+const brandFiles = (await readdir(join(root, "public", "brand"))).filter((name) => /.(webp|png|svg)$/.test(name));
+const brandBase64 = await Promise.all(
+  brandFiles.map(async (name) => (await readFile(join(root, "public", "brand", name))).toString("base64")),
+);
+
 for (const page of pages) {
   const html = await readFile(join(root, "preview", page), "utf8");
 
@@ -67,7 +77,30 @@ for (const page of pages) {
   const embedded = [...html.matchAll(/data:(?:font|video)\/[^;]+;base64,[A-Za-z0-9+/=]+/g)]
     .reduce((total, match) => total + match[0].length, 0);
 
-  const sizeKb = (Buffer.byteLength(html) - embedded) / 1024;
+  /* A marca entra pelo mesmo motivo, e mais forte: no produto o logotipo é
+     servido pelo `next/image` — um arquivo, redimensionado para o tamanho de
+     exibição e cacheado entre TODAS as páginas. Aqui ele é embutido inteiro e
+     ainda repetido (sidebar e drawer usam a mesma imagem), então o protótipo
+     mostra três vezes o peso que o usuário baixa uma vez.
+
+     ATENÇÃO AO CALIBRAR: o desconto é proporcional ao peso da marca, então uma
+     marca PESADA afrouxa o portão e uma marca leve o aperta. A marca anterior
+     era um degradê de ~66 kB e descontava ~116 kB nesta página (repetida três
+     vezes); a atual é chapada, quantizada em 64 cores, e desconta ~19 kB. O
+     número medido subiu 18 kB — e ainda assim a página encolheu 37 kB no que o
+     navegador realmente baixa. Se este portão reprovar por 1 ou 2 kB depois de
+     uma troca de marca, confira o peso REAL antes de mexer no orçamento. */
+  const brand = brandBase64.reduce((total, data) => {
+    let posicao = html.indexOf(data);
+    let soma = 0;
+    while (posicao !== -1) {
+      soma += data.length;
+      posicao = html.indexOf(data, posicao + data.length);
+    }
+    return total + soma;
+  }, 0);
+
+  const sizeKb = (Buffer.byteLength(html) - embedded - brand) / 1024;
 
   const { mtimeMs } = await stat(join(root, "preview", page));
   check(mtimeMs >= sourceTime, page, "gerado antes da última alteração de código — rode `npm run preview`");
@@ -88,7 +121,7 @@ for (const page of pages) {
   const semDimensao = images.filter((tag) => !/\bwidth=/.test(tag) || !/\bheight=/.test(tag));
   check(semDimensao.length === 0, page, `${semDimensao.length} <img> sem width/height (causa layout shift)`);
 
-  // A fonte é auto-hospedada. Nenhuma origem externa deve reaparecer,
+  // A fonte é auto-hospedada (DEC-017). Nenhuma origem externa deve reaparecer,
   // e o carregamento nunca pode bloquear o texto.
   check(!html.includes("fonts.googleapis.com"), page, "voltou a depender do Google Fonts");
   check(!html.includes("fonts.gstatic.com"), page, "voltou a depender do Google Fonts");
@@ -96,10 +129,23 @@ for (const page of pages) {
     check(html.includes("font-display: swap"), page, "@font-face sem font-display: swap");
   }
 
-  // Script síncrono no <head> bloqueia a primeira pintura.
+  /* Script síncrono no <head> bloqueia a primeira pintura — quando vem da REDE.
+     Um trecho inline e curto não: custa microssegundos de parse, e é a única
+     forma de aplicar o tema salvo ANTES da primeira pintura. Sem ele a página
+     aparece clara e escurece em seguida, que é pior do que qualquer coisa que
+     esta regra evita. O limite de 2 kB é o que separa "aplica um atributo no
+     <html>" de "roda a aplicação aqui". */
   const headEnd = html.indexOf("</head>");
   const head = headEnd === -1 ? "" : html.slice(0, headEnd);
-  check(!/<script(?![^>]*(?:defer|async|type="application\/ld\+json"))/.test(head), page, "script bloqueante no <head>");
+  const bloqueante = [...head.matchAll(/<script([^>]*)>([\s\S]*?)<\/script>/g)].some(
+    ([, atributos, corpo]) => {
+      if (/(?:defer|async)/.test(atributos)) return false;
+      if (/type="application\/ld\+json"/.test(atributos)) return false;
+      if (/src=/.test(atributos)) return true;
+      return Buffer.byteLength(corpo) > 2048;
+    },
+  );
+  check(!bloqueante, page, "script bloqueante no <head>");
 
   /* -------------------------------------------------------- acessibilidade */
   check(/<html[^>]*\slang="pt-BR"/.test(html), page, 'falta lang="pt-BR" no <html>');

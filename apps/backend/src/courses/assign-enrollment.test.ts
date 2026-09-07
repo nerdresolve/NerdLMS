@@ -14,7 +14,7 @@ import { can } from "@nerdlms/core/auth/permissions.ts";
  */
 
 const aluno = { id: "u1", role: "learner" as const, tenantId: "t1" };
-const gestor = { id: "u4", role: "manager" as const, tenantId: "t1", project: "Prolagos" };
+const gestor = { id: "u4", role: "manager" as const, tenantId: "t1", project: "Siririzinho" };
 
 describe("Permissão de matricular OUTRA pessoa", () => {
   test("o aluno não matricula outra pessoa", () => {
@@ -24,7 +24,7 @@ describe("Permissão de matricular OUTRA pessoa", () => {
     );
   });
 
-  test("mas o aluno PODE matricular a si mesmo — e é essa a armadilha", () => {
+  test("mas o aluno PODE matricular a si mesmo, e é essa a armadilha", () => {
     // A regra está certa: é o caminho da auto-inscrição. O erro foi passar o
     // próprio ator como `learnerId` na checagem da matrícula atribuída, o que
     // fazia todo aluno atravessar a porta.

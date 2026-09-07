@@ -1,5 +1,5 @@
 /**
- * Dados da página de aula.
+ * Dados da página de aula — TASK-011A.
  *
  * Resolve a aula pedida dentro do curso e devolve tudo o que a tela precisa:
  * o módulo a que pertence, a posição, as aulas vizinhas e a trilha lateral.
@@ -24,14 +24,6 @@ export interface LessonView {
   durationSeconds: number;
   /** Segundo em que o vídeo deve começar. */
   resumeAtSeconds: number;
-  /**
-   * O ponto mais distante já assistido.
-   *
-   * Diferente de `resumeAtSeconds`, que é onde a pessoa PAROU: este só cresce.
-   * A trava de avanço depende dele — sem, fechar a aba e voltar reiniciaria a
-   * trava do zero e a pessoa reassistiria tudo.
-   */
-  watchedUpToSeconds: number;
   /** Páginas do documento por onde a pessoa já passou (aula de conteúdo). */
   pagesSeen: number[];
   completed: boolean;
@@ -84,11 +76,6 @@ export function lessonView(course: Course, enrollment: Enrollment, lessonId: str
     durationSeconds: lesson.durationSeconds,
     // Aula concluída recomeça do zero: retomar aos 95% não ajuda ninguém.
     resumeAtSeconds: completed ? 0 : Math.max(0, Math.min(retomada, lesson.durationSeconds)),
-    /* A aula concluída libera o avanço inteiro: quem já viu tudo tem o direito
-       de voltar a qualquer trecho sem reassistir. */
-    watchedUpToSeconds: completed
-      ? lesson.durationSeconds
-      : Math.max(0, Math.min(progress?.watchedSeconds ?? 0, lesson.durationSeconds)),
     pagesSeen: progress?.pagesSeen ?? [],
     completed,
     previous: previous ? { id: previous.lesson.id, title: previous.lesson.title } : null,

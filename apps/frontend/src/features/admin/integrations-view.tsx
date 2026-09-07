@@ -7,6 +7,7 @@ import { API_SCOPES } from "@nerdlms/core/api/keys.ts";
 import { WEBHOOK_EVENTS, WEBHOOK_EVENT_LABEL } from "@nerdlms/core/api/webhook-events.ts";
 
 import "./integrations.css";
+import { campoObrigatorio } from "@/lib/campo-obrigatorio.ts";
 
 /**
  * Integrações — F5-01 e F5-02.
@@ -60,8 +61,6 @@ function dataCurta(iso: string): string {
   });
 }
 
-import { useIntegrations } from "./use-integrations.ts";
-
 export function IntegrationsView({
   keys: chavesIniciais,
   hooks: hooksIniciais,
@@ -72,7 +71,8 @@ export function IntegrationsView({
   const [chaves, setChaves] = useState(chavesIniciais);
   const [hooks, setHooks] = useState(hooksIniciais);
   const [revelado, setRevelado] = useState<Revelado | null>(null);
-  const { ocupado: busy, aviso, avisar, chamar } = useIntegrations();
+  const [busy, setBusy] = useState(false);
+  const [aviso, setAviso] = useState<string | null>(null);
   const [copiado, setCopiado] = useState(false);
 
   const caixaSegredo = useRef<HTMLElement | null>(null);
@@ -102,33 +102,51 @@ export function IntegrationsView({
     const scopes = API_SCOPES.map((s) => s.key).filter((k) => dados.get(`escopo-${k}`) === "on");
 
     if (scopes.length === 0) {
-      avisar("Escolha ao menos um escopo: uma chave sem escopo não faz nada.");
+      setAviso("Escolha ao menos um escopo: uma chave sem escopo não faz nada.");
       return;
     }
 
-    const corpo = await chamar({
-      metodo: "POST",
-      corpo: { name: dados.get("name"), scopes },
-      exige: "key",
-      seFalhar: "Não foi possível criar a chave.",
-    });
+    setBusy(true);
+    setAviso(null);
 
-    if (!corpo) return;
+    try {
+      const resposta = await fetch("/api/integracoes", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ name: dados.get("name"), scopes }),
+      });
 
-    setRevelado({ tipo: "chave", valor: String(corpo.key) });
-    setCopiado(false);
-    setChaves((atual) => [
-      {
-        id: String(corpo.id),
-        name: String(dados.get("name") ?? ""),
-        prefix: String(corpo.prefix),
-        scopes,
-        createdAt: new Date().toISOString(),
-        revoked: false,
-      },
-      ...atual,
-    ]);
-    form.reset();
+      const corpo = (await resposta.json().catch(() => ({}))) as {
+        id?: string;
+        key?: string;
+        prefix?: string;
+        error?: string;
+      };
+
+      if (!resposta.ok || !corpo.key) {
+        setAviso(corpo.error ?? "Não foi possível criar a chave.");
+        return;
+      }
+
+      setRevelado({ tipo: "chave", valor: corpo.key });
+      setCopiado(false);
+      setChaves((atual) => [
+        {
+          id: corpo.id!,
+          name: String(dados.get("name") ?? ""),
+          prefix: corpo.prefix!,
+          scopes,
+          createdAt: new Date().toISOString(),
+          revoked: false,
+        },
+        ...atual,
+      ]);
+      form.reset();
+    } catch {
+      setAviso("Não foi possível falar com o servidor.");
+    } finally {
+      setBusy(false);
+    }
   }
 
   async function criarHook(event: React.FormEvent<HTMLFormElement>) {
@@ -138,29 +156,46 @@ export function IntegrationsView({
 
     const events = WEBHOOK_EVENTS.filter((e) => dados.get(`evento-${e}`) === "on");
 
-    const corpo = await chamar({
-      metodo: "POST",
-      corpo: { url: dados.get("url"), events },
-      exige: "secret",
-      seFalhar: "Não foi possível criar o webhook.",
-    });
+    setBusy(true);
+    setAviso(null);
 
-    if (!corpo) return;
+    try {
+      const resposta = await fetch("/api/integracoes", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ url: dados.get("url"), events }),
+      });
 
-    setRevelado({ tipo: "segredo", valor: String(corpo.secret) });
-    setCopiado(false);
-    setHooks((atual) => [
-      {
-        id: String(corpo.id),
-        url: String(dados.get("url") ?? ""),
-        events: [...events],
-        active: true,
-        createdAt: new Date().toISOString(),
-        deliveries: 0,
-      },
-      ...atual,
-    ]);
-    form.reset();
+      const corpo = (await resposta.json().catch(() => ({}))) as {
+        id?: string;
+        secret?: string;
+        error?: string;
+      };
+
+      if (!resposta.ok || !corpo.secret) {
+        setAviso(corpo.error ?? "Não foi possível criar o webhook.");
+        return;
+      }
+
+      setRevelado({ tipo: "segredo", valor: corpo.secret });
+      setCopiado(false);
+      setHooks((atual) => [
+        {
+          id: corpo.id!,
+          url: String(dados.get("url") ?? ""),
+          events: [...events],
+          active: true,
+          createdAt: new Date().toISOString(),
+          deliveries: 0,
+        },
+        ...atual,
+      ]);
+      form.reset();
+    } catch {
+      setAviso("Não foi possível falar com o servidor.");
+    } finally {
+      setBusy(false);
+    }
   }
 
   async function revogarChave(id: string, nome: string) {
@@ -168,33 +203,37 @@ export function IntegrationsView({
       return;
     }
 
-    const corpo = await chamar({
-      metodo: "DELETE",
-      corpo: { keyId: id },
-      seFalhar: "Não foi possível revogar a chave.",
+    const resposta = await fetch("/api/integracoes", {
+      method: "DELETE",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ keyId: id }),
     });
 
-    if (!corpo) return;
-
-    /* Revogada continua na lista, marcada: o histórico de uso dela ainda
-       responde "o que essa chave fez enquanto valia". */
-    setChaves((atual) => atual.map((c) => (c.id === id ? { ...c, revoked: true } : c)));
-    avisar(`Chave "${nome}" revogada.`);
+    if (resposta.ok) {
+      /* Revogada continua na lista, marcada: o histórico de uso dela ainda
+         responde "o que essa chave fez enquanto valia". */
+      setChaves((atual) => atual.map((c) => (c.id === id ? { ...c, revoked: true } : c)));
+      setAviso(`Chave "${nome}" revogada.`);
+    } else {
+      setAviso("Não foi possível revogar a chave.");
+    }
   }
 
   async function removerHook(id: string, url: string) {
     if (!confirm(`Remover o webhook para ${url}?`)) return;
 
-    const corpo = await chamar({
-      metodo: "DELETE",
-      corpo: { webhookId: id },
-      seFalhar: "Não foi possível remover o webhook.",
+    const resposta = await fetch("/api/integracoes", {
+      method: "DELETE",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ webhookId: id }),
     });
 
-    if (!corpo) return;
-
-    setHooks((atual) => atual.filter((h) => h.id !== id));
-    avisar("Webhook removido.");
+    if (resposta.ok) {
+      setHooks((atual) => atual.filter((h) => h.id !== id));
+      setAviso("Webhook removido.");
+    } else {
+      setAviso("Não foi possível remover o webhook.");
+    }
   }
 
   async function copiar(valor: string) {
@@ -238,7 +277,7 @@ export function IntegrationsView({
           </h3>
 
           <p className="revelado__aviso">
-            Copie agora. Este valor <strong>não aparece de novo</strong> — a plataforma guarda
+            Copie agora. Este valor <strong>não aparece de novo</strong>, a plataforma guarda
             {revelado.tipo === "chave"
               ? " apenas um resumo criptográfico dele."
               : " ele apenas para assinar os envios."}
@@ -249,7 +288,7 @@ export function IntegrationsView({
 
             <button
               type="button"
-              className="btn btn--primary btn--sm"
+              className="btn btn--primary btn--small"
               onClick={() => copiar(revelado.valor)}
             >
               {copiado ? "Copiado" : "Copiar"}
@@ -258,7 +297,7 @@ export function IntegrationsView({
 
           <button
             type="button"
-            className="btn btn--ghost btn--sm"
+            className="btn btn--ghost btn--small"
             onClick={() => setRevelado(null)}
           >
             Já copiei, pode esconder
@@ -280,7 +319,7 @@ export function IntegrationsView({
               className="input"
               id="nome-chave"
               name="name"
-              required
+              {...campoObrigatorio("Dê um nome para identificar esta chave.")}
               maxLength={80}
               placeholder="Integração com o RH"
             />
@@ -331,7 +370,7 @@ export function IntegrationsView({
                   ) : (
                     <button
                       type="button"
-                      className="btn btn--ghost btn--sm"
+                      className="btn btn--ghost btn--small"
                       onClick={() => revogarChave(chave.id, chave.name)}
                     >
                       <Trash2 aria-hidden /> Revogar
@@ -359,7 +398,7 @@ export function IntegrationsView({
               id="url-hook"
               name="url"
               type="url"
-              required
+              {...campoObrigatorio("Informe o endereço que vai receber os eventos.")}
               pattern="https://.*"
               placeholder="https://sistema.exemplo.com.br/nerdlms"
             />
@@ -414,7 +453,7 @@ export function IntegrationsView({
 
                   <button
                     type="button"
-                    className="btn btn--ghost btn--sm"
+                    className="btn btn--ghost btn--small"
                     onClick={() => removerHook(hook.id, hook.url)}
                   >
                     <Trash2 aria-hidden /> Remover

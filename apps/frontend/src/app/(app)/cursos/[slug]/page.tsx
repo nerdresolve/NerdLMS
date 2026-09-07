@@ -31,7 +31,15 @@ export default async function CoursePage({ params }: PageProps) {
       currentKind="location"
       topbar={<Breadcrumb items={[{ label: "Meus cursos", href: "/meus-cursos" }, { label: data.course.title }]} />}
     >
-      <CourseView course={data.course} outline={data.outline} enrolled={data.enrolled} saved={data.saved} />
+      <CourseView
+        course={data.course}
+        outline={data.outline}
+        enrolled={data.enrolled}
+        saved={data.saved}
+        quiz={data.quiz}
+        estado={data.estado}
+        podeEditar={data.podeEditar}
+      />
     </AppShell>
   );
 }

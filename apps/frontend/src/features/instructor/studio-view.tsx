@@ -3,7 +3,6 @@ import { BookOpen, Pencil, Users } from "lucide-react";
 
 import { DuplicateButton } from "./duplicate-button.tsx";
 
-import { FluidWave } from "@/components/brand/fluid-wave.tsx";
 import { formatDuration } from "@nerdlms/core/courses/progress.ts";
 import type { AuthoredCourse } from "./data.ts";
 import { NewCourse } from "./new-course.tsx";
@@ -25,10 +24,13 @@ const STATUS_LABEL = {
  */
 export function StudioView({ courses }: { courses: AuthoredCourse[] }) {
   return (
-    <div className="studio">
-      <div className="studio__head">
-        <div className="studio__head-text">
-          <h1 className="page-head__greeting">Meus cursos</h1>
+    <div className="page">
+      <div className="page-head">
+        <div className="page-head__text">
+          {/* O mesmo nome do item no menu. "Meus cursos" aparecia nos dois
+              lados — aqui e no bloco do aluno — e o título da página repetia a
+              ambiguidade em vez de resolvê-la. */}
+          <h1 className="page-head__title">Cursos que ensino</h1>
           <p className="page-head__sub">
             Cursos de sua autoria. Você edita e publica os seus; os de outros instrutores não aparecem aqui.
           </p>
@@ -71,7 +73,7 @@ export function StudioView({ courses }: { courses: AuthoredCourse[] }) {
         </div>
       ) : (
         <div className="empty">
-          <FluidWave variant="band" className="empty__wave" />
+          <span className="empty__rule" aria-hidden="true" />
           <div className="empty__inner">
             <span className="empty__icon">
               <BookOpen aria-hidden />

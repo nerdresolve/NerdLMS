@@ -49,31 +49,7 @@
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background: linear-gradient(180deg, rgba(7, 18, 58, 0.35) 0%, rgba(7, 18, 58, 0) 32%, rgba(7, 18, 58, 0.82) 100%);
-}
-
-/* O aviso da trava de avanço.
-
-   Sobre o vídeo e não abaixo dele: a pessoa acabou de arrastar a barra e está
-   olhando para o player. Um aviso fora do quadro passaria despercebido, e ela
-   tentaria de novo achando que o controle travou. */
-.player__trava {
-  position: absolute;
-  top: var(--space-5);
-  left: 50%;
-  translate: -50% 0;
-  z-index: 2;
-  max-width: min(90%, 420px);
-  margin: 0;
-  padding: var(--space-3) var(--space-4);
-  border-radius: var(--radius-md);
-  /* Fundo próprio, escuro: o aviso fica sobre o vídeo, e vídeo é imagem
-     qualquer — sem fundo, o texto seria ilegível sobre um quadro claro. */
-  background: rgba(7, 18, 58, 0.92);
-  color: #fff;
-  font-size: var(--text-caption-size);
-  text-align: center;
-  pointer-events: none;
+  background: linear-gradient(180deg, rgba(0, 11, 27, 0.35) 0%, rgba(0, 11, 27, 0) 32%, rgba(0, 11, 27, 0.82) 100%);
 }
 
 .player__big-play {
@@ -150,16 +126,32 @@
   -webkit-appearance: none;
   appearance: none;
 }
+/* A trilha tem TRÊS faixas, e não duas.
+
+   Assistido (azul), liberado mas ainda não visto (branco translúcido), e o que
+   ainda não dá para alcançar (quase invisível). A terceira existe porque o
+   vídeo não deixa adiantar além do ponto mais distante já assistido: sem uma
+   marca, a pessoa arrastaria a barra e o vídeo voltaria sozinho, o que parece
+   defeito. Com a marca, o limite se vê antes de esbarrar nele. */
 .player__seek::-webkit-slider-runnable-track {
   height: 4px;
   border-radius: var(--radius-full);
   background: linear-gradient(
     to right,
     var(--violet-400) 0 var(--seek, 0%),
-    rgba(255, 255, 255, 0.3) var(--seek, 0%) 100%
+    rgba(255, 255, 255, 0.3) var(--seek, 0%) var(--liberado, 100%),
+    rgba(255, 255, 255, 0.1) var(--liberado, 100%) 100%
   );
 }
-.player__seek::-moz-range-track { height: 4px; border-radius: var(--radius-full); background: rgba(255, 255, 255, 0.3); }
+.player__seek::-moz-range-track {
+  height: 4px;
+  border-radius: var(--radius-full);
+  background: linear-gradient(
+    to right,
+    rgba(255, 255, 255, 0.3) 0 var(--liberado, 100%),
+    rgba(255, 255, 255, 0.1) var(--liberado, 100%) 100%
+  );
+}
 .player__seek::-moz-range-progress { height: 4px; border-radius: var(--radius-full); background: var(--violet-400); }
 .player__seek::-webkit-slider-thumb {
   -webkit-appearance: none;
@@ -450,6 +442,15 @@ button.material { width: 100%; font: inherit; text-align: left; cursor: pointer;
 
 .doc__audio { width: 100%; }
 
+/* Aula escrita: o texto chega como digitado, e as quebras de linha são o
+   único parágrafo que ele tem. Sem `pre-wrap` o navegador colapsava tudo num
+   bloco só, e uma aula de dez parágrafos virava um muro. */
+.doc--text {
+  white-space: pre-wrap;
+  line-height: var(--text-body-lg-lh);
+  color: var(--text-body);
+}
+
 /* Tipos que não abrem no navegador: cartão explicando e oferecendo o download,
    em vez de um quadro vazio que parece defeito. */
 .doc--placeholder {
@@ -506,53 +507,4 @@ button.material { width: 100%; font: inherit; text-align: left; cursor: pointer;
   border-radius: var(--radius-sm);
   color: var(--warning-text);
   font-weight: 600;
-}
-
-/* Confirmação de leitura (rigor.leitura).
-
-   Modal e não aviso na lateral: a pergunta precisa de resposta antes de a
-   conclusão acontecer, e um aviso que não interrompe seria ignorado — que é
-   exatamente o comportamento que ele existe para questionar. */
-.leitura-modal {
-  position: fixed;
-  inset: 0;
-  z-index: 60;
-  display: grid;
-  place-items: center;
-  padding: var(--space-5);
-  background: rgba(7, 18, 58, 0.55);
-}
-
-.leitura-modal__painel {
-  width: min(100%, 460px);
-  padding: var(--space-6);
-  background: var(--surface-card);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-lg);
-}
-
-.leitura-modal__titulo {
-  margin: 0 0 var(--space-3);
-  font-size: var(--text-body-lg-size);
-  line-height: var(--text-body-lg-lh);
-}
-
-.leitura-modal__texto {
-  margin: 0 0 var(--space-6);
-  color: var(--text-muted);
-}
-
-.leitura-modal__acoes {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-3);
-  /* "Já terminei" à direita, e é o que a leitura ocidental encontra por
-     último: a ação que avança fica depois da que recua. */
-  justify-content: flex-end;
-}
-
-.leitura-modal__acoes .btn {
-  /* 44px: o mínimo confortável para toque, acima dos 24px da WCAG 2.5.8. */
-  min-height: 44px;
 }

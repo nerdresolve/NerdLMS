@@ -15,9 +15,9 @@ import type { Course, Enrollment, User } from "@nerdlms/core/courses/types.ts";
 /**
  * Camada de dados do gestor.
  *
- * O recorte é o **projeto**, não a autoria: um gestor responde por Prolagos
+ * O recorte é o **projeto**, não a autoria: um gestor responde por Siririzinho
  * inteiro, incluindo cursos escritos por outra pessoa. É por isso que o papel
- * existe separado de instrutor.
+ * existe separado de instrutor (DEC-038).
  *
  * O filtro por projeto acontece aqui, antes de qualquer agregação. Calcular
  * sobre a base inteira e recortar depois vazaria números de outros projetos

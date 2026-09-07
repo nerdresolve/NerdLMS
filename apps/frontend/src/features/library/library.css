@@ -1,0 +1,91 @@
+/* Biblioteca de conteúdos.
+   As classes genéricas — `.chip`, `.empty`, `.field` — vivem no sistema de
+   design; aqui fica só o que é layout desta tela. */
+
+.biblioteca__barra {
+  display: grid;
+  gap: var(--space-3);
+  margin-bottom: var(--space-6);
+}
+
+/* A lupa DENTRO do campo, e não ao lado: ao lado ela vira um ícone solto que
+   não diz a que campo pertence. */
+.biblioteca__busca { position: relative; display: flex; align-items: center; }
+.biblioteca__busca svg {
+  position: absolute;
+  left: var(--space-3);
+  width: 16px; height: 16px;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+.biblioteca__busca .input { padding-left: calc(var(--space-3) * 2 + 16px); }
+
+.biblioteca__filtros { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+
+.biblioteca__lista { display: grid; gap: var(--space-2); margin: 0; padding: 0; list-style: none; }
+
+.biblioteca__item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--surface-card);
+}
+
+.biblioteca__item:hover { border-color: var(--brand-accent); }
+
+.biblioteca__icone {
+  display: grid;
+  place-items: center;
+  width: 40px; height: 40px;
+  flex: none;
+  border-radius: var(--radius-sm);
+  background: var(--surface-sunken);
+  color: var(--text-muted);
+}
+.biblioteca__icone svg { width: 20px; height: 20px; }
+
+/* A cor diz o tipo antes de o rótulo ser lido, e o rótulo continua lá: cor
+   sozinha não informa quem não a distingue. */
+.biblioteca__icone[data-tipo="pdf"] { color: var(--danger-text); }
+.biblioteca__icone[data-tipo="spreadsheet"] { color: var(--success-text); }
+.biblioteca__icone[data-tipo="slides"] { color: var(--warning-text); }
+
+.biblioteca__texto { flex: 1 1 auto; display: grid; gap: var(--space-1); min-width: 0; }
+
+/* O nome é um BOTÃO, não um link: o endereço do arquivo é assinado na hora e
+   dura minutos, então não existe URL estável para pôr num `href`. */
+.biblioteca__nome {
+  justify-self: start;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-weight: var(--weight-medium);
+  color: var(--text-title);
+  text-align: left;
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+}
+.biblioteca__nome:hover { color: var(--text-brand); text-decoration: underline; }
+.biblioteca__nome:focus-visible { outline: 2px solid var(--border-focus); outline-offset: 2px; }
+
+.biblioteca__descricao { margin: 0; font-size: var(--text-small-size); color: var(--text-body); }
+.biblioteca__meta { margin: 0; font-size: var(--text-caption-size); color: var(--text-muted); }
+
+@media (max-width: 640px) {
+  .biblioteca__item { gap: var(--space-3); padding: var(--space-3); }
+}
+
+/* Campo e botão na mesma linha: criar um assunto é uma ação pequena ao lado
+   do campo, e não um formulário à parte. */
+.biblioteca__novo-assunto {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+.biblioteca__novo-assunto .input { flex: 1 1 220px; }

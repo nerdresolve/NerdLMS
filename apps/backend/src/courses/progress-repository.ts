@@ -28,8 +28,23 @@ export interface ProgressContext {
   lessonTitle: string;
   durationSeconds: number;
   watchedSeconds: number;
+  /**
+   * Instante do último registro de posição. Nulo na primeira vez.
+   *
+   * É o relógio contra o qual a trava do player mede o avanço — ver
+   * `packages/core/src/courses/watch-guard.ts`.
+   */
+  progressUpdatedAt: Date | null;
   /** `manual` impede que o consumo conclua a aula sozinho. */
   completionMode: "auto" | "manual";
+  /**
+   * A trava do player vale neste curso?
+   *
+   * Vem do curso, e não da aula: a decisão é sobre o treinamento inteiro. Um
+   * curso com metade das aulas travadas seria incompreensível para quem
+   * assiste.
+   */
+  watchGuard: boolean;
   /** Já concluída? Impede reescrever a data da conclusão. */
   alreadyCompleted: boolean;
 
@@ -60,6 +75,8 @@ interface ContextRow {
   min_seconds: number | null;
   pages_seen: number[] | null;
   seconds_on_page: number | null;
+  progress_updated_at: Date | null;
+  watch_guard: boolean | null;
 }
 
 /**
@@ -83,6 +100,14 @@ export async function findProgressContext(target: ProgressTarget): Promise<Progr
             l.duration_seconds,
             l.completion_mode, l.kind, l.page_count, l.min_seconds,
             lp.watched_seconds,
+            /* Quando a posição foi gravada pela última vez.
+
+               É o relógio contra o qual a trava do player mede: o avanço entre
+               dois registros não pode passar do tempo real decorrido vezes a
+               velocidade máxima. Sem esta coluna, um único envio com a duração
+               inteira seria indistinguível de alguém que assistiu. */
+            lp.updated_at   AS progress_updated_at,
+            c.watch_guard,
             lp.completed_at, lp.pages_seen, lp.seconds_on_page
        FROM lessons l
        JOIN modules m     ON m.id = l.module_id
@@ -107,7 +132,11 @@ export async function findProgressContext(target: ProgressTarget): Promise<Progr
     lessonTitle: row.lesson_title,
     durationSeconds: row.duration_seconds,
     watchedSeconds: row.watched_seconds ?? 0,
+    progressUpdatedAt: row.progress_updated_at ?? null,
     completionMode: row.completion_mode,
+    /* `?? true` e não `?? false`: se a coluna faltar por qualquer motivo, o
+       comportamento seguro é manter a trava. */
+    watchGuard: row.watch_guard ?? true,
     alreadyCompleted: row.completed_at !== null,
     pagesSeen: row.pages_seen ?? [],
     secondsOnPage: row.seconds_on_page ?? 0,

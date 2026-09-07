@@ -51,7 +51,7 @@ export async function POST(
      e o histórico registraria uma "revisão" que nunca foi revisão. */
   if (!isFinalScore(corpo.gradingProgress)) {
     return Response.json(
-      { accepted: false, reason: "gradingProgress não é FullyGraded — nota não lançada." },
+      { accepted: false, reason: "gradingProgress não é FullyGraded, nota não lançada." },
       { status: 202 },
     );
   }

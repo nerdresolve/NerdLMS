@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 
 import { PROVIDER_PRESETS, providerPreset, resolveEndpoint } from "./providers.ts";
 
-describe("SSO — provedores pré-configurados", () => {
+describe("SSO, provedores pré-configurados", () => {
   test("Google e Microsoft vêm com os endereços prontos", () => {
     /* É o ponto do white-label: quem implanta cola duas chaves e liga, sem
        precisar descobrir URL de provedor. */
@@ -51,7 +51,7 @@ describe("SSO — provedores pré-configurados", () => {
   });
 });
 
-describe("SSO — endereço com locatário", () => {
+describe("SSO, endereço com locatário", () => {
   test("a Microsoft recebe o diretório no lugar do marcador", () => {
     const url = resolveEndpoint(
       "https://login.microsoftonline.com/{tenant}/oauth2/v2.0/authorize",

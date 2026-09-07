@@ -6,6 +6,7 @@ import { BookOpenCheck, Layers, Link2, Target, X } from "lucide-react";
 import { levelLabel } from "@nerdlms/core/competencies/proficiency.ts";
 
 import "./competencies.css";
+import { campoObrigatorio } from "@/lib/campo-obrigatorio.ts";
 
 /**
  * Competências e planos — F6-02 (guia §20).
@@ -289,7 +290,7 @@ export function CompetenciesView({
 
         <p className="platform__hint">
           Um framework agrupa competências que se comparam entre si. &ldquo;Técnicas de
-          operação&rdquo; e &ldquo;Liderança&rdquo; são frameworks diferentes — misturá-los num
+          operação&rdquo; e &ldquo;Liderança&rdquo; são frameworks diferentes, misturá-los num
           relatório produziria um número sem significado.
         </p>
 
@@ -299,7 +300,7 @@ export function CompetenciesView({
               <label className="label" htmlFor="fw-nome">
                 Nome
               </label>
-              <input className="input" id="fw-nome" name="name" required maxLength={80} />
+              <input className="input" id="fw-nome" name="name" {...campoObrigatorio("Dê um nome ao modelo.")} maxLength={80} />
             </div>
 
             <div className="field">
@@ -310,7 +311,7 @@ export function CompetenciesView({
                 className="input"
                 id="fw-niveis"
                 name="levels"
-                required
+                {...campoObrigatorio("Informe quantos níveis a escala tem.")}
                 defaultValue="Básico, Intermediário, Avançado"
               />
               <p className="field__hint">
@@ -362,7 +363,7 @@ export function CompetenciesView({
                 <label className="label" htmlFor="comp-fw">
                   Framework
                 </label>
-                <select className="select" id="comp-fw" name="frameworkId" required>
+                <select className="select" id="comp-fw" name="frameworkId" {...campoObrigatorio("Escolha o modelo desta competência.")}>
                   {frameworks.map((framework) => (
                     <option key={framework.id} value={framework.id}>
                       {framework.name}
@@ -387,7 +388,7 @@ export function CompetenciesView({
                 className="input"
                 id="comp-nome"
                 name="name"
-                required
+                {...campoObrigatorio("Dê um nome a esta competência.")}
                 maxLength={120}
                 placeholder="Operar estação de tratamento de água"
               />
@@ -443,7 +444,7 @@ export function CompetenciesView({
 
                     {competency.courses.length === 0 ? (
                       <span className="prefs__desc">
-                        Nenhum curso ainda — só atestada à mão.
+                        Nenhum curso ainda, só atestada à mão.
                       </span>
                     ) : (
                       <ul className="comp__vinculos">
@@ -503,9 +504,9 @@ export function CompetenciesView({
                   className="input"
                   id="plano-nome"
                   name="name"
-                  required
+                  {...campoObrigatorio("Dê um nome a esta competência.")}
                   maxLength={80}
-                  placeholder="Operador de ETA — nível pleno"
+                  placeholder="Operador de ETA, nível pleno"
                 />
               </div>
 
@@ -669,7 +670,7 @@ function VincularCurso({
 
           <button
             type="button"
-            className="btn btn--secondary btn--sm"
+            className="btn btn--secondary btn--small"
             disabled={busy}
             onClick={() => {
               onVincular(competency, curso, nivel);

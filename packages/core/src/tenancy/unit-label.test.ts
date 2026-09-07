@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 
 import { lowerUnit, pluralOfUnit } from "./unit-label.ts";
 
-describe("Rótulo da unidade — flexão", () => {
+describe("Rótulo da unidade, flexão", () => {
   test("plural regular ganha s", () => {
     assert.equal(pluralOfUnit("Concessionária"), "concessionárias");
     assert.equal(pluralOfUnit("Unidade"), "unidades");

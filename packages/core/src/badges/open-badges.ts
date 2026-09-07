@@ -182,7 +182,7 @@ export function badgeSvg(nome: string, cor: string, inicial: string): string {
 
   /* A cor vem da marca do cliente e é conferida antes de entrar: qualquer coisa
      que não seja um hex vira a cor padrão, para não injetar atributo no SVG. */
-  const corSegura = /^#[0-9a-fA-F]{6}$/.test(cor) ? cor : "#7C3AED";
+  const corSegura = /^#[0-9a-fA-F]{6}$/.test(cor) ? cor : "#0A33CC";
 
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200" role="img" aria-labelledby="t">
   <title id="t">${seguro(nome)}</title>

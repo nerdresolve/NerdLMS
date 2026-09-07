@@ -37,6 +37,14 @@ export interface SessionUser {
   role: Role;
   project: string | null;
   /**
+   * A função da pessoa, que vem do `title` do diretório.
+   *
+   * Circula na sessão pelo mesmo motivo que `project`: é o recorte da trilha, e
+   * a página do aluno precisa dele para saber o que mostrar sem uma segunda
+   * viagem ao banco.
+   */
+  jobTitle: string | null;
+  /**
    * O cliente a que esta pessoa pertence.
    *
    * Vem na mesma consulta da sessão, não numa viagem separada: toda página
@@ -50,7 +58,7 @@ export interface SessionUser {
  * O que a interface precisa saber sobre o cliente.
  *
  * `unitLabel` é o que impede a palavra "projeto" de ficar escrita no código:
- * um cliente chama suas unidades de "Concessionária", uma rede de varejo chamaria
+ * a Exemplo S.A. chama suas unidades de "Campo", uma rede de varejo chamaria
  * de "Filial". O termo é dado do cliente, não vocabulário da plataforma.
  */
 export interface TenantContext {
@@ -119,6 +127,7 @@ export function toSessionUser(account: AccountRecord): SessionUser {
     email: account.email,
     role: account.role,
     project: account.project,
+    jobTitle: account.jobTitle,
     tenant: account.tenant,
   };
 }
@@ -136,7 +145,7 @@ export function toSessionUser(account: AccountRecord): SessionUser {
  */
 export function authenticate(account: AccountRecord | null, password: string): LoginResult {
   if (!account || !account.passwordHash) {
-    verifyPassword(password, DUMMY_HASH);
+    verifyPassword(password, HASH_DE_COMPARACAO);
     return { ok: false, reason: "invalid_credentials" };
   }
 
@@ -153,7 +162,24 @@ export function authenticate(account: AccountRecord | null, password: string): L
 
 /**
  * Hash descartável, só para gastar o mesmo tempo quando a conta não existe.
- * É um Argon2id real, de uma senha aleatória que ninguém conhece.
+ *
+ * PRECISA SER UM SCRYPT DE VERDADE, e este é o ponto.
+ *
+ * Era um Argon2id, e `verifyPassword` só entende o formato scrypt: ela olhava a
+ * string, não reconhecia, e devolvia `false` NA HORA. A defesa contra ataque
+ * por temporização não rodava — e a diferença não era de microssegundos:
+ *
+ *   e-mail inexistente  ~0,03 s
+ *   e-mail existente     ~0,60 s
+ *
+ * Vinte vezes. Bastava cronometrar o login para varrer a base inteira e
+ * descobrir quais endereços existem, que é exatamente o que a mensagem única
+ * "Usuário ou senha inválidos" existe para impedir.
+ *
+ * É um scrypt real, dos MESMOS parâmetros de custo que as senhas de verdade —
+ * um custo menor devolveria a diferença de tempo por outro caminho. A senha de
+ * origem foi sorteada e descartada; ninguém a conhece, e nenhuma senha a
+ * reproduz.
  */
-const DUMMY_HASH =
-  "$argon2id$v=19$m=19456,t=2,p=1$c2FsdGRlY29tcGFyYWNhbw$Qm9uZWNhUnVzc2FOYW9PYnJpZ2Fkbw";
+export const HASH_DE_COMPARACAO =
+  "$scrypt$ln=17,r=8,p=1$++U6IToDR54nwfAaYgZ17g$xXDupaGiR890PyV0qO48e2VB6nf19GXqvhSNKeMQF6A";

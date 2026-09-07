@@ -192,7 +192,7 @@ export async function findModuleCourse(moduleId: string): Promise<string | null>
  * Slugs já em uso NESTE cliente, para o novo curso não colidir.
  *
  * O recorte importa dos dois lados: sem ele, um curso da ACME evitaria um slug
- * que só existe em outro cliente (ganhando um "-2" sem motivo) e — pior — a checagem
+ * que só existe na Exemplo S.A. (ganhando um "-2" sem motivo) e — pior — a checagem
  * passaria a depender do catálogo alheio. A unicidade é por tenant desde a
  * migração 003.
  */

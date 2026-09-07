@@ -88,16 +88,10 @@ export async function POST(request: Request): Promise<Response> {
     conteudo: await arquivo.text(),
   };
 
-  const params = new URL(request.url).searchParams;
-  const restaurar = params.get("restaurar") === "1";
-
-  /* `?migrar=1` confirma que trazer conteúdo de OUTRO cliente é intencional.
-     Parâmetro separado de `restaurar` de propósito: são operações diferentes,
-     e quem quis restaurar não pode migrar por acidente. */
-  const migrar = params.get("migrar") === "1";
+  const restaurar = new URL(request.url).searchParams.get("restaurar") === "1";
 
   const resultado = restaurar
-    ? await restaurarBackup({ ...comando, migrarDeOutroCliente: migrar })
+    ? await restaurarBackup(comando)
     : await conferirBackup(comando);
 
   if (resultado.status !== 200) {

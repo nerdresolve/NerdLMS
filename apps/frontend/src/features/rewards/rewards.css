@@ -26,7 +26,6 @@
    meio da faixa — a forma `band` é fechada (`L…Z`), feita para atravessar o
    bloco, não para ser recortada. A curva continua concentrada à direita
    porque a própria geometria sobe só no final do traçado. */
-.level-card__wave { position: absolute; inset: auto 0 -50% 0; width: 100%; height: 180%; z-index: -1; opacity: 0.25; }
 
 .level-card__body { display: flex; flex-direction: column; gap: var(--space-3); min-width: 0; }
 .level-card__title { margin: 0; color: inherit; font-size: var(--text-h2-size); line-height: var(--text-h2-lh); font-weight: var(--weight-bold); }

@@ -4,7 +4,7 @@ import assert from "node:assert/strict";
 import { detectDelimiter, normalizeHeader, parseCsv, parseTable } from "./csv-parse.ts";
 import { toCsv, UTF8_BOM } from "../reports/csv.ts";
 
-describe("Leitura de CSV — F5-05", () => {
+describe("Leitura de CSV: F5-05", () => {
   test("lê a tabela simples", () => {
     const { headers, rows } = parseTable("Nome;Email\r\nMaria;maria@x.com\r\nJoão;joao@x.com");
 

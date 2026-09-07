@@ -113,7 +113,7 @@ export function PlatformView({
   return (
     <div className="platform">
       <div className="page-head">
-        <h1 className="page-head__greeting">Plataforma</h1>
+        <h1 className="page-head__title">Plataforma</h1>
         <p className="page-head__sub">
           O que está disponível e com que aparência, para {tenantName}.
         </p>
@@ -125,7 +125,7 @@ export function PlatformView({
         </h2>
         <p className="platform__hint">
           Desligar uma funcionalidade some com ela do menu e fecha o endereço dela. O que já foi
-          criado continua no banco — nada é apagado.
+          criado continua no banco, nada é apagado.
         </p>
 
         <ul className="platform__features">
@@ -171,7 +171,7 @@ export function PlatformView({
                 {feature.overridden && !feature.blockedByParent ? (
                   <button
                     type="button"
-                    className="btn btn--ghost btn--sm"
+                    className="btn btn--ghost btn--small"
                     disabled={busy}
                     onClick={() =>
                       salvar(
@@ -194,8 +194,8 @@ export function PlatformView({
           <Palette aria-hidden /> Identidade visual
         </h2>
         <p className="platform__hint">
-          Campo em branco usa o padrão da plataforma. A cor de marca gera as demais — hover, faixa,
-          gradiente — e o contraste do texto é ajustado para continuar legível.
+          Campo em branco usa o padrão da plataforma. A cor de marca gera as demais, hover, faixa,
+          gradiente, e o contraste do texto é ajustado para continuar legível.
         </p>
 
         <form className="platform__form" id={formId} onSubmit={handleBranding}>
@@ -208,7 +208,7 @@ export function PlatformView({
               id={`${formId}-cor`}
               name="brandColor"
               type="text"
-              placeholder="#7C3AED"
+              placeholder="#0A33CC"
               defaultValue={branding.brandColor ?? ""}
               pattern="#[0-9a-fA-F]{6}"
             />
@@ -223,7 +223,7 @@ export function PlatformView({
               id={`${formId}-logo-clara`}
               name="logoLightUrl"
               type="text"
-              placeholder="/brand/logo-do-cliente.png"
+              placeholder="/brand/nerdresolve-wordmark.png"
               defaultValue={branding.logoLightUrl ?? ""}
             />
           </div>
@@ -237,7 +237,7 @@ export function PlatformView({
               id={`${formId}-logo-escura`}
               name="logoDarkUrl"
               type="text"
-              placeholder="/brand/logo-do-cliente-branca.png"
+              placeholder="/brand/nerdresolve-wordmark-white.png"
               defaultValue={branding.logoDarkUrl ?? ""}
             />
           </div>

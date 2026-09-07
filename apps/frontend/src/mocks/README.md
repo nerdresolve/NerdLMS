@@ -1,31 +1,42 @@
 # Dados fictícios
 
-Tudo que é inventado no projeto está nesta pasta. Nenhuma tela e nenhuma regra
-de negócio importa daqui diretamente — todas passam por `repository.ts`.
+Tudo que é inventado no projeto está nesta pasta.
 
-```
-tela  →  features/<x>/data.ts  →  mocks/repository.ts  →  mocks/data.ts
-                                        ↑
-                          aqui entra o PostgreSQL
-```
+**O papel mudou.** Enquanto o banco não existia, estes arquivos eram a fonte das
+telas, e `repository.ts` era a costura que seria trocada. As telas hoje leem do
+PostgreSQL — nenhuma página em `src/features/` ou `src/app/` importa daqui.
 
-## Como remover o mock
+O que sobrou tem três usos, e só três:
 
-1. Reescreva `repository.ts` para consultar o banco, mantendo as mesmas
-   assinaturas.
-2. Apague `data.ts` e este README.
-3. Rode `npm test` — as regras de negócio não dependem do mock; só
-   `catalog.test.ts` usa o catálogo fictício como fixture e deve migrar para
-   uma fixture própria.
+| Arquivo | Quem usa | Para quê |
+|---|---|---|
+| `data.ts`, `quizzes.ts`, `seed-ids.ts` | `infra/tools/build-seed.mjs` | gerar `infra/db/seeds/hml.sql` |
+| `repository.ts` | `src/lib/auth/session.ts` | resolver `NERD_DEV_ROLE` em desenvolvimento |
+| `data.ts` | `catalog.test.ts`, `learner-store.test.ts` | catálogo inteiro como fixture (DEC-031) |
 
-Nenhuma outra alteração é necessária. É essa a razão de a indireção existir.
+## O seed que sai daqui carrega cursos inventados
+
+`build-seed.mjs` transforma este catálogo em SQL, e o SQL entra com
+`ON CONFLICT DO UPDATE`. Isso significa que **`npm run seed` num banco que já
+tem o conteúdo real da Exemplo S.A. traz os cursos fictícios de volta** — sete
+cursos, vinte módulos, oitenta e quatro aulas.
+
+Num banco vazio é o caminho mais rápido para ter com quem entrar. Num banco em
+uso, não rode. O conteúdo real entra por `infra/tools/import-cursos.mjs`, que é
+outro caminho de propósito.
 
 ## O que é fictício aqui
 
 | Dado | Situação |
-|------|----------|
-| 4 cursos de saneamento, com módulos e aulas | Inventado. O catálogo real tem ~70 cursos sociais e 6 para terceiros |
-| Aluna "Maria Souza", dois instrutores, uma administradora | Inventado |
-| Progresso e matrículas | Inventado |
+|---|---|
+| 7 cursos de petróleo e gás, com módulos, aulas e provas | Inventado. Os cursos reais estão em `infra/db/content/cursos.json` |
+| 5 contas de papel (`user.mock`, `admin.mock`…) | Contas de demonstração, e são elas que se quer do seed |
+| 8 pessoas com nome próprio, sem senha | Inventado. Existem para as telas de gestão terem gente |
+| Progresso, matrículas, comentários e votos | Inventado |
 | `public/media/aula-demo.mp4` | Vídeo gerado por ffmpeg, 45s |
-| Números da tela de acesso (`src/lib/landing.ts`) | **Vêm da referência visual, não de dados reais** |
+
+## Se um dia isto sair
+
+Separar as contas do conteúdo resolveria o conflito com o catálogo real: o seed
+passaria a criar só gente, e `import-cursos.mjs` seguiria sendo o único caminho
+de curso. É uma mudança em `build-seed.mjs`, não aqui.

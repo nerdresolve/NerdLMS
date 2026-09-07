@@ -9,7 +9,7 @@ import type { LessonMaterial } from "@nerdlms/core/courses/types.ts";
  *
  * O arquivo em si nunca é público. `storage_key` é a chave no object storage, e
  * o download sai por URL assinada com validade curta, emitida só depois de
- * confirmada a matrícula — o mesmo desenho do vídeo da aula.
+ * confirmada a matrícula — o mesmo desenho do vídeo da aula (DEC-009).
  */
 
 interface MaterialRow {
@@ -39,7 +39,13 @@ export function formatSize(bytes: number): string {
   return `${Math.max(1, Math.round(bytes / 1024)).toLocaleString("pt-BR")} KB`;
 }
 
-/** Os materiais de uma aula, na ordem em que foram enviados. */
+/**
+ * Os materiais de uma aula, na ordem em que foram enviados.
+ *
+ * `lesson_id` aceita nulo desde a 043, e nulo é documento de biblioteca. A
+ * igualdade já os exclui — `NULL = $1` nunca é verdadeiro —, e é isso que
+ * mantém a biblioteca fora da lista de anexos da aula.
+ */
 export async function findMaterials(lessonId: string): Promise<LessonMaterial[]> {
   const rows = await query<MaterialRow>(
     `SELECT id, name, kind, size_bytes, storage_key
@@ -88,11 +94,22 @@ export interface NewMaterial {
   uploadedBy: string;
 }
 
-/** Registra um material recém-enviado. */
+/**
+ * Registra um material recém-enviado, anexado a uma aula.
+ *
+ * `tenant_id` passou a ser coluna (migração 043) porque o material de
+ * biblioteca não tem aula de onde derivá-lo. Aqui ele vem da própria aula, na
+ * mesma inserção: pedi-lo por parâmetro obrigaria vinte chamadas a descobrir o
+ * cliente antes, e uma delas esqueceria.
+ */
 export async function insertMaterial(material: NewMaterial): Promise<string> {
   const rows = await query<{ id: string }>(
-    `INSERT INTO materials (lesson_id, name, kind, size_bytes, storage_key, uploaded_by)
-     VALUES ($1, $2, $3, $4, $5, $6)
+    `INSERT INTO materials (lesson_id, tenant_id, name, kind, size_bytes, storage_key, uploaded_by)
+     SELECT $1, c.tenant_id, $2, $3, $4, $5, $6
+       FROM lessons l
+       JOIN modules m ON m.id = l.module_id
+       JOIN courses c ON c.id = m.course_id
+      WHERE l.id = $1
      RETURNING id`,
     [
       material.lessonId,
@@ -107,14 +124,23 @@ export async function insertMaterial(material: NewMaterial): Promise<string> {
   return rows[0]!.id;
 }
 
-/** Remove o registro. O arquivo no storage é removido pelo chamador. */
-export async function deleteMaterial(lessonId: string, materialId: string): Promise<boolean> {
+/**
+ * Remove o registro e devolve a CHAVE do arquivo, ou `null` se não havia nada.
+ *
+ * A chave devolvida é o que permite ao chamador apagar o objeto — antes esta
+ * função respondia só "removeu?", o comentário dizia que o chamador limparia o
+ * storage, e o chamador não tinha como: sem a chave, não há o que apagar.
+ */
+export async function deleteMaterial(
+  lessonId: string,
+  materialId: string,
+): Promise<string | null> {
   const rows = await query<{ storage_key: string }>(
     `DELETE FROM materials WHERE id = $1 AND lesson_id = $2 RETURNING storage_key`,
     [materialId, lessonId],
   );
 
-  return rows.length > 0;
+  return rows[0]?.storage_key ?? null;
 }
 
 /**
@@ -135,4 +161,123 @@ export async function findLessonCourse(lessonId: string): Promise<string | null>
   );
 
   return rows[0]?.course_id ?? null;
+}
+
+/* ---------------------------------------------------------------------------
+   Biblioteca de conteúdos
+   ---------------------------------------------------------------------------
+
+   Documento que vale por si — procedimento, norma, ficha de segurança — e não
+   está pendurado em aula nenhuma. É a MESMA tabela: `lesson_id` nulo é o que
+   distingue os dois usos, e assim o upload, o download assinado e a remoção
+   continuam sendo um caminho só.
+   --------------------------------------------------------------------------- */
+
+export interface DocumentoDaBiblioteca {
+  id: string;
+  name: string;
+  description: string | null;
+  kind: LessonMaterial["kind"];
+  sizeLabel: string;
+  tema: string | null;
+}
+
+/** O acervo do cliente, em ordem de nome. */
+export async function findBiblioteca(tenantId: string): Promise<DocumentoDaBiblioteca[]> {
+  const rows = await query<{
+    id: string;
+    name: string;
+    description: string | null;
+    kind: LessonMaterial["kind"];
+    size_bytes: string;
+    tema: string | null;
+  }>(
+    `SELECT m.id, m.name, m.description, m.kind, m.size_bytes, cat.name AS tema
+       FROM materials m
+       LEFT JOIN course_categories cat ON cat.id = m.category_id
+      WHERE m.tenant_id = $1
+        AND m.lesson_id IS NULL
+      ORDER BY m.name`,
+    [tenantId],
+  );
+
+  return rows.map((row) => ({
+    id: row.id,
+    name: row.name,
+    description: row.description,
+    kind: row.kind,
+    sizeLabel: formatSize(Number(row.size_bytes)),
+    tema: row.tema,
+  }));
+}
+
+export interface NovoDocumento {
+  tenantId: string;
+  name: string;
+  description: string | null;
+  categoryId: string | null;
+  kind: LessonMaterial["kind"];
+  sizeBytes: number;
+  storageKey: string;
+  uploadedBy: string;
+}
+
+/** Publica um documento na biblioteca. */
+export async function insertDocumento(doc: NovoDocumento): Promise<string> {
+  const rows = await query<{ id: string }>(
+    `INSERT INTO materials
+       (tenant_id, lesson_id, name, description, category_id, kind, size_bytes,
+        storage_key, uploaded_by)
+     VALUES ($1, NULL, $2, $3, $4, $5, $6, $7, $8)
+     RETURNING id`,
+    [
+      doc.tenantId,
+      doc.name,
+      doc.description,
+      doc.categoryId,
+      doc.kind,
+      doc.sizeBytes,
+      doc.storageKey,
+      doc.uploadedBy,
+    ],
+  );
+
+  return rows[0]!.id;
+}
+
+/**
+ * A chave de storage de um documento da biblioteca.
+ *
+ * O `tenant_id` e o `lesson_id IS NULL` entram na condição pelo mesmo motivo
+ * que a aula entra em `findMaterialKey`: sem eles, um id de material bastaria
+ * para baixar o anexo de qualquer aula de qualquer cliente por esta rota.
+ */
+export async function findDocumentoKey(
+  tenantId: string,
+  materialId: string,
+): Promise<string | null> {
+  const rows = await query<{ storage_key: string }>(
+    `SELECT storage_key
+       FROM materials
+      WHERE id = $1 AND tenant_id = $2 AND lesson_id IS NULL
+      LIMIT 1`,
+    [materialId, tenantId],
+  );
+
+  return rows[0]?.storage_key ?? null;
+}
+
+/** Remove o documento. O arquivo no storage é removido pelo chamador. */
+export async function deleteDocumento(
+  tenantId: string,
+  materialId: string,
+): Promise<string | null> {
+  const rows = await query<{ storage_key: string }>(
+    `DELETE FROM materials
+      WHERE id = $1 AND tenant_id = $2 AND lesson_id IS NULL
+      RETURNING storage_key`,
+    [materialId, tenantId],
+  );
+
+  return rows[0]?.storage_key ?? null;
 }

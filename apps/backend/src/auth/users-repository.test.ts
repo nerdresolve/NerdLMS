@@ -12,7 +12,7 @@ import { fileURLToPath } from "node:url";
  * aí que morava o defeito: `citext` ignora maiúsculas, mas o resultado de
  * `coluna || 'texto'` é `text`, e a comparação volta a ser sensível.
  *
- * Na prática: `USER.MOCK@EXEMPLO.COM.BR` entrava (comparação direta com a
+ * Na prática: `USER.MOCK@NERDRESOLVEENERGY.COM` entrava (comparação direta com a
  * coluna citext) e `USER.MOCK` não (passava pela concatenação). O cast de
  * volta para `citext` é o que iguala os dois caminhos, e este teste existe
  * para que ninguém o remova sem perceber.
@@ -31,7 +31,7 @@ function consultas(code: string): string[] {
   );
 }
 
-describe("SQL do login — insensível a maiúsculas no identificador", () => {
+describe("SQL do login, insensível a maiúsculas no identificador", () => {
   test("toda concatenação com `email` volta para citext", async () => {
     /* O parêntese é opcional no padrão de propósito: é justamente ele que a
        correção introduz. Casar só a forma sem parênteses faria o teste parar
@@ -43,7 +43,7 @@ describe("SQL do login — insensível a maiúsculas no identificador", () => {
 
     assert.ok(
       encontradas.length > 0,
-      "esperava achar a consulta que aceita login curto — o teste ficou órfão",
+      "esperava achar a consulta que aceita login curto, o teste ficou órfão",
     );
 
     for (const sql of encontradas) {
@@ -51,7 +51,7 @@ describe("SQL do login — insensível a maiúsculas no identificador", () => {
         sql,
         /::citext/i,
         "concatenação com email (citext) sem cast de volta: " +
-          "`USER.MOCK` deixaria de entrar enquanto `USER.MOCK@EXEMPLO.COM.BR` entraria",
+          "`USER.MOCK` deixaria de entrar enquanto `USER.MOCK@NERDRESOLVEENERGY.COM` entraria",
       );
     }
   });

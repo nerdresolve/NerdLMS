@@ -16,7 +16,7 @@ export default async function CompletedPage() {
         initialFilter="completed"
         showTabs={false}
         title="Concluídos"
-        subtitle="Os cursos que você terminou. O certificado fica disponível assim que a última aula é concluída."
+        subtitle="Os cursos que você terminou. Quando o curso tem prova, o certificado depende também da nota."
         emptyTitle="Você ainda não concluiu nenhum curso"
         emptyText="Assim que terminar a última aula de um curso, ele aparece aqui com o certificado."
       />

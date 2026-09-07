@@ -21,24 +21,24 @@ export interface Branding {
 
 /** O que o produto usa quando o cliente não personaliza. */
 /**
- * O que a plataforma mostra ANTES de o cliente subir a marca dele.
- *
- * É a marca do produto, não a de nenhum cliente: um logo de cliente aqui
- * apareceria para todos os outros até que cada um subisse o seu.
- */
-/**
  * O nome exibido quando o domínio não identifica nenhum cliente.
  *
- * Aparece na aba do navegador, nos títulos e no texto de telas públicas —
- * login, suporte, validação de certificado. Todo cliente com tenant cadastrado
- * vê o próprio nome; isto é só a reserva.
+ * Aparece na aba do navegador, nos títulos e no texto das telas públicas —
+ * acesso inicial, login, recuperação de senha, validação de certificado. Todo
+ * cliente com tenant cadastrado vê o PRÓPRIO nome; isto é só a reserva.
+ *
+ * É o nome do PRODUTO, não o de um cliente: um nome de cliente aqui apareceria
+ * para todos os outros até que cada um cadastrasse o seu.
+ *
+ * PERSONALIZAR: este valor e `BRANDING_PADRAO` abaixo são os dois lugares que
+ * um fork precisa editar para trocar a marca do produto inteiro.
  */
 export const NOME_PADRAO = "NerdResolve LMS";
 
 export const BRANDING_PADRAO = {
-  logoLight: "/brand/plataforma-wordmark.svg",
-  logoDark: "/brand/plataforma-wordmark-white.svg",
-  favicon: "/favicon.ico",
+  logoLight: "/brand/nerdresolve-wordmark.png",
+  logoDark: "/brand/nerdresolve-wordmark-white.png",
+  favicon: "/icon.png",
   brandColor: "#7C3AED",
 } as const;
 
@@ -72,7 +72,7 @@ function toHex({ r, g, b }: Rgb): string {
  *
  * É o que permite calcular contraste de verdade em vez de chutar pelo brilho
  * aparente: o olho humano é muito mais sensível ao verde que ao azul, e uma
- * média simples dos canais erraria feio justamente no violeta da marca.
+ * média simples dos canais erraria feio justamente no azul da marca.
  */
 export function luminance(hex: string): number {
   const rgb = parseHex(hex);
@@ -207,8 +207,15 @@ export function paletteToCss(brandColor: string | null): string {
     `--text-on-brand:${p.onBrand}`,
     `--border-brand:${p.brand}`,
     `--fill:${p.brand}`,
-    `--wave-from:${p.brand}`,
-    `--wave-to:${p.brandHover}`,
+    /* O grafismo em quatro cores é da EXEMPLO S.A.. Para um cliente que
+       personaliza a marca, ele vira monocromático na cor dele — quatro tons da
+       mesma família, derivados aqui. Manter o amarelo e o verde do símbolo
+       alheio seria pôr a marca de uma empresa dentro do produto de outra. */
+    `--tile-blue:${p.brandHover}`,
+    `--tile-navy:${p.brandDeep}`,
+    `--tile-sun:${p.brand}`,
+    `--tile-leaf:${p.brandActive}`,
+    `--tile-ring:${p.brand}`,
     `--gradient-brand:linear-gradient(150deg,${p.brand} 0%,${p.brandHover} 55%,${p.brandDeep} 100%)`,
   ].join(";");
 }

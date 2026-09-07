@@ -40,7 +40,7 @@ function content(over: Partial<InteractiveContent> = {}): InteractiveContent {
   };
 }
 
-describe("Conteúdo interativo — F6-05", () => {
+describe("Conteúdo interativo: F6-05", () => {
   test("o gabarito NUNCA vai para o navegador", () => {
     /* É a garantia que faz a interação valer alguma coisa: com o gabarito no
        HTML, a resposta certa apareceria no código-fonte da página. */
@@ -63,7 +63,7 @@ describe("Conteúdo interativo — F6-05", () => {
     assert.deepEqual(publicOptions(pergunta), [{ text: "10 mca" }, { text: "15 mca" }]);
   });
 
-  test("o verso do flashcard VAI — ele é o conteúdo, não o gabarito", () => {
+  test("o verso do flashcard VAI, ele é o conteúdo, não o gabarito", () => {
     /* Esconder o verso tornaria o cartão inútil. */
     const cartao = item({ options: [], body: "Pressão mínima dinâmica: 10 mca." });
 

@@ -1,10 +1,16 @@
 import type { Actor } from "@nerdlms/core/auth/permissions.ts";
+import {
+  cargaDoCertificado,
+  cargaPorExtenso,
+  programaDoCurso,
+} from "@nerdlms/core/reports/certificate-verso.ts";
 import { buildCertificate, certificateCode } from "@nerdlms/core/reports/certificate.ts";
 import { courseProgress } from "@nerdlms/core/courses/progress.ts";
 import { courseGrade, meetsCertificateGrade } from "@nerdlms/core/assessment/gradebook.ts";
 import { findGrades } from "../assessment/assignment-repository.ts";
 import { notify } from "../notifications/notify.ts";
 
+import { courseSignature } from "../auth/users-repository.ts";
 import { findAllCourses, findEnrollments } from "../courses/courses-repository.ts";
 import { query } from "../db/pool.ts";
 
@@ -25,6 +31,21 @@ export interface CertificateCommand {
 export type CertificateOutcome =
   | { status: 200; pdf: Uint8Array; filename: string }
   | { status: 403 | 404; error: string };
+
+/**
+ * O que se escreve sob o nome de quem assina.
+ *
+ * O papel guardado no banco é vocabulário de sistema — `instructor`, `admin` —
+ * e não cabe num documento impresso. "Instrutor responsável" diz o que a
+ * assinatura significa: alguém responde pelo que foi ensinado, e não apenas
+ * ministrou a aula.
+ */
+const TITULO_DE: Record<string, string> = {
+  instructor: "Instrutor responsável",
+  manager: "Gestor responsável",
+  admin: "Responsável pelo treinamento",
+  learner: "Responsável pelo curso",
+};
 
 export async function certificateUseCase(
   command: CertificateCommand,
@@ -102,13 +123,55 @@ export async function certificateUseCase(
     .flatMap((module) => module.lessons)
     .reduce((total, lesson) => total + lesson.durationSeconds, 0);
 
+  /* Quem assina: o instrutor responsável pelo curso.
+
+     A busca NÃO pode derrubar a emissão. Curso sem autor, autor removido,
+     assinatura nunca enviada — nos três casos o certificado sai, com a
+     atribuição da plataforma, como saía antes desta mudança. Um documento que
+     a pessoa conquistou não deve depender de alguém ter lembrado de subir um
+     arquivo. */
+  const assinante = await courseSignature(command.courseId);
+
+  /* O verso: conteúdo programático e a ficha que uma auditoria pede.
+
+     A carga prefere a DECLARADA no curso, e cai na soma dos vídeos quando não
+     há. As duas medem coisas diferentes, e é a declarada que a área de
+     treinamento defende. */
+  const carga = cargaDoCertificado(course.workloadMinutes, durationSeconds);
+  const programa = programaDoCurso(course);
+
+  /* O endereço de conferência sai do DOMÍNIO DECLARADO PELA INSTALAÇÃO.
+
+     O rodapé trazia um endereço escrito à mão no gerador, e ele não resolve.
+     Quem recebe o documento e tenta conferir o código bate numa porta fechada,
+     e a conclusão razoável é que o certificado não vale — o oposto do que o
+     rodapé existe para provar.
+
+     Nulo quando o cliente ainda não declarou domínio, e nesse caso o
+     certificado imprime uma orientação em vez de um endereço inventado. */
+  const dominio = await validacaoUrl(command.actor.tenantId);
+
   const pdf = buildCertificate({
     learnerName: command.actorName,
     courseTitle: course.title,
     lessons,
     durationSeconds,
+    programa: {
+      itens: programa.itens,
+      total: programa.total,
+      truncado: programa.truncado,
+      carga: cargaPorExtenso(carga.minutos),
+    },
+    validacaoUrl: dominio,
     completedAt: (row?.completed_at ?? new Date()).toISOString(),
     code: certificateCode(row?.id ?? command.courseId),
+    signer: assinante
+      ? {
+          name: assinante.name,
+          title: TITULO_DE[assinante.role] ?? TITULO_DE.instructor!,
+          image: assinante.image,
+        }
+      : null,
   });
 
   /* Avisa que o certificado saiu (F4-03).
@@ -210,6 +273,30 @@ export async function verifyCertificateUseCase(
 
   if (Number(concluidas[0]?.total ?? 0) < lessons || lessons === 0) return null;
 
+  /* E CONFERE A NOTA, quando o curso exige uma.
+
+     A checagem das aulas sozinha deixou de bastar no dia em que o certificado
+     passou a depender de prova: a emissão recusava por falta de nota e esta
+     página diria "válido" para a mesma matrícula. Quem reprovasse poderia
+     divulgar o código e a conferência confirmaria um documento que nunca foi
+     emitido, que é o oposto do que ela existe para fazer.
+
+     A regra é a MESMA de `meetsCertificateGrade`, usada na emissão. Duas
+     definições de "concluiu" divergiriam, e a que ficasse para trás atestaria
+     o que a outra nega. */
+  if (course.minGradePercent !== undefined) {
+    const matricula = await query<{ id: string }>(
+      `SELECT e.id FROM enrollments e
+        WHERE upper(left(replace(e.id::text, '-', ''), 12)) = $1
+        LIMIT 1`,
+      [code],
+    );
+
+    const notas = matricula[0] ? await findGrades(matricula[0].id) : [];
+
+    if (!meetsCertificateGrade(course.minGradePercent, courseGrade(notas))) return null;
+  }
+
   return {
     learnerName: row.learner_name,
     courseTitle: course.title,
@@ -220,4 +307,20 @@ export async function verifyCertificateUseCase(
     completedAt: (row.completed_at ?? new Date()).toISOString(),
     code,
   };
+}
+
+/**
+ * O endereço de conferência desta instalação, ou nulo.
+ *
+ * Sem `https://` no papel: o rodapé é lido por uma pessoa, não clicado, e o
+ * esquema só ocuparia espaço numa linha que já é apertada.
+ */
+async function validacaoUrl(tenantId: string): Promise<string | null> {
+  const linhas = await query<{ domain: string | null }>(
+    `SELECT domain FROM tenants WHERE id = $1 LIMIT 1`,
+    [tenantId],
+  );
+
+  const dominio = linhas[0]?.domain?.trim();
+  return dominio ? `${dominio}/validar` : null;
 }

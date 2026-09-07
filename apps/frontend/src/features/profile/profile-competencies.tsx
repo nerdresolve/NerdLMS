@@ -135,7 +135,7 @@ export function ProfileCompetencies({
                               primeiro é reciclagem, o segundo é formação. */}
                           {gap.expired ? (
                             <>
-                              <AlertTriangle aria-hidden /> Venceu — precisa renovar
+                              <AlertTriangle aria-hidden /> Venceu, precisa renovar
                             </>
                           ) : gap.currentLevel > 0 ? (
                             <>

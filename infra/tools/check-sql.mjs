@@ -1,5 +1,5 @@
 /**
- * Verificação estrutural das migrações.
+ * Verificação estrutural das migrações — TASK-062.
  *
  * NÃO é um parser de SQL: não há PostgreSQL neste ambiente. É o que dá para
  * verificar sem banco, e serve para pegar a classe de erro que mais custa —
@@ -16,6 +16,17 @@ import { fileURLToPath } from "node:url";
 const dir = join(dirname(fileURLToPath(import.meta.url)), "..", "db/migrations");
 
 let failures = 0;
+
+/**
+ * `CREATE INDEX … ON tabela (coluna`, com a tabela e a coluna capturadas.
+ *
+ * `\s+` e não espaço literal: 36 dos 242 índices do projeto quebram a linha
+ * antes do `ON`, e a versão anterior exigia tudo na mesma linha. O efeito era
+ * um alarme falso — o índice existia, o verificador não o via, e cobrava um
+ * índice já declarado. `IF NOT EXISTS` é opcional pelo mesmo motivo que já é
+ * aceito em `CREATE TABLE`: as migrações precisam ser reaplicáveis.
+ */
+const INDICE = /CREATE\s+(?:UNIQUE\s+)?INDEX\s+(?:IF\s+NOT\s+EXISTS\s+)?\w+\s+ON\s+(\w+)\s*\(\s*(\w+)/g;
 
 function check(condition, file, message) {
   if (condition) return;
@@ -82,7 +93,7 @@ for (const file of files) {
   }
 
   // Índice sobre tabela existente.
-  for (const match of sql.matchAll(/CREATE (?:UNIQUE )?INDEX (?:IF NOT EXISTS )?\w+ ON (\w+)/g)) {
+  for (const match of sql.matchAll(INDICE)) {
     check(declaredTables.has(match[1]), file, `índice sobre tabela inexistente: ${match[1]}`);
   }
 
@@ -94,9 +105,7 @@ for (const file of files) {
 const indexed = new Set();
 for (const file of files) {
   const sql = strip(await readFile(join(dir, file), "utf8"));
-  // `IF NOT EXISTS` é opcional aqui pelo mesmo motivo que já é aceito em
-  // `CREATE TABLE` abaixo: as migrações precisam ser reaplicáveis.
-  for (const match of sql.matchAll(/CREATE (?:UNIQUE )?INDEX (?:IF NOT EXISTS )?\w+ ON (\w+) \(\s*(\w+)/g)) {
+  for (const match of sql.matchAll(INDICE)) {
     indexed.add(`${match[1]}.${match[2]}`);
   }
   for (const match of sql.matchAll(/CREATE TABLE (?:IF NOT EXISTS )?(\w+)\s*\(([\s\S]*?)\n\);/g)) {

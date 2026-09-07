@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { Check, Lock, Play, Route, Sparkles } from "lucide-react";
 
-import { FluidWave } from "@/components/brand/fluid-wave.tsx";
 import { ProgressBar } from "@/features/dashboard/dashboard-view.tsx";
 import type { TracksPageData } from "./data.ts";
 
@@ -23,12 +22,11 @@ const STATE_LABEL = {
 export function TracksView({
   tracks,
   recommended,
-  unitLower,
-}: Omit<TracksPageData, "student"> & { unitLower: string }) {
+}: Omit<TracksPageData, "student">) {
   return (
     <div className="tracks">
       <div className="page-head">
-        <h1 className="page-head__greeting">Trilhas</h1>
+        <h1 className="page-head__title">Trilhas</h1>
         <p className="page-head__sub">
           Sequências de cursos pensadas para uma função. Uma etapa abre a seguinte.
         </p>
@@ -79,12 +77,12 @@ export function TracksView({
         ))
       ) : (
         <div className="empty">
-          <FluidWave variant="band" className="empty__wave" />
+          <span className="empty__rule" aria-hidden="true" />
           <div className="empty__inner">
             <span className="empty__icon">
               <Route aria-hidden />
             </span>
-            <h2 className="empty__title">Nenhuma trilha para a sua {unitLower}</h2>
+            <h2 className="empty__title">Nenhuma trilha para você ainda</h2>
             <p className="empty__text">
               Quando uma trilha for publicada para a sua área, ela aparece aqui.
             </p>

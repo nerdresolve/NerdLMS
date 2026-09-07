@@ -1,5 +1,5 @@
 /**
- * Métricas de engajamento.
+ * Métricas de engajamento — TASK-047.
  *
  * Funções puras sobre curso + matrículas. Servem ao instrutor (recorte: cursos
  * de sua autoria) e ao admin (recorte: plataforma inteira). O recorte é

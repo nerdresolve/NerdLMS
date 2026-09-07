@@ -15,7 +15,28 @@
 
 /* ===== Campos ===== */
 .field { margin-bottom: var(--space-5); }
-.field__label { display: block; margin-bottom: var(--space-2); font-size: var(--text-small-size); font-weight: var(--weight-medium); }
+/* AS DUAS CLASSES, e não uma só por comodismo.
+
+   A marcação usa `label` em 67 lugares e `field__label` em 13, e a segunda era
+   a única com regra. Os 67 primeiros herdavam o `display: inline` padrão do
+   elemento, sem tamanho, peso nem espaçamento.
+
+   Isso passou despercebido porque quase sempre o controle ao lado ocupa a
+   largura inteira e empurra o rótulo para a linha de cima sozinho. Onde o
+   controle é estreito, como um `select`, o rótulo ficava ao LADO dele e fora
+   do alinhamento da coluna vizinha: foi assim que apareceu, no campo Framework
+   da tela de competências.
+
+   Unificar aqui em vez de trocar a classe em 67 arquivos: os dois nomes
+   descrevem a mesma coisa, e uma renomeação em massa arrisca mais do que
+   resolve. */
+.label,
+.field__label {
+  display: block;
+  margin-bottom: var(--space-2);
+  font-size: var(--text-small-size);
+  font-weight: var(--weight-medium);
+}
 .field__control { position: relative; display: flex; align-items: center; }
 .input {
   width: 100%;
@@ -83,7 +104,7 @@
 .btn[disabled] { opacity: 0.65; cursor: not-allowed; transform: none; }
 /* O pacote define `a:hover { color: var(--brand-hover) }` para qualquer link.
    Um botão que é <a> (todo `<Link>` do Next é) herdava isso: no hover o texto
-   virava violeta sobre o fundo violeta do botão primário — 1:1, texto invisível.
+   virava azul sobre o fundo azul do botão primário — 1:1, texto invisível.
    Estas regras devolvem a cor certa a cada variante e valem também para <a>. */
 .btn--primary,
 a.btn--primary:hover { color: var(--text-on-brand); }
@@ -95,8 +116,28 @@ a.btn--primary:hover { color: var(--text-on-brand); }
 .btn--secondary:hover,
 a.btn--secondary:hover { border-color: var(--brand); color: var(--text-brand); }
 
+/* Terceiro nível: ação que existe mas não disputa atenção com a principal —
+   "Cancelar" ao lado de "Salvar", "Remover" dentro de uma linha de lista.
+   Vinte e cinco telas já pediam `btn--ghost` e nenhuma folha o definia: o
+   navegador aplicava só `.btn` e todas elas mostravam um botão comum onde o
+   desenho pedia um discreto. */
+.btn--ghost { background: transparent; color: var(--text-body); }
+.btn--ghost:hover:not([disabled]),
+a.btn--ghost:hover { background: var(--surface-sunken); color: var(--text-brand); }
+
+/* Botão pequeno, para dentro de linha de tabela e de lista.
+
+   Morava em `studio.css` e é usado em treze telas, nem todas do estúdio —
+   `user-actions.tsx` é uma delas. Primitivo do produto mora aqui, pelo mesmo
+   motivo de `.course-section` e `.table` logo abaixo: numa rota que não puxe
+   aquela folha, o botão saía do tamanho cheio. */
+.btn--small {
+  padding: var(--space-1) var(--space-2);
+  font-size: var(--text-caption-size);
+}
+
 /* Botão sobre superfície de marca: no claro é o inverso (superfície clara,
-   texto violeta); no escuro a superfície do hero já é escura, então o inverso
+   texto azul); no escuro a superfície do hero já é escura, então o inverso
    entregaria 3,4:1 — abaixo de AA. Ali ele volta a ser o primário sólido. */
 .btn--on-brand { background: var(--surface-card); color: var(--brand); }
 .btn--on-brand:hover:not([disabled]) { background: var(--surface-brand-subtle); }
@@ -121,26 +162,6 @@ a.btn--secondary:hover { border-color: var(--brand); color: var(--text-brand); }
 /* Com um provedor só, o botão ocupa a linha inteira: metade da largura vazia
    ao lado dele pareceria um botão faltando. */
 .sso[data-unico] { grid-template-columns: 1fr; }
-
-/* O formulário do diretório.
-
-   Abre abaixo dos botões, com os mesmos campos da tela de login logo acima. Um
-   modal daria a impressão de estar entrando em outro sistema — e é a mesma
-   plataforma, com outra fonte de senha. */
-.sso-ldap {
-  display: grid;
-  gap: var(--space-4);
-  margin-top: var(--space-4);
-  padding: var(--space-5);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-md);
-  background: var(--surface-subtle);
-}
-
-.sso-ldap .btn {
-  /* 44px de alvo, acima dos 24px que a WCAG 2.5.8 exige. */
-  min-height: 44px;
-}
 
 .foot { margin: var(--space-8) 0 0; text-align: center; font-size: var(--text-caption-size); color: var(--text-muted); }
 
@@ -176,14 +197,73 @@ a.btn--secondary:hover { border-color: var(--brand); color: var(--text-brand); }
 .checkbox input:checked + .checkbox__box svg { opacity: 1; transform: scale(1); }
 .checkbox input:focus-visible + .checkbox__box { outline: 2px solid var(--border-focus); outline-offset: 2px; }
 
+/* O RÁDIO NÃO É UM CHECKBOX REDONDO POR ACIDENTE.
+
+   A primeira versão da fila de eficácia reaproveitava `.checkbox` para os
+   vereditos. Funcionava — o quadrado ficava preenchido quando marcado —, mas
+   quadrado marcado significa "escolhi este E posso escolher outros", e a
+   escolha ali é uma só. A forma é o que comunica isso antes de qualquer texto.
+
+   `align-items: flex-start` porque o rótulo tem duas linhas: centralizado, o
+   círculo flutuaria no meio do parágrafo. */
+.radio { display: inline-flex; align-items: flex-start; gap: var(--space-2); font-size: var(--text-small-size); cursor: pointer; min-height: var(--touch-target); }
+.radio input { position: absolute; opacity: 0; width: 18px; height: 18px; margin: 0; cursor: pointer; }
+.radio__box {
+  width: 18px; height: 18px; flex: none;
+  margin-top: 2px;
+  display: grid; place-items: center;
+  border: 1.5px solid var(--field-border);
+  border-radius: 50%;
+  background: var(--field-bg);
+  transition: border-color var(--duration-fast) var(--ease-standard);
+}
+.radio__box::after {
+  content: "";
+  width: 9px; height: 9px;
+  border-radius: 50%;
+  background: var(--brand);
+  opacity: 0;
+  transform: scale(0.4);
+  transition: opacity var(--duration-fast) var(--ease-standard),
+              transform var(--duration-fast) var(--ease-out);
+}
+.radio input:checked + .radio__box { border-color: var(--brand); }
+.radio input:checked + .radio__box::after { opacity: 1; transform: scale(1); }
+.radio input:focus-visible + .radio__box { outline: 2px solid var(--border-focus); outline-offset: 2px; }
+
+/* Chip: um filtro que se liga e desliga por clique.
+   Botão de verdade, e não `div` com `onClick`: teclado e leitor de tela
+   dependem disso, e `data-ativo` é o que o CSS enxerga sem precisar de uma
+   segunda classe. */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  min-height: var(--touch-target);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-pill, 999px);
+  background: var(--surface-card);
+  color: var(--text-body);
+  font-size: var(--text-small-size);
+  cursor: pointer;
+  transition: background-color var(--duration-fast) var(--ease-standard),
+              border-color var(--duration-fast) var(--ease-standard),
+              color var(--duration-fast) var(--ease-standard);
+}
+.chip:hover { border-color: var(--brand-accent); }
+.chip:focus-visible { outline: 2px solid var(--border-focus); outline-offset: 2px; }
+.chip[data-ativo] { background: var(--brand); border-color: var(--brand); color: var(--text-on-brand); }
+.chip__conta { font-size: var(--text-caption-size); opacity: 0.75; }
+
 /* `inline-flex` + `min-height` porque um <a> inline tem a altura da linha
-   (~17px) e reprova o alvo mínimo da WCAG 2.5.8, que pede 24×24. O piso vem de
+   (~19px) e reprova o alvo mínimo da WCAG 2.5.8, que pede 24×24. O piso vem de
    `--touch-target-min`, não de `--touch-target` (44px): um link dentro de um
    parágrafo com 44px de altura abriria buracos no texto corrido. */
 .link { display: inline-flex; align-items: center; min-height: var(--touch-target-min); color: var(--text-brand); font-size: var(--text-small-size); font-weight: var(--weight-medium); text-decoration: none; border-radius: var(--radius-sm); }
 .link:hover { color: var(--brand-hover); text-decoration: underline; text-underline-offset: 3px; }
 /* No escuro `--brand-hover` cai para 3.77:1 sobre a página; `--text-brand` é o
-   violeta claro do tema e entrega 7.79:1. */
+   azul claro do tema e entrega 7.79:1. */
 [data-theme="dark"] .link:hover { color: var(--text-brand); }
 
 /* ===== Barra de progresso ===== */
@@ -259,6 +339,19 @@ a.btn--secondary:hover { border-color: var(--brand); color: var(--text-brand); }
 .badge--success { background: var(--success-surface); color: var(--success-text); }
 .badge--on-brand { background: rgba(255, 255, 255, 0.16); color: var(--text-on-brand); }
 
+/* As três variantes abaixo moravam em `studio.css`, e são usadas fora dele —
+   auditoria, usuários, engajamento. Mesmo motivo do botão pequeno: primitivo do
+   produto no CSS global, senão o selo sai sem cor na rota que não puxa a folha.
+
+   `--warning` e `--pending` compartilham a cor e não o significado: "pendente"
+   é um estado que ainda vai mudar sozinho; "atenção" é algo que já aconteceu e
+   alguém precisa olhar — uma entrega atrasada, uma denúncia. Duas telas já
+   pediam `badge--warning` e recebiam um selo sem cor nenhuma. */
+.badge--pending,
+.badge--warning { background: var(--warning-surface); color: var(--warning-text); }
+.badge--inactive { background: var(--surface-sunken); color: var(--text-muted); }
+.badge--denied { background: var(--danger-surface); color: var(--danger-text); }
+
 /* ===== Breadcrumb =====
    O último item é a página atual e não é link. */
 .breadcrumb { display: flex; align-items: center; gap: var(--space-2); flex-wrap: wrap; }
@@ -316,7 +409,64 @@ a.btn--secondary:hover { border-color: var(--brand); color: var(--text-brand); }
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-card);
 }
-.empty__wave { position: absolute; inset: auto 0 -10px 0; width: 100%; height: 140px; opacity: 0.7; pointer-events: none; }
+/* Estado vazio: uma régua da marca, não o grafismo.
+
+   A faixa de formas ficava ATRÁS do texto — "Nenhum curso salvo ainda" sobre
+   um anel amarelo de 80px. E um cartão que só diz uma frase não precisa de
+   ilustração: precisa que a frase se leia. Sobra a régua de três cores, que é
+   presença de marca sem ruído. */
+.empty__rule {
+  display: block;
+  width: 72px;
+  height: 5px;
+  margin: 0 auto var(--space-5);
+  background: linear-gradient(
+    to right,
+    var(--tile-sun) 0 33.34%,
+    var(--tile-leaf) 33.34% 66.67%,
+    var(--tile-blue) 66.67% 100%
+  );
+}
+
+/* =============================================================================
+   Grafismo da marca sob TEXTO
+
+   O mosaico vem nas cores cheias — o amarelo dá 11.8:1 sobre o navy —, e é
+   justamente por isso que texto branco por cima dele some. A saída não é
+   apagar o grafismo com opacidade: é não pôr o grafismo debaixo do texto.
+
+   É o que o próprio material da Exemplo S.A. faz. No banner do site o título
+   ocupa a esquerda e a grade de formas ocupa a direita; elas não se sobrepõem.
+   Aqui vale o mesmo: o grafismo encosta à direita e a máscara dissolve a borda
+   esquerda no fundo, para a divisa não virar um corte reto no meio do cartão.
+
+   Regra única, e não uma cópia em cada feature, porque a razão é uma só —
+   quando alguém subir a largura para 70% aqui, precisa ver o motivo junto.
+   ============================================================================= */
+.continue__waves,
+.profile-hero__wave {
+  position: absolute;
+  inset: 0 0 0 auto;
+  width: 38%;
+  height: 100%;
+  z-index: -1;
+  pointer-events: none;
+  -webkit-mask-image: linear-gradient(to right, transparent 0, #000 34%);
+  mask-image: linear-gradient(to right, transparent 0, #000 34%);
+}
+
+/* Empilhado o cartão fica estreito e não sobra "direita": o grafismo vai para
+   o rodapé, com a máscara virando de lado. */
+@container (max-width: 640px) {
+  .continue__waves,
+  .profile-hero__wave {
+    inset: auto 0 0 0;
+    width: 100%;
+    height: 42%;
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 46%);
+    mask-image: linear-gradient(to bottom, transparent 0, #000 46%);
+  }
+}
 .empty__inner { position: relative; display: flex; flex-direction: column; align-items: center; gap: var(--space-3); }
 .empty__icon {
   display: grid;
@@ -470,15 +620,195 @@ a.btn--secondary:hover { border-color: var(--brand); color: var(--text-brand); }
 .textarea:hover { border-color: var(--brand-accent); }
 .textarea:focus { outline: none; border-color: var(--brand); box-shadow: var(--shadow-focus); }
 
+/* ===== Página =====
+
+   A COLUNA E O CABEÇALHO, UMA VERSÃO SÓ
+
+   Havia dois sistemas para a mesma coisa. O painel do aluno usava
+   `.page-head` + `.section-head`, definidos no CSS do próprio dashboard; os
+   painéis de admin, gestão e instrutor usavam `.studio` + `.studio__head`,
+   definidos no CSS do estúdio. Faziam o mesmo trabalho com medidas
+   diferentes — 20px de um lado, 16px do outro; 48px aqui, 32px ali — e as
+   quatro telas de entrada do produto não se pareciam entre si.
+
+   Pior: `page-head__title` era usado em vinte telas e definido no CSS do
+   dashboard, que dezenove delas não importam. É o mesmo defeito de
+   `.course-section` e `.table` logo abaixo, e por isso a mesma correção.
+
+   O nome também mudou. `__greeting` descrevia a única tela que de fato
+   cumprimenta alguém; nas outras dezenove era o título da página, e um nome
+   que mente sobre o que a regra faz é o que leva a próxima pessoa a criar uma
+   segunda regra.
+
+   O RITMO É UM: 32px entre seções, 16px do título para o conteúdo. */
+.page { display: flex; flex-direction: column; gap: var(--space-8); max-width: var(--content-max); }
+
+.page-head { display: flex; align-items: flex-start; gap: var(--space-4); flex-wrap: wrap; }
+.page-head__text { flex: 1; min-width: 240px; }
+.page-head__title {
+  margin: 0 0 var(--space-1);
+  font-size: var(--text-h1-size);
+  line-height: var(--text-h1-lh);
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-tight);
+}
+.page-head__sub { margin: 0; color: var(--text-muted); }
+.page-head__actions { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+
 /* ===== Seção de página =====
    Título de seção com espaçamento padrão. Quatro telas usam; morava no CSS
    do curso e faltava no perfil, onde os títulos perdiam o espaçamento. */
 .course-section { display: flex; flex-direction: column; gap: var(--space-4); }
+
+/* A mesma seção, quando o título divide a linha com uma ação — "Ver todos".
+   O espaçamento é o de `.course-section` de propósito: eram 20px aqui e 16px
+   ali, e a diferença aparecia ao rolar de uma tela para a outra. */
+.section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin-bottom: var(--space-4);
+}
+.section-head__title {
+  margin: 0;
+  font-size: var(--text-h3-size);
+  line-height: var(--text-h3-lh);
+  font-weight: var(--weight-semibold);
+}
 .course-section__title {
   margin: 0;
   font-size: var(--text-h3-size);
   line-height: var(--text-h3-lh);
   letter-spacing: var(--text-h3-tracking);
+}
+
+/* ===== Tabela =====
+   Nove telas usam `.table`, e a definição morava no CSS do estúdio. Quem
+   abrisse uma tabela numa tela que não carrega aquele arquivo recebia a
+   tabela CRUA do navegador — foi o que aconteceu com as preferências de
+   notificação no perfil: sem borda, sem espaçamento, e a descrição colada no
+   nome do aviso porque `.prefs__desc` também estava lá.
+
+   É o mesmo defeito que `.course-section` teve logo acima, e a mesma correção:
+   primitivo do produto mora no CSS global, não dentro de uma feature.
+
+   Em tela estreita a tabela vira lista, e cada célula carrega o rótulo da
+   coluna em `data-label` para ele aparecer quando o cabeçalho some. O
+   `@container` responde à casca da aplicação (`app-shell.css`), que é quem
+   declara o contexto. */
+.table-wrap { overflow-x: auto; border: 1px solid var(--border-subtle); border-radius: var(--radius-card); background: var(--surface-card); }
+
+/* Tabela que cresce com a base — alunos, matrículas, registros de auditoria.
+   Rola dentro de si em vez de esticar a página, e o cabeçalho fica no lugar:
+   sem ele, quem rolasse até a milésima linha não saberia mais qual coluna é
+   qual. Cortar em N linhas seria a outra saída, e esconderia justamente quem
+   ninguém procurou ainda. */
+.table-wrap--rolagem { max-height: 560px; overflow-y: auto; }
+.table-wrap--rolagem thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--surface-card);
+}
+.table { width: 100%; border-collapse: collapse; font-size: var(--text-small-size); }
+.table th,
+.table td { padding: var(--space-3) var(--space-4); text-align: left; }
+.table thead th {
+  font-size: var(--text-overline-size);
+  letter-spacing: var(--text-overline-tracking);
+  text-transform: uppercase;
+  font-weight: var(--weight-bold);
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border-subtle);
+  white-space: nowrap;
+}
+.table tbody tr + tr td { border-top: 1px solid var(--border-subtle); }
+.table td:last-child,
+.table th:last-child { text-align: right; }
+
+/* COLUNA DE NÚMERO ALINHA PELA DIREITA, E POR SER NÚMERO.
+
+   A regra acima é POSICIONAL: joga a última coluna para a direita, seja ela o
+   que for. Funcionava enquanto a última era a única com números. Numa tabela
+   com duas — "Alunos" e "Concluíram", "Pessoas" e "Percentual" — uma alinhava
+   à esquerda e a outra à direita, na mesma tabela, e as unidades de linhas
+   diferentes não caíam uma sobre a outra.
+
+   `tabular-nums` completa: sem ele o "1" é mais estreito que o "8" na fonte do
+   sistema, e uma coluna de valores fica com as casas tortas mesmo alinhada. */
+.table td[data-num],
+.table th[data-num] { text-align: right; font-variant-numeric: tabular-nums; }
+.table__name { font-weight: var(--weight-semibold); color: var(--text-title); }
+.table__bar { width: 120px; }
+.table__percent { font-variant-numeric: tabular-nums; font-weight: var(--weight-semibold); color: var(--text-title); }
+
+@container (max-width: 720px) {
+  .table thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .table tbody tr { display: grid; gap: var(--space-2); padding: var(--space-4); }
+  .table tbody tr + tr { border-top: 1px solid var(--border-subtle); }
+  .table td { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); padding: 0; }
+  .table tbody tr + tr td { border-top: none; }
+  .table td::before { content: attr(data-label); font-size: var(--text-caption-size); color: var(--text-muted); }
+  .table td:last-child { text-align: right; }
+  .table__bar { width: 100%; max-width: 160px; }
+}
+
+/* ===== Coluna de interruptor, e a descrição sob o nome =====
+   Nasceram nas preferências de notificação e são usadas pelas telas de
+   distintivo, competência e integração. Genéricos o bastante para viverem
+   aqui, e o perfil provou que precisam. */
+/* Precisa do `.table` na frente, e não é preciosismo de especificidade.
+
+   `.prefs__col` sozinho vale (0,1,0) e perde para `.table td` (0,1,1), que
+   alinha tudo à esquerda — e perde de novo para `.table td:last-child`
+   (0,2,1), que joga a última coluna para a direita. O resultado é o que se via
+   na tela: uma coluna de interruptor encostada à esquerda e a outra à direita,
+   nenhuma sob o próprio cabeçalho. A regra existia desde o começo e nunca
+   chegou a valer. */
+.table th.prefs__col,
+.table td.prefs__col { width: 8rem; text-align: center; }
+
+.prefs__desc {
+  display: block;
+  margin-top: var(--space-1);
+  font-size: var(--text-caption-size);
+  font-weight: var(--weight-regular);
+  color: var(--text-muted);
+}
+
+/* O interruptor centrado na coluna. `.checkbox` é `inline-flex`, então o
+   `text-align` do `<td>` o alinha — o que falta é tirar a largura mínima de
+   alvo de toque de empurrar a linha inteira. */
+.prefs__col .checkbox { justify-content: center; vertical-align: middle; }
+
+@container (max-width: 720px) {
+  /* Em lista, a célula vira `flex` com o rótulo de um lado e o conteúdo do
+     outro. No nome do aviso isso jogaria a descrição para a direita, na mesma
+     linha do título: aqui os dois empilham, encostados à esquerda.
+
+     `.table td` de novo na frente, pelo mesmo motivo da coluna acima: sem ele
+     o `align-items: center` da regra genérica vence e o texto sai centrado no
+     meio da linha, que foi como isto apareceu no celular. */
+  .table td.prefs__nome {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-1);
+  }
+  .table td.prefs__nome .prefs__desc { margin-top: 0; }
+}
+
+/* ===== Texto de apoio de uma seção =====
+   O nome diz `platform` porque nasceu na configuração da plataforma, e catorze
+   telas o usam hoje — inclusive duas do perfil. Renomear passa por todas elas;
+   o que não podia continuar era ele morar no CSS do admin enquanto o perfil
+   dependia dele. */
+.platform__hint {
+  margin: 0 0 var(--space-5);
+  max-width: 62ch;
+  font-size: var(--text-small-size);
+  line-height: var(--text-small-lh);
+  color: var(--text-muted);
 }
 
 /* ===== Cartão de número =====

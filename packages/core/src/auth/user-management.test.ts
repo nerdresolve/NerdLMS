@@ -7,7 +7,7 @@ describe("Convite e edição de usuário", () => {
   test("dados válidos passam, com e-mail normalizado", () => {
     const decision = validateUser({
       fullName: "  Helena Duarte  ",
-      email: "  Helena.Duarte@exemplo.com.br ",
+      email: "  Helena.Duarte@exemplo.com ",
       role: "learner",
     });
 
@@ -15,7 +15,7 @@ describe("Convite e edição de usuário", () => {
     assert.equal(decision.ok && decision.fullName, "Helena Duarte");
     // O e-mail vira minúsculas: a coluna é citext, e guardar como digitado
     // deixaria dois cadastros parecerem diferentes sendo o mesmo.
-    assert.equal(decision.ok && decision.email, "helena.duarte@exemplo.com.br");
+    assert.equal(decision.ok && decision.email, "helena.duarte@exemplo.com");
   });
 
   test("nome vazio é recusado", () => {
@@ -24,14 +24,14 @@ describe("Convite e edição de usuário", () => {
   });
 
   test("e-mail inválido é recusado", () => {
-    for (const email of ["semarroba", "a@b", "a b@c.com", "@exemplo.com.br"]) {
+    for (const email of ["semarroba", "a@b", "a b@c.com", "@exemplo.com"]) {
       const decision = validateUser({ fullName: "Nome", email, role: "learner" });
       assert.equal(decision.ok, false, email);
     }
   });
 
   test("e-mail acima do limite é recusado", () => {
-    const email = "x".repeat(EMAIL_MAX_LENGTH) + "@exemplo.com.br";
+    const email = "x".repeat(EMAIL_MAX_LENGTH) + "@exemplo.com";
     const decision = validateUser({ fullName: "Nome", email, role: "learner" });
     assert.equal(decision.ok === false && decision.reason, "email_too_long");
   });
@@ -56,10 +56,10 @@ describe("Convite e edição de usuário", () => {
       fullName: "Nome",
       email: "a@b.com",
       role: "manager",
-      project: "Prolagos",
+      project: "Siririzinho",
     });
     assert.equal(decision.ok, true);
-    assert.equal(decision.ok && decision.project, "Prolagos");
+    assert.equal(decision.ok && decision.project, "Siririzinho");
   });
 
   test("aluno sem projeto passa: só gestor exige recorte", () => {

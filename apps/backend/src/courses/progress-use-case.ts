@@ -1,5 +1,6 @@
 import { can, type Actor } from "@nerdlms/core/auth/permissions.ts";
 import { decideProgress } from "@nerdlms/core/courses/progress-update.ts";
+import { avancoPossivel, podeConcluirVideo } from "@nerdlms/core/courses/watch-guard.ts";
 
 import {
   addSecondsOnPage,
@@ -115,6 +116,36 @@ export async function progressUseCase(command: ProgressCommand): Promise<Progres
       }
     }
 
+    /* AULA DE VÍDEO: concluir exige ter assistido.
+
+       Esta era a brecha. A aula de conteúdo já tinha trava — páginas vistas,
+       tempo na página —, e o vídeo não tinha nenhuma: `complete: true` passava
+       direto, e bastava clicar em "concluir" no primeiro segundo. Esconder o
+       botão na tela seria decoração, pelo mesmo motivo que vale para a aula de
+       conteúdo: um POST direto ignora a tela.
+
+       O consumo que sustenta esta checagem é o mesmo que a regra de
+       plausibilidade protege lá embaixo. Sem ela, arrastar a barra até o fim
+       satisfaria isto aqui — as duas regras só funcionam juntas. */
+    if (command.complete === true && !context.contentRule) {
+      const veredito = podeConcluirVideo({
+        watchedSeconds: context.watchedSeconds,
+        durationSeconds: context.durationSeconds,
+        travado: context.watchGuard,
+      });
+
+      if (!veredito.pode) {
+        const faltam = Math.ceil(veredito.faltamSegundos / 60);
+        return {
+          status: 403,
+          error:
+            faltam <= 1
+              ? "Assista até o fim para concluir esta aula."
+              : `Assista mais ${faltam} minutos para concluir esta aula.`,
+        };
+      }
+    }
+
     await setManualCompletion(
       context.enrollmentId,
       command.lessonId,
@@ -179,7 +210,60 @@ export async function progressUseCase(command: ProgressCommand): Promise<Progres
     return { status: 200, watchedSeconds: context.watchedSeconds, completed: command.complete };
   }
 
-  const target = command.watchedSeconds ?? Number.NaN;
+  const pedido = command.watchedSeconds ?? Number.NaN;
+
+  /* A POSIÇÃO NÃO PODE ANDAR MAIS RÁPIDO QUE O RELÓGIO.
+
+     Entre dois registros, o avanço é limitado pelo tempo real decorrido vezes
+     a velocidade máxima que o player oferece. Pular do segundo 10 para o 3000
+     numa requisição é cortado porque é fisicamente impossível — e é
+     exatamente o que arrastar a barra até o fim, ou mandar a duração inteira
+     por `curl`, tentaria fazer.
+
+     Corta em vez de recusar: o player reenvia a posição a cada janela, e o
+     corte se corrige sozinho no envio seguinte, quando o relógio já andou.
+     Recusar devolveria erro a quem assiste com rede ruim.
+
+     Sem registro anterior, o decorrido é ZERO — e não "desde sempre". Tratar a
+     primeira posição como se houvesse crédito acumulado abriria a porta que
+     esta regra fecha: bastaria abrir a aula e mandar a duração. */
+  const decorrido = context.progressUpdatedAt
+    ? (Date.now() - context.progressUpdatedAt.getTime()) / 1000
+    : 0;
+
+  const avanco = avancoPossivel({
+    de: context.watchedSeconds,
+    para: pedido,
+    decorridoSegundos: decorrido,
+    travado: context.watchGuard,
+  });
+
+  /* CORTOU? NÃO GRAVA NADA.
+
+     A tolerância existe para cobrir a PRIMEIRA posição de uma aula e o jitter
+     da rede — não para ser sacada a cada chamada. Gravando o valor cortado, o
+     carimbo de tempo avançaria e a requisição seguinte ganharia outra
+     tolerância a partir do zero: cem envios instantâneos renderiam mil e
+     quinhentos segundos de vídeo sem ninguém assistir a nada. Foi o que o
+     teste pelo navegador mostrou — 81% de uma aula de 32 minutos em cem
+     requisições, e o teste de unidade não pegou porque eu escolhi o limiar
+     olhando o resultado.
+
+     Não gravando, o carimbo continua onde estava, e todas as tentativas
+     seguintes medem o decorrido a partir do MESMO instante. A tolerância passa
+     a ser por âncora, não por chamada — e insistir deixa de render.
+
+     Devolve 200, não erro: para quem tem rede ruim isto é um envio perdido, e
+     o player reenvia na janela seguinte. */
+  if (avanco.cortado) {
+    return {
+      status: 200,
+      watchedSeconds: context.watchedSeconds,
+      completed: context.alreadyCompleted,
+    };
+  }
+
+  const target = avanco.aceito;
 
   const decision = decideProgress(
     { lessonId: command.lessonId, watchedSeconds: target },

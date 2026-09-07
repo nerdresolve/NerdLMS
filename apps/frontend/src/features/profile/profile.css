@@ -25,7 +25,6 @@
    meio da faixa — a forma `band` é fechada (`L…Z`), feita para atravessar o
    bloco, não para ser recortada. A curva continua concentrada à direita
    porque a própria geometria sobe só no final do traçado. */
-.profile-hero__wave { position: absolute; inset: auto 0 -60% 0; width: 100%; height: 190%; z-index: -1; opacity: 0.22; }
 
 .profile-hero__avatar {
   display: grid;
@@ -131,3 +130,82 @@
   color: var(--text-muted);
 }
 .profile-edit__actions { display: flex; gap: var(--space-3); }
+
+/* --- Assinatura do certificado ------------------------------------------- */
+
+.assinatura {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--space-5);
+  margin-top: var(--space-5);
+}
+
+/* O "papel": fundo branco SEMPRE, inclusive no tema escuro.
+
+   O certificado é impresso, e a assinatura é achatada sobre branco antes de
+   entrar no PDF. Uma prévia sobre fundo escuro esconderia o defeito mais comum
+   de arquivo mal exportado — traço claro que some no papel — e mostraria uma
+   assinatura bonita que sai invisível. */
+.assinatura__papel {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 260px;
+  min-height: 120px;
+  padding: var(--space-5);
+  background: #ffffff;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+}
+
+.assinatura__previa {
+  max-width: 220px;
+  max-height: 64px;
+  object-fit: contain;
+}
+
+.assinatura__vazio {
+  margin: 0;
+  color: #494c50; /* fixo: o papel é branco nos dois temas */
+  font-size: var(--text-caption-size);
+  text-align: center;
+}
+
+/* A mesma linha que o PDF desenha, na mesma proporção. */
+.assinatura__linha {
+  width: 190px;
+  height: 1px;
+  background: #ddd1fe;
+}
+
+.assinatura__acoes {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+/* O campo de arquivo do navegador não é estilizável; o rótulo faz as vezes de
+   botão e o campo fica fora de vista — mas ALCANÇÁVEL pelo teclado e pelo
+   leitor de tela, que é o que `display: none` quebraria. */
+.assinatura__campo {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.assinatura__campo:focus-visible + .btn,
+.assinatura__campo:focus-visible ~ label {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+}
+
+.assinatura__remover { color: var(--danger-text); }

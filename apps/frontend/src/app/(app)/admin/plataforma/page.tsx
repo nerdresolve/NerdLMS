@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import { AppShell } from "@/features/app-shell/app-shell.tsx";
+import { Breadcrumb } from "@/components/breadcrumb.tsx";
 import { BackupView } from "@/features/admin/backup-view.tsx";
 import { EmailTemplates } from "@/features/admin/email-templates.tsx";
 import { PlatformView } from "@/features/admin/platform-view.tsx";
@@ -12,7 +13,8 @@ export default async function PlatformPage() {
   const { admin, tenantName, features, branding, emailTemplates } = await getPlatformPageData();
 
   return (
-    <AppShell fullName={admin.fullName} role={admin.role} currentPath="/admin/plataforma">
+    <AppShell
+      topbar={<Breadcrumb items={[{ label: "Administração", href: "/admin" }, { label: "Plataforma" }]} />} fullName={admin.fullName} role={admin.role} currentPath="/admin/plataforma">
       <PlatformView tenantName={tenantName} features={features} branding={branding} />
 
       {/* Os textos de e-mail vivem aqui, junto do branding: as duas coisas

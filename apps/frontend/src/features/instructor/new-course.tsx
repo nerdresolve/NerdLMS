@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useId, useState } from "react";
 import { Plus } from "lucide-react";
+import { campoObrigatorio } from "@/lib/campo-obrigatorio.ts";
 
 /**
  * Criação de curso.
@@ -94,7 +95,7 @@ export function NewCourse() {
           type="text"
           maxLength={160}
           placeholder="Ex.: Operação de Estações Elevatórias"
-          required
+          {...campoObrigatorio("Escreva o título do curso.")}
           autoFocus
         />
       </div>

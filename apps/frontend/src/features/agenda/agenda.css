@@ -119,6 +119,13 @@
 .notification__icon { display: grid; place-items: center; width: 32px; height: 32px; flex: none; border-radius: var(--radius-full); background: var(--surface-sunken); color: var(--text-muted); }
 .notification[data-read="false"] .notification__icon { background: var(--surface-card); color: var(--text-brand); }
 .notification__body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+
+/* O mesmo corpo, quando o aviso leva a algum lugar. Sem esta regra o <Link>
+   herdava `a { color: var(--brand) }` e o texto do aviso saía azul e sublinhado
+   no hover, diferente do aviso vizinho que não tem destino. */
+.notification__body--link { color: inherit; }
+.notification__body--link:hover { color: inherit; }
+.notification__body--link:hover .notification__title { color: var(--text-brand); }
 .notification__title { margin: 0; font-size: var(--text-small-size); font-weight: var(--weight-semibold); color: var(--text-title); }
 .notification__text { margin: 0; font-size: var(--text-caption-size); line-height: 1.5; color: var(--text-muted); text-wrap: pretty; }
 .notification__time { font-size: var(--text-caption-size); color: var(--text-faint); }

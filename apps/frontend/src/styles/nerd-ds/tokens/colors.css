@@ -1,43 +1,77 @@
 :root{
-/* ---- Brand ramp. 500 is a marca (#7C3AED); 400 é o acento neon (#A855F7) ---- */
---violet-950:#1B0B33;--violet-900:#2E1065;--violet-800:#4C1D95;--violet-700:#5B21B6;--violet-600:#6D28D9;--violet-500:#7C3AED;--violet-400:#A855F7;--violet-300:#C084FC;--violet-200:#DDD1FE;--violet-100:#EDE9FE;--violet-50:#F5F3FF;
-/* ---- Neutral ramp. Puxa para o roxo nos tons escuros: o cinza puro ao lado do violeta lê como sujo ---- */
+/* ---- Brand ramp. 500 é o violeta da NerdResolve (#7C3AED); 400 é o neon
+       (#A855F7) que a marca usa como acento. ---- */
+--violet-950:#12082B;--violet-900:#1E0F45;--violet-800:#2E1065;--violet-700:#4C1D95;--violet-600:#6D28D9;--violet-500:#7C3AED;--violet-400:#A855F7;--violet-300:#C084FC;--violet-200:#DDD1FE;--violet-100:#EDE9FE;--violet-50:#F5F3FF;
+/* ---- Neutral ramp: cinzas puxados para o roxo, não a família slate. Cinza
+       puro ao lado do violeta lê como sujo. Ancorada em #08060D (fundo escuro)
+       e #9691A4 (secundário). ---- */
 --neutral-950:#08060D;--neutral-900:#120F1C;--neutral-800:#1C1728;--neutral-700:#2A2438;--neutral-600:#4A4358;--neutral-500:#6B6479;--neutral-400:#9691A4;--neutral-300:#C7C3D0;--neutral-200:#E4E1EA;--neutral-100:#F1EFF5;--neutral-50:#F8FAFC;--white:#FFFFFF;
+/* ---- Acentos decorativos. Existem para o grafismo e para diferenciar blocos;
+       NUNCA carregam estado — senão competiriam com o verde de sucesso e o
+       âmbar de atenção, e quem usa deixaria de saber o que é sinal. ---- */
+--iris-700:#3730A3;--iris-600:#4338CA;--iris-500:#6366F1;--iris-400:#818CF8;--iris-300:#A5B4FC;--iris-100:#E0E7FF;--iris-50:#EEF2FF;
+--magenta-700:#9D174D;--magenta-600:#BE185D;--magenta-500:#EC4899;--magenta-400:#F472B6;--magenta-100:#FCE7F3;
 /* ---- Semantic status ---- */
---green-600:#128A4B;--green-500:#16A34A;--green-100:#DCFCE7;
---amber-600:#D97706;--amber-500:#F59E0B;--amber-100:#FEF3C7;
---red-600:#DC2626;--red-500:#EF4444;--red-100:#FEE2E2;
---cyan-600:#0891B2;--cyan-500:#06B6D4;--cyan-100:#CFFAFE;
+--green-600:#0F7A42;--green-500:#16A34A;--green-100:#DCFCE7;
+--amber-600:#B45309;--amber-500:#F59E0B;--amber-100:#FEF3C7;
+--red-600:#C41F2C;--red-500:#E02D3C;--red-100:#FDE7E9;
+--cyan-600:#0E7490;--cyan-500:#06B6D4;--cyan-100:#CFFAFE;
 
 /* ================= Semantic aliases (light) ================= */
+/* Hover ESCURECE no tema claro: a marca (#7C3AED) já é clara o bastante para
+   que clarear derrubasse o texto branco por cima. O ativo escurece mais ainda,
+   para o clique ter direção — sem isso o botão parece travar em vez de
+   responder. */
 --brand:var(--violet-600);--brand-hover:var(--violet-700);--brand-active:var(--violet-800);--brand-accent:var(--violet-500);--brand-deep:var(--violet-950);
---surface-page:var(--violet-50);--surface-card:var(--white);--surface-raised:var(--white);--surface-sunken:var(--neutral-100);--surface-subtle:var(--violet-50);--surface-brand:var(--violet-600);--surface-brand-subtle:var(--violet-100);--surface-inverse:var(--neutral-950);
---text-title:var(--violet-950);--text-body:var(--neutral-700);--text-muted:var(--neutral-500);--text-faint:var(--neutral-400);--text-brand:var(--violet-700);--text-on-brand:var(--white);--text-on-inverse:var(--white);
---border-subtle:var(--neutral-200);--border-default:var(--neutral-300);--border-strong:var(--neutral-400);--border-brand:var(--violet-600);--border-focus:var(--violet-500);
---field-bg:var(--white);--field-bg-disabled:var(--neutral-100);--field-border:var(--neutral-300);--field-placeholder:var(--neutral-400);
+--accent-leaf:var(--iris-400);--accent-leaf-strong:var(--iris-600);--accent-leaf-subtle:var(--iris-100);--text-accent-leaf:var(--iris-700);
+--accent-sun:var(--magenta-500);--accent-sun-subtle:var(--magenta-100);--text-accent-sun:var(--magenta-700);
+--surface-page:var(--neutral-50);--surface-card:var(--white);--surface-raised:var(--white);--surface-sunken:var(--neutral-100);--surface-subtle:var(--violet-50);--surface-brand:var(--violet-600);--surface-brand-subtle:var(--violet-100);--surface-inverse:var(--violet-950);
+--text-title:var(--violet-950);--text-body:var(--neutral-700);--text-muted:var(--neutral-600);--text-faint:var(--neutral-500);--text-brand:var(--violet-700);--text-on-brand:var(--white);--text-on-inverse:var(--white);
+--border-subtle:var(--neutral-100);--border-default:var(--neutral-300);--border-strong:var(--neutral-400);--border-brand:var(--violet-600);--border-focus:var(--violet-500);
+--field-bg:var(--white);--field-bg-disabled:var(--neutral-100);--field-border:var(--neutral-400);--field-placeholder:var(--neutral-500);
 --track:var(--neutral-200);--fill:var(--violet-600);
---overlay:rgba(27,11,51,.45);
---wave-from:var(--violet-600);--wave-to:var(--violet-400);--wave-soft:var(--violet-100);
+--overlay:rgba(18,8,43,.45);
+/* Grafismo: a cor é fixa por FORMA, e é o que o torna reconhecível num
+   recorte de três células. Ver `@nerdlms/core/brand/mosaic.ts`. */
+--tile-blue:var(--violet-400);--tile-navy:var(--violet-900);--tile-sun:var(--magenta-500);--tile-leaf:var(--iris-400);--tile-ring:#C084FC;--tile-ghost:rgba(255,255,255,.085);
 --success:var(--green-500);--success-surface:var(--green-100);--success-text:var(--green-600);
 --warning:var(--amber-500);--warning-surface:var(--amber-100);--warning-text:var(--amber-600);
 --danger:var(--red-500);--danger-surface:var(--red-100);--danger-text:var(--red-600);
 --info:var(--cyan-500);--info-surface:var(--cyan-100);--info-text:var(--cyan-600);
---focus-ring:0 0 0 3px rgba(124,58,237,.35);
+--focus-ring:0 0 0 3px rgba(124,58,237,.40);
 }
 
 /* ================= Dark: o modo nativo da marca, não uma inversão =================
-   Os valores de fundo vêm do site da NerdResolve: #08060D é o preto-violeta da
-   base, #120F1C o cartão, #1C1728 a superfície elevada. O texto principal em
-   #F8FAFC sobre #08060D dá 18,9:1 — folga de sobra sobre o mínimo AA (4,5:1). */
+
+   O site da NerdResolve é escuro por padrão, e os fundos aqui são os dele:
+   #08060D na página, #120F1C no card, #1C1728 na superfície elevada.
+
+   No escuro a marca sobe um degrau na rampa: o violeta de base (#6D28D9)
+   sobre um fundo já escuro fica pesado. Quem assume é #7C3AED — e ele ainda é
+   escuro o bastante para carregar TEXTO BRANCO por cima (5.70:1).
+
+   É branco nos dois temas de propósito. A tentação é clarear mais a marca no
+   escuro e escrever violeta em cima; o problema é que `--text-on-brand` também
+   cobre o `--gradient-brand`, que no escuro é escuro — o título do card em
+   destaque do dashboard sumiria, texto violeta sobre gradiente violeta.
+
+   Consequência assumida: aqui o hover ESCURECE, ao contrário do tema claro,
+   onde ele também escurece — mas partindo de outro degrau. Clarear a partir de
+   #7C3AED levaria a #A855F7, que dá 3.96:1 com o texto branco por cima e
+   reprova. Legibilidade ganha de simetria. */
 [data-theme="dark"]{
---brand:var(--violet-500);--brand-hover:var(--violet-400);--brand-active:var(--violet-300);--brand-accent:var(--violet-400);--brand-deep:#050409;
+--brand:var(--violet-500);--brand-hover:#9333EA;--brand-active:#7E22CE;--brand-accent:var(--violet-400);--brand-deep:#050409;
+--accent-leaf:var(--iris-400);--accent-leaf-strong:var(--iris-300);--accent-leaf-subtle:#1A1B3A;--text-accent-leaf:var(--iris-300);
+--accent-sun:var(--magenta-500);--accent-sun-subtle:#3A0F26;--text-accent-sun:var(--magenta-400);
 --surface-page:#08060D;--surface-card:#120F1C;--surface-raised:#1C1728;--surface-sunken:#050409;--surface-subtle:#161222;--surface-brand:var(--violet-600);--surface-brand-subtle:#231A3D;--surface-inverse:var(--white);
---text-title:#FFFFFF;--text-body:#D6D2DE;--text-muted:#9691A4;--text-faint:#7C7688;--text-brand:var(--violet-300);--text-on-brand:var(--white);--text-on-inverse:var(--violet-950);
+--text-title:#FFFFFF;--text-body:#D6D2DE;--text-muted:#A49EB2;--text-faint:#9691A4;--text-brand:var(--violet-300);--text-on-brand:var(--white);--text-on-inverse:var(--violet-950);
 --border-subtle:#1C1728;--border-default:#2A2438;--border-strong:#3D3550;--border-brand:var(--violet-500);--border-focus:var(--violet-400);
---field-bg:#0F0C17;--field-bg-disabled:#0B0912;--field-border:#2A2438;--field-placeholder:#6B6479;
---track:#1C1728;--fill:var(--violet-500);
+--field-bg:#0F0C17;--field-bg-disabled:#0B0912;--field-border:#6A6180;--field-placeholder:#8C85A0;
+--track:#1C1728;--fill:var(--violet-400);
 --overlay:rgba(5,4,9,.72);
---wave-from:#5B21B6;--wave-to:#A855F7;--wave-soft:#1C1728;
---success-surface:#0B2E1E;--success-text:#4ADE80;--warning-surface:#3A2A08;--warning-text:#FBBF24;--danger-surface:#3A1114;--danger-text:#FCA5A5;--info-surface:#062B34;--info-text:#67E8F9;
+/* No escuro o violeta profundo do grafismo desapareceria contra o fundo; sobe
+   para o médio, que é o mesmo papel um degrau acima na rampa. */
+--tile-blue:var(--violet-300);--tile-navy:var(--violet-600);--tile-sun:var(--magenta-500);--tile-leaf:var(--iris-400);--tile-ring:#A855F7;--tile-ghost:rgba(196,132,252,.10);
+--success-surface:#0B2E1E;--success-text:#4ADE80;--warning-surface:#33290A;--warning-text:#FBBF24;--danger-surface:#3A1114;--danger-text:#FCA5A5;--info-surface:#062B34;--info-text:#67E8F9;
 --focus-ring:0 0 0 3px rgba(168,85,247,.45);
 }

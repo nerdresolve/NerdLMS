@@ -181,7 +181,7 @@ export async function assignEnrollmentUseCase(
       actorId: command.actor.id,
       actorName: command.actorName,
       action: "enrollment_created",
-      target: `curso ${command.courseId} — ${enrolled} ${enrolled === 1 ? "pessoa" : "pessoas"}`,
+      target: `curso ${command.courseId}, ${enrolled} ${enrolled === 1 ? "pessoa" : "pessoas"}`,
       outcome: "allowed",
       ip: command.ip ?? null,
     });

@@ -7,7 +7,7 @@
  * navegador com `upload.onprogress`.
  *
  * O arquivo vai direto ao storage por URL assinada — a aplicação não fica no
- * meio do caminho.
+ * meio do caminho (DEC-009).
  */
 
 export interface UploadHandle {

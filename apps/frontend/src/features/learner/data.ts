@@ -38,11 +38,33 @@ import type { User } from "@nerdlms/core/courses/types.ts";
  * concluiu, e agenda depende do projeto dela.
  */
 
-/** Matrículas do aluno da sessão. */
+/**
+ * Matrículas do aluno da sessão.
+ *
+ * CURSO ARQUIVADO NÃO ENTRA, nem em "Meus cursos" nem em "Concluídos".
+ *
+ * Arquivar é retirar de circulação — e a tela do aluno continuava listando o
+ * que fora retirado, porque ela parte da MATRÍCULA e não do catálogo. O
+ * resultado é alguém olhando um curso que não pode mais cursar, sem nada
+ * explicando por quê; e, quando o curso foi retirado por estar errado ou
+ * vencido, um treinamento inválido seguia contando como feito.
+ *
+ * A matrícula continua no banco: quem concluiu concluiu, e o registro é prova
+ * de treinamento — três gatilhos do esquema existem para impedir que ele
+ * desapareça. O que muda é a tela deixar de oferecer o que foi retirado.
+ */
 async function learnerContext() {
   const user = await requireUser();
   const [allCourses, mine] = await Promise.all([findAllCourses(user.tenant.id), findEnrollments(user.id)]);
-  return { user, allCourses, mine };
+
+  const emCirculacao = allCourses.filter((course) => course.status !== "archived");
+  const idsVisiveis = new Set(emCirculacao.map((course) => course.id));
+
+  return {
+    user,
+    allCourses: emCirculacao,
+    mine: mine.filter((enrollment) => idsVisiveis.has(enrollment.courseId)),
+  };
 }
 
 export interface TracksPageData {
@@ -54,8 +76,8 @@ export interface TracksPageData {
 /**
  * Trilhas visíveis e cursos recomendados.
  *
- * `visibleTracks` recorta por projeto: uma trilha de Prolagos não faz sentido
- * para quem é da Escola Social, e mostrá-la só geraria pedido de acesso.
+ * `visibleTracks` recorta por projeto: uma trilha de Siririzinho não faz sentido
+ * para quem é da Aguilhada, e mostrá-la só geraria pedido de acesso.
  */
 export async function getTracksPageData(): Promise<TracksPageData> {
   const { user, allCourses, mine } = await learnerContext();
@@ -63,11 +85,12 @@ export async function getTracksPageData(): Promise<TracksPageData> {
   /* A consulta já recorta por projeto, e `visibleTracks` recorta de novo. A
      redundância é de propósito: o filtro do domínio é testado e vale como
      rede se um dia a trilha vier de outra origem. */
-  const tracks = await findTracks(user.tenant.id, user.project ?? null);
+  const quem = { project: user.project ?? null, jobTitle: user.jobTitle ?? null };
+  const tracks = await findTracks(user.tenant.id, quem);
 
   return {
     student: toDisplayUser(user),
-    tracks: visibleTracks(tracks, user.project ?? undefined).map((track) =>
+    tracks: visibleTracks(tracks, quem).map((track) =>
       trackView(track, allCourses, mine),
     ),
     recommended: recommend({

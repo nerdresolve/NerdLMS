@@ -29,8 +29,6 @@ export interface RequestCommand {
    * para a conta homônima de outra empresa.
    */
   tenantId: string;
-  /** O nome do cliente, para o e-mail chegar com a marca de quem o mandou. */
-  tenantName?: string;
   /** Base do link, para montar a URL de redefinição. */
   origin: string;
   ip?: string | undefined;
@@ -46,7 +44,7 @@ export async function requestResetUseCase(
     const { token } = await createResetToken(user.id);
     const link = `${command.origin}/redefinir-senha?token=${encodeURIComponent(token)}`;
 
-    await sendMail(resetPasswordMail(user.email, user.fullName, link, command.tenantName));
+    await sendMail(resetPasswordMail(user.email, user.fullName, link));
   }
 
   /* O tempo de resposta difere entre existir e não existir — quem procura essa

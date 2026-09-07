@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Bell } from "lucide-react";
+import { Bell, Check } from "lucide-react";
 
 import { NOTIFICATION_CATALOG, type Channels } from "@nerdlms/core/notifications/events.ts";
 
@@ -86,37 +86,48 @@ export function NotificationPrefs({ saved }: { saved: Record<string, Channels> }
 
               return (
                 <tr key={evento.kind}>
-                  <td>
+                  <td data-label="Aviso" className="prefs__nome">
                     <strong>{evento.label}</strong>
                     <span className="prefs__desc">{evento.description}</span>
                   </td>
 
-                  <td className="prefs__col">
-                    <label className="sr-only" htmlFor={`in-${evento.kind}`}>
-                      {evento.label} na plataforma
+                  {/* O checkbox do produto, e não o do navegador. A caixa é um
+                      `<span>` desenhado; o `<input>` real fica invisível por
+                      cima, o que preserva teclado, foco e leitor de tela. Sem
+                      isso a tela misturava o azul do sistema operacional com a
+                      marca, e cada navegador desenhava um formato. */}
+                  <td className="prefs__col" data-label="Na plataforma">
+                    <label className="checkbox">
+                      <input
+                        id={`in-${evento.kind}`}
+                        type="checkbox"
+                        checked={canais.inApp}
+                        onChange={(event) =>
+                          void salvar(evento.kind, { ...canais, inApp: event.target.checked })
+                        }
+                      />
+                      <span className="checkbox__box" aria-hidden="true">
+                        <Check />
+                      </span>
+                      <span className="sr-only">{evento.label} na plataforma</span>
                     </label>
-                    <input
-                      id={`in-${evento.kind}`}
-                      type="checkbox"
-                      checked={canais.inApp}
-                      onChange={(event) =>
-                        void salvar(evento.kind, { ...canais, inApp: event.target.checked })
-                      }
-                    />
                   </td>
 
-                  <td className="prefs__col">
-                    <label className="sr-only" htmlFor={`em-${evento.kind}`}>
-                      {evento.label} por e-mail
+                  <td className="prefs__col" data-label="Por e-mail">
+                    <label className="checkbox">
+                      <input
+                        id={`em-${evento.kind}`}
+                        type="checkbox"
+                        checked={canais.email}
+                        onChange={(event) =>
+                          void salvar(evento.kind, { ...canais, email: event.target.checked })
+                        }
+                      />
+                      <span className="checkbox__box" aria-hidden="true">
+                        <Check />
+                      </span>
+                      <span className="sr-only">{evento.label} por e-mail</span>
                     </label>
-                    <input
-                      id={`em-${evento.kind}`}
-                      type="checkbox"
-                      checked={canais.email}
-                      onChange={(event) =>
-                        void salvar(evento.kind, { ...canais, email: event.target.checked })
-                      }
-                    />
                   </td>
                 </tr>
               );

@@ -20,7 +20,7 @@ import { findTenantByDomain, findTenantBySlug } from "@nerdlms/backend/tenancy/t
  */
 
 /** Slug usado quando o domínio não identifica ninguém. */
-const TENANT_PADRAO = process.env.NERDRESOLVE_DEFAULT_TENANT ?? "lms";
+const TENANT_PADRAO = process.env.NERD_DEFAULT_TENANT ?? "exemplo";
 
 export async function tenantOfRequest(): Promise<TenantContext | null> {
   const store = await headers();

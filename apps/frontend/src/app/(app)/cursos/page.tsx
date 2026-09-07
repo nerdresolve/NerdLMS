@@ -22,7 +22,7 @@ export default async function LibraryPage() {
         entries={entries}
         categories={categories}
         title="Todos os cursos"
-        subtitle="A biblioteca completa. Encontre um tema e comece quando quiser."
+        subtitle="A biblioteca completa da Exemplo S.A.. Encontre um tema e comece quando quiser."
         showEnroll
         emptyTitle="Nenhum curso encontrado"
         emptyText="Ajuste a busca ou limpe os filtros para ver a biblioteca completa."

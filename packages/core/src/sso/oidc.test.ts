@@ -37,7 +37,7 @@ function ctx(over: Partial<ValidationContext> = {}): ValidationContext {
   };
 }
 
-describe("OIDC — URL de autorização", () => {
+describe("OIDC: URL de autorização", () => {
   test("leva os parâmetros que o protocolo exige", () => {
     const url = new URL(
       buildAuthorizationUrl({
@@ -92,7 +92,7 @@ describe("OIDC — URL de autorização", () => {
   });
 });
 
-describe("OIDC — retorno do provedor", () => {
+describe("OIDC, retorno do provedor", () => {
   test("código e state passam", () => {
     const r = parseCallback(new URLSearchParams("code=abc&state=s-1"));
     assert.deepEqual(r, { ok: true, code: "abc", state: "s-1" });
@@ -116,7 +116,7 @@ describe("OIDC — retorno do provedor", () => {
   });
 });
 
-describe("OIDC — validação do id_token", () => {
+describe("OIDC, validação do id_token", () => {
   test("token correto passa", () => {
     const r = validateIdTokenClaims(claims(), ctx());
     assert.equal(r.ok, true);
@@ -168,7 +168,7 @@ describe("OIDC — validação do id_token", () => {
   });
 });
 
-describe("OIDC — e-mail e domínio", () => {
+describe("OIDC, e-mail e domínio", () => {
   test("e-mail não confirmado pelo provedor é recusado", () => {
     /* Aceitar deixaria alguém declarar o e-mail de outra pessoa no provedor e
        receber a conta dela aqui — parecendo um login normal. */
@@ -239,7 +239,7 @@ describe("OIDC — e-mail e domínio", () => {
   });
 });
 
-describe("OIDC — leitura sem validação", () => {
+describe("OIDC, leitura sem validação", () => {
   test("lê o conteúdo de um token bem formado", () => {
     const payload = Buffer.from(JSON.stringify({ sub: "u-1" })).toString("base64url");
     const lido = decodeIdTokenUnverified(`cabecalho.${payload}.assinatura`);

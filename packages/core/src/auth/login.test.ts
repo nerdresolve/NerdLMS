@@ -1,23 +1,29 @@
 import { test, describe } from "node:test";
 import assert from "node:assert/strict";
 
-import { authenticate, toSessionUser, type AccountRecord } from "./login.ts";
-import { hashPassword } from "./password.ts";
+import {
+  HASH_DE_COMPARACAO,
+  authenticate,
+  toSessionUser,
+  type AccountRecord,
+} from "./login.ts";
+import { hashPassword, verifyPassword } from "./password.ts";
 
 function conta(overrides: Partial<AccountRecord> = {}): AccountRecord {
   return {
     id: "u1",
     firstName: "Usuário",
     fullName: "Usuário Mock",
-    email: "user.mock@exemplo.com.br",
+    email: "user.mock@exemplo.com",
     role: "learner",
-    project: "Escola Social",
+    project: "Aguilhada",
+    jobTitle: "Operador de Campo",
     status: "active",
     passwordHash: hashPassword("usermock"),
     tenant: {
       id: "t1",
-      slug: "lms",
-      name: "NerdResolve",
+      slug: "exemplo",
+      name: "Exemplo S.A.",
       unitLabel: "Concessionária",
       /* Sem personalização: nulo em tudo significa "usa o padrão do produto". */
       branding: {
@@ -84,7 +90,7 @@ describe("Autenticação", () => {
     assert.equal("status" in user, false);
     assert.deepEqual(
       Object.keys(user).sort(),
-      ["email", "firstName", "fullName", "id", "project", "role", "tenant"],
+      ["email", "firstName", "fullName", "id", "jobTitle", "project", "role", "tenant"],
     );
   });
 
@@ -92,5 +98,40 @@ describe("Autenticação", () => {
     const resultado = authenticate(conta(), "usermock");
     assert.equal(resultado.ok, true);
     if (resultado.ok) assert.equal("passwordHash" in resultado.user, false);
+  });
+});
+
+describe("Enumeração de usuários pelo tempo de resposta", () => {
+  test("a conta inexistente gasta o MESMO trabalho de uma existente", () => {
+    /* O `DUMMY_HASH` era um Argon2id e `verifyPassword` só entende scrypt:
+       ela devolvia `false` na hora, sem gastar nada. Medido no servidor,
+       0,03 s para e-mail inexistente contra 0,60 s para existente — vinte
+       vezes, o bastante para varrer a base cronometrando o login.
+
+       O teste guarda o formato, e não o tempo: cronometrar num teste é
+       instável e mediria a máquina, não a regra. O que importa é que o hash
+       falso passe pelo mesmo caminho caro do verdadeiro. */
+    const hashFalso = HASH_DE_COMPARACAO;
+
+    assert.match(hashFalso, /^\$scrypt\$/, "precisa ser scrypt, senão a verificação sai cedo");
+
+    const [, parametros] = hashFalso.split("$scrypt$");
+    const [custo] = (parametros ?? "").split("$");
+
+    const real = hashPassword("qualquer");
+    const [, parametrosReais] = real.split("$scrypt$");
+    const [custoReal] = (parametrosReais ?? "").split("$");
+
+    /* Mesmo custo: um scrypt mais barato devolveria a diferença de tempo por
+       outro caminho. */
+    assert.equal(custo, custoReal);
+  });
+
+  test("nenhuma senha bate com o hash de comparação", () => {
+    /* Ele existe para SEMPRE falhar. Se alguma senha o satisfizesse, seria uma
+       porta para entrar em contas que não têm senha definida. */
+    for (const tentativa of ["", "senha", "123456", "admin", "usermock"]) {
+      assert.equal(verifyPassword(tentativa, HASH_DE_COMPARACAO), false, tentativa);
+    }
   });
 });

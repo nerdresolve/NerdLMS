@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Entrar · NerdResolve</title>
+<title>Entrar · Exemplo S.A.</title>
 <style>
 /* Gerado por tools/build-preview.mjs — não editar este arquivo.
    Fontes: src/styles/tokens.css, src/styles/base.css, src/styles/components.css, src/features/auth/login.css */
@@ -52,35 +52,17 @@
 
       <!-- ============ Painel de marca ============ -->
       <section class="brand">
-        <svg class="brand__waves" viewBox="0 0 520 720" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false">
-          <path d="M-40,96 C120,30 268,196 208,344 C160,462 34,506 -12,660 L-40,660 Z" fill="var(--wave-2)" />
-          <path d="M560,-40 C420,72 502,232 384,330 C264,430 348,606 262,760 L560,760 Z" fill="var(--wave-1)" />
-          <path d="M-40,470 C96,392 176,540 322,452 C426,390 494,432 560,376 L560,760 L-40,760 Z" fill="var(--wave-3)" />
-          <path d="M-40,556 C110,478 190,614 336,528 C438,468 500,514 560,462" fill="none" stroke="var(--wave-line)" stroke-width="1.5" />
-        </svg>
+        @@MOSAIC@@
 
-        <img class="brand__logo" src="@@LOGO@@" alt="NerdResolve" width="1249" height="354" />
+        <img class="brand__logo" src="@@LOGO@@" alt="Exemplo S.A." width="400" height="170" />
 
         <p class="brand__tagline">
           <strong>Aprender transforma.</strong>
-          Conhecimento move.
+          Energia move.
         </p>
 
-        <svg class="brand__squiggle" viewBox="0 0 72 12" fill="none" aria-hidden="true" focusable="false">
-          <path d="M1 7C7 1 13 1 19 7s12 6 18 0 12-6 18 0 12 6 16 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
-        </svg>
-
-        <!-- Borda orgânica entre os painéis (desktop) -->
-        <!-- Borda ondulada apenas no layout empilhado (mobile) -->
-        <svg class="brand__edge" viewBox="0 0 390 36" preserveAspectRatio="none" aria-hidden="true" focusable="false">
-          <path d="M0,20 C70,-6 132,34 200,20 C268,6 330,26 390,12 L390,36 L0,36 Z" fill="var(--surface-card)" />
-        </svg>
+        <span class="brand__rule" aria-hidden="true"></span>
       </section>
-
-      <!-- Fora do .brand de propósito: a onda cruza a divisa entre as duas
-           colunas, e o overflow:hidden do painel azul a recortaria justamente
-           na emenda — deixando uma linha vertical visível. -->
-      @@SPLIT@@
 
       <!-- ============ Formulário ============ -->
       <section class="form-panel">
@@ -184,12 +166,8 @@
   var themeBtn = document.getElementById("qa-theme");
   var deviceBtn = document.getElementById("qa-device");
 
-  themeBtn.addEventListener("click", function () {
-    var dark = root.getAttribute("data-theme") === "dark";
-    root.setAttribute("data-theme", dark ? "light" : "dark");
-    themeBtn.setAttribute("aria-pressed", String(!dark));
-    themeBtn.textContent = dark ? "Dark" : "Light";
-  });
+  /* Rótulo, `aria-pressed` e gravação ficam no NERD_THEME. Ver THEME_BOOT. */
+  themeBtn.addEventListener("click", function () { window.NERD_THEME.alternar(); });
 
   deviceBtn.addEventListener("click", function () {
     var mobile = viewport.getAttribute("data-device") === "mobile";

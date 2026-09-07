@@ -15,14 +15,20 @@
     "test": "node --experimental-strip-types --test \"src/**/*.test.ts\"",
     "test:a11y": "node tools/check-contrast.mjs && node tools/check-wcag22.mjs",
     "preview": "node --experimental-strip-types tools/build-preview.mjs",
-    "verify": "npm run test && npm run test:a11y && npm run preview && npm run quality && npm run check:imports && npm run check:hydration && npm run perf",
+    "verify": "npm run lint && npm run test && npm run test:a11y && npm run preview && npm run quality && npm run check:imports && npm run check:hydration && npm run perf",
     "quality": "node tools/check-quality.mjs",
     "lighthouse": "lhci autorun --config=lighthouserc.json",
-    "shots": "python3 tools/shot.py",
-    "perf": "python3 tools/perf.py",
-    "e2e": "python3 tools/e2e.py",
+    "shots": "node tools/py.mjs tools/shot.py",
+    "perf": "node tools/py.mjs tools/perf.py",
+    "e2e": "node tools/py.mjs tools/e2e.py",
     "check:imports": "node tools/check-imports.mjs",
-    "check:hydration": "node tools/check-hydration.mjs"
+    "check:hydration": "node tools/check-hydration.mjs",
+    "telas": "node tools/telas.mjs",
+    "brand:assets": "node tools/py.mjs tools/brand-assets.py",
+    "brand:embeds": "node tools/py.mjs tools/brand-embeds.py",
+    "brand:video": "node tools/py.mjs tools/demo-video.py",
+    "certificate": "node tools/py.mjs tools/certificate-preview.py",
+    "serve": "node tools/serve-preview.mjs"
   },
   "dependencies": {
     "@nerdlms/backend": "0.1.0",
@@ -40,15 +46,23 @@
     "@types/react-dom": "19.1.0",
     "eslint": "9.19.0",
     "eslint-config-next": "15.4.0",
-    "typescript": "5.7.3"
+    "typescript": "5.7.3",
+    "pdfjs-dist": "4.10.38",
+    "@eslint/eslintrc": "3.2.0"
   },
   "comments": {
-    "install": "npm ci exige rede.",
+    "install": "npm ci exige rede. Ver progress.md → BLOCK-001.",
     "runnable-offline": "test, test:a11y e preview rodam sem nenhuma dependência instalada.",
-    "lighthouse": "npm run lighthouse exige rede e Chrome. npm run quality roda offline.",
-    "shots": "Validação visual real com Chromium (Playwright). Só isto vale para layout.",
+    "deferred": "tailwindcss + shadcn/ui + motion entram na TASK-003 (ver DEC-004).",
+    "lighthouse": "npm run lighthouse exige rede e Chrome (BLOCK-001). npm run quality roda offline.",
+    "shots": "Validação visual real com Chromium (Playwright). Só isto vale para layout — ver progress.md DEC-015. Captura os dois temas: o portão de contraste confere pares de token, e texto sobre gradiente não cai em par nenhum.",
     "e2e": "Fluxo crítico num navegador real: entrar, abrir curso e aula, comentar, sair, e o que cada papel alcança. Exige a aplicação no ar, então NÃO entra no verify — roda antes de publicar (E2E_BASE aponta o ambiente).",
     "check:imports": "Todo pacote importado precisa estar declarado. Pegou o server-only faltando.",
-    "check:hydration": "Data sem fuso em componente de cliente quebra a hidratação e a página para de responder. Pegou o botão de copiar badge."
+    "check:hydration": "Data sem fuso em componente de cliente quebra a hidratação e a página para de responder. Pegou o botão de copiar badge.",
+    "telas": "Publica shots/ em docs/telas/ com o nome do pacote de entrega. shots/ é ignorado pelo Git; docs/telas/ é versionado.",
+    "brand": "Assets de marca GERADOS do site institucional (dev/SITE, ou $SITE_PUBLIC): logotipos e símbolo (brand:assets), a logo do certificado em PDF e o cabeçalho do e-mail (brand:embeds), o vídeo de demonstração (brand:video, exige ffmpeg). Rodam sob demanda, não no verify — a saída é versionada.",
+    "certificate": "Renderiza o certificado em PNG (docs/certificado*.png). O PDF era o único artefato que nenhum portão OLHAVA — os testes conferem que ele é válido e que os textos estão lá, não que o desenho faz sentido.",
+    "serve": "Serve preview/ por HTTP. Opcional — as páginas abrem do disco —, mas dá URL para compartilhar e o content-type certo no PDF do certificado.",
+    "python": "Os scripts Python passam por tools/py.mjs, que escolhe o interpretador que EXECUTA nesta máquina. No Windows python3 existe no PATH como atalho da Microsoft Store e falha ao rodar — era o que impedia npm run verify de completar lá."
   }
 }

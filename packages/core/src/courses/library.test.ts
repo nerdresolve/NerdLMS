@@ -4,7 +4,7 @@ import assert from "node:assert/strict";
 import { toLibraryEntries } from "./catalog.ts";
 import { makeCourse, makeEnrollment } from "./test-fixtures.ts";
 
-describe("Biblioteca — o catálogo inteiro, com ou sem matrícula", () => {
+describe("Biblioteca, o catálogo inteiro, com ou sem matrícula", () => {
   test("curso sem matrícula aparece, com progresso zerado", () => {
     // É a diferença entre a biblioteca e "Meus cursos": aqui o aluno descobre
     // curso novo, então curso não matriculado PRECISA aparecer.

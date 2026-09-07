@@ -22,7 +22,7 @@ function pedido(over: Record<string, string> = {}): URLSearchParams {
   });
 }
 
-describe("LTI — etapa 1, iniciação", () => {
+describe("LTI, etapa 1, iniciação", () => {
   test("leva o que a ferramenta precisa para voltar", () => {
     const campos = initiationPayload({
       iss: "https://treinamento.acme.com.br",
@@ -58,7 +58,7 @@ describe("LTI — etapa 1, iniciação", () => {
   });
 });
 
-describe("LTI — etapa 2, pedido de autenticação", () => {
+describe("LTI, etapa 2, pedido de autenticação", () => {
   test("pedido correto passa", () => {
     const r = validateAuthRequest(pedido());
     assert.equal(r.ok, true);
@@ -92,7 +92,7 @@ describe("LTI — etapa 2, pedido de autenticação", () => {
     assert.equal(validateAuthRequest(sem).ok, false);
   });
 
-  test("state é opcional — a especificação não exige", () => {
+  test("state é opcional, a especificação não exige", () => {
     /* Exigir quebraria ferramenta correta que não manda. */
     const sem = pedido();
     sem.delete("state");
@@ -109,7 +109,7 @@ describe("LTI — etapa 2, pedido de autenticação", () => {
   });
 });
 
-describe("LTI — o redirect_uri é conferido por igualdade", () => {
+describe("LTI, o redirect_uri é conferido por igualdade", () => {
   test("endereço cadastrado passa", () => {
     assert.equal(
       isRegisteredRedirect("https://ferramenta.com/lti/launch", [

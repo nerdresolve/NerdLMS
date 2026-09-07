@@ -24,8 +24,8 @@ export function AdminView({
   audit,
   alerts,
   unitLower,
-  unitPlural,
-}: Omit<AdminPageData, "admin"> & { unitLower: string; unitPlural: string }) {
+  unitLabel,
+}: Omit<AdminPageData, "admin"> & { unitLower: string; unitLabel: string }) {
   const cards = [
     { Icon: Users, value: String(stats.users), label: "usuários cadastrados" },
     { Icon: TrendingUp, value: String(stats.active30d), label: "ativos em 30 dias" },
@@ -34,13 +34,12 @@ export function AdminView({
   ];
 
   return (
-    <div className="studio">
-      <div className="studio__head">
-        <div className="studio__head-text">
-          <h1 className="page-head__greeting">Painel da plataforma</h1>
-          <p className="page-head__sub">Visão consolidada de todas as {unitPlural}.</p>
+    <div className="page">
+      <div className="page-head">
+        <div className="page-head__text">
+          <h1 className="page-head__title">Painel da plataforma</h1>
+          <p className="page-head__sub">Números de toda a organização.</p>
         </div>
-
       </div>
 
       {/* Os recortes substituem os dois links diretos: eles continuam válidos
@@ -58,8 +57,8 @@ export function AdminView({
               repetidas
             </p>
             <p className="audit-alert__text">
-              {alerts.map((alert) => `${alert.actorName} (${alert.denials})`).join(", ")}. Uma negativa
-              isolada é engano; várias seguidas merecem olhar. <Link href="/admin/auditoria">Ver auditoria</Link>
+              {alerts.map((alert) => `${alert.actorName} (${alert.denials})`).join(", ")}.{" "}
+              <Link href="/admin/auditoria">Ver auditoria</Link>
             </p>
           </div>
         </div>
@@ -88,15 +87,33 @@ export function AdminView({
         </h2>
         <p className="status-text">Pessoas com acesso registrado nos últimos 30 dias.</p>
 
-        <div className="breakdown">
-          {byProject.map(({ project, active, total }) => (
-            <div className="breakdown__row" key={project}>
-              <span className="breakdown__label">{project}</span>
-              <span className="breakdown__value">
-                {active} de {total} {total === 1 ? "pessoa" : "pessoas"}
-              </span>
-            </div>
-          ))}
+        {/* Tabela, e não lista de rótulo e valor: são três colunas com o mesmo
+            significado em cada linha, que é o que uma tabela é. Escritas como
+            "3 de 4 pessoas" num texto solto, elas não se alinhavam entre as
+            linhas e não davam para comparar de relance — que é a única coisa
+            que alguém faz nesta seção. */}
+        <div className="table-wrap">
+          <table className="table">
+            <caption className="sr-only">
+              Pessoas com acesso nos últimos 30 dias, por {unitLower}
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col">{unitLabel}</th>
+                <th scope="col" data-num>Ativos</th>
+                <th scope="col" data-num>Pessoas</th>
+              </tr>
+            </thead>
+            <tbody>
+              {byProject.map(({ project, active, total }) => (
+                <tr key={project}>
+                  <td data-label={unitLabel}>{project}</td>
+                  <td data-label="Ativos" data-num>{active}</td>
+                  <td data-label="Pessoas" data-num>{total}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </section>
 

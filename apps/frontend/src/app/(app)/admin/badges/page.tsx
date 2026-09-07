@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import { AppShell } from "@/features/app-shell/app-shell.tsx";
+import { Breadcrumb } from "@/components/breadcrumb.tsx";
 import { BadgesView } from "@/features/admin/badges-view.tsx";
 import { getBadgesPageData } from "@/features/admin/data.ts";
 
@@ -13,7 +14,8 @@ export default async function BadgesPage() {
   const { admin, badges, courses, tracks } = await getBadgesPageData();
 
   return (
-    <AppShell fullName={admin.fullName} role={admin.role} currentPath="/admin/badges">
+    <AppShell
+      topbar={<Breadcrumb items={[{ label: "Administração", href: "/admin" }, { label: "Badges" }]} />} fullName={admin.fullName} role={admin.role} currentPath="/admin/badges">
       <BadgesView badges={badges} courses={courses} tracks={tracks} />
     </AppShell>
   );

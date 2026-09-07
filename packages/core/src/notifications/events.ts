@@ -190,7 +190,7 @@ const MAX_MENCOES = 10;
 /**
  * Os nomes mencionados com `@`.
  *
- * Ignora e-mail: em "fale com joao@exemplo.com.br", o `@nerdlms` não é menção — o
+ * Ignora e-mail: em "fale com joao@exemplo.com", o `@exemplo` não é menção — o
  * caractere anterior é parte de uma palavra, e menção começa em fronteira.
  *
  * O teto existe porque uma mensagem com cinquenta `@` notificaria cinquenta

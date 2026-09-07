@@ -1,2 +1,5 @@
-:root{--radius-xs:4px;--radius-sm:8px;--radius-md:12px;--radius-lg:16px;--radius-xl:24px;--radius-full:9999px;
---radius-button:12px;--radius-input:12px;--radius-card:16px;--radius-surface:24px;--radius-chip:9999px}
+/* O site institucional é de canto reto: botão e campo com `border-radius:0`, e
+   6px só onde há mídia recortada. A plataforma segue a mesma régua — arredondar
+   o botão aqui faria a marca parecer outra ao lado do site. */
+:root{--radius-xs:2px;--radius-sm:4px;--radius-md:6px;--radius-lg:8px;--radius-xl:12px;--radius-full:9999px;
+--radius-button:0px;--radius-input:0px;--radius-card:6px;--radius-surface:10px;--radius-chip:4px}

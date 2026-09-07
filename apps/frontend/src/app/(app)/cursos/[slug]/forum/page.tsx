@@ -6,6 +6,7 @@ import { findEnrollmentId } from "@nerdlms/backend/assessment/enrollment-lookup.
 import { findTopics } from "@nerdlms/backend/forum/forum-repository.ts";
 
 import { AppShell } from "@/features/app-shell/app-shell.tsx";
+import { Breadcrumb } from "@/components/breadcrumb.tsx";
 import { ForumView } from "@/features/forum/forum-view.tsx";
 import { requireFeature } from "@/lib/feature-guard.ts";
 import { requireUser, toDisplayUser } from "@/lib/auth/session.ts";
@@ -26,6 +27,7 @@ export default async function CourseForumPage({ params }: { params: Promise<{ sl
 
   return (
     <AppShell
+      topbar={<Breadcrumb items={[{ label: "Meus cursos", href: "/meus-cursos" }, { label: "Fórum do curso" }]} />}
       fullName={toDisplayUser(user).fullName}
       role={user.role}
       currentPath="/meus-cursos"

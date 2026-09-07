@@ -4,9 +4,9 @@ import { useState } from "react";
 import { Check, Copy, ExternalLink, ShieldCheck } from "lucide-react";
 
 import { PROVIDER_PRESETS } from "@nerdlms/core/sso/providers.ts";
-import { DIRECTORY_PRESETS } from "@nerdlms/core/ldap/directory.ts";
 
 import "./sso.css";
+import { campoObrigatorio } from "@/lib/campo-obrigatorio.ts";
 
 /**
  * Acesso por provedor de identidade — F5-04 (guia §32).
@@ -46,42 +46,6 @@ export interface SsoProviderRow {
   allowPasswordLogin: boolean;
 }
 
-export interface LdapRow {
-  id: string;
-  kind: string;
-  displayName: string;
-  host: string;
-  port: number;
-  domain: string | null;
-  baseDn: string | null;
-  dnTemplate: string;
-  allowSelfSigned: boolean;
-  allowedDomains: string;
-  allowJit: boolean;
-  jitRole: string;
-  enabled: boolean;
-}
-
-export interface SamlRow {
-  id: string;
-  displayName: string;
-  idpEntityId: string;
-  ssoUrl: string;
-  /**
-   * Os certificados cadastrados, em PEM.
-   *
-   * Vão para a tela, ao contrário da chave secreta do OIDC: certificado é
-   * público por definição, e quem configura precisa ver quais estão lá para
-   * saber se a rotação já foi feita.
-   */
-  certificates: string[];
-  spEntityId: string;
-  allowedDomains: string;
-  allowJit: boolean;
-  jitRole: string;
-  enabled: boolean;
-}
-
 const PAPEIS = [
   { key: "learner", label: "Aluno" },
   { key: "instructor", label: "Instrutor" },
@@ -109,115 +73,67 @@ function BotaoCopiar({ valor, rotulo }: { valor: string; rotulo: string }) {
   );
 }
 
-import { useSsoForm } from "./use-sso-form.ts";
-
 export function SsoView({
   providers,
-  directories,
-  saml,
   redirectUri,
-  samlAcsUrl,
-  samlEntityId,
 }: {
   providers: SsoProviderRow[];
-  directories: LdapRow[];
-  saml: SamlRow | null;
   redirectUri: string;
-  samlAcsUrl: string;
-  samlEntityId: string;
 }) {
   const [linhas, setLinhas] = useState(providers);
-  const [diretorios, setDiretorios] = useState(directories);
-  const [samlAtual, setSamlAtual] = useState(saml);
-  const { salvando, erro, salvar: gravar } = useSsoForm();
+  const [salvando, setSalvando] = useState<string | null>(null);
+  const [erro, setErro] = useState<string | null>(null);
 
   /* Um provedor por tipo. O que já existe é editado; o que falta aparece como
      opção de configurar — sem uma tela separada de "adicionar", que para três
      opções fixas só somaria um clique. */
   const porTipo = new Map(linhas.map((l) => [l.provider, l]));
 
-  /** Salva um diretório LDAP. */
-  async function salvarDiretorio(kind: string, form: HTMLFormElement) {
-    const dados = new FormData(form);
-
-    const salvo = await gravar<LdapRow>({
-      cartao: `ldap:${kind}`,
-      rota: "/api/sso/diretorios",
-      chave: "directory",
-      corpo: {
-        kind,
-        displayName: String(dados.get("displayName") ?? ""),
-        host: String(dados.get("host") ?? ""),
-        port: Number(dados.get("port") ?? 636),
-        domain: String(dados.get("domain") ?? ""),
-        baseDn: String(dados.get("baseDn") ?? ""),
-        dnTemplate: String(dados.get("dnTemplate") ?? ""),
-        allowSelfSigned: dados.get("allowSelfSigned") === "on",
-        allowedDomains: String(dados.get("allowedDomains") ?? ""),
-        allowJit: dados.get("allowJit") === "on",
-        jitRole: String(dados.get("jitRole") ?? "learner"),
-        enabled: dados.get("enabled") === "on",
-      },
-    });
-
-    if (!salvo) return;
-    setDiretorios((atuais) => [...atuais.filter((d) => d.kind !== kind), salvo]);
-  }
-
-  /** Salva o provedor SAML. */
-  async function salvarSaml(form: HTMLFormElement) {
-    const dados = new FormData(form);
-
-    const salvo = await gravar<SamlRow>({
-      cartao: "saml",
-      rota: "/api/sso/saml",
-      chave: "saml",
-      corpo: {
-        displayName: String(dados.get("displayName") ?? ""),
-        idpEntityId: String(dados.get("idpEntityId") ?? ""),
-        ssoUrl: String(dados.get("ssoUrl") ?? ""),
-        certificates: String(dados.get("certificates") ?? ""),
-        spEntityId: String(dados.get("spEntityId") ?? ""),
-        allowedDomains: String(dados.get("allowedDomains") ?? ""),
-        allowJit: dados.get("allowJit") === "on",
-        jitRole: String(dados.get("jitRole") ?? "learner"),
-        enabled: dados.get("enabled") === "on",
-      },
-    });
-
-    if (!salvo) return;
-    setSamlAtual(salvo);
-  }
-
-  /** Salva um provedor OIDC. */
   async function salvar(provider: string, form: HTMLFormElement) {
-    const dados = new FormData(form);
+    setSalvando(provider);
+    setErro(null);
 
-    const salvo = await gravar<SsoProviderRow>({
-      cartao: provider,
-      rota: "/api/sso/provedores",
-      chave: "provider",
-      corpo: {
-        provider,
-        displayName: String(dados.get("displayName") ?? ""),
-        clientId: String(dados.get("clientId") ?? ""),
-        /* Vazio significa "mantenha a que está lá", e não "apague". */
-        clientSecret: String(dados.get("clientSecret") ?? ""),
-        providerTenantId: String(dados.get("providerTenantId") ?? ""),
-        authorizationUrl: String(dados.get("authorizationUrl") ?? ""),
-        tokenUrl: String(dados.get("tokenUrl") ?? ""),
-        jwksUrl: String(dados.get("jwksUrl") ?? ""),
-        issuer: String(dados.get("issuer") ?? ""),
-        allowedDomains: String(dados.get("allowedDomains") ?? ""),
-        allowJit: dados.get("allowJit") === "on",
-        jitRole: String(dados.get("jitRole") ?? "learner"),
-        enabled: dados.get("enabled") === "on",
-        allowPasswordLogin: dados.get("allowPasswordLogin") === "on",
-      },
+    const dados = new FormData(form);
+    const corpo = {
+      provider,
+      displayName: String(dados.get("displayName") ?? ""),
+      clientId: String(dados.get("clientId") ?? ""),
+      /* Vazio significa "mantenha a que está lá", e não "apague". */
+      clientSecret: String(dados.get("clientSecret") ?? ""),
+      providerTenantId: String(dados.get("providerTenantId") ?? ""),
+      authorizationUrl: String(dados.get("authorizationUrl") ?? ""),
+      tokenUrl: String(dados.get("tokenUrl") ?? ""),
+      jwksUrl: String(dados.get("jwksUrl") ?? ""),
+      issuer: String(dados.get("issuer") ?? ""),
+      allowedDomains: String(dados.get("allowedDomains") ?? ""),
+      allowJit: dados.get("allowJit") === "on",
+      jitRole: String(dados.get("jitRole") ?? "learner"),
+      enabled: dados.get("enabled") === "on",
+      allowPasswordLogin: dados.get("allowPasswordLogin") === "on",
+    };
+
+    const resposta = await fetch("/api/sso/provedores", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(corpo),
     });
 
-    if (!salvo) return;
-    setLinhas((atuais) => [...atuais.filter((l) => l.provider !== provider), salvo]);
+    const json = (await resposta.json().catch(() => null)) as
+      | { provider?: SsoProviderRow; error?: string }
+      | null;
+
+    setSalvando(null);
+
+    if (!resposta.ok || !json?.provider) {
+      setErro(json?.error ?? "Não foi possível salvar.");
+      return;
+    }
+
+    const salvo = json.provider;
+    setLinhas((atuais) => {
+      const semEste = atuais.filter((l) => l.provider !== provider);
+      return [...semEste, salvo];
+    });
   }
 
   return (
@@ -265,6 +181,7 @@ export function SsoView({
             <p className="platform__hint">{preset.hint}</p>
 
             <form
+              method="post"
               className="sso-adm__form"
               onSubmit={(evento) => {
                 evento.preventDefault();
@@ -276,14 +193,14 @@ export function SsoView({
                 <input
                   name="displayName"
                   defaultValue={atual?.displayName ?? preset.label}
-                  required
+                  {...campoObrigatorio("Dê um nome a este provedor.")}
                   maxLength={60}
                 />
               </label>
 
               <label className="field">
                 <span>ID do cliente</span>
-                <input name="clientId" defaultValue={atual?.clientId ?? ""} required />
+                <input name="clientId" defaultValue={atual?.clientId ?? ""} {...campoObrigatorio("Informe o ID do cliente no provedor.")} />
               </label>
 
               <label className="field">
@@ -292,8 +209,14 @@ export function SsoView({
                   name="clientSecret"
                   type="password"
                   autoComplete="new-password"
-                  placeholder={atual?.hasSecret ? "Guardada — deixe em branco para manter" : ""}
-                  required={!atual?.hasSecret}
+                  placeholder={atual?.hasSecret ? "Guardada, deixe em branco para manter" : ""}
+                  /* Obrigatória só na primeira vez. Com a chave já guardada, o
+                     campo em branco significa "mantenha a que está lá", e
+                     exigi-la de novo obrigaria a redigitar um segredo que o
+                     administrador provavelmente não tem à mão. */
+                  {...(atual?.hasSecret
+                    ? {}
+                    : campoObrigatorio("Informe a chave secreta do provedor."))}
                 />
               </label>
 
@@ -303,7 +226,7 @@ export function SsoView({
                   <input
                     name="providerTenantId"
                     defaultValue={atual?.providerTenantId ?? ""}
-                    required
+                    {...campoObrigatorio("Informe o identificador do locatário no provedor.")}
                     placeholder="00000000-0000-0000-0000-000000000000"
                   />
                 </label>
@@ -316,19 +239,19 @@ export function SsoView({
                 <>
                   <label className="field sso-adm__larga">
                     <span>URL de autorização</span>
-                    <input name="authorizationUrl" defaultValue={atual?.authorizationUrl ?? ""} required />
+                    <input name="authorizationUrl" defaultValue={atual?.authorizationUrl ?? ""} {...campoObrigatorio("Informe a URL de autorização.")} />
                   </label>
                   <label className="field sso-adm__larga">
                     <span>URL de token</span>
-                    <input name="tokenUrl" defaultValue={atual?.tokenUrl ?? ""} required />
+                    <input name="tokenUrl" defaultValue={atual?.tokenUrl ?? ""} {...campoObrigatorio("Informe a URL de token.")} />
                   </label>
                   <label className="field sso-adm__larga">
                     <span>URL do JWKS</span>
-                    <input name="jwksUrl" defaultValue={atual?.jwksUrl ?? ""} required />
+                    <input name="jwksUrl" defaultValue={atual?.jwksUrl ?? ""} {...campoObrigatorio("Informe a URL do JWKS.")} />
                   </label>
                   <label className="field sso-adm__larga">
                     <span>Emissor (issuer)</span>
-                    <input name="issuer" defaultValue={atual?.issuer ?? ""} required />
+                    <input name="issuer" defaultValue={atual?.issuer ?? ""} {...campoObrigatorio("Informe o emissor declarado pelo provedor.")} />
                   </label>
                 </>
               ) : null}
@@ -341,7 +264,7 @@ export function SsoView({
                   placeholder="acme.com.br, acme.com"
                 />
                 <small>
-                  Separados por vírgula. Em branco aceita qualquer domínio — inclusive contas
+                  Separados por vírgula. Em branco aceita qualquer domínio, inclusive contas
                   pessoais, se o provedor permitir.
                 </small>
               </label>
@@ -391,7 +314,7 @@ export function SsoView({
                       if (evento.currentTarget.checked) return;
                       const segue = window.confirm(
                         "Desligar a senha faz TODO MUNDO depender do provedor. " +
-                          "Se a configuração estiver errada, ninguém entra — nem você. " +
+                          "Se a configuração estiver errada, ninguém entra, nem você. " +
                           "Teste o acesso pelo provedor antes. Continuar?",
                       );
                       if (!segue) evento.currentTarget.checked = true;
@@ -421,319 +344,6 @@ export function SsoView({
           </section>
         );
       })}
-
-      {/* Diretórios LDAP.
-
-          Depois do OIDC porque é a escolha de quem tem infraestrutura própria
-          — e quem tem Google ou Microsoft para nesta tela antes de chegar
-          aqui. */}
-      {DIRECTORY_PRESETS.map((preset) => {
-        const atual = diretorios.find((d) => d.kind === preset.id);
-
-        return (
-          <section className="course-section" key={preset.id} aria-labelledby={`d-${preset.id}`}>
-            <h2 className="course-section__title" id={`d-${preset.id}`}>
-              {preset.label}
-              {atual?.enabled ? <span className="sso-adm__ligado">ligado</span> : null}
-            </h2>
-
-            <p className="platform__hint">{preset.hint}</p>
-
-            <form
-              className="sso-adm__form"
-              onSubmit={(evento) => {
-                evento.preventDefault();
-                void salvarDiretorio(preset.id, evento.currentTarget);
-              }}
-            >
-              <label className="field">
-                <span>Texto do botão</span>
-                <input
-                  name="displayName"
-                  defaultValue={atual?.displayName ?? "Conta da rede"}
-                  required
-                  maxLength={60}
-                />
-              </label>
-
-              <label className="field">
-                <span>Servidor</span>
-                <input
-                  name="host"
-                  defaultValue={atual?.host ?? ""}
-                  required
-                  placeholder="dc.empresa.com.br"
-                />
-              </label>
-
-              <label className="field">
-                <span>Porta</span>
-                <input
-                  name="port"
-                  type="number"
-                  min={1}
-                  max={65535}
-                  defaultValue={atual?.port ?? preset.defaultPort}
-                  required
-                />
-                <small>
-                  636 é LDAP sobre TLS. A porta 389 não é oferecida: sem TLS, a senha atravessa a
-                  rede legível.
-                </small>
-              </label>
-
-              {preset.requires === "domain" ? (
-                <label className="field">
-                  <span>Domínio</span>
-                  <input
-                    name="domain"
-                    defaultValue={atual?.domain ?? ""}
-                    required
-                    placeholder="empresa.com.br"
-                  />
-                  <small>O mesmo domínio que as pessoas usam para entrar na rede.</small>
-                </label>
-              ) : null}
-
-              {preset.id === "openldap" ? (
-                <label className="field sso-adm__larga">
-                  <span>Base do diretório</span>
-                  <input
-                    name="baseDn"
-                    defaultValue={atual?.baseDn ?? ""}
-                    required
-                    placeholder="dc=empresa,dc=com,dc=br"
-                  />
-                </label>
-              ) : null}
-
-              {preset.id === "generico" ? (
-                <label className="field sso-adm__larga">
-                  <span>Molde do DN</span>
-                  <input
-                    name="dnTemplate"
-                    defaultValue={atual?.dnTemplate ?? ""}
-                    required
-                    placeholder="cn={user},ou=usuarios,dc=empresa,dc=com"
-                  />
-                  <small>
-                    Use <code>{"{user}"}</code> onde entra o nome de quem faz login.
-                  </small>
-                </label>
-              ) : null}
-
-              <label className="field sso-adm__larga">
-                <span>Domínios aceitos</span>
-                <input
-                  name="allowedDomains"
-                  defaultValue={atual?.allowedDomains ?? ""}
-                  placeholder="empresa.com.br"
-                />
-                <small>Separados por vírgula. Em branco aceita qualquer um.</small>
-              </label>
-
-              <fieldset className="sso-adm__opcoes">
-                <legend className="sr-only">Opções</legend>
-
-                <label className="sso-adm__check">
-                  <input
-                    type="checkbox"
-                    name="allowSelfSigned"
-                    defaultChecked={atual?.allowSelfSigned ?? false}
-                  />
-                  <span>
-                    <strong>Aceitar certificado emitido pela empresa</strong>
-                    <small>
-                      Diretório corporativo raramente usa certificado de autoridade pública. Marque
-                      se a conexão falhar por certificado.
-                    </small>
-                  </span>
-                </label>
-
-                <label className="sso-adm__check">
-                  <input type="checkbox" name="allowJit" defaultChecked={atual?.allowJit ?? false} />
-                  <span>
-                    <strong>Criar conta no primeiro acesso</strong>
-                    <small>
-                      Sem isto, só entra quem já foi cadastrado aqui.
-                    </small>
-                  </span>
-                </label>
-
-                <label className="field sso-adm__papel">
-                  <span>Papel de quem for criado</span>
-                  <select name="jitRole" defaultValue={atual?.jitRole ?? "learner"}>
-                    {PAPEIS.map((papel) => (
-                      <option key={papel.key} value={papel.key}>
-                        {papel.label}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-
-                <label className="sso-adm__check">
-                  <input type="checkbox" name="enabled" defaultChecked={atual?.enabled ?? false} />
-                  <span>
-                    <strong>Mostrar o botão na tela de login</strong>
-                    <small>Desligar esconde o botão e mantém quem já vinculou a conta.</small>
-                  </span>
-                </label>
-              </fieldset>
-
-              <div className="sso-adm__acoes">
-                <button
-                  type="submit"
-                  className="btn btn--primary"
-                  disabled={salvando === `ldap:${preset.id}`}
-                >
-                  {salvando === `ldap:${preset.id}` ? "Salvando…" : atual ? "Salvar" : "Configurar"}
-                </button>
-              </div>
-            </form>
-          </section>
-        );
-      })}
-
-      {/* SAML 2.0.
-
-          A troca aqui é MÚTUA, e é isso que a seção precisa deixar claro: três
-          valores vêm do provedor, dois vão para ele. Uma tela que só pedisse
-          dados deixaria quem configura sem saber o que entregar do outro
-          lado. */}
-      <section className="course-section" aria-labelledby="saml">
-        <h2 className="course-section__title" id="saml">
-          SAML 2.0
-          {samlAtual?.enabled ? <span className="sso-adm__ligado">ligado</span> : null}
-        </h2>
-
-        <p className="platform__hint">
-          Para ADFS, Okta, OneLogin, Shibboleth e outros. A configuração é dos dois lados: você
-          traz três valores do provedor e entrega dois a ele.
-        </p>
-
-        <div className="sso-adm__retorno">
-          <div>
-            <strong>Entregue ao provedor</strong>
-            <p>Estes dois valores são cadastrados lá, no registro desta plataforma.</p>
-            <code>Entity ID: {samlEntityId}</code>
-            <code>URL de retorno (ACS): {samlAcsUrl}</code>
-          </div>
-          <BotaoCopiar valor={samlAcsUrl} rotulo="Copiar ACS" />
-        </div>
-
-        <form
-          className="sso-adm__form"
-          onSubmit={(evento) => {
-            evento.preventDefault();
-            void salvarSaml(evento.currentTarget);
-          }}
-        >
-          <label className="field">
-            <span>Texto do botão</span>
-            <input
-              name="displayName"
-              defaultValue={samlAtual?.displayName ?? "Acesso corporativo"}
-              required
-              maxLength={60}
-            />
-          </label>
-
-          <label className="field">
-            <span>Entity ID desta plataforma</span>
-            <input
-              name="spEntityId"
-              defaultValue={samlAtual?.spEntityId ?? samlEntityId}
-              required
-            />
-            <small>O mesmo valor que você cadastrou no provedor.</small>
-          </label>
-
-          <label className="field sso-adm__larga">
-            <span>Entity ID do provedor</span>
-            <input
-              name="idpEntityId"
-              defaultValue={samlAtual?.idpEntityId ?? ""}
-              required
-              placeholder="https://sts.empresa.com.br/adfs/services/trust"
-            />
-            <small>Nos metadados do provedor, o atributo entityID.</small>
-          </label>
-
-          <label className="field sso-adm__larga">
-            <span>URL de SSO</span>
-            <input
-              name="ssoUrl"
-              defaultValue={samlAtual?.ssoUrl ?? ""}
-              required
-              placeholder="https://sts.empresa.com.br/adfs/ls/"
-            />
-            <small>O endereço HTTP-Redirect de SingleSignOnService.</small>
-          </label>
-
-          <label className="field sso-adm__larga">
-            <span>Certificados de assinatura</span>
-            <textarea
-              className="input sso-adm__certs"
-              name="certificates"
-              rows={8}
-              defaultValue={samlAtual?.certificates.join("\n\n") ?? ""}
-              placeholder={"-----BEGIN CERTIFICATE-----\n...(o conteudo)...\n-----END CERTIFICATE-----"}
-            />
-            <small>
-              Um por bloco, separados por linha em branco. Durante a rotação de chave, cadastre o
-              novo ao lado do antigo — os dois valem, e ninguém percebe a troca.
-            </small>
-          </label>
-
-          <label className="field sso-adm__larga">
-            <span>Domínios aceitos</span>
-            <input
-              name="allowedDomains"
-              defaultValue={samlAtual?.allowedDomains ?? ""}
-              placeholder="empresa.com.br"
-            />
-          </label>
-
-          <fieldset className="sso-adm__opcoes">
-            <legend className="sr-only">Opções</legend>
-
-            <label className="sso-adm__check">
-              <input type="checkbox" name="allowJit" defaultChecked={samlAtual?.allowJit ?? false} />
-              <span>
-                <strong>Criar conta no primeiro acesso</strong>
-                <small>Sem isto, só entra quem já foi cadastrado aqui.</small>
-              </span>
-            </label>
-
-            <label className="field sso-adm__papel">
-              <span>Papel de quem for criado</span>
-              <select name="jitRole" defaultValue={samlAtual?.jitRole ?? "learner"}>
-                {PAPEIS.map((papel) => (
-                  <option key={papel.key} value={papel.key}>
-                    {papel.label}
-                  </option>
-                ))}
-              </select>
-            </label>
-
-            <label className="sso-adm__check">
-              <input type="checkbox" name="enabled" defaultChecked={samlAtual?.enabled ?? false} />
-              <span>
-                <strong>Mostrar o botão na tela de login</strong>
-                <small>
-                  Exige ao menos um certificado cadastrado: ligado sem ele, o botão sempre falharia.
-                </small>
-              </span>
-            </label>
-          </fieldset>
-
-          <div className="sso-adm__acoes">
-            <button type="submit" className="btn btn--primary" disabled={salvando === "saml"}>
-              {salvando === "saml" ? "Salvando…" : samlAtual ? "Salvar" : "Configurar"}
-            </button>
-          </div>
-        </form>
-      </section>
     </>
   );
 }

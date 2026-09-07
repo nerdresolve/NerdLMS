@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>NerdResolve · Plataforma de ensino</title>
-<meta name="description" content="Plataforma de ensino da NerdResolve: cursos, trilhas e acompanhamento de progresso para quem move as águas do Brasil." />
+<title>Exemplo S.A. · Plataforma de ensino</title>
+<meta name="description" content="Plataforma de ensino da Exemplo S.A.: cursos, trilhas e acompanhamento de progresso para quem opera os campos de petróleo e gás." />
 <style>
 /* Gerado por tools/build-preview.mjs — não editar este arquivo. */
 /* @@TOKENS@@ */
@@ -48,7 +48,8 @@ body[data-device="mobile"] .landing { max-width: 390px; margin-inline: auto; bor
 
 <div class="landing">
   <header class="landing__header">
-    <img class="landing__logo" src="@@LOGO_BRAND@@" alt="NerdResolve" width="600" height="165" />
+    <img class="landing__logo landing__logo--light" src="@@LOGO_BRAND@@" alt="Exemplo S.A." width="400" height="170" />
+    <img class="landing__logo landing__logo--dark" src="@@LOGO@@" alt="" aria-hidden="true" width="400" height="170" />
     <span class="landing__header-spacer"></span>
     <nav class="landing__header-actions" aria-label="Acesso">
       <a class="btn btn--secondary" href="#sobre">Sobre a plataforma</a>
@@ -67,6 +68,9 @@ body[data-device="mobile"] .landing { max-width: 390px; margin-inline: auto; bor
         <a class="btn btn--primary" href="/login">Começar agora</a>
         <a class="btn btn--secondary" href="#sobre">Saiba mais</a>
       </div>
+      <dl class="landing__stats">
+        @@STATS@@
+      </dl>
     </div>
 
     <div class="landing__art" aria-hidden="true">
@@ -82,15 +86,6 @@ body[data-device="mobile"] .landing { max-width: 390px; margin-inline: auto; bor
     </div>
   </main>
 
-  <div class="landing__stats-wrap">
-    @@STATS_WAVE@@
-    <div class="landing__stats-bleed">
-      <dl class="landing__stats">
-        @@STATS@@
-      </dl>
-    </div>
-  </div>
-
   <section class="landing__about" id="sobre" aria-labelledby="sobre-titulo">
     <h2 class="landing__about-title" id="sobre-titulo">Feita para quem aprende trabalhando</h2>
     <div class="landing__points">
@@ -100,7 +95,8 @@ body[data-device="mobile"] .landing { max-width: 390px; margin-inline: auto; bor
 
   <footer class="landing__footer">
     <div class="landing__footer-inner">
-      <img class="landing__footer-logo" src="@@LOGO_BRAND@@" alt="NerdResolve" width="600" height="165" />
+      <img class="landing__footer-logo landing__logo--light" src="@@LOGO_BRAND@@" alt="Exemplo S.A." width="400" height="170" />
+      <img class="landing__footer-logo landing__logo--dark" src="@@LOGO@@" alt="" aria-hidden="true" width="400" height="170" />
       <span>Plataforma de ensino corporativo.</span>
       <span class="landing__header-spacer"></span>
       <span>O acesso é liberado pelo seu gestor.</span>
@@ -114,13 +110,10 @@ body[data-device="mobile"] .landing { max-width: 390px; margin-inline: auto; bor
   var root = document.documentElement;
   var body = document.body;
 
+  /* Rótulo e `aria-pressed` são responsabilidade do NERD_THEME, que também
+     grava a escolha — aqui só se pede a troca. Ver THEME_BOOT. */
   var themeBtn = document.getElementById("qa-theme");
-  themeBtn.addEventListener("click", function () {
-    var dark = root.getAttribute("data-theme") === "dark";
-    root.setAttribute("data-theme", dark ? "light" : "dark");
-    themeBtn.setAttribute("aria-pressed", String(!dark));
-    themeBtn.textContent = dark ? "Dark" : "Light";
-  });
+  themeBtn.addEventListener("click", function () { window.NERD_THEME.alternar(); });
 
   var deviceBtn = document.getElementById("qa-device");
   deviceBtn.addEventListener("click", function () {

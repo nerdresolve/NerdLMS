@@ -28,7 +28,7 @@ export interface ExportCommand {
   actor: Actor;
   actorName: string;
   kind: ReportKind;
-  /** Recortes opcionais. Ausentes, o relatório sai completo. */
+  /** Recortes opcionais (TASK-047). Ausentes, o relatório sai completo. */
   filtros?: ReportFilters;
 }
 

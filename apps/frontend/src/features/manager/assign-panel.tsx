@@ -171,11 +171,20 @@ export function AssignPanel({
       {/* A dica cala quando há resultado: "selecione as pessoas" logo acima de
           "2 pessoas matriculadas" se contradiz — a seleção foi limpa PORQUE a
           ação deu certo. */}
+      {/* E ela diz O QUE FALTA, não o que já tem.
+
+          Matricular exige curso E pessoas. Com as pessoas escolhidas e o curso
+          em branco, o botão mostrava "Matricular 1" desabilitado enquanto a
+          dica confirmava "1 pessoa selecionada": duas mensagens de que está
+          tudo certo, e um botão que não responde. O gestor procura o defeito em
+          vez do campo vazio. */}
       {avisoVisivel === null ? (
         <p className="assign__hint">
           {selecionadas.length === 0
             ? "Selecione as pessoas na tabela abaixo."
-            : `${selecionadas.length} ${selecionadas.length === 1 ? "pessoa selecionada" : "pessoas selecionadas"}.`}
+            : courseId === ""
+              ? "Escolha o curso para liberar a matrícula."
+              : `${selecionadas.length} ${selecionadas.length === 1 ? "pessoa selecionada" : "pessoas selecionadas"}.`}
         </p>
       ) : null}
 

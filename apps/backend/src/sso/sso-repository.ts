@@ -148,12 +148,28 @@ export async function providerById(
  * Só é desligada quando existe pelo menos um provedor LIGADO. Um cliente que
  * desligou a senha e depois desligou o provedor ficaria sem forma nenhuma de
  * entrar — inclusive o administrador que precisaria consertar.
+ *
+ * OS TRÊS CAMINHOS DE SSO CONTAM. A primeira versão desta consulta olhava só
+ * `sso_providers` e ignorava LDAP e SAML: quem entrasse por diretório e
+ * desmarcasse "permitir senha local" continuaria com a senha local valendo, sem
+ * nada na tela dizendo isso. Uma opção de segurança que não faz o que promete é
+ * pior que a ausência dela, porque quem a marcou parou de procurar.
+ *
+ * `bool_or` sobre a união: basta UM provedor ligado pedir o desligamento.
  */
 export async function passwordLoginAllowed(tenantId: string): Promise<boolean> {
   const rows = await query<{ bloqueia: boolean }>(
     `SELECT bool_or(NOT allow_password_login) AS bloqueia
-       FROM sso_providers
-      WHERE tenant_id = $1 AND enabled = true`,
+       FROM (
+         SELECT allow_password_login FROM sso_providers
+           WHERE tenant_id = $1 AND enabled = true
+         UNION ALL
+         SELECT allow_password_login FROM ldap_directories
+           WHERE tenant_id = $1 AND enabled = true
+         UNION ALL
+         SELECT allow_password_login FROM saml_providers
+           WHERE tenant_id = $1 AND enabled = true
+       ) AS ligados`,
     [tenantId],
   );
 
