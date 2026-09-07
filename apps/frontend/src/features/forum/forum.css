@@ -1,0 +1,113 @@
+/* Fórum — F4-01. */
+
+.forum { display: flex; flex-direction: column; gap: var(--space-4); max-width: 52rem; }
+
+.forum__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.forum__new { align-self: flex-start; }
+
+.forum__form { display: flex; flex-direction: column; gap: var(--space-3); }
+.forum__form-actions { display: flex; justify-content: flex-end; gap: var(--space-3); }
+
+.forum__textarea {
+  min-height: unset;
+  height: auto;
+  padding-block: var(--space-2);
+  resize: vertical;
+  line-height: var(--line-body);
+}
+
+.forum__list { display: flex; flex-direction: column; gap: var(--space-2); margin: 0; padding: 0; list-style: none; }
+
+.forum-topic {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  background: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+}
+
+/* Fixado ganha barra lateral: a distinção não pode depender só do selo, que
+   some numa lista longa. */
+.forum-topic[data-fixado] { border-left: 3px solid var(--brand); }
+
+.forum-topic__main { flex: 1 1 20rem; min-width: 0; }
+.forum-topic__meta { display: flex; flex-wrap: wrap; gap: var(--space-2); margin: 0 0 var(--space-2); }
+.forum-topic__meta:empty { display: none; }
+
+.forum-topic__title { margin: 0 0 var(--space-1); font-size: var(--text-body-size); }
+.forum-topic__title a { color: var(--text-title); text-decoration: none; }
+.forum-topic__title a:hover { color: var(--text-brand); text-decoration: underline; }
+
+.forum-topic__author { margin: 0; font-size: var(--text-caption-size); color: var(--text-muted); }
+.forum-topic__actions { display: flex; gap: var(--space-2); flex: none; }
+
+/* ------------------------------------------------------------- mensagens */
+.forum-post {
+  padding: var(--space-4);
+  background: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+}
+.forum-post + .forum-post { margin-top: var(--space-2); }
+
+/* A abertura do tópico se distingue das respostas. */
+.forum-post--opening { background: var(--surface-subtle); }
+
+/* Resposta a resposta: recuo e barra, dois níveis só. */
+.forum-post[data-aninhada] {
+  margin-left: var(--space-5);
+  border-left: 2px solid var(--border-subtle);
+}
+
+/* Oculta pela moderação: visível só para quem modera, e marcada. */
+.forum-post[data-oculta] { opacity: 0.6; border-style: dashed; }
+
+.forum-post__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-caption-size);
+  color: var(--text-muted);
+}
+.forum-post__edited { color: var(--text-muted); }
+
+.forum-post__body {
+  margin: 0;
+  font-size: var(--text-small-size);
+  color: var(--text-body);
+  line-height: var(--line-body);
+  /* Preserva as quebras que a pessoa escreveu, sem aceitar HTML. */
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.forum-post__actions { display: flex; flex-wrap: wrap; gap: var(--space-2); margin: var(--space-3) 0 0; }
+
+.forum__reply { display: flex; flex-direction: column; gap: var(--space-2); margin-top: var(--space-3); }
+.forum__reply .btn { align-self: flex-start; }
+
+.forum__closed {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0;
+  padding: var(--space-3);
+  font-size: var(--text-small-size);
+  color: var(--text-muted);
+  background: var(--surface-subtle);
+  border-radius: var(--radius-md);
+}
+.forum__closed svg { width: 16px; height: 16px; }

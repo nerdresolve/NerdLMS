@@ -1,0 +1,118 @@
+/* Backup e restauração — F5-06.
+
+   A tela mais perigosa do produto. O visual reflete isso: os avisos vêm antes
+   das ações, e o aviso de "outro cliente" usa o mesmo tratamento de erro que o
+   resto do produto — porque restaurar backup alheio por engano é o erro que
+   esta tela existe para evitar. */
+
+.backup__aviso {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  margin-bottom: var(--space-5);
+  padding: var(--space-4);
+  background: var(--warning-surface);
+  border: 1px solid var(--warning-text);
+  border-radius: var(--radius-md);
+}
+
+.backup__aviso svg {
+  width: 20px;
+  height: 20px;
+  flex: none;
+  color: var(--warning-text);
+}
+
+.backup__aviso p {
+  margin: 0 0 var(--space-2);
+  max-width: 62ch;
+  font-size: var(--text-small-size);
+  line-height: var(--text-small-lh);
+  color: var(--text-body);
+}
+
+.backup__aviso p:last-child { margin-bottom: 0; }
+
+/* Outro cliente: o mesmo tratamento de erro do resto do produto. Não é um
+   detalhe a mais — é a diferença entre recuperar o próprio dado e trazer o de
+   outra empresa. */
+.backup__aviso--forte {
+  margin: var(--space-4) 0;
+  background: var(--danger-surface);
+  border-color: var(--danger);
+}
+
+.backup__aviso--forte svg { color: var(--danger-text); }
+.backup__aviso--forte p { color: var(--danger-text); }
+
+.backup__acoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-bottom: var(--space-6);
+}
+
+.backup__subtitulo {
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-body-lg-size);
+  line-height: var(--text-body-lg-lh);
+}
+
+.backup__conferido {
+  display: grid;
+  gap: var(--space-4);
+  margin-top: var(--space-5);
+  padding-top: var(--space-5);
+  border-top: 1px solid var(--border-subtle);
+}
+
+.backup__origem {
+  margin: 0;
+  font-size: var(--text-small-size);
+  color: var(--text-body);
+}
+
+/* Duas colunas de contagem: o nome à esquerda e o número à direita, alinhados,
+   para o olho comparar os volumes de cima a baixo. */
+.backup__tabelas {
+  display: grid;
+  gap: 2px;
+  max-height: 22rem;
+  overflow-y: auto;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.backup__tabelas li {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-2) var(--space-3);
+  background: var(--surface-subtle);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-small-size);
+}
+
+.backup__tabelas strong { font-variant-numeric: tabular-nums; }
+
+/* A confirmação de migração entre clientes.
+
+   Dentro do aviso forte, não abaixo dele: a caixa e o texto que ela confirma
+   precisam ser lidos juntos. Separá-los deixaria alguém marcando sem ter lido
+   o que está marcando. */
+.backup__confirmar {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+  cursor: pointer;
+}
+
+.backup__confirmar input {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+}

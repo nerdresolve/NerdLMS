@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="pt-BR" data-theme="light">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>@@TITLE@@ · NerdResolve</title>
+<style>
+/* Gerado por tools/build-preview.mjs — não editar este arquivo. */
+/* @@TOKENS@@ */
+/* @@BASE@@ */
+/* @@COMPONENTS@@ */
+/* @@SHELL@@ */
+/* @@DASHBOARD@@ */
+/* @@STUDIO@@ */
+
+/* ===== Barra de Visual QA (fora do produto) ===== */
+.qa {
+  position: fixed; z-index: 70; bottom: var(--space-4); left: 50%; translate: -50% 0;
+  display: flex; align-items: center; gap: var(--space-1);
+  padding: var(--space-1);
+  background: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-full);
+  box-shadow: var(--shadow-lg);
+}
+.qa__label { font-size: 10px; letter-spacing: var(--tracking-wide); text-transform: uppercase; color: var(--text-faint); padding: 0 var(--space-2); }
+.qa button {
+  min-height: 32px; padding: 0 var(--space-3);
+  font: inherit; font-size: var(--text-caption-size); font-weight: var(--weight-medium);
+  color: var(--text-muted);
+  background: none; border: 0; border-radius: var(--radius-full); cursor: pointer;
+}
+.qa button[aria-pressed="true"] { background: var(--brand); color: var(--text-on-brand); }
+.qa__sep { width: 1px; height: 20px; background: var(--border-subtle); margin-inline: var(--space-1); }
+body[data-device="mobile"] .app { max-width: 390px; margin-inline: auto; border-inline: 1px solid var(--border-subtle); }
+</style>
+</head>
+<body data-device="desktop">
+
+<div class="qa" role="group" aria-label="Controles de validação visual">
+  <span class="qa__label">QA</span>
+  <button type="button" id="qa-device" aria-pressed="false">Mobile</button>
+  <span class="qa__sep"></span>
+  <button type="button" id="qa-reset">Reiniciar demo</button>
+</div>
+
+<!-- Sprite Lucide gerado a partir de public/brand/icons (pacote oficial) -->
+@@ICON_SPRITE@@
+
+<a class="skip-link" href="#conteudo">Ir para o conteúdo</a>
+
+<div class="app">
+<div class="shell" id="shell" data-sidebar="expanded">
+  <aside class="sidebar">
+    <div class="sidebar__head">
+      <img class="sidebar__logo" src="@@LOGO@@" alt="NerdResolve" width="600" height="165" />
+      <img class="sidebar__mark" src="@@MARK@@" alt="NerdResolve" width="220" height="120" />
+      <button type="button" class="sidebar__toggle" id="sidebar-toggle" aria-expanded="true" aria-label="Recolher menu">
+        <svg class="icon" aria-hidden="true" focusable="false"><use href="#i-panel-left"/></svg>
+      </button>
+    </div>
+    <nav class="sidebar__nav" aria-label="Navegação principal">
+      @@NAV@@
+    </nav>
+    <div class="sidebar__foot">
+      <span class="avatar" aria-hidden="true">@@INITIALS@@</span>
+      <span class="sidebar__user-text">
+        <span class="sidebar__user-name">@@FULLNAME@@</span><br />
+        <a class="sidebar__user-link" href="/perfil">Ver perfil</a>
+      </span>
+    </div>
+  </aside>
+
+  <div>
+    <header class="topbar">
+      <button type="button" class="icon-button topbar__menu" id="drawer-open" aria-label="Abrir menu" aria-expanded="false" aria-controls="drawer">
+        <svg class="icon" aria-hidden="true" focusable="false"><use href="#i-menu"/></svg>
+      </button>
+      <img class="topbar__logo" src="@@LOGO_BRAND@@" alt="NerdResolve" width="600" height="165" />
+      <span class="topbar__spacer"></span>
+      <div class="search topbar__search">
+        <svg class="icon" aria-hidden="true" focusable="false"><use href="#i-search"/></svg>
+        <label class="sr-only" for="busca-topo">Buscar cursos</label>
+        <input class="input" id="busca-topo" type="search" placeholder="Buscar cursos" autocomplete="off" />
+      </div>
+      <button type="button" class="icon-button topbar__search-icon" aria-label="Buscar"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-search"/></svg></button>
+      <button type="button" class="icon-button" id="theme-toggle" aria-pressed="false" aria-label="Ativar modo escuro"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-moon"/></svg></button>
+      <button type="button" class="icon-button topbar__notifications" aria-label="Notificações"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-bell"/></svg></button>
+      <button type="button" class="icon-button icon-button--avatar" aria-label="Sua conta">@@INITIALS@@</button>
+    </header>
+
+    <main class="content" id="conteudo">
+      <div class="studio">
+        <div class="studio__head">
+          <div class="studio__head-text">
+            <h1 class="page-head__greeting">@@TITLE@@</h1>
+            <p class="page-head__sub">@@SUBTITLE@@</p>
+          </div>
+          @@HEAD_ACTION@@
+        </div>
+        <p class="status-text" id="studio-status" role="status"></p>
+        @@STUDIO_BODY@@
+      </div>
+    </main>
+  </div>
+</div>
+
+</div>
+
+<div class="drawer-backdrop" id="drawer-backdrop" data-open="false"></div>
+<div class="drawer" id="drawer" data-open="false" role="dialog" aria-modal="true" aria-label="Menu" hidden>
+  <div class="sidebar__head">
+    <img class="sidebar__logo" src="@@LOGO@@" alt="NerdResolve" width="600" height="165" />
+    <button type="button" class="sidebar__toggle" id="drawer-close" aria-label="Fechar menu">
+      <svg class="icon" aria-hidden="true" focusable="false"><use href="#i-x"/></svg>
+    </button>
+  </div>
+  <nav class="sidebar__nav" aria-label="Navegação principal">
+    @@NAV@@
+  </nav>
+  <div class="sidebar__foot">
+    <span class="avatar" aria-hidden="true">@@INITIALS@@</span>
+    <span class="sidebar__user-text">
+      <span class="sidebar__user-name">@@FULLNAME@@</span><br />
+      <a class="sidebar__user-link" href="/perfil">Ver perfil</a>
+    </span>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  var root = document.documentElement;
+  var body = document.body;
+
+  var deviceBtn = document.getElementById("qa-device");
+  deviceBtn.addEventListener("click", function () {
+    var mobile = body.getAttribute("data-device") === "mobile";
+    body.setAttribute("data-device", mobile ? "desktop" : "mobile");
+    deviceBtn.setAttribute("aria-pressed", String(!mobile));
+    deviceBtn.textContent = mobile ? "Mobile" : "Desktop";
+  });
+
+
+  /* --- Alternador de tema (produto, não QA) --- */
+  var themeToggle = document.getElementById("theme-toggle");
+  if (themeToggle) {
+    themeToggle.addEventListener("click", function () {
+      var dark = root.getAttribute("data-theme") === "dark";
+      root.setAttribute("data-theme", dark ? "light" : "dark");
+      themeToggle.setAttribute("aria-pressed", String(!dark));
+      themeToggle.setAttribute("aria-label", dark ? "Ativar modo escuro" : "Ativar modo claro");
+      themeToggle.querySelector("use").setAttribute("href", dark ? "#i-moon" : "#i-sun");
+    });
+  }
+
+  var shell = document.getElementById("shell");
+  var toggle = document.getElementById("sidebar-toggle");
+  toggle.addEventListener("click", function () {
+    var collapsed = shell.getAttribute("data-sidebar") === "collapsed";
+    shell.setAttribute("data-sidebar", collapsed ? "expanded" : "collapsed");
+    toggle.setAttribute("aria-expanded", String(collapsed));
+    toggle.setAttribute("aria-label", collapsed ? "Recolher menu" : "Expandir menu");
+  });
+
+  var drawer = document.getElementById("drawer");
+  var backdrop = document.getElementById("drawer-backdrop");
+  var openBtn = document.getElementById("drawer-open");
+  var closeBtn = document.getElementById("drawer-close");
+  function onKeydown(event) {
+    if (event.key === "Escape") { closeDrawer(); return; }
+    if (event.key !== "Tab") return;
+    var focusable = drawer.querySelectorAll('a[href], button:not([disabled])');
+    if (!focusable.length) return;
+    var first = focusable[0], last = focusable[focusable.length - 1];
+    if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+    else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+  }
+  function openDrawer() {
+    drawer.hidden = false;
+    window.requestAnimationFrame(function () {
+      drawer.setAttribute("data-open", "true");
+      backdrop.setAttribute("data-open", "true");
+    });
+    openBtn.setAttribute("aria-expanded", "true");
+    closeBtn.focus();
+    document.addEventListener("keydown", onKeydown);
+  }
+  function closeDrawer() {
+    drawer.setAttribute("data-open", "false");
+    backdrop.setAttribute("data-open", "false");
+    openBtn.setAttribute("aria-expanded", "false");
+    openBtn.focus();
+    document.removeEventListener("keydown", onKeydown);
+    window.setTimeout(function () { drawer.hidden = true; }, 220);
+  }
+  openBtn.addEventListener("click", openDrawer);
+  closeBtn.addEventListener("click", closeDrawer);
+  backdrop.addEventListener("click", closeDrawer);
+
+})();
+</script>
+@@RUNTIME@@
+</body>
+</html>

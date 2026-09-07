@@ -1,0 +1,65 @@
+# ---------------------------------------------------------------------------
+# Dependências
+# ---------------------------------------------------------------------------
+node_modules/
+
+# ---------------------------------------------------------------------------
+# Build
+# ---------------------------------------------------------------------------
+.next/
+out/
+dist/
+build/
+apps/frontend/.next/
+
+# ---------------------------------------------------------------------------
+# Segredos
+#
+# NENHUM `.env` entra no repositório. Os arquivos versionados são apenas os
+# `*.example`, que carregam a estrutura e a explicação de cada variável — nunca
+# um valor real.
+#
+# Quem clona copia o exemplo, preenche e o arquivo fica na máquina:
+#   cp infra/.env.example infra/.env
+# ---------------------------------------------------------------------------
+.env
+.env.*
+!.env.example
+!.env.*.example
+infra/.env
+infra/.env.*
+!infra/.env.example
+!infra/.env.*.example
+
+# Chaves e certificados
+*.pem
+*.key
+*.p12
+*.pfx
+!**/fixtures/*.pem
+
+# ---------------------------------------------------------------------------
+# Saída de ferramentas
+# ---------------------------------------------------------------------------
+apps/frontend/shots/
+.lighthouse/
+coverage/
+*.log
+
+# Cache incremental do TypeScript
+*.tsbuildinfo
+
+# ---------------------------------------------------------------------------
+# Estado local do agente/execução: útil na máquina, ruído no histórico.
+# ---------------------------------------------------------------------------
+progress.txt
+.work/
+
+# ---------------------------------------------------------------------------
+# Sistema operacional / editor
+# ---------------------------------------------------------------------------
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json

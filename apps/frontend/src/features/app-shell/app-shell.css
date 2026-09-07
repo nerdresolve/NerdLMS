@@ -1,0 +1,571 @@
+/* App Shell — TASK-007.
+   Sidebar fixa no desktop, topbar + drawer no mobile (Design System §11, §25).
+   Breakpoint por conteúdo: a sidebar sai quando não sobra largura útil
+   para o conteúdo, não em um tamanho de aparelho específico. */
+
+/* O container precisa ser um ancestral: uma consulta @container nunca estiliza
+   o próprio elemento que a define. Sem este invólucro, `.shell` ficava em uma
+   coluna só e a sidebar empilhava acima do conteúdo. */
+.app {
+  container-type: inline-size;
+}
+
+.shell {
+  min-height: 100dvh;
+  display: grid;
+  grid-template-columns: 1fr;
+  background: var(--surface-page);
+}
+
+/* Item de grid tem `min-width: auto` e se recusa a encolher abaixo do próprio
+   conteúdo — é o que empurrava a topbar para fora da tela no mobile e criava
+   rolagem horizontal, proibida pelo Design System §25. */
+.shell > * {
+  min-width: 0;
+}
+
+/* ===== Sidebar ===== */
+.sidebar {
+  display: none;
+  flex-direction: column;
+  width: var(--sidebar-width);
+  background: linear-gradient(180deg, var(--sidebar-bg) 0%, var(--sidebar-bg-deep) 100%);
+  color: var(--sidebar-text);
+  border-right: 1px solid var(--sidebar-border);
+}
+.sidebar__head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: var(--topbar-height);
+  padding: var(--space-5) var(--space-5) var(--space-4);
+}
+.sidebar__logo { width: 132px; height: auto; }
+.sidebar__mark { display: none; width: 34px; height: auto; }
+
+.sidebar__toggle {
+  margin-left: auto;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  color: var(--sidebar-text);
+  background: none;
+  border: 0;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+.sidebar__toggle:hover { background: var(--sidebar-hover); color: var(--sidebar-text-strong); }
+.sidebar__toggle svg { width: 18px; height: 18px; }
+
+.sidebar__nav { flex: 1; overflow-y: auto; padding: var(--space-2) var(--space-3) var(--space-6); }
+.sidebar__section {
+  margin: var(--space-6) 0 var(--space-2);
+  padding-inline: var(--space-3);
+  font-size: 11px;
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--sidebar-section);
+}
+.sidebar__section:first-child { margin-top: var(--space-2); }
+
+.nav-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: var(--touch-target);
+  padding: var(--space-2) var(--space-3);
+  margin-bottom: 2px;
+  font-size: var(--text-small-size);
+  font-weight: var(--weight-medium);
+  color: var(--sidebar-text);
+  text-decoration: none;
+  border-radius: var(--radius-button);
+  transition: background-color var(--duration-fast) var(--ease-standard),
+              color var(--duration-fast) var(--ease-standard);
+}
+.nav-item svg { width: 18px; height: 18px; flex: none; }
+.nav-item:hover { background: var(--sidebar-hover); color: var(--sidebar-text-strong); }
+.nav-item[aria-current] {
+  background: var(--sidebar-active);
+  color: var(--sidebar-text-strong);
+  font-weight: var(--weight-semibold);
+}
+/* O estado ativo não depende só de cor (Design System §26): muda o preenchimento
+   (forma) e o peso da fonte. A barra externa anterior vazava para fora da
+   sidebar e não existe na referência. */
+.nav-item__label { white-space: nowrap; overflow: hidden; }
+.nav-item__badge {
+  margin-left: auto;
+  padding: 2px var(--space-2);
+  font-size: var(--text-caption-size);
+  font-weight: var(--weight-semibold);
+  color: var(--sidebar-text-strong);
+  background: var(--sidebar-hover);
+  border-radius: var(--radius-full);
+}
+
+.sidebar__foot {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border-top: 1px solid var(--sidebar-border);
+}
+.sidebar__user-name { font-size: var(--text-small-size); font-weight: var(--weight-semibold); color: var(--sidebar-text-strong); }
+/* O alvo tem que ter 24px de altura (WCAG 2.2, 2.5.8), mas o texto é uma
+   legenda e precisa continuar pequeno. A saída é separar as duas coisas: a
+   fonte segue miúda, o alvo cresce por padding.
+
+   A margem negativa devolve o espaço que o padding tomou, senão o bloco do
+   usuário empurraria a sidebar e o alinhamento com o avatar se perderia. */
+.sidebar__user-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-target-min);
+  padding-block: var(--space-1);
+  margin-block: calc(var(--space-1) * -1);
+  font-size: var(--text-caption-size);
+  color: var(--sidebar-text);
+}
+/* Sem esta regra o link herda o `a:hover` do pacote (`--brand-hover`), que
+   sobre o violeta escuro da sidebar dá 4.12:1. O branco forte da própria
+   sidebar mantém o destaque e o contraste. */
+.sidebar__user-link:hover { color: var(--sidebar-text-strong); }
+
+.avatar {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  flex: none;
+  font-size: var(--text-caption-size);
+  font-weight: var(--weight-bold);
+  color: var(--sidebar-text-strong);
+  background: var(--sidebar-active);
+  border-radius: var(--radius-full);
+}
+
+/* --- Estado recolhido (Design System §10: 72–80px) --- */
+.shell[data-sidebar="collapsed"] .sidebar { width: var(--sidebar-collapsed); }
+.shell[data-sidebar="collapsed"] .sidebar__logo,
+.shell[data-sidebar="collapsed"] .sidebar__section,
+.shell[data-sidebar="collapsed"] .nav-item__label,
+.shell[data-sidebar="collapsed"] .nav-item__badge,
+.shell[data-sidebar="collapsed"] .sidebar__user-text { display: none; }
+.shell[data-sidebar="collapsed"] .sidebar__mark { display: block; }
+.shell[data-sidebar="collapsed"] .sidebar__head { flex-direction: column; gap: var(--space-2); padding-inline: var(--space-2); }
+.shell[data-sidebar="collapsed"] .sidebar__toggle { margin: 0; }
+.shell[data-sidebar="collapsed"] .nav-item { justify-content: center; padding-inline: 0; }
+.shell[data-sidebar="collapsed"] .sidebar__foot { justify-content: center; }
+
+@container (min-width: 1000px) {
+  .shell { grid-template-columns: auto 1fr; }
+  .sidebar { display: flex; }
+}
+
+/* ===== Topbar ===== */
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: var(--topbar-height);
+  padding: var(--space-3) var(--space-4);
+  background: color-mix(in srgb, var(--surface-card) 88%, transparent);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--border-subtle);
+}
+.topbar__logo { width: 92px; height: auto; flex: none; }
+
+/* A marca violeta tem 3.37:1 sobre a topbar escura; a branca, 17.48:1. Só uma
+   das duas fica visível, escolhida pelo tema — sem JavaScript, então vale já
+   no primeiro render. */
+.topbar__logo--dark { display: none; }
+[data-theme="dark"] .topbar__logo--light { display: none; }
+[data-theme="dark"] .topbar__logo--dark { display: block; }
+.topbar__spacer { flex: 1; min-width: 0; }
+
+/* Em telas muito estreitas, notificações saem antes de a barra quebrar:
+   busca, tema e conta são os controles que o aluno realmente usa ali. */
+@container (max-width: 420px) {
+  .topbar { gap: var(--space-2); padding-inline: var(--space-3); }
+  .topbar__notifications { display: none; }
+}
+
+/* Slot do contexto da página (breadcrumb), como no kit oficial: a trilha vive
+   na topbar, não abaixo dela. */
+.topbar__context { min-width: 0; overflow: hidden; }
+.topbar__context .breadcrumb { flex-wrap: nowrap; }
+.topbar__context .breadcrumb__current { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+@container (max-width: 720px) { .topbar__context { display: none; } }
+
+/* Busca da topbar: campo no desktop, ícone no mobile. */
+.topbar__search { display: none; width: 260px; }
+.topbar__search .input { background: var(--surface-sunken); min-height: var(--control-height-sm); }
+@container (min-width: 1000px) {
+  .topbar__search { display: flex; }
+  /* precisa vencer .icon-button, que também declara display */
+  .topbar .topbar__search-icon { display: none; }
+}
+
+/* Três destes são <a> (busca, notificações, conta): precisam do reset que o
+   navegador só dá a <button>. */
+.icon-button {
+  text-decoration: none;
+  display: grid;
+  place-items: center;
+  width: var(--touch-target);
+  height: var(--touch-target);
+  color: var(--text-muted);
+  background: none;
+  border: 1px solid transparent;
+  border-radius: var(--radius-button);
+  cursor: pointer;
+}
+.icon-button:hover:not([disabled]) { color: var(--brand); background: var(--surface-brand-subtle); }
+.icon-button[disabled] { opacity: 0.5; cursor: not-allowed; }
+.icon-button svg { width: 20px; height: 20px; }
+.icon-button--avatar { background: var(--brand); color: var(--text-on-brand); border-radius: var(--radius-full); font-size: var(--text-caption-size); font-weight: var(--weight-bold); }
+.icon-button--avatar:hover { background: var(--brand-hover); color: var(--text-on-brand); }
+
+@container (min-width: 1000px) {
+  .topbar { padding-inline: var(--space-8); }
+  /* `[data-theme="dark"] .topbar__logo--dark` tem especificidade maior que
+     `.topbar__logo` e reexibiria a marca aqui: no desktop a identidade fica
+     na sidebar, e a topbar não repete. O seletor abaixo precisa empatar com
+     aquele para vencer pela ordem. */
+  [data-theme] .topbar__logo,
+  .topbar__logo,
+  .topbar__menu { display: none; }
+}
+
+/* ===== Drawer (mobile) ===== */
+.drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  background: rgba(5, 8, 23, 0.5);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--duration-base) var(--ease-standard);
+}
+.drawer {
+  position: fixed;
+  inset-block: 0;
+  left: 0;
+  z-index: 41;
+  width: min(84vw, var(--sidebar-width));
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(180deg, var(--sidebar-bg) 0%, var(--sidebar-bg-deep) 100%);
+  color: var(--sidebar-text);
+  translate: -100% 0;
+  transition: translate var(--duration-base) var(--ease-out);
+}
+.shell[data-drawer="open"] ~ .drawer-backdrop,
+.drawer-backdrop[data-open="true"] { opacity: 1; pointer-events: auto; }
+.drawer[data-open="true"] { translate: 0 0; }
+.drawer .sidebar__head { justify-content: space-between; }
+.drawer .sidebar__nav { flex: 1; }
+
+@container (min-width: 1000px) {
+  .drawer, .drawer-backdrop { display: none; }
+}
+
+/* ===== Conteúdo ===== */
+.content {
+  width: 100%;
+  max-width: var(--content-max);
+  margin-inline: auto;
+  padding: var(--space-6) var(--space-4) var(--space-16);
+}
+@container (min-width: 700px) { .content { padding-inline: var(--space-8); } }
+@container (min-width: 1000px) { .content { padding-block: var(--space-10) var(--space-20); } }
+
+/* "Sair" é um <button> dentro de <form> (POST), não um <a>: precisa herdar a
+   aparência do item de navegação, que o navegador não dá a botão. */
+.nav-item__form { display: contents; }
+.nav-item--button {
+  width: 100%;
+  font: inherit;
+  text-align: left;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+
+/* ===== Navegação inferior (mobile) ===== */
+.mobile-nav {
+  position: fixed;
+  inset: auto 0 0 0;
+  z-index: 30;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  min-height: var(--mobile-nav-height);
+  background: color-mix(in srgb, var(--surface-card) 94%, transparent);
+  backdrop-filter: blur(10px);
+  border-top: 1px solid var(--border-subtle);
+  /* Barra de gestos do iOS e do Android ficam por baixo: sem isto o último
+     item some atrás delas. */
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.mobile-nav__item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: var(--space-2) var(--space-1);
+  min-height: var(--touch-target);
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: color var(--duration-fast) var(--ease-standard);
+}
+.mobile-nav__item svg { width: 20px; height: 20px; }
+.mobile-nav__item[aria-current="page"] { color: var(--text-brand); }
+.mobile-nav__item:hover { color: var(--text-brand); }
+
+.mobile-nav__label {
+  font-size: 10.5px;
+  font-weight: var(--weight-medium);
+  line-height: 1.2;
+  text-align: center;
+  /* Rótulo longo não pode empurrar o vizinho nem quebrar em duas linhas. */
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* O conteúdo precisa terminar acima da barra, senão o último bloco fica
+   inalcançável. */
+@media (max-width: 999px) {
+  .content { padding-bottom: calc(var(--mobile-nav-height) + var(--space-16)); }
+}
+
+/* `@media`, e não `@container`: a barra é `position: fixed` e sai do fluxo do
+   `.app`, então a consulta de container não a alcançava e ela aparecia
+   também no desktop, onde a sidebar já cumpre esse papel. */
+@media (min-width: 1000px) {
+  .mobile-nav { display: none; }
+}
+
+/* =============================================================================
+   Busca global
+   ============================================================================= */
+
+/* Cobre a página inteira, e não só a área de conteúdo: a busca interrompe o
+   que estava sendo feito, e um véu parcial deixaria a sidebar competindo
+   pela atenção. */
+.search-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  justify-content: center;
+  padding: calc(var(--topbar-height) + var(--space-4)) var(--space-4) var(--space-4);
+  background: rgba(7, 18, 58, 0.42);
+  backdrop-filter: blur(2px);
+}
+
+.search-panel {
+  /* `position: relative` explícito: o `backdrop-filter` do véu cria um
+     contexto de empilhamento próprio, e sem posição o painel ficava atrás
+     dele — visível, mas com os cliques indo parar no véu, que fecha a busca.
+     Clicar num resultado não funcionava. */
+  position: relative;
+  z-index: 1;
+  width: min(640px, 100%);
+  max-height: min(70vh, 560px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-md);
+}
+
+.search-panel__field {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--border-subtle);
+}
+.search-panel__field > svg { width: 18px; height: 18px; color: var(--text-muted); flex: none; }
+
+.search-panel__input {
+  flex: 1;
+  min-width: 0;
+  font: inherit;
+  font-size: var(--text-body-lg-size);
+  color: var(--text-title);
+  background: none;
+  border: 0;
+  outline: none;
+}
+/* O X nativo do `type=search` some: já existe um botão de fechar ao lado, e
+   dois controles de limpar confundem. */
+.search-panel__input::-webkit-search-cancel-button { display: none; }
+
+.search-panel__results { overflow-y: auto; padding: var(--space-2); }
+.search-panel__hint {
+  margin: 0;
+  padding: var(--space-5) var(--space-4);
+  text-align: center;
+  color: var(--text-muted);
+  font-size: var(--text-small-size);
+}
+.search-panel__list { display: grid; gap: 2px; margin: 0; padding: 0; list-style: none; }
+
+.search-hit {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  padding: var(--space-3);
+  font: inherit;
+  text-align: left;
+  color: inherit;
+  background: none;
+  border: 0;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+}
+.search-hit:hover,
+.search-hit:focus-visible { background: var(--surface-subtle); }
+
+.search-hit__icon { display: grid; place-items: center; flex: none; color: var(--text-brand); }
+.search-hit__icon svg { width: 18px; height: 18px; }
+
+.search-hit__body { display: grid; gap: 2px; min-width: 0; flex: 1; }
+.search-hit__title {
+  font-weight: var(--weight-semibold);
+  /* Título longo não empurra o selo para fora do painel. */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.search-hit__context {
+  font-size: var(--text-caption-size);
+  color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.search-hit__kind {
+  flex: none;
+  padding: 2px var(--space-2);
+  font-size: var(--text-caption-size);
+  color: var(--text-muted);
+  background: var(--surface-subtle);
+  border-radius: var(--radius-full);
+}
+
+/* =============================================================================
+   Sino de avisos
+   ============================================================================= */
+.bell { position: relative; display: inline-flex; }
+
+/* O selo fica sobre o ícone, não ao lado: a barra do topo é estreita e um
+   número solto empurraria o avatar no mobile. */
+.bell__count {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  display: grid;
+  place-items: center;
+  font-size: 10px;
+  font-weight: var(--weight-bold);
+  line-height: 1;
+  color: var(--text-on-brand);
+  background: var(--danger-text);
+  border: 2px solid var(--surface-card);
+  border-radius: var(--radius-full);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Camada invisível que captura o clique fora. Fica ABAIXO do painel no
+   empilhamento, senão engoliria os cliques dentro dele. */
+.bell__catcher { position: fixed; inset: 0; z-index: 55; }
+
+.bell__panel {
+  position: absolute;
+  top: calc(100% + var(--space-2));
+  right: 0;
+  z-index: 56;
+  width: min(360px, calc(100vw - var(--space-6)));
+  max-height: 420px;
+  overflow-y: auto;
+  background: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-md);
+}
+
+.bell__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--border-subtle);
+}
+.bell__all { font-size: var(--text-caption-size); color: var(--text-brand); }
+.bell__empty {
+  margin: 0;
+  padding: var(--space-5) var(--space-4);
+  text-align: center;
+  color: var(--text-muted);
+  font-size: var(--text-small-size);
+}
+
+.bell__list { margin: 0; padding: var(--space-2); list-style: none; display: grid; gap: 2px; }
+
+.bell__item {
+  display: flex;
+  gap: var(--space-3);
+  width: 100%;
+  padding: var(--space-3);
+  font: inherit;
+  text-align: left;
+  color: inherit;
+  background: none;
+  border: 0;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+}
+.bell__item:hover:not(:disabled),
+.bell__item:focus-visible { background: var(--surface-subtle); }
+/* Lido perde o realce mas continua legível: o texto ainda precisa ser lido. */
+.bell__item[data-read="true"] { cursor: default; opacity: 0.72; }
+
+.bell__icon { flex: none; color: var(--text-brand); display: grid; place-items: center; }
+.bell__icon svg { width: 16px; height: 16px; }
+.bell__item[data-read="true"] .bell__icon { color: var(--text-muted); }
+
+.bell__body { display: grid; gap: 2px; min-width: 0; }
+.bell__title { font-size: var(--text-small-size); font-weight: var(--weight-semibold); }
+.bell__text {
+  font-size: var(--text-caption-size);
+  color: var(--text-muted);
+  /* Duas linhas bastam para saber do que se trata; o resto fica na agenda. */
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+}

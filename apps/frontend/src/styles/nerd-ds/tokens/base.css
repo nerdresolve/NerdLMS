@@ -1,0 +1,10 @@
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;font-family:var(--font-sans);font-size:var(--text-body-size);line-height:var(--text-body-lh);color:var(--text-body);background:var(--surface-page);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+h1,h2,h3,h4,h5,h6{color:var(--text-title);margin:0;font-weight:var(--weight-semibold)}
+a{color:var(--text-brand);text-decoration:none;transition:color var(--duration-fast) var(--ease-standard)}
+a:hover{color:var(--brand-hover);text-decoration:underline}
+:focus-visible{outline:2px solid var(--border-focus);outline-offset:2px;border-radius:var(--radius-xs)}
+::selection{background:var(--violet-200);color:var(--violet-950)}
+@keyframes nerd-spin{to{transform:rotate(360deg)}}
+@keyframes nerd-shimmer{100%{transform:translateX(100%)}}
+@keyframes nerd-rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}

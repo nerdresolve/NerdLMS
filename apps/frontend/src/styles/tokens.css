@@ -1,0 +1,131 @@
+/* =============================================================================
+   Tokens da aplicação
+
+   A fonte de verdade é o pacote oficial do Design System, vendorizado sem
+   alteração em `nerd-ds/`. Este arquivo faz duas coisas e nada além:
+
+     1. importa o pacote oficial;
+     2. adiciona o que o pacote não cobre, e corrige o que reprova em
+        acessibilidade — cada correção justificada e coberta por
+        `tools/check-contrast.mjs`.
+
+   Nunca editar os arquivos dentro de `nerd-ds/`: eles precisam continuar
+   idênticos ao pacote para que uma atualização futura seja um `cp`, não um
+   merge manual. Ver progress.md → DEC-006.
+   ============================================================================= */
+
+/* fonts.css do pacote NÃO é importado: ele resolve os `@font-face` a partir da
+   raiz do pacote. A versão local define os mesmos tokens apontando para
+   `/fonts/`, que é onde o Next serve os arquivos. Ver DEC-017. */
+@import "./fonts.css";
+@import "./nerd-ds/tokens/colors.css";
+@import "./nerd-ds/tokens/typography.css";
+@import "./nerd-ds/tokens/spacing.css";
+@import "./nerd-ds/tokens/radius.css";
+@import "./nerd-ds/tokens/elevation.css";
+@import "./nerd-ds/tokens/motion.css";
+@import "./nerd-ds/tokens/layout.css";
+
+/* =============================================================================
+   1. Correções de acessibilidade (DEC-003)
+
+   O pacote define bordas de campo muito claras. WCAG 1.4.11 exige 3:1 para o
+   limite de um controle de formulário e `--field-border` entrega 1.49:1 sobre
+   o card. Abaixo está a diferença mínima para passar; o resto fica intacto.
+   ============================================================================= */
+:root {
+  --field-border: #8c85a0;  /* era --neutral-300 (#C7C3D0) → 1.48:1 */
+  /* Os dois cinzas precisam passar também sobre `--surface-brand-subtle`
+     (#EDE9FE), o fundo da faixa de números da landing — mais escuro que a
+     página e que o card. Era o par que faltava: 4.39:1, reprovado. */
+  --text-muted: #635c73;    /* era --neutral-500 (#6B6479) → 4.37:1 sobre a página */
+  --success-text: #0f7a42;  /* era --green-600 (#128A4B) → 4.41:1 sobre card */
+  --text-faint: #635c73;    /* era --neutral-400 (#9691A4) → 2.35:1 sobre a página */
+  --danger-text: #b91c1c;   /* era #C81E1E → 4.70:1, mas 3.95:1 sobre o próprio selo */
+}
+
+[data-theme="dark"] {
+  --field-border: #6a6180; /* era #2A2438 → 1.60:1; este dá 3.27:1 sobre o card */
+  --brand-hover: #9333ea;  /* --violet-400 com texto branco caía para 3.5:1 */
+  --track: #17131f;        /* era #1C1728 → 2.69:1 contra o preenchimento */
+
+  /* As três correções acima moram em `:root` porque nasceram do tema claro —
+     e `:root` também vale no escuro, onde sobrescreviam os tokens próprios do
+     pacote e derrubavam o contraste. Aqui elas voltam ao valor do dark:
+     `--text-muted` para #A49EB2 (5.74:1 sobre card) e `--success-text` para
+     o verde claro do pacote (10.03:1), em vez do verde escuro do claro. */
+  --text-muted: #a49eb2;
+  --success-text: #4ade80;
+  --text-faint: #a29cb0; /* #9691A4 dava 4.18:1 na faixa de marca escura */
+}
+
+/* =============================================================================
+   2. Adições — papéis que o pacote não nomeia
+
+   Tudo aqui é composto a partir das rampas oficiais; nenhum hex novo é
+   inventado, exceto onde a correção de contraste exigiu.
+   ============================================================================= */
+:root {
+  /* Gradiente de marca: hero, painel de login e capas de curso.
+     O pacote define --wave-from/--wave-to; aqui vira gradiente reutilizável. */
+  --gradient-brand: linear-gradient(150deg, var(--wave-from) 0%, var(--violet-800) 55%, var(--violet-950) 100%);
+
+  /* Camadas do Fluid Wave: a aplicação sobrepõe três camadas translúcidas
+     para criar profundidade, onde o pacote usa uma forma sólida. */
+  --wave-1: rgba(255, 255, 255, 0.10);
+  --wave-2: rgba(168, 85, 247, 0.55);
+  --wave-3: rgba(196, 132, 252, 0.16);
+  --wave-line: rgba(255, 255, 255, 0.38);
+
+  /* Sidebar. O componente oficial usa --violet-800 com branco translúcido;
+     aqui os valores são sólidos para poderem ser auditados por contraste. */
+  /* Medido na referência: roxo profundo e quase plano, não o violeta-700 vivo. */
+  --sidebar-bg: #241155;
+  --sidebar-bg-deep: #180B3B;
+  --sidebar-text: #cfc6e8;
+  --sidebar-text-strong: #ffffff;
+  --sidebar-section: #b3a6d6;
+  --sidebar-hover: rgba(255, 255, 255, 0.10);
+  --sidebar-active: var(--violet-500);
+  --sidebar-border: rgba(255, 255, 255, 0.14);
+
+  /* Entrada de indicador (anel e barra). Mais longo que `--duration-slow`
+     porque é o dado se apresentando, não uma reação a clique — mas ainda
+     curto o bastante para não atrasar a leitura. Zera junto com os outros
+     em `prefers-reduced-motion`, que o pacote já trata. */
+  --duration-ring: 620ms;
+
+  /* Piso de alvo de toque. */
+  --touch-target: var(--control-height-md);
+
+  /* O mínimo absoluto da WCAG 2.2 (2.5.8): 24px.
+     `--touch-target` (44px) é o alvo confortável e continua sendo o padrão dos
+     controles. Este existe para o caso em que 44px descaracterizaria o
+     elemento — uma legenda dentro do bloco do usuário, por exemplo — e ainda
+     assim o alvo precisa passar da régua. Não use como padrão. */
+  --touch-target-min: 24px;
+
+  /* Aliases de leitura usados pelo CSS da aplicação. */
+  --radius-hero: var(--radius-surface);
+  --shadow-focus: var(--focus-ring);
+  --tracking-tight: -0.02em;
+  --tracking-wide: var(--text-overline-tracking);
+}
+
+[data-theme="dark"] {
+  --gradient-brand: linear-gradient(150deg, #2E1065 0%, #150B2E 55%, #08060D 100%);
+
+  --wave-1: rgba(192, 132, 252, 0.10);
+  --wave-2: rgba(124, 58, 237, 0.30);
+  --wave-3: rgba(76, 29, 149, 0.28);
+  --wave-line: rgba(196, 132, 252, 0.30);
+
+  --sidebar-bg: var(--surface-card);
+  --sidebar-bg-deep: var(--surface-page);
+  --sidebar-text: #bdb6cc;
+  --sidebar-text-strong: #f8fafc;
+  --sidebar-section: #a49eb2;
+  --sidebar-hover: rgba(255, 255, 255, 0.06);
+  --sidebar-active: var(--violet-700);
+  --sidebar-border: var(--border-subtle);
+}

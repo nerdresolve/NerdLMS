@@ -1,0 +1,523 @@
+/* Tamanho padrão de ícone.
+   `:where()` zera a especificidade: qualquer regra de componente vence sem
+   precisar de !important. `.lucide` é a classe que o lucide-react emite.
+   Sem isto, um <svg> sem width/height assume o tamanho do container e a seta
+   de um botão vira do tamanho do botão. */
+:where(.icon, .lucide) {
+  width: 18px;
+  height: 18px;
+  flex: none;
+}
+
+/* Primitivos de UI compartilhados por todas as telas.
+   Design System §33: o mesmo papel precisa ter a mesma aparência em toda a
+   aplicação — por isso botão, link, campo e aviso vivem aqui, não na feature. */
+
+/* ===== Campos ===== */
+.field { margin-bottom: var(--space-5); }
+.field__label { display: block; margin-bottom: var(--space-2); font-size: var(--text-small-size); font-weight: var(--weight-medium); }
+.field__control { position: relative; display: flex; align-items: center; }
+.input {
+  width: 100%;
+  min-height: var(--touch-target);
+  padding: var(--space-3) var(--space-4);
+  font: inherit;
+  font-size: var(--text-small-size);
+  color: var(--text-body);
+  background: var(--field-bg);
+  border: 1px solid var(--field-border);
+  border-radius: var(--radius-input);
+  transition: border-color var(--duration-fast) var(--ease-standard),
+              box-shadow var(--duration-fast) var(--ease-standard);
+}
+.input::placeholder { color: var(--text-faint); }
+.input:hover { border-color: var(--brand-accent); }
+.input:focus { outline: none; border-color: var(--brand); box-shadow: var(--shadow-focus); }
+.input[aria-invalid="true"] { border-color: var(--danger-text); }
+.input[aria-invalid="true"]:focus { box-shadow: 0 0 0 3px var(--danger-surface); }
+.input--with-affix { padding-right: 48px; }
+
+.affix {
+  position: absolute; right: var(--space-2);
+  display: grid; place-items: center;
+  width: 36px; height: 36px;
+  /* No toque o alvo cresce; no mouse continua discreto. */
+  color: var(--text-muted);
+  background: none; border: 0; border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+.affix:hover { color: var(--brand); background: var(--surface-brand-subtle); }
+.affix svg { width: 18px; height: 18px; }
+@media (pointer: coarse) {
+  .affix { width: var(--touch-target); height: var(--touch-target); }
+  .input--with-affix { padding-right: 52px; }
+}
+
+.error {
+  display: flex; align-items: center; gap: var(--space-2);
+  margin-top: var(--space-2);
+  font-size: var(--text-caption-size);
+  color: var(--danger-text);
+}
+.error:empty { display: none; }
+.error svg { width: 14px; height: 14px; flex: none; }
+
+/* ===== Botões ===== */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2);
+  min-height: var(--touch-target);
+  padding: var(--space-3) var(--space-5);
+  font: inherit; font-size: var(--text-small-size); font-weight: var(--weight-semibold);
+  border-radius: var(--radius-button);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: background-color var(--duration-fast) var(--ease-standard),
+              border-color var(--duration-fast) var(--ease-standard),
+              color var(--duration-fast) var(--ease-standard),
+              transform var(--duration-fast) var(--ease-standard);
+}
+.btn--block { width: 100%; }
+
+
+.btn:active { transform: translateY(1px); }
+.btn[disabled] { opacity: 0.65; cursor: not-allowed; transform: none; }
+/* O pacote define `a:hover { color: var(--brand-hover) }` para qualquer link.
+   Um botão que é <a> (todo `<Link>` do Next é) herdava isso: no hover o texto
+   virava violeta sobre o fundo violeta do botão primário — 1:1, texto invisível.
+   Estas regras devolvem a cor certa a cada variante e valem também para <a>. */
+.btn--primary,
+a.btn--primary:hover { color: var(--text-on-brand); }
+.btn--primary { background: var(--brand); }
+.btn--primary:hover:not([disabled]) { background: var(--brand-hover); color: var(--text-on-brand); }
+.btn--secondary { background: var(--surface-card); color: var(--text-body); border-color: var(--field-border); }
+/* `--text-brand` e não `--brand`: o segundo é cor de superfície e dá 3.37:1
+   como texto sobre o card escuro. */
+.btn--secondary:hover,
+a.btn--secondary:hover { border-color: var(--brand); color: var(--text-brand); }
+
+/* Botão sobre superfície de marca: no claro é o inverso (superfície clara,
+   texto violeta); no escuro a superfície do hero já é escura, então o inverso
+   entregaria 3,4:1 — abaixo de AA. Ali ele volta a ser o primário sólido. */
+.btn--on-brand { background: var(--surface-card); color: var(--brand); }
+.btn--on-brand:hover:not([disabled]) { background: var(--surface-brand-subtle); }
+[data-theme="dark"] .btn--on-brand { background: var(--brand); color: var(--text-on-brand); }
+[data-theme="dark"] .btn--on-brand:hover:not([disabled]) { background: var(--brand-hover); }
+.btn__spinner { width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.4); border-top-color: var(--text-on-brand); border-radius: 50%; animation: spin 700ms linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ===== Divisor ===== */
+.divider { display: flex; align-items: center; gap: var(--space-4); margin: var(--space-6) 0; color: var(--text-muted); font-size: var(--text-caption-size); }
+.divider::before, .divider::after { content: ""; flex: 1; height: 1px; background: var(--border-subtle); }
+
+.sso { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3); }
+.sso .btn svg { width: 18px; height: 18px; flex: none; }
+
+/* O nome do provedor fica ao lado do ícone, e trunca antes de empurrar o
+   layout: o cliente escreve esse texto, e "Entrar com o diretório corporativo
+   da ACME Saneamento" não pode quebrar a coluna. */
+.sso .btn { gap: var(--space-2); min-width: 0; }
+.sso .btn span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* Com um provedor só, o botão ocupa a linha inteira: metade da largura vazia
+   ao lado dele pareceria um botão faltando. */
+.sso[data-unico] { grid-template-columns: 1fr; }
+
+/* O formulário do diretório.
+
+   Abre abaixo dos botões, com os mesmos campos da tela de login logo acima. Um
+   modal daria a impressão de estar entrando em outro sistema — e é a mesma
+   plataforma, com outra fonte de senha. */
+.sso-ldap {
+  display: grid;
+  gap: var(--space-4);
+  margin-top: var(--space-4);
+  padding: var(--space-5);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--surface-subtle);
+}
+
+.sso-ldap .btn {
+  /* 44px de alvo, acima dos 24px que a WCAG 2.5.8 exige. */
+  min-height: 44px;
+}
+
+.foot { margin: var(--space-8) 0 0; text-align: center; font-size: var(--text-caption-size); color: var(--text-muted); }
+
+/* ===== Aviso ===== */
+.notice {
+  display: none;
+  align-items: flex-start; gap: var(--space-3);
+  margin-top: var(--space-5); padding: var(--space-3) var(--space-4);
+  background: var(--surface-brand-subtle);
+  border: 1px solid var(--border-subtle);
+  border-left: 3px solid var(--brand);
+  border-radius: var(--radius-md);
+  font-size: var(--text-caption-size);
+  color: var(--text-body);
+}
+.notice[data-visible="true"] { display: flex; }
+.notice svg { width: 16px; height: 16px; color: var(--brand); flex: none; margin-top: 1px; }
+
+
+.checkbox { display: inline-flex; align-items: center; gap: var(--space-2); font-size: var(--text-small-size); cursor: pointer; min-height: var(--touch-target); }
+.checkbox input { position: absolute; opacity: 0; width: 18px; height: 18px; margin: 0; cursor: pointer; }
+.checkbox__box {
+  width: 18px; height: 18px; flex: none;
+  display: grid; place-items: center;
+  border: 1.5px solid var(--field-border);
+  border-radius: 5px;
+  background: var(--field-bg);
+  transition: background-color var(--duration-fast) var(--ease-standard),
+              border-color var(--duration-fast) var(--ease-standard);
+}
+.checkbox__box svg { width: 12px; height: 12px; color: var(--text-on-brand); opacity: 0; transform: scale(0.6); transition: opacity var(--duration-fast) var(--ease-standard), transform var(--duration-fast) var(--ease-out); }
+.checkbox input:checked + .checkbox__box { background: var(--brand); border-color: var(--brand); }
+.checkbox input:checked + .checkbox__box svg { opacity: 1; transform: scale(1); }
+.checkbox input:focus-visible + .checkbox__box { outline: 2px solid var(--border-focus); outline-offset: 2px; }
+
+/* `inline-flex` + `min-height` porque um <a> inline tem a altura da linha
+   (~17px) e reprova o alvo mínimo da WCAG 2.5.8, que pede 24×24. O piso vem de
+   `--touch-target-min`, não de `--touch-target` (44px): um link dentro de um
+   parágrafo com 44px de altura abriria buracos no texto corrido. */
+.link { display: inline-flex; align-items: center; min-height: var(--touch-target-min); color: var(--text-brand); font-size: var(--text-small-size); font-weight: var(--weight-medium); text-decoration: none; border-radius: var(--radius-sm); }
+.link:hover { color: var(--brand-hover); text-decoration: underline; text-underline-offset: 3px; }
+/* No escuro `--brand-hover` cai para 3.77:1 sobre a página; `--text-brand` é o
+   violeta claro do tema e entrega 7.79:1. */
+[data-theme="dark"] .link:hover { color: var(--text-brand); }
+
+/* ===== Barra de progresso ===== */
+.progress-bar {
+  --progress-track: var(--track);
+  --progress-fill: var(--fill);
+  height: 8px;
+  border-radius: var(--radius-full);
+  background: var(--progress-track);
+  overflow: hidden;
+}
+.progress-bar__fill {
+  /* o valor chega por --value: mantém o HTML sem estilo de layout inline */
+  width: var(--value, 0%);
+  height: 100%;
+  border-radius: inherit;
+  background: var(--progress-fill);
+  transition: width var(--duration-base) var(--ease-out);
+  /* Cresce de zero ao aparecer. Só `transition` não bastava: ela reage a
+     mudança de valor, e ao carregar a página a barra já nascia cheia. */
+  animation: nerd-fill var(--duration-ring) var(--ease-out) both;
+  transform-origin: left center;
+}
+
+@keyframes nerd-fill {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+.progress-bar--on-brand { --progress-track: rgba(255, 255, 255, 0.22); --progress-fill: var(--text-on-brand); }
+
+.progress-legend {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-2);
+  font-size: var(--text-small-size);
+}
+.progress-legend__value { font-weight: var(--weight-semibold); font-variant-numeric: tabular-nums; }
+
+/* ===== Cartão ===== */
+.card {
+  padding: var(--space-6);
+  background: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-sm);
+}
+.card__title {
+  margin: 0 0 var(--space-5);
+  font-size: var(--text-h3-size);
+  line-height: var(--text-h3-lh);
+  font-weight: var(--weight-semibold);
+}
+
+/* ===== Badge =====
+   Pílula de metadado. Tons espelham `components/data/Badge.jsx` do pacote. */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  height: 26px;
+  padding: 0 10px;
+  font-size: 12.5px;
+  font-weight: var(--weight-semibold);
+  white-space: nowrap;
+  border-radius: var(--radius-chip);
+  background: var(--surface-brand-subtle);
+  color: var(--text-brand);
+}
+.badge svg { width: 13px; height: 13px; }
+.badge--neutral { background: var(--surface-sunken); color: var(--text-muted); }
+.badge--success { background: var(--success-surface); color: var(--success-text); }
+.badge--on-brand { background: rgba(255, 255, 255, 0.16); color: var(--text-on-brand); }
+
+/* ===== Breadcrumb =====
+   O último item é a página atual e não é link. */
+.breadcrumb { display: flex; align-items: center; gap: var(--space-2); flex-wrap: wrap; }
+.breadcrumb a { font-size: 13.5px; color: var(--text-muted); }
+.breadcrumb a:hover { color: var(--text-brand); }
+.breadcrumb__current { font-size: 13.5px; font-weight: var(--weight-semibold); color: var(--text-title); }
+.breadcrumb__sep { width: 14px; height: 14px; color: var(--text-faint); flex: none; }
+
+/* ===== Tabs ===== */
+/* A barra de abas é a exceção legítima ao "sem rolagem horizontal" (§25): com
+   quatro filtros não cabe em 360px, e esconder filtro é pior que deslizar.
+   Rola por gesto, sem barra visível, com encaixe. */
+.tabs {
+  display: flex;
+  gap: var(--space-1);
+  border-bottom: 1px solid var(--border-subtle);
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+}
+.tabs::-webkit-scrollbar { display: none; }
+.tabs__tab { scroll-snap-align: start; flex: none; }
+.tabs__tab {
+  padding: var(--space-3) var(--space-5);
+  margin-bottom: -1px;
+  font: inherit;
+  font-size: 14.5px;
+  font-weight: var(--weight-medium);
+  color: var(--text-muted);
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  transition: var(--transition-control);
+}
+.tabs__tab:hover { color: var(--text-brand); }
+.tabs__tab[aria-selected="true"] {
+  color: var(--text-brand);
+  font-weight: var(--weight-semibold);
+  border-bottom-color: var(--brand);
+}
+.tabs__count { margin-left: var(--space-2); color: var(--text-faint); font-weight: var(--weight-medium); }
+.tabs--full .tabs__tab { flex: 1; }
+
+/* ===== Estado vazio =====
+   Versão do pacote (`components/feedback/EmptyState.jsx`): onda suave ao pé,
+   ícone em quadrado arredondado, título, descrição e ação. */
+.empty {
+  position: relative;
+  overflow: hidden;
+  text-align: center;
+  padding: 56px var(--space-8) var(--space-16);
+  background: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-card);
+}
+.empty__wave { position: absolute; inset: auto 0 -10px 0; width: 100%; height: 140px; opacity: 0.7; pointer-events: none; }
+.empty__inner { position: relative; display: flex; flex-direction: column; align-items: center; gap: var(--space-3); }
+.empty__icon {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  margin-bottom: var(--space-1);
+  border-radius: var(--radius-lg);
+  background: var(--surface-brand-subtle);
+  color: var(--text-brand);
+}
+.empty__icon svg { width: 26px; height: 26px; }
+.empty__title { margin: 0; font-size: var(--text-h3-size); line-height: var(--text-h3-lh); letter-spacing: var(--text-h3-tracking); }
+.empty__text { margin: 0; max-width: 420px; font-size: 14.5px; line-height: 1.6; color: var(--text-muted); text-wrap: pretty; }
+.empty__actions { display: flex; gap: var(--space-3); margin-top: var(--space-3); }
+
+/* ===== Campo de busca com ícone ===== */
+.search { position: relative; display: flex; align-items: center; flex: 1; min-width: 220px; max-width: 380px; }
+.search svg { position: absolute; left: var(--space-3); width: 18px; height: 18px; color: var(--text-faint); pointer-events: none; }
+.search .input { padding-left: 40px; }
+
+/* ===== Select ===== */
+.select {
+  min-height: var(--touch-target);
+  padding: 0 var(--space-4);
+  font: inherit;
+  font-size: var(--text-small-size);
+  color: var(--text-body);
+  background: var(--field-bg);
+  border: 1px solid var(--field-border);
+  border-radius: var(--radius-input);
+  cursor: pointer;
+  transition: var(--transition-control);
+}
+.select:hover { border-color: var(--brand-accent); }
+.select:focus { outline: none; border-color: var(--brand); box-shadow: var(--shadow-focus); }
+
+/* =============================================================================
+   Microinterações — TASK-019 (Design System §23)
+   Elevação sutil, causa e efeito imediatos, nada ornamental.
+   ============================================================================= */
+
+/* Cards: sobem 2px e ganham sombra; a arte da capa dá um zoom quase imperceptível. */
+.course-card__art svg { transition: scale var(--duration-slow) var(--ease-standard); }
+.course-card:hover .course-card__art svg { scale: 1.06; }
+.course-card:active { transform: translateY(0); }
+
+/* Botões: resposta imediata ao apertar, sem bounce. */
+.btn:hover:not([disabled]) { box-shadow: var(--shadow-sm); }
+.btn--primary:hover:not([disabled]) { box-shadow: var(--shadow-brand); }
+
+/* Ícone da seta anda um pouco no hover — reforça a direção da ação. */
+.btn svg:last-child { transition: translate var(--duration-fast) var(--ease-standard); }
+.btn:hover svg:last-child { translate: 2px 0; }
+
+/* Barra de progresso anima ao mudar de valor, mas nunca na primeira pintura. */
+.progress-bar__fill { transition: width var(--duration-slow) var(--ease-out); }
+
+/* Estado de foco sempre visível e no mesmo tempo do resto do sistema. */
+.nav-item,
+.lesson,
+.material,
+.tabs__tab { transition: var(--transition-control); }
+
+/* Listas longas: o navegador só pinta o que está à vista. Ganho direto de
+   tempo de renderização sem mudar nada visualmente. `contain-intrinsic-size`
+   evita que a barra de rolagem pule enquanto o conteúdo entra. */
+.course-grid > *,
+.rail__module,
+.module {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 200px;
+}
+
+/* Link para tela ainda não construída (só existe no protótipo de demonstração). */
+[aria-disabled="true"] { cursor: not-allowed; opacity: 0.55; }
+[aria-disabled="true"]:hover { text-decoration: none; }
+
+/* ===== Pular para o conteúdo =====
+   Vive aqui, e não no shell: a tela de acesso também precisa dele. */
+.skip-link {
+  position: absolute;
+  left: var(--space-4);
+  top: var(--space-4);
+  z-index: 60;
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-target);
+  padding: var(--space-2) var(--space-4);
+  background: var(--brand);
+  color: var(--text-on-brand);
+  border-radius: var(--radius-button);
+  translate: 0 -200%;
+}
+/* `:focus-visible`, não `:focus`: no celular, tocar no canto superior esquerdo
+   dá foco por ponteiro e o atalho aparecia sobre a topbar, sem ninguém o ter
+   pedido — ele só serve a quem navega por teclado. */
+.skip-link:focus-visible { translate: 0 0; }
+
+/* ===== Texto de status =====
+   Região viva (`role="status"`) usada para anunciar resultado de busca e o
+   estado real de ações ainda sem backend. Vive aqui e não numa feature: quatro
+   telas usam, e na quinta a regra faltou e abriu uma lacuna de 32px. */
+.status-text {
+  margin: 0;
+  font-size: var(--text-small-size);
+  color: var(--text-muted);
+}
+/* Sem texto, sem espaço. */
+.status-text:empty { display: none; }
+
+/* ===== Ação em texto =====
+   Botão sem moldura, usado em comentários e no editor de curso. Vive aqui
+   porque duas features usam — foi assim que ele faltou no editor. */
+.comment__action {
+  /* Alvo de 24px sem mudar a aparência: o texto continua rente, a área cresce. */
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 0;
+  font: inherit;
+  font-size: var(--text-caption-size);
+  font-weight: var(--weight-medium);
+  color: var(--text-muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+.comment__action:hover:not([disabled]) { color: var(--text-brand); }
+/* Desabilitado precisa parecer desabilitado: sem isto o botão mantinha a
+   aparência de ativo e o hover sugeria que ia funcionar. */
+.comment__action[disabled] { opacity: 0.55; cursor: not-allowed; }
+
+/* ===== Campo de texto longo =====
+   Primitivo de formulário, como .input. Estava no CSS da aula e faltou no
+   editor de curso, onde o campo apareceu com a largura padrão do navegador. */
+.textarea {
+  width: 100%;
+  min-height: 48px;
+  resize: vertical;
+  padding: var(--space-3) var(--space-4);
+  font: inherit;
+  font-size: 14.5px;
+  color: var(--text-title);
+  background: var(--field-bg);
+  border: 1px solid var(--field-border);
+  border-radius: var(--radius-input);
+  transition: var(--transition-control);
+}
+.textarea::placeholder { color: var(--field-placeholder); }
+.textarea:hover { border-color: var(--brand-accent); }
+.textarea:focus { outline: none; border-color: var(--brand); box-shadow: var(--shadow-focus); }
+
+/* ===== Seção de página =====
+   Título de seção com espaçamento padrão. Quatro telas usam; morava no CSS
+   do curso e faltava no perfil, onde os títulos perdiam o espaçamento. */
+.course-section { display: flex; flex-direction: column; gap: var(--space-4); }
+.course-section__title {
+  margin: 0;
+  font-size: var(--text-h3-size);
+  line-height: var(--text-h3-lh);
+  letter-spacing: var(--text-h3-tracking);
+}
+
+/* ===== Cartão de número =====
+   Ícone, valor e rótulo. Usado no perfil do aluno e no engajamento do
+   instrutor — por isso vive aqui e não em nenhum dos dois. */
+.stat-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-5);
+  background: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-card);
+}
+.stat-card__icon {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  margin-bottom: var(--space-2);
+  border-radius: var(--radius-md);
+  background: var(--surface-brand-subtle);
+  color: var(--text-brand);
+}
+.stat-card__value {
+  font-size: var(--text-h2-size);
+  line-height: var(--text-h2-lh);
+  font-weight: var(--weight-bold);
+  color: var(--text-title);
+  font-variant-numeric: tabular-nums;
+}
+.stat-card__label { font-size: var(--text-small-size); color: var(--text-muted); }
+
+
+/* Caixa de resposta dentro do comentário: mesma composição do compositor
+   principal, um pouco menor e recuada, para ficar claro a quem responde. */
+.composer--reply { margin-top: var(--space-3); }
+.composer--reply .textarea { min-height: 68px; }
+
+/* Excluir é destrutivo e precisa se distinguir de "Responder" sem gritar. */
+.comment__action--danger { color: var(--danger-text); }
+.comment__action--danger:hover:not([disabled]) { color: var(--danger-text); text-decoration: underline; }

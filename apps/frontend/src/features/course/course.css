@@ -1,0 +1,234 @@
+/* Página de curso — TASK-009.
+   Composição traduzida de `ui_kits/lms-platform/CourseScreens.jsx`:
+   breadcrumb → hero de marca → abas → conteúdo do curso. */
+
+.course { display: flex; flex-direction: column; gap: var(--space-6); }
+
+/* ===== Hero ===== */
+.course-hero {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-5);
+  align-items: center;
+  padding: var(--space-6);
+  color: var(--text-on-brand);
+  background: var(--gradient-brand);
+  border-radius: var(--radius-hero);
+  box-shadow: var(--shadow-brand);
+}
+@container (min-width: 860px) {
+  .course-hero {
+    grid-template-columns: 1.15fr 0.85fr;
+    gap: var(--space-10);
+    padding: var(--space-10);
+    align-items: stretch;
+  }
+}
+
+/* A onda fica ACIMA da arte, não atrás: na referência a forma violeta invade a
+   imagem e é ela que faz a transição entre texto e foto. Atrás, sobrava uma
+   borda vertical reta. */
+.course-hero__wave {
+  position: absolute;
+  inset: auto -10% -30% 30%;
+  /* SVG é elemento substituído: sem largura explícita ele usa o tamanho
+     intrínseco em vez de respeitar left/right. */
+  width: 80%;
+  height: 150%;
+  z-index: 1;
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+/* Mesmo véu do hero do dashboard, pelo mesmo motivo. */
+.course-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(100deg, rgba(7, 18, 58, 0.5) 0%, rgba(7, 18, 58, 0.15) 48%, transparent 74%);
+}
+
+/* O conteúdo precisa ficar acima da onda que agora sobe. */
+.course-hero__body { position: relative; z-index: 2; display: flex; flex-direction: column; gap: var(--space-4); align-items: flex-start; }
+
+.course-hero__title {
+  margin: 0;
+  /* o base do pacote pinta h1–h6 com --text-title; sobre marca herda o painel */
+  color: inherit;
+  font-size: 26px;
+  line-height: 1.15;
+  letter-spacing: -0.025em;
+  font-weight: var(--weight-bold);
+  text-wrap: balance;
+}
+@container (min-width: 860px) { .course-hero__title { font-size: 34px; } }
+
+.course-hero__summary {
+  margin: 0;
+  max-width: 460px;
+  font-size: 15.5px;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.82);
+  text-wrap: pretty;
+}
+
+.course-hero__meta { display: flex; gap: var(--space-2); flex-wrap: wrap; }
+.course-hero__progress { width: 100%; max-width: 420px; }
+.course-hero__actions { display: flex; align-items: center; gap: var(--space-3); flex-wrap: wrap; }
+
+.icon-button--on-brand {
+  color: var(--text-on-brand);
+  border-color: transparent;
+}
+.icon-button--on-brand:hover {
+  color: var(--text-on-brand);
+  background: rgba(255, 255, 255, 0.16);
+}
+
+/* Capa: arte gerada, sem imagem estática (mesma decisão do dashboard). */
+/* Na referência a imagem sangra até a borda do hero, sem moldura nem respiro.
+   As margens negativas cancelam o padding do container. */
+.course-hero__art {
+  position: relative;
+  display: none;
+  overflow: hidden;
+  background: linear-gradient(140deg, var(--brand-accent), var(--brand) 55%, var(--brand-deep));
+}
+.course-hero__art svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+
+@container (min-width: 860px) {
+  .course-hero__art {
+    display: block;
+    margin: calc(var(--space-10) * -1) calc(var(--space-10) * -1) calc(var(--space-10) * -1) 0;
+    /* Borda esquerda curva em vez de emenda reta: a imagem se dissolve na
+       superfície de marca, como a foto faz na referência. */
+    mask-image: radial-gradient(105% 135% at 100% 50%, #000 32%, transparent 92%);
+    -webkit-mask-image: radial-gradient(105% 135% at 100% 50%, #000 32%, transparent 92%);
+  }
+}
+
+.course-prose {
+  max-width: var(--reading-max);
+  margin: 0;
+  font-size: var(--text-body-size);
+  line-height: 1.7;
+  color: var(--text-body);
+  text-wrap: pretty;
+}
+
+/* ===== Acordeão de módulos ===== */
+.modules { display: flex; flex-direction: column; gap: var(--space-3); }
+
+.module {
+  overflow: hidden;
+  background: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+}
+
+.module__head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  min-height: var(--touch-target);
+  padding: var(--space-4) var(--space-5);
+  font: inherit;
+  text-align: left;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: var(--transition-control);
+}
+.module__head:hover { background: var(--surface-subtle); }
+
+.module__chevron {
+  width: 16px;
+  height: 16px;
+  flex: none;
+  color: var(--text-muted);
+  transition: transform var(--duration-base) var(--ease-standard);
+}
+.module__head[aria-expanded="true"] .module__chevron { transform: rotate(90deg); }
+
+.module__title { flex: 1; min-width: 0; font-size: 15px; font-weight: var(--weight-semibold); color: var(--text-title); }
+.module__count { font-size: 13px; color: var(--text-muted); white-space: nowrap; }
+.module__bar { width: 92px; flex: none; }
+.module__percent {
+  width: 44px;
+  flex: none;
+  text-align: right;
+  font-size: 13px;
+  font-weight: var(--weight-bold);
+  color: var(--text-title);
+  font-variant-numeric: tabular-nums;
+}
+.module__percent[data-complete="true"] { color: var(--success-text); }
+
+/* Em telas estreitas a linha do módulo empilha em vez de espremer a barra. */
+@container (max-width: 640px) {
+  .module__head { flex-wrap: wrap; }
+  .module__title { flex: 1 1 100%; order: -1; }
+  .module__bar { flex: 1; width: auto; }
+}
+
+.module__panel {
+  padding: var(--space-2);
+  border-top: 1px solid var(--border-subtle);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  animation: nerd-rise var(--duration-base) var(--ease-standard);
+}
+
+/* ===== Aula ===== */
+.lesson {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  min-height: var(--touch-target);
+  padding: 10px var(--space-3);
+  font: inherit;
+  text-align: left;
+  color: inherit;
+  text-decoration: none;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: var(--transition-control);
+}
+.lesson:hover { background: var(--surface-sunken); }
+.lesson[aria-current="true"] { background: var(--surface-brand-subtle); }
+
+.lesson__marker {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  flex: none;
+  border-radius: var(--radius-full);
+  background: var(--surface-sunken);
+  color: var(--text-muted);
+  font-size: 11.5px;
+  font-weight: var(--weight-bold);
+  font-variant-numeric: tabular-nums;
+}
+.lesson__marker svg { width: 13px; height: 13px; }
+.lesson[data-state="done"] .lesson__marker { background: var(--success-surface); color: var(--success-text); }
+.lesson[data-state="current"] .lesson__marker { background: var(--brand); color: var(--text-on-brand); }
+
+.lesson__title { flex: 1; min-width: 0; font-size: 14px; line-height: 1.4; font-weight: var(--weight-medium); color: var(--text-body); }
+.lesson[data-state="done"] .lesson__title { color: var(--text-muted); }
+.lesson[data-state="current"] .lesson__title { color: var(--text-brand); font-weight: var(--weight-semibold); }
+
+.lesson__duration { flex: none; font-size: 12.5px; color: var(--text-faint); font-variant-numeric: tabular-nums; }
+
+/* Cartão de leitura: largura confortável para texto corrido (§10). */
+.card--reading { max-width: var(--reading-max); }
+.course-about__meta { margin-top: var(--space-4); }

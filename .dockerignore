@@ -1,0 +1,25 @@
+# O contexto do build é a raiz (o lockfile do workspace só existe aqui). Isto
+# impede que o contexto carregue o que a imagem não usa — node_modules local,
+# artefatos de build e o protótipo estático, que é material de apresentação.
+
+node_modules
+**/node_modules
+
+# Artefatos de build: a imagem gera os seus.
+**/.next
+**/tsconfig.tsbuildinfo
+
+# Protótipo estático e capturas: não entram na imagem.
+apps/frontend/preview
+apps/frontend/shots
+
+# Segredos e ambiente — nunca no contexto (§13).
+**/.env
+**/.env.*
+!**/.env.example
+
+# Infra e documentação não fazem parte do runtime do app.
+infra
+docs
+.git
+**/*.md

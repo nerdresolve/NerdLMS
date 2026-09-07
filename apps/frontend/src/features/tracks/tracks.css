@@ -1,0 +1,114 @@
+/* Trilhas de aprendizagem — TASK-053.
+   A proposta chama de "Jornada / Mapa de Metrô": cursos encadeados por uma
+   linha. A linha é decorativa; a ordem real está no markup e no número da
+   etapa, para quem navega por leitor de tela. */
+
+.tracks { display: flex; flex-direction: column; gap: var(--space-8); max-width: var(--content-max); }
+
+.track {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  padding: var(--space-6);
+  background: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-card);
+}
+@container (min-width: 860px) { .track { padding: var(--space-8); } }
+
+.track__head { display: flex; align-items: flex-start; gap: var(--space-4); flex-wrap: wrap; }
+.track__text { flex: 1; min-width: 240px; display: flex; flex-direction: column; gap: var(--space-2); }
+.track__title { margin: 0; font-size: var(--text-h3-size); line-height: var(--text-h3-lh); font-weight: var(--weight-bold); }
+.track__summary { margin: 0; font-size: var(--text-small-size); line-height: 1.6; color: var(--text-muted); text-wrap: pretty; }
+.track__meta { display: flex; align-items: center; gap: var(--space-3); flex-wrap: wrap; }
+.track__progress { min-width: 200px; flex: 1; }
+
+/* ===== A jornada ===== */
+.journey { display: flex; flex-direction: column; gap: 0; }
+@container (min-width: 900px) { .journey { flex-direction: row; align-items: stretch; } }
+
+.step { position: relative; display: flex; gap: var(--space-4); padding-bottom: var(--space-5); }
+@container (min-width: 900px) {
+  .step { flex: 1; flex-direction: column; gap: var(--space-3); padding: 0 var(--space-2); }
+}
+
+/* A linha que liga as etapas. Puramente decorativa. */
+.step::before {
+  content: "";
+  position: absolute;
+  left: 17px;
+  top: 36px;
+  bottom: 0;
+  width: 2px;
+  background: var(--border-subtle);
+}
+.step:last-child::before { display: none; }
+@container (min-width: 900px) {
+  .step::before { left: 50%; right: -50%; top: 17px; bottom: auto; width: auto; height: 2px; }
+}
+.step[data-state="completed"]::before { background: var(--brand); }
+
+.step__marker {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  flex: none;
+  z-index: 1;
+  font-size: var(--text-small-size);
+  font-weight: var(--weight-bold);
+  font-variant-numeric: tabular-nums;
+  color: var(--text-muted);
+  background: var(--surface-sunken);
+  border: 2px solid var(--surface-card);
+  border-radius: var(--radius-full);
+}
+.step__marker svg { width: 16px; height: 16px; }
+@container (min-width: 900px) { .step__marker { margin-inline: auto; } }
+
+.step[data-state="completed"] .step__marker { background: var(--brand); color: var(--text-on-brand); }
+.step[data-state="current"] .step__marker { background: var(--surface-brand-subtle); color: var(--text-brand); box-shadow: 0 0 0 3px var(--surface-brand-subtle); }
+.step[data-state="locked"] .step__marker { color: var(--text-faint); }
+
+.step__body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: var(--space-2); }
+@container (min-width: 900px) { .step__body { text-align: center; align-items: center; } }
+
+.step__title { margin: 0; font-size: var(--text-small-size); font-weight: var(--weight-semibold); color: var(--text-title); text-wrap: balance; }
+.step[data-state="locked"] .step__title { color: var(--text-muted); }
+.step__hint { font-size: var(--text-caption-size); color: var(--text-muted); }
+.step__bar { width: 100%; max-width: 160px; }
+
+/* ===== Recomendados — TASK-059 =====
+   Cada card carrega o motivo. Recomendação sem explicação parece aleatória e
+   o aluno aprende a ignorar. */
+.recommendations { display: grid; grid-template-columns: 1fr; gap: var(--space-4); }
+@container (min-width: 720px) { .recommendations { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+.recommendation {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-5);
+  background: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-card);
+  transition: var(--transition-control);
+}
+.recommendation:hover { border-color: var(--brand-accent); box-shadow: var(--shadow-sm); }
+.recommendation__reason {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  align-self: flex-start;
+  padding: 3px 10px;
+  font-size: var(--text-caption-size);
+  font-weight: var(--weight-semibold);
+  color: var(--text-brand);
+  background: var(--surface-brand-subtle);
+  border-radius: var(--radius-chip);
+}
+.recommendation__reason svg { width: 13px; height: 13px; }
+.recommendation__title { margin: 0; font-size: var(--text-body-size); font-weight: var(--weight-semibold); color: var(--text-title); }
+.recommendation__summary { margin: 0; font-size: var(--text-caption-size); line-height: 1.5; color: var(--text-muted); text-wrap: pretty; }
+.recommendation__foot { margin-top: auto; display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); }
+.recommendation__meta { font-size: var(--text-caption-size); color: var(--text-faint); }

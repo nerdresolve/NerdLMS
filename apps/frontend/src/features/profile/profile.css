@@ -1,0 +1,133 @@
+/* Perfil do aluno — TASK-037.
+   Reúne identidade, números da jornada e certificados. Os certificados vivem
+   aqui e não numa tela própria: é onde a pessoa procura por eles. */
+
+.profile { display: flex; flex-direction: column; gap: var(--space-8); max-width: var(--content-max); }
+
+/* ===== Cabeçalho ===== */
+.profile-hero {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  gap: var(--space-5);
+  flex-wrap: wrap;
+  padding: var(--space-6);
+  color: var(--text-on-brand);
+  background: var(--gradient-brand);
+  border-radius: var(--radius-hero);
+}
+@container (min-width: 720px) { .profile-hero { padding: var(--space-8) var(--space-10); gap: var(--space-6); } }
+
+/* A onda ocupa a largura inteira do card. Ancorada a 45%/55% com 65% de
+   largura, a borda esquerda do preenchimento aparecia como um corte reto no
+   meio da faixa — a forma `band` é fechada (`L…Z`), feita para atravessar o
+   bloco, não para ser recortada. A curva continua concentrada à direita
+   porque a própria geometria sobe só no final do traçado. */
+.profile-hero__wave { position: absolute; inset: auto 0 -60% 0; width: 100%; height: 190%; z-index: -1; opacity: 0.22; }
+
+.profile-hero__avatar {
+  display: grid;
+  place-items: center;
+  width: 76px;
+  height: 76px;
+  flex: none;
+  font-size: var(--text-h2-size);
+  font-weight: var(--weight-bold);
+  color: var(--text-on-brand);
+  background: rgba(255, 255, 255, 0.18);
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  border-radius: var(--radius-full);
+}
+
+.profile-hero__text { flex: 1; min-width: 200px; display: flex; flex-direction: column; gap: var(--space-2); }
+.profile-hero__name {
+  margin: 0;
+  color: inherit;
+  font-size: var(--text-h2-size);
+  line-height: var(--text-h2-lh);
+  letter-spacing: var(--text-h2-tracking);
+  font-weight: var(--weight-bold);
+}
+.profile-hero__meta { display: flex; gap: var(--space-2); flex-wrap: wrap; }
+.profile-hero__actions { display: flex; gap: var(--space-3); flex-wrap: wrap; }
+
+/* ===== Certificados ===== */
+.certificates { display: grid; grid-template-columns: 1fr; gap: var(--space-4); }
+@container (min-width: 860px) { .certificates { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+.certificate {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  /* Em tela estreita o botão desce em vez de empurrar o cartão para fora. */
+  flex-wrap: wrap;
+  padding: var(--space-5);
+  background: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-card);
+  transition: var(--transition-control);
+}
+.certificate:hover { border-color: var(--brand-accent); box-shadow: var(--shadow-sm); }
+
+.certificate__seal {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  flex: none;
+  color: var(--success-text);
+  background: var(--success-surface);
+  border-radius: var(--radius-full);
+}
+.certificate__seal svg { width: 22px; height: 22px; }
+.certificate__body { flex: 1; min-width: 140px; display: flex; flex-direction: column; gap: 2px; }
+.certificate .btn { flex: none; min-width: 0; }
+.certificate__title { overflow-wrap: anywhere; }
+.certificate__title { margin: 0; font-size: var(--text-body-size); font-weight: var(--weight-semibold); color: var(--text-title); }
+.certificate__meta { font-size: var(--text-caption-size); color: var(--text-muted); }
+
+/* ===== Preferências ===== */
+.preferences { display: flex; flex-direction: column; gap: var(--space-3); }
+.preference {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-4) var(--space-5);
+  background: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+}
+.preference__text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.preference__title { font-size: var(--text-small-size); font-weight: var(--weight-semibold); color: var(--text-title); }
+.preference__hint { font-size: var(--text-caption-size); color: var(--text-muted); }
+
+/* ===== Números da jornada ===== */
+.profile-stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4);
+}
+@container (min-width: 720px) { .profile-stats { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+
+/* Formulário de edição do perfil.
+   Aparece abaixo do hero, não em modal: é um campo só, e um diálogo para
+   isso cobriria a tela inteira sem necessidade. */
+.profile-edit {
+  display: grid;
+  gap: var(--space-4);
+  max-width: 460px;
+  padding: var(--space-5);
+  margin-bottom: var(--space-5);
+  background: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-card);
+}
+.profile-edit__note {
+  margin: 0;
+  font-size: var(--text-small-size);
+  line-height: var(--text-small-lh);
+  color: var(--text-muted);
+}
+.profile-edit__actions { display: flex; gap: var(--space-3); }

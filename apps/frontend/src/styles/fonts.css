@@ -1,0 +1,35 @@
+/* =============================================================================
+   Tipografia — auto-hospedada
+
+   Espelha `nerd-ds/tokens/fonts.css` para o app do Next. O pacote do design
+   system existe fora do Next (o protótipo em `preview/` o consome direto), e
+   este arquivo é o que a aplicação importa.
+
+   Servir do próprio domínio, em vez de um CDN de fontes, remove um request a
+   terceiro, tira a fonte do caminho crítico da rede, fecha mais a CSP
+   (`font-src 'self'`) e faz a plataforma funcionar em rede corporativa
+   restrita — o que num cliente grande não é hipótese remota. E não vaza para
+   um terceiro o IP de quem está estudando.
+
+   TROCAR A FAMÍLIA: ver `public/fonts/LEIA-ME.md`. Satoshi permite uso, não
+   redistribuição — quem publica um fork precisa substituí-la. Só este arquivo,
+   o do design system e o `localFont` em `app/layout.tsx` nomeiam a fonte.
+   ============================================================================= */
+
+@font-face{font-family:"Satoshi";src:url("/fonts/Satoshi-Light.woff2") format("woff2");font-weight:300;font-style:normal;font-display: swap}
+@font-face{font-family:"Satoshi";src:url("/fonts/Satoshi-Regular.woff2") format("woff2");font-weight:400;font-style:normal;font-display: swap}
+@font-face{font-family:"Satoshi";src:url("/fonts/Satoshi-Italic.woff2") format("woff2");font-weight:400;font-style:italic;font-display: swap}
+@font-face{font-family:"Satoshi";src:url("/fonts/Satoshi-Medium.woff2") format("woff2");font-weight:500;font-style:normal;font-display: swap}
+@font-face{font-family:"Satoshi";src:url("/fonts/Satoshi-MediumItalic.woff2") format("woff2");font-weight:500;font-style:italic;font-display: swap}
+@font-face{font-family:"Satoshi";src:url("/fonts/Satoshi-Bold.woff2") format("woff2");font-weight:700;font-style:normal;font-display: swap}
+@font-face{font-family:"Satoshi";src:url("/fonts/Satoshi-BoldItalic.woff2") format("woff2");font-weight:700;font-style:italic;font-display: swap}
+@font-face{font-family:"Satoshi";src:url("/fonts/Satoshi-Black.woff2") format("woff2");font-weight:800;font-style:normal;font-display: swap}
+
+:root {
+  /* O fallback dentro do var() é obrigatório: uma custom property indefinida
+     invalida a declaração inteira, e a página cai em serifada. Fora do Next,
+     --font-satoshi não existe. */
+  --font-sans: var(--font-satoshi, "Satoshi"), "Satoshi", ui-sans-serif, system-ui,
+    -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "JetBrains Mono", Menlo, Consolas, monospace;
+}

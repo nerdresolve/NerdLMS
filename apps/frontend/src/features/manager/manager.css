@@ -1,0 +1,41 @@
+/* Matrícula atribuída — F1-03. */
+
+.assign {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.assign__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--space-3);
+}
+
+/* O seletor cresce e o botão mantém o tamanho: o título do curso é o que
+   varia, e um botão elástico mudaria de largura a cada escolha. */
+.assign__field {
+  flex: 1 1 20rem;
+  min-width: 0;
+  margin: 0;
+}
+
+.assign__hint {
+  margin: 0;
+  font-size: var(--text-caption-size);
+  color: var(--text-muted);
+}
+
+/* Coluna da caixa de seleção: estreita, e o conteúdo centralizado para a marca
+   não ficar deslocada em relação ao cabeçalho. */
+.table__check {
+  width: var(--touch-target);
+  text-align: center;
+}
+
+/* A linha selecionada precisa se distinguir sem depender só da caixa marcada —
+   um realce discreto ajuda a conferir a seleção antes de matricular. */
+.table tbody tr[data-selecionada] {
+  background: var(--surface-brand-subtle);
+}

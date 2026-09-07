@@ -1,0 +1,160 @@
+/* Importação de cursos — F5-05.
+
+   A conferência é uma ÁRVORE, não uma tabela: o que precisa ser conferido é o
+   encaixe — se as aulas caíram no módulo certo —, e isso se lê pelo recuo, do
+   mesmo jeito que se lê um sumário. */
+
+.cimport__hint {
+  margin: 0 0 var(--space-4);
+  max-width: 62ch;
+  font-size: var(--text-small-size);
+  line-height: var(--text-small-lh);
+  color: var(--text-muted);
+}
+
+.cimport__form { display: grid; gap: var(--space-4); }
+
+.cimport__acoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.cimport__plano {
+  display: grid;
+  gap: var(--space-4);
+  margin-top: var(--space-5);
+  padding-top: var(--space-5);
+  border-top: 1px solid var(--border-subtle);
+}
+
+.cimport__titulo {
+  margin: 0;
+  font-size: var(--text-body-lg-size);
+  line-height: var(--text-body-lg-lh);
+}
+
+.cimport__resumo {
+  margin: 0;
+  font-size: var(--text-small-size);
+  color: var(--text-body);
+}
+
+/* Os erros ficam JUNTOS e no topo, não espalhados pela árvore: uma linha
+   recusada não aparece na árvore — ela não virou nada — e listá-los à parte é
+   o que permite corrigir a planilha sem procurar. */
+.cimport__erros {
+  padding: var(--space-4);
+  background: var(--danger-surface);
+  border: 1px solid var(--danger);
+  border-radius: var(--radius-sm);
+}
+
+.cimport__erros-titulo {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0 0 var(--space-2);
+  font-weight: var(--weight-bold);
+  color: var(--danger-text);
+}
+
+.cimport__erros-titulo svg { width: 16px; height: 16px; flex: none; }
+
+.cimport__erros-lista {
+  display: grid;
+  gap: var(--space-1);
+  margin: 0;
+  padding-left: var(--space-5);
+  font-size: var(--text-small-size);
+  color: var(--danger-text);
+}
+
+.cimport__arvore {
+  display: grid;
+  gap: var(--space-3);
+  max-height: 30rem;
+  overflow-y: auto;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.cimport__curso {
+  padding: var(--space-4);
+  background: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+}
+
+.cimport__curso-titulo {
+  margin: 0;
+  font-size: var(--text-body-lg-size);
+  line-height: var(--text-body-lg-lh);
+  font-weight: var(--weight-bold);
+}
+
+.cimport__curso-resumo {
+  margin: var(--space-1) 0 0;
+  font-size: var(--text-small-size);
+  color: var(--text-muted);
+}
+
+.cimport__modulos {
+  display: grid;
+  gap: var(--space-3);
+  margin: var(--space-3) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* O recuo E a barra: é o recuo que mostra o encaixe, e a barra que o torna
+   visível quando o módulo tem muitas aulas e o topo já saiu da tela. */
+.cimport__modulo {
+  padding-left: var(--space-4);
+  border-left: 2px solid var(--border-default);
+}
+
+.cimport__modulo-titulo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-2) var(--space-3);
+  margin: 0;
+  font-weight: var(--weight-bold);
+  font-size: var(--text-small-size);
+}
+
+.cimport__contagem {
+  font-weight: var(--weight-regular);
+  font-size: var(--text-caption-size);
+  color: var(--text-muted);
+}
+
+.cimport__aulas {
+  display: grid;
+  gap: 2px;
+  margin: var(--space-2) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.cimport__aulas li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  background: var(--surface-subtle);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-small-size);
+}
+
+.cimport__aula-titulo { color: var(--text-body); }
+
+.cimport__aula-meta {
+  font-size: var(--text-caption-size);
+  color: var(--text-muted);
+  white-space: nowrap;
+}

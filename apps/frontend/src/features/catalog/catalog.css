@@ -1,0 +1,37 @@
+/* Catálogo / Meus cursos — TASK-017.
+   Traduzido de `ui_kits/lms-platform/CourseScreens.jsx` (CatalogScreen). */
+
+.catalog { display: flex; flex-direction: column; gap: var(--space-6); max-width: var(--content-max); }
+
+.catalog__toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+.catalog__sort { display: flex; align-items: center; gap: var(--space-2); }
+.catalog__sort-label { font-size: var(--text-small-size); color: var(--text-muted); white-space: nowrap; }
+
+/* ===== Curso disponível (ainda sem matrícula) — TASK-043 =====
+   O card mostra a ação em vez do progresso: não há progresso a mostrar. */
+.course-card__enroll { display: grid; gap: var(--space-3); }
+.course-card__enroll .btn { width: 100%; }
+.course-card--available .course-card__art { opacity: 0.92; }
+.course-card__chip--available { color: var(--text-muted); }
+
+/* O card e a ação empilhados: o card é um link inteiro, então o botão de
+   matrícula fica ao lado dele em vez de dentro. */
+.catalog-item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  align-items: flex-start;
+}
+.catalog-item > .course-card {
+  width: 100%;
+}
+
+/* Salvar fica ao lado da matrícula, na faixa de ações do card. Marcado, o
+   ícone é preenchido: a diferença precisa ser visível sem depender de cor. */
+.course-card__save { color: var(--text-muted); }
+.course-card__save[aria-pressed="true"] { color: var(--text-brand); }

@@ -1,0 +1,103 @@
+# =============================================================================
+# Proxy reverso.
+#
+# O Caddy resolve HTTPS sozinho (Let's Encrypt) — um problema a menos numa
+# operação que não tem time de infraestrutura dedicado.
+#
+# Os headers de segurança já são emitidos pela aplicação (next.config.ts). Aqui
+# ficam apenas os que dependem da borda: HSTS e a remoção da identificação do
+# servidor (§23 — não expor versão de nada).
+# =============================================================================
+
+{
+	# Definir em produção: é o contato que a Let's Encrypt usa para avisar de
+	# certificado prestes a expirar.
+	#
+	# O padrão precisa ser um endereço válido, não vazio: `email` sem argumento
+	# não é "sem e-mail", é erro de sintaxe — o Caddy recusa o arquivo inteiro e
+	# reinicia em laço. Com `localhost` como SITE_ADDRESS o Caddy emite um
+	# certificado interno e não chega a usar este endereço.
+	email {$ACME_EMAIL:admin@localhost}
+	servers {
+		# Não anunciar "Caddy" nem versão.
+		strict_sni_host
+	}
+}
+
+{$SITE_ADDRESS:localhost} {
+	encode zstd gzip
+
+	# Atrás do Cloudflare Tunnel, `SITE_ADDRESS` vale `http://nerdlms…`: o TLS
+	# público termina na Cloudflare e o túnel entrega em HTTP interno. Sem o
+	# `http://`, o Caddy tentaria emitir certificado da Let's Encrypt para um
+	# domínio cujo desafio ACME nunca chega até ele — e reiteraria para sempre.
+
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+		-Server
+		-X-Powered-By
+	}
+
+	# O arquivo em si não passa pela aplicação: o navegador fala direto com o
+	# storage, mas através daqui. O nome `storage` só existe dentro da rede do
+	# Compose — o navegador não o resolve — e publicar a porta do MinIO exporia
+	# o console de administração (9001) junto.
+	#
+	# O caminho é o do próprio bucket, sem prefixo inventado e sem reescrita.
+	# A assinatura do S3 cobre host E caminho: qualquer `strip_prefix` aqui
+	# faria o MinIO recalcular sobre um caminho diferente do assinado e recusar
+	# com SignatureDoesNotMatch. O mesmo vale para o Host: por padrão o Caddy o
+	# reescreve para o do upstream (`storage:9000`), e a assinatura foi feita
+	# sobre o endereço público. `{http.request.hostport}` repassa host E porta
+	# como o navegador enviou — `{host}` e `{http.request.host}` descartam a
+	# porta, e em ambiente onde ela não é a padrão a assinatura não fecha.
+	#
+	# Só o tráfego de objeto entra: `/lms-media/*` é o bucket, e as rotas de
+	# administração do MinIO ficam em outros caminhos, que não casam aqui.
+	@storage path /lms-media/*
+	handle @storage {
+		request_body {
+			max_size 2GB
+		}
+		reverse_proxy storage:9000 {
+			header_up Host {http.request.hostport}
+			transport http {
+				dial_timeout 5s
+				response_header_timeout 300s
+			}
+		}
+	}
+
+	@upload path /api/upload*
+	handle @upload {
+		request_body {
+			max_size 2GB
+		}
+		reverse_proxy app:3000
+	}
+
+	handle {
+		# Corpo limitado no que sobra: as rotas de arquivo acima têm limite
+		# próprio. Este bloco ficava ANTES dos matchers, fora de qualquer
+		# `handle` — e um `request_body` no nível do site vale para o site
+		# inteiro, inclusive para as rotas que declaram limite maior. O envio
+		# de vídeo morria com 413 mesmo com `max_size 2GB` na própria rota.
+		request_body {
+			max_size 10MB
+		}
+
+		reverse_proxy app:3000 {
+			# Timeouts explícitos: sem eles, uma requisição travada segura uma
+			# conexão para sempre.
+			transport http {
+				dial_timeout 5s
+				response_header_timeout 30s
+			}
+		}
+	}
+
+	log {
+		output stdout
+		format json
+	}
+}

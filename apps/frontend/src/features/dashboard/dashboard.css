@@ -1,0 +1,222 @@
+/* Dashboard — TASK-008.
+   Composição editorial (Design System §12): o hero "Continue aprendendo" é o
+   elemento dominante; a grade de cursos é secundária. Não é uma malha de cards. */
+
+/* ===== Cabeçalho da página ===== */
+.page-head { margin-bottom: var(--space-8); }
+.page-head__greeting {
+  margin: 0 0 var(--space-1);
+  font-size: var(--text-h1-size);
+  line-height: var(--text-h1-lh);
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-tight);
+}
+.page-head__sub { margin: 0; color: var(--text-muted); }
+
+/* ===== Faixa principal ===== */
+.spotlight {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-5);
+  margin-bottom: var(--space-12);
+}
+@container (min-width: 900px) {
+  .spotlight { grid-template-columns: minmax(0, 2.1fr) minmax(280px, 1fr); }
+}
+
+/* --- Continue aprendendo (Design System §13) --- */
+.continue {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: 1fr;
+  padding: var(--space-6);
+  color: var(--text-on-brand);
+  background: var(--gradient-brand);
+  border-radius: var(--radius-hero);
+  box-shadow: var(--shadow-md);
+}
+@container (min-width: 900px) { .continue { padding: var(--space-10); min-height: 300px; } }
+
+.continue__waves { position: absolute; inset: 0; width: 100%; height: 100%; z-index: -1; }
+
+/* Véu sobre a onda no lado do texto: a linha fina do Fluid Wave cruzava a
+   legenda do progresso. Também estabiliza o contraste do texto branco. */
+.continue::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(100deg, rgba(7, 18, 58, 0.58) 0%, rgba(7, 18, 58, 0.30) 58%, transparent 82%);
+}
+.continue__body { display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-4); max-width: 42ch; }
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-caption-size);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.82);
+}
+.eyebrow svg { width: 14px; height: 14px; }
+
+.continue__title {
+  margin: 0;
+  /* o base do pacote pinta todo h1–h6 com --text-title; sobre a superfície de
+     marca o título precisa herdar a cor do painel, não a do texto de página */
+  color: inherit;
+  font-size: var(--text-h2-size);
+  line-height: var(--text-h2-lh);
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-tight);
+}
+@container (min-width: 900px) { .continue__title { font-size: var(--text-h1-size); line-height: var(--text-h1-lh); } }
+.continue__lesson { margin: 0; color: rgba(255, 255, 255, 0.86); font-size: var(--text-body); }
+.continue__meta { display: flex; align-items: center; gap: var(--space-2); font-size: var(--text-small-size); color: rgba(255, 255, 255, 0.78); }
+/* O bloco de progresso ganha superfície própria: a linha fina do Fluid Wave
+   cruzava a legenda e o número. Sutil, mas é onde o olho vai primeiro. */
+.continue__progress {
+  position: relative;
+  width: 100%;
+  max-width: 420px;
+  padding: var(--space-3) var(--space-4);
+  margin-inline: calc(var(--space-4) * -1);
+  background: rgba(7, 18, 58, 0.28);
+  border-radius: var(--radius-md);
+  backdrop-filter: blur(2px);
+}
+
+.btn--on-brand:hover:not([disabled]) { background: var(--surface-brand-subtle); }
+
+/* --- Cartão "Seu progresso" --- */
+.ring { display: grid; place-items: center; margin-bottom: var(--space-5); }
+.ring__svg { grid-area: 1 / 1; width: 148px; height: 148px; transform: rotate(-90deg); }
+.ring__track { fill: none; stroke: var(--surface-brand-subtle); stroke-width: 12; }
+.ring__value {
+  fill: none;
+  stroke: var(--brand);
+  stroke-width: 12;
+  stroke-linecap: round;
+  transition: stroke-dashoffset var(--duration-slow) var(--ease-out);
+  /* `transition` sozinho só anima quando o valor MUDA; ao carregar a página o
+     anel já nascia preenchido. `pathLength` normaliza o traço em 100 unidades,
+     então a animação parte de 100 (círculo vazio) e o valor final continua
+     vindo do `stroke-dashoffset` inline, sem duplicar a conta em CSS. */
+  animation: nerd-ring var(--duration-ring) var(--ease-out) both;
+}
+
+@keyframes nerd-ring {
+  from { stroke-dashoffset: 100; }
+}
+.ring__label { grid-area: 1 / 1; text-align: center; }
+.ring__percent {
+  display: block;
+  font-size: var(--text-h1-size);
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-tight);
+  font-variant-numeric: tabular-nums;
+}
+.ring__caption { display: block; font-size: var(--text-caption-size); color: var(--text-muted); }
+
+.stat-list { display: grid; gap: var(--space-3); margin: 0; }
+.stat { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); font-size: var(--text-small-size); }
+.stat__label { display: flex; align-items: center; gap: var(--space-2); color: var(--text-muted); }
+.stat__label svg { width: 16px; height: 16px; }
+.stat__value { font-weight: var(--weight-semibold); font-variant-numeric: tabular-nums; }
+
+/* ===== Seção de cursos ===== */
+.section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin-bottom: var(--space-5);
+}
+.section-head__title {
+  margin: 0;
+  font-size: var(--text-h3-size);
+  line-height: var(--text-h3-lh);
+  font-weight: var(--weight-semibold);
+}
+
+.course-grid { display: grid; grid-template-columns: 1fr; gap: var(--space-5); }
+@container (min-width: 640px) { .course-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@container (min-width: 1180px) { .course-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+
+.course-card {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-sm);
+  text-decoration: none;
+  color: inherit;
+  transition: transform var(--duration-fast) var(--ease-standard),
+              box-shadow var(--duration-fast) var(--ease-standard),
+              border-color var(--duration-fast) var(--ease-standard);
+}
+.course-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); border-color: var(--brand-accent); }
+.course-card:focus-within { border-color: var(--brand); }
+
+/* Capa gerada: sem imagem estática, funciona em dark mode e escala sem perda. */
+.course-card__art { position: relative; aspect-ratio: 16 / 9; background: var(--gradient-brand); overflow: hidden; }
+.course-card__art svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.course-card__art--b { background: linear-gradient(140deg, var(--brand-accent), var(--brand) 60%, var(--brand-deep)); }
+.course-card__art--c { background: linear-gradient(200deg, var(--brand-deep), var(--brand) 70%); }
+.course-card__art--d { background: linear-gradient(120deg, var(--brand), var(--brand-deep)); }
+
+.course-card__chip {
+  position: absolute;
+  right: var(--space-3);
+  bottom: var(--space-3);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-3);
+  font-size: var(--text-caption-size);
+  font-weight: var(--weight-semibold);
+  /* `--text-brand`, não `--brand`: o segundo é cor de superfície e dá 3.37:1
+     como texto sobre o card no escuro. O primeiro é ajustado por tema. */
+  color: var(--text-brand);
+  background: var(--surface-card);
+  border-radius: var(--radius-full);
+  box-shadow: var(--shadow-sm);
+  font-variant-numeric: tabular-nums;
+}
+.course-card__chip svg { position: static; width: 13px; height: 13px; }
+.course-card__chip--done { color: var(--success-text); }
+
+.course-card__body { display: flex; flex-direction: column; gap: var(--space-3); flex: 1; padding: var(--space-5); }
+.course-card__title { margin: 0; font-size: var(--text-body-lg-size); font-weight: var(--weight-semibold); line-height: 1.35; }
+.course-card__summary {
+  margin: 0;
+  font-size: var(--text-small-size);
+  line-height: var(--text-small-lh);
+  color: var(--text-muted);
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+}
+.course-card__foot { margin-top: auto; display: grid; gap: var(--space-2); }
+.course-card__count { display: flex; align-items: center; gap: var(--space-2); font-size: var(--text-caption-size); color: var(--text-muted); }
+.course-card__count svg { width: 14px; height: 14px; }
+
+/* ===== Skeleton de carregamento (Design System §23) ===== */
+.skeleton {
+  background: linear-gradient(90deg, var(--surface-subtle) 25%, var(--surface-brand-subtle) 50%, var(--surface-subtle) 75%);
+  background-size: 200% 100%;
+  border-radius: var(--radius-sm);
+  animation: skeleton-sweep 1.4s ease-in-out infinite;
+}
+@keyframes skeleton-sweep { to { background-position: -200% 0; } }
+.skeleton--art { aspect-ratio: 16 / 9; border-radius: 0; }
+.skeleton--line { height: 12px; }
+.skeleton--title { height: 18px; width: 70%; }

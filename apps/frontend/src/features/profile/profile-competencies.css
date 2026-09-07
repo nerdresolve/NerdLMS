@@ -1,0 +1,167 @@
+/* Competências no perfil — F6-02.
+
+   Duas partes com pesos diferentes: o PLANO em cima, porque é o que exige ação,
+   e o que já foi demonstrado embaixo, porque é registro. */
+
+.pcomp__planos {
+  display: grid;
+  gap: var(--space-3);
+  margin-bottom: var(--space-5);
+}
+
+.pcomp__plano {
+  padding: var(--space-4);
+  background: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+}
+
+.pcomp__plano-cabeca {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-4);
+  margin-bottom: var(--space-3);
+}
+
+.pcomp__plano-nome {
+  margin: 0;
+  font-size: var(--text-body-lg-size);
+  line-height: var(--text-body-lg-lh);
+}
+
+.pcomp__prazo,
+.pcomp__meta {
+  margin: 2px 0 0;
+  font-size: var(--text-caption-size);
+  color: var(--text-muted);
+}
+
+.pcomp__percent {
+  font-size: var(--text-small-size);
+  font-weight: var(--weight-bold);
+  font-variant-numeric: tabular-nums;
+  color: var(--text-brand);
+}
+
+.pcomp__barra {
+  height: 8px;
+  margin-bottom: var(--space-3);
+  background: var(--surface-sunken);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.pcomp__barra span {
+  display: block;
+  height: 100%;
+  background: var(--surface-brand);
+  border-radius: 999px;
+}
+
+.pcomp__completo {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0;
+  font-size: var(--text-small-size);
+  color: var(--success-text);
+}
+
+.pcomp__completo svg { width: 16px; height: 16px; }
+
+.pcomp__gaps {
+  display: grid;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pcomp__gap {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  background: var(--surface-subtle);
+  border-left: 3px solid var(--border-default);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-small-size);
+}
+
+/* Vencido tem urgência diferente de "nunca teve": a pessoa ESTAVA autorizada e
+   deixou de estar. A borda e o texto dizem os dois. */
+.pcomp__gap[data-vencido] {
+  background: var(--warning-surface);
+  border-left-color: var(--warning-text);
+}
+
+.pcomp__gap-nome { color: var(--text-body); }
+
+.pcomp__gap-estado {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--text-caption-size);
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.pcomp__gap[data-vencido] .pcomp__gap-estado {
+  color: var(--warning-text);
+  font-weight: var(--weight-bold);
+}
+
+.pcomp__gap-estado svg { width: 13px; height: 13px; }
+
+.pcomp__subtitulo {
+  margin: 0 0 var(--space-3);
+  font-size: var(--text-body-lg-size);
+  line-height: var(--text-body-lg-lh);
+}
+
+.pcomp__lista {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pcomp__item {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  background: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+}
+
+.pcomp__dados { display: grid; gap: 2px; min-width: 0; }
+
+.pcomp__nivel {
+  flex: none;
+  padding: 2px var(--space-3);
+  background: var(--surface-brand-subtle);
+  border-radius: var(--radius-pill, 999px);
+  font-size: var(--text-caption-size);
+  font-weight: var(--weight-bold);
+  color: var(--text-brand);
+  white-space: nowrap;
+}
+
+.pcomp__vencendo {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--text-caption-size);
+  font-weight: var(--weight-bold);
+  color: var(--warning-text);
+}
+
+.pcomp__vencendo svg { width: 13px; height: 13px; }

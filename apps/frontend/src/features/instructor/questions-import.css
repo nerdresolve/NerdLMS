@@ -1,0 +1,157 @@
+/* Importação de questões — F5-05.
+
+   A conferência mostra a questão como ela FICARÁ: enunciado, alternativas e
+   gabarito. Uma tabela mostraria as alternativas espremidas numa célula, e é
+   justamente nelas que está o que precisa ser conferido. */
+
+.qimport__hint {
+  margin: 0 0 var(--space-4);
+  max-width: 62ch;
+  font-size: var(--text-small-size);
+  line-height: var(--text-small-lh);
+  color: var(--text-muted);
+}
+
+.qimport__form { display: grid; gap: var(--space-4); }
+
+.qimport__acoes {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+/* Diz quais formatos servem, abaixo dos botões.
+
+   O texto explica o que o campo aceita antes de a pessoa errar o arquivo — um
+   "formato inválido" depois do envio custa uma ida e volta que esta linha
+   evita. */
+.qimport__dica {
+  margin: var(--space-3) 0 0;
+  color: var(--text-muted);
+  font-size: var(--text-caption-size);
+}
+
+.qimport__dica code {
+  padding: 1px var(--space-1);
+  background: var(--surface-subtle);
+  border-radius: var(--radius-sm);
+}
+
+.qimport__plano {
+  display: grid;
+  gap: var(--space-4);
+  margin-top: var(--space-5);
+  padding-top: var(--space-5);
+  border-top: 1px solid var(--border-subtle);
+}
+
+.qimport__titulo {
+  margin: 0;
+  font-size: var(--text-body-lg-size);
+  line-height: var(--text-body-lg-lh);
+}
+
+.qimport__resumo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-4);
+  margin: 0;
+  font-size: var(--text-small-size);
+}
+
+.qimport__erros {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--warning-text);
+}
+
+.qimport__erros svg { width: 16px; height: 16px; flex: none; }
+
+/* A lista rola: uma planilha com 200 questões não pode empurrar o botão de
+   confirmar para fora do alcance. */
+.qimport__lista {
+  display: grid;
+  gap: var(--space-3);
+  max-height: 30rem;
+  overflow-y: auto;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.qimport__item {
+  padding: var(--space-4);
+  background: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  border-left: 3px solid var(--border-default);
+  border-radius: var(--radius-sm);
+}
+
+/* A recusada se distingue pela borda E pelo texto do motivo logo abaixo —
+   nunca só pela cor (WCAG 1.4.1). */
+.qimport__item[data-situacao="erro"] {
+  background: var(--danger-surface);
+  border-left-color: var(--danger);
+}
+
+.qimport__cabeca {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+  margin-bottom: var(--space-2);
+  font-size: var(--text-caption-size);
+  color: var(--text-muted);
+}
+
+.qimport__linha { font-weight: var(--weight-bold); }
+
+.qimport__tipo,
+.qimport__categoria {
+  padding: 2px var(--space-2);
+  background: var(--surface-subtle);
+  border-radius: var(--radius-sm);
+}
+
+.qimport__enunciado {
+  margin: 0 0 var(--space-3);
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-lh);
+  color: var(--text-body);
+}
+
+.qimport__erro {
+  margin: 0;
+  font-size: var(--text-small-size);
+  color: var(--danger-text);
+}
+
+.qimport__nota {
+  margin: 0;
+  font-size: var(--text-small-size);
+  color: var(--text-muted);
+}
+
+.qimport__alternativas {
+  display: grid;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--text-small-size);
+}
+
+.qimport__alternativas li {
+  padding: var(--space-2) var(--space-3);
+  background: var(--surface-subtle);
+  border-radius: var(--radius-sm);
+  color: var(--text-body);
+}
+
+.qimport__alternativas li[data-correta] {
+  background: var(--success-surface);
+  color: var(--success-text);
+}

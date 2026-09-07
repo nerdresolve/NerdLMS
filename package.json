@@ -1,0 +1,56 @@
+{
+  "name": "nerdlms",
+  "private": true,
+  "description": "Plataforma de ensino corporativo da NerdResolve.",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "npm run dev --workspace @nerdlms/frontend",
+    "build": "npm run build --workspace @nerdlms/frontend",
+    "typecheck": "npm run typecheck --workspace @nerdlms/core && npm run typecheck --workspace @nerdlms/backend && npm run typecheck --workspace @nerdlms/frontend",
+    "lint": "npm run lint --workspace @nerdlms/frontend",
+    "test": "npm run test --workspace @nerdlms/core && npm run test --workspace @nerdlms/backend --if-present && npm run test --workspace @nerdlms/frontend",
+    "test:a11y": "npm run test:a11y --workspace @nerdlms/frontend",
+    "preview": "npm run preview --workspace @nerdlms/frontend",
+    "quality": "npm run quality --workspace @nerdlms/frontend",
+    "shots": "npm run shots --workspace @nerdlms/frontend",
+    "perf": "npm run perf --workspace @nerdlms/frontend",
+    "check:imports": "npm run check:imports --workspace @nerdlms/frontend",
+    "check:sql": "node infra/tools/check-sql.mjs",
+    "check:encoding": "node infra/tools/check-encoding.mjs",
+    "check:layers": "node infra/tools/check-layers.mjs",
+    "verify": "npm run test --workspace @nerdlms/core && npm run test --workspace @nerdlms/backend && npm run verify --workspace @nerdlms/frontend && npm run check:sql && npm run check:encoding && npm run check:layers",
+    "compose": "docker compose -f infra/docker-compose.yml --env-file infra/.env --env-file infra/.env.local",
+    "compose:prod": "docker compose -f infra/docker-compose.yml --env-file infra/.env",
+    "compose:tunnel": "docker compose -f infra/docker-compose.yml --env-file infra/.env --env-file infra/.env.tunnel --profile tunnel",
+    "up": "npm run compose -- up -d",
+    "up:prod": "npm run compose:prod -- up -d --build",
+    "publish": "npm run compose:tunnel -- up -d --build",
+    "publish:down": "npm run compose:tunnel -- down",
+    "publish:logs": "npm run compose:tunnel -- logs -f tunnel",
+    "down": "npm run compose -- down",
+    "migrate": "npm run compose -- --profile tools run --rm migrate",
+    "migrate:prod": "npm run compose:prod -- --profile tools run --rm migrate",
+    "migrate:tunnel": "npm run compose:tunnel -- --profile tools run --rm migrate",
+    "seed": "npm run compose -- --profile tools run --rm --entrypoint /bin/sh migrate -c \"psql -h db -U $POSTGRES_USER -d $POSTGRES_DB --single-transaction -v ON_ERROR_STOP=1 -v allow_seed=yes -f /seeds/hml.sql\"",
+    "seed:tunnel": "npm run compose:tunnel -- --profile tools run --rm --entrypoint /bin/sh migrate -c \"psql -h db -U $POSTGRES_USER -d $POSTGRES_DB --single-transaction -v ON_ERROR_STOP=1 -v allow_seed=yes -f /seeds/hml.sql\"",
+    "build:seed": "node --experimental-strip-types infra/tools/build-seed.mjs",
+    "logs": "npm run compose -- logs -f",
+    "logs:prod": "npm run compose:prod -- logs -f"
+  },
+  "comments": {
+    "_": "A raiz não tem dependência própria: ela só delega. Cada app é dono das suas.",
+    "workspaces": "apps/* são aplicações; packages/* são bibliotecas compartilhadas. @nerdlms/core guarda a regra de domínio, sem framework.",
+    "typecheck/test": "Rodam nos dois workspaces: regra que se move de pasta precisa continuar valendo do outro lado.",
+    "verify": "Roda todos os portões que funcionam sem rede.",
+    "check:encoding": "Fonte fora de UTF-8. Só o build do Next recusa: typecheck e testes passam com o arquivo corrompido.",
+    "check:layers": "Import na direção errada. A regra valia por disciplina; um import errado passa em teste e typecheck.",
+    "up/migrate": "Envolvem o docker compose, que vive em infra/ junto do .env.",
+    "compose": "infra/.env é o de PRODUÇÃO e está versionado. Os scripts sem sufixo somam infra/.env.local por cima (fora do Git, com localhost e MAIL_TRANSPORT=log) — o último --env-file vence. No servidor esse arquivo não existe, e é por isso que lá se usa up:prod, migrate:prod e logs:prod, que não o referenciam."
+  }
+}

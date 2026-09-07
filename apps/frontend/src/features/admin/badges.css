@@ -1,0 +1,78 @@
+/* Badges — F6-01.
+
+   Reaproveita `platform__form`, `field` e `prefs__desc`: é a mesma
+   administração, e um visual próprio faria parecer outro produto. O que existe
+   aqui é o item da lista, que precisa mostrar ícone, texto e ação juntos. */
+
+.badges__linha {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: var(--space-4);
+}
+
+@media (max-width: 640px) {
+  /* Numa tela estreita, dois campos lado a lado deixam cada um pequeno demais
+     para ler o rótulo e digitar. */
+  .badges__linha { grid-template-columns: 1fr; }
+}
+
+.badges__lista {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: var(--space-5) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.badges__item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  background: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+}
+
+/* Inativo perde o realce mas continua legível: quem lê precisa entender o que
+   está desligado, e apagar demais transformaria a lista em ruído. */
+.badges__item[data-inativo] { opacity: 0.62; }
+
+.badges__icone {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--surface-brand-subtle);
+  color: var(--text-brand);
+}
+
+.badges__icone svg { width: 22px; height: 22px; }
+
+.badges__dados {
+  display: grid;
+  gap: 2px;
+  /* Sem isto o texto não encolhe e empurra o botão para fora numa tela
+     estreita: `min-width: auto` é o padrão de um item flex. */
+  min-width: 0;
+  flex: 1;
+}
+
+.badges__dados .prefs__desc { margin-top: 0; }
+
+.badges__relogio {
+  display: inline;
+  width: 12px;
+  height: 12px;
+  vertical-align: -1px;
+}
+
+.badges__acoes {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex: none;
+}

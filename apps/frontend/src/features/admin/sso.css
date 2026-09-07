@@ -1,0 +1,142 @@
+/* Acesso por provedor de identidade (F5-04).
+
+   Reaproveita `course-section`, `platform__hint`, `field` e `btn`, como as
+   demais telas de administração. O que existe aqui é só o que não existia:
+   o bloco da URL de retorno e a lista de opções com explicação embaixo. */
+
+/* A URL de retorno.
+
+   Destacada porque é o passo que mais trava implantação: o provedor compara a
+   string inteira e recusa por uma barra a mais, sem dizer qual era o endereço
+   esperado. */
+.sso-adm__retorno {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-5);
+  flex-wrap: wrap;
+  padding: var(--space-5);
+  background: var(--surface-subtle);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+}
+
+.sso-adm__retorno strong {
+  display: block;
+  margin-bottom: var(--space-1);
+}
+
+.sso-adm__retorno p {
+  margin: 0 0 var(--space-3);
+  font-size: var(--text-caption-size);
+  color: var(--text-muted);
+}
+
+.sso-adm__retorno code {
+  display: block;
+  /* Quebra em qualquer ponto: é um endereço longo e sem espaços, e sem isto
+     ele estouraria a largura do bloco em telas estreitas. */
+  word-break: break-all;
+  padding: var(--space-2) var(--space-3);
+  background: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-caption-size);
+}
+
+.sso-adm__copiar {
+  flex: none;
+  /* 44px de alvo: o mínimo confortável para toque, acima dos 24px que a WCAG
+     2.5.8 exige. */
+  min-height: 44px;
+}
+
+.sso-adm__erro {
+  margin-bottom: var(--space-6);
+  padding: var(--space-4) var(--space-5);
+  background: var(--danger-surface);
+  border: 1px solid var(--danger-text);
+  border-radius: var(--radius-md);
+  color: var(--danger-text);
+}
+
+/* O selo de ligado.
+
+   Texto, não só cor: a WCAG 1.4.1 pede que a informação não dependa
+   exclusivamente da cor, e "ligado" é a diferença entre um botão que aparece
+   na tela de login e um que não. */
+.sso-adm__ligado {
+  margin-left: var(--space-3);
+  padding: 2px var(--space-2);
+  background: var(--success-surface);
+  border-radius: var(--radius-sm);
+  color: var(--success-text);
+  font-size: var(--text-caption-size);
+  font-weight: 600;
+  vertical-align: middle;
+}
+
+.sso-adm__form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: var(--space-4);
+  margin-top: var(--space-5);
+}
+
+/* Endereços e domínios ocupam a linha inteira: são longos, e espremê-los numa
+   coluna esconderia o fim do que a pessoa acabou de colar. */
+.sso-adm__larga {
+  grid-column: 1 / -1;
+}
+
+.sso-adm__form small {
+  display: block;
+  margin-top: var(--space-1);
+  color: var(--text-muted);
+  font-size: var(--text-caption-size);
+}
+
+.sso-adm__opcoes {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: var(--space-4);
+  margin: 0;
+  padding: var(--space-5);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+}
+
+.sso-adm__check {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  cursor: pointer;
+}
+
+.sso-adm__check input {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+}
+
+.sso-adm__check strong {
+  display: block;
+}
+
+.sso-adm__papel {
+  max-width: 280px;
+}
+
+.sso-adm__acoes {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: var(--space-5);
+}
+
+.sso-adm__acoes svg {
+  width: 14px;
+  height: 14px;
+  vertical-align: -2px;
+}

@@ -1,0 +1,558 @@
+/* Página de aula — TASK-011A / 011B.
+   Design System §16: mais minimalista que o dashboard. A trilha de aulas é
+   ferramenta de navegação, não elemento visual dominante. */
+
+/* A trilha lateral usa `.lesson`, `.lesson__marker`, `.lesson__title` e
+   `.lesson__duration`, definidos em `course.css`. Sem este import, os três
+   elementos ficam sem estilo e o item aparece colado — "1Lodos ativados32min",
+   que foi como apareceu na captura de tela.
+
+   Importar em vez de redefinir: duas definições do mesmo item divergiriam, e a
+   trilha da aula precisa ser idêntica à da página do curso. */
+@import "@/features/course/course.css";
+
+.lesson-page {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-6);
+  align-items: start;
+}
+@container (min-width: 1080px) {
+  .lesson-page { grid-template-columns: minmax(0, 1fr) 340px; gap: var(--space-8); }
+}
+
+.lesson-main { display: flex; flex-direction: column; gap: var(--space-5); min-width: 0; }
+
+.lesson-topline { display: flex; align-items: center; gap: var(--space-3); flex-wrap: wrap; }
+.lesson-topline__spacer { flex: 1; }
+.lesson-rail-toggle { display: inline-flex; }
+@container (min-width: 1080px) { .lesson-rail-toggle { display: none; } }
+
+/* ===== Player ===== */
+.player {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  width: 100%;
+  overflow: hidden;
+  border-radius: var(--radius-card);
+  background: var(--brand-deep);
+  color: var(--text-on-brand);
+  /* Container do próprio player: o botão central encolhe pela largura da
+     caixa, não pela do aparelho — o mesmo player dentro de uma coluna
+     estreita no desktop tem o mesmo problema. */
+  container-type: inline-size;
+}
+.player__video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; background: var(--brand-deep); }
+
+/* Véu de leitura: escurece topo e base para os controles terem contraste. */
+.player__scrim {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(7, 18, 58, 0.35) 0%, rgba(7, 18, 58, 0) 32%, rgba(7, 18, 58, 0.82) 100%);
+}
+
+/* O aviso da trava de avanço.
+
+   Sobre o vídeo e não abaixo dele: a pessoa acabou de arrastar a barra e está
+   olhando para o player. Um aviso fora do quadro passaria despercebido, e ela
+   tentaria de novo achando que o controle travou. */
+.player__trava {
+  position: absolute;
+  top: var(--space-5);
+  left: 50%;
+  translate: -50% 0;
+  z-index: 2;
+  max-width: min(90%, 420px);
+  margin: 0;
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  /* Fundo próprio, escuro: o aviso fica sobre o vídeo, e vídeo é imagem
+     qualquer — sem fundo, o texto seria ilegível sobre um quadro claro. */
+  background: rgba(7, 18, 58, 0.92);
+  color: #fff;
+  font-size: var(--text-caption-size);
+  text-align: center;
+  pointer-events: none;
+}
+
+.player__big-play {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  translate: -50% -50%;
+  display: grid;
+  place-items: center;
+  width: 72px;
+  height: 72px;
+  border: none;
+  border-radius: var(--radius-full);
+  background: rgba(255, 255, 255, 0.94);
+  color: var(--brand);
+  box-shadow: var(--shadow-lg);
+  cursor: pointer;
+  transition: var(--transition-control);
+}
+.player__big-play:hover { scale: 1.05; }
+.player__big-play svg { width: 26px; height: 26px; margin-left: 3px; }
+.player[data-playing="true"] .player__big-play { display: none; }
+
+/* Numa caixa estreita a altura cai junto (16/9) e os controles do rodapé
+   sobem até o meio: um botão de 72px centrado passava por cima do título e
+   da barra de progresso. Encolhe e sobe para o centro da área livre acima
+   dos controles.
+
+   A altura dos controles é medida, não chutada: label (20px) + seek + linha
+   de botões + dois gaps de 8px + padding de 16px. No celular o seek tem 32px
+   e os botões 44px (`pointer: coarse`, abaixo), o que dá ~128px; no desktop,
+   4px e 36px, ~100px. Usa-se o maior, porque errar para cima só afasta o
+   botão dos controles — errar para baixo volta a sobrepor. */
+@container (max-width: 560px) {
+  .player__big-play {
+    top: calc((100% - 128px) / 2);
+    width: 56px;
+    height: 56px;
+  }
+  .player__big-play svg { width: 21px; height: 21px; }
+}
+
+/* Abaixo de ~360px (iPhone SE e afins) sobram só ~52px acima dos controles:
+   nem o botão de 56px cabe. Cai para 44px, que é o alvo mínimo de toque do
+   Design System §25 — menor que isto viraria problema de acessibilidade. */
+@container (max-width: 359px) {
+  .player__big-play {
+    top: calc((100% - 128px) / 2);
+    width: 44px;
+    height: 44px;
+  }
+  .player__big-play svg { width: 17px; height: 17px; }
+}
+
+.player__controls {
+  position: absolute;
+  inset: auto 0 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: 0 var(--space-5) var(--space-4);
+}
+.player__label { font-size: 14px; font-weight: var(--weight-semibold); text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4); }
+
+/* A barra é um input range: arrastar e teclado vêm de graça e acessíveis. */
+.player__seek {
+  width: 100%;
+  /* A trilha visível continua com 4px; a área de toque é bem maior, senão
+     arrastar no celular vira sorte. */
+  height: 24px;
+  margin: 0;
+  background: transparent;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.player__seek::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: var(--radius-full);
+  background: linear-gradient(
+    to right,
+    var(--violet-400) 0 var(--seek, 0%),
+    rgba(255, 255, 255, 0.3) var(--seek, 0%) 100%
+  );
+}
+.player__seek::-moz-range-track { height: 4px; border-radius: var(--radius-full); background: rgba(255, 255, 255, 0.3); }
+.player__seek::-moz-range-progress { height: 4px; border-radius: var(--radius-full); background: var(--violet-400); }
+.player__seek::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 12px;
+  height: 12px;
+  margin-top: -4px;
+  border: none;
+  border-radius: var(--radius-full);
+  background: var(--text-on-brand);
+}
+.player__seek::-moz-range-thumb { width: 12px; height: 12px; border: none; border-radius: var(--radius-full); background: var(--text-on-brand); }
+.player__seek:focus-visible { outline: 2px solid var(--text-on-brand); outline-offset: 3px; border-radius: var(--radius-full); }
+
+.player__row { display: flex; align-items: center; gap: var(--space-1); min-width: 0; }
+
+/* Em telas muito estreitas o volume sai: o botão de mudo continua ali e o
+   controle fino de volume é do sistema operacional no celular, de qualquer forma. */
+@container (max-width: 380px) {
+  .player__controls { padding-inline: var(--space-3); }
+  .player__volume { display: none; }
+}
+.player__time { margin: 0 var(--space-2); font-size: 12.5px; color: rgba(255, 255, 255, 0.85); font-variant-numeric: tabular-nums; }
+.player__spacer { flex: 1; }
+
+.player__button {
+  display: grid;
+  place-items: center;
+  /* `flex: none` porque a barra de controles é flex e os botões estavam
+     encolhendo abaixo do próprio tamanho em telas estreitas. */
+  flex: none;
+  width: 36px;
+  height: 36px;
+  color: var(--text-on-brand);
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: var(--transition-control);
+}
+.player__button:hover { background: rgba(255, 255, 255, 0.16); }
+.player__button svg { width: 18px; height: 18px; }
+.player__button--wide { width: auto; padding: 0 var(--space-2); font: inherit; font-size: 12.5px; font-weight: var(--weight-semibold); }
+.player__button[aria-pressed="true"] { background: rgba(255, 255, 255, 0.22); }
+
+.player__volume { width: 84px; height: 24px; flex: none; accent-color: var(--violet-400); }
+
+@media (pointer: coarse) {
+  .player__button { width: var(--touch-target); height: var(--touch-target); }
+  .player__seek { height: 32px; }
+}
+
+/* ===== Cabeçalho da aula ===== */
+.lesson-head { display: flex; align-items: flex-start; gap: var(--space-4); flex-wrap: wrap; }
+.lesson-head__text { flex: 1; min-width: 240px; display: flex; flex-direction: column; gap: var(--space-2); }
+.lesson-head__meta { display: flex; gap: var(--space-2); align-items: center; flex-wrap: wrap; }
+.lesson-head__title { margin: 0; font-size: 22px; line-height: 1.2; letter-spacing: var(--tracking-tight); font-weight: var(--weight-bold); }
+@container (min-width: 860px) { .lesson-head__title { font-size: 28px; } }
+.lesson-head__actions { display: flex; align-items: center; gap: var(--space-3); flex-wrap: wrap; }
+.lesson-head__actions .btn { min-width: 0; }
+
+/* ===== Materiais ===== */
+.materials { display: flex; flex-direction: column; gap: var(--space-2); }
+.material {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  color: inherit;
+  text-decoration: none;
+  background: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  transition: var(--transition-control);
+}
+.material:hover { border-color: var(--brand-accent); color: inherit; text-decoration: none; }
+.material__icon { display: grid; place-items: center; width: 36px; height: 36px; flex: none; border-radius: var(--radius-sm); background: var(--surface-brand-subtle); color: var(--text-brand); }
+.material__icon svg { width: 18px; height: 18px; }
+.material__name { flex: 1; min-width: 0; font-size: var(--text-small-size); font-weight: var(--weight-medium); }
+.material__size { font-size: var(--text-caption-size); color: var(--text-faint); }
+
+/* ===== Paginação de aulas ===== */
+.lesson-pager { display: flex; align-items: stretch; justify-content: space-between; gap: var(--space-4); }
+/* Os dois botões precisam poder encolher: o título da aula é texto do cliente
+   e pode ser longo. `min-width: 0` libera o truncamento de .lesson-pager__title. */
+.lesson-pager .btn { height: auto; min-width: 0; padding: var(--space-3) var(--space-5); text-align: left; }
+.lesson-pager__stack { min-width: 0; }
+.lesson-pager__stack { display: flex; flex-direction: column; line-height: 1.35; min-width: 0; }
+.lesson-pager__eyebrow { font-size: 11.5px; font-weight: var(--weight-medium); color: var(--text-muted); }
+.btn--primary .lesson-pager__eyebrow { color: rgba(255, 255, 255, 0.72); }
+.lesson-pager__title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lesson-pager__next { text-align: right; align-items: flex-end; }
+
+/* ===== Trilha de aulas ===== */
+.rail {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-card);
+  overflow: hidden;
+}
+.rail__head { padding: var(--space-5) var(--space-5) var(--space-4); border-bottom: 1px solid var(--border-subtle); display: flex; flex-direction: column; gap: var(--space-3); }
+.rail__title-row { display: flex; align-items: center; gap: var(--space-3); }
+.rail__title { flex: 1; margin: 0; font-size: 15.5px; font-weight: var(--weight-bold); }
+.rail__count { font-size: 12.5px; color: var(--text-muted); }
+.rail__list { padding: var(--space-3); display: flex; flex-direction: column; gap: var(--space-5); max-height: 640px; overflow-y: auto; }
+.rail__module { display: flex; flex-direction: column; gap: var(--space-1); }
+.rail__module-head { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-3); padding: 0 var(--space-3) var(--space-1); }
+.rail__module-title {
+  font-size: var(--text-overline-size);
+  line-height: var(--text-overline-lh);
+  letter-spacing: var(--text-overline-tracking);
+  text-transform: uppercase;
+  font-weight: var(--weight-bold);
+  color: var(--text-faint);
+}
+.rail__module-percent { font-size: 11.5px; font-weight: var(--weight-bold); color: var(--text-muted); font-variant-numeric: tabular-nums; }
+.rail__module-percent[data-complete="true"] { color: var(--success-text); }
+
+/* No desktop a trilha acompanha a rolagem: o aluno navega entre aulas sem
+   precisar voltar ao topo. Ancorada abaixo da topbar fixa. */
+@container (min-width: 1080px) {
+  .rail {
+    position: sticky;
+    top: calc(var(--topbar-height) + var(--space-4));
+    max-height: calc(100dvh - var(--topbar-height) - var(--space-10));
+  }
+  /* Coluna própria, com altura de viewport: aqui a lista pode conter a
+     rolagem sem prender a página, porque rolar a página é feito fora dela. */
+  .rail__list { max-height: none; flex: 1; overscroll-behavior: contain; }
+}
+
+/* No mobile a trilha vira painel sob demanda, não coluna fixa. */
+.rail__close { display: inline-grid; }
+@container (min-width: 1080px) { .rail__close { display: none; } }
+
+/* ===== Comentários — TASK-030 =====
+   Traduzido de `components/learning/CommentThread.jsx`. A tag Professor é
+   derivada no servidor (PRD §8): aqui ela só é exibida. */
+
+.comments { display: flex; flex-direction: column; gap: var(--space-6); }
+.comments__head { display: flex; align-items: baseline; gap: var(--space-3); }
+.comments__count { font-size: var(--text-small-size); color: var(--text-muted); }
+
+.composer { display: flex; gap: var(--space-3); }
+.composer__body { flex: 1; display: flex; flex-direction: column; gap: var(--space-3); }
+.composer__actions { display: flex; justify-content: flex-end; }
+
+
+
+.comment-list { display: flex; flex-direction: column; gap: var(--space-5); }
+.comment { display: flex; gap: var(--space-3); }
+.comment__body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: var(--space-2); }
+.comment__head { display: flex; align-items: center; gap: var(--space-2); flex-wrap: wrap; }
+.comment__author { font-size: var(--text-small-size); font-weight: var(--weight-semibold); color: var(--text-title); }
+.comment__time { font-size: var(--text-caption-size); color: var(--text-faint); }
+.comment__text { margin: 0; font-size: var(--text-small-size); line-height: 1.6; color: var(--text-body); text-wrap: pretty; }
+.comment__actions { display: flex; gap: var(--space-4); }
+
+
+/* Resposta destacada de instrutor: além da tag, a superfície muda — o destaque
+   não pode depender só de cor (Design System §26). */
+.comment--highlighted .comment__body {
+  padding: var(--space-4);
+  background: var(--surface-brand-subtle);
+  border-left: 3px solid var(--brand);
+  border-radius: var(--radius-md);
+}
+
+.comment__replies {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  margin-top: var(--space-4);
+  padding-left: var(--space-5);
+  border-left: 1px solid var(--border-subtle);
+}
+
+/* Avatar em tamanho de comentário, sobre superfície clara. */
+.avatar--sm { width: 32px; height: 32px; background: var(--surface-brand-subtle); color: var(--text-brand); }
+
+/* ===== Materiais — TASK-031 ===== */
+.material__meta { flex: none; font-size: var(--text-caption-size); color: var(--text-faint); }
+.material__download { display: grid; place-items: center; color: var(--text-brand); }
+button.material { width: 100%; font: inherit; text-align: left; cursor: pointer; }
+
+/* ===== Voto em comentário — TASK-060 ===== */
+.upvote {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 28px;
+  padding: 0 10px;
+  font: inherit;
+  font-size: var(--text-caption-size);
+  font-weight: var(--weight-semibold);
+  color: var(--text-muted);
+  background: var(--surface-sunken);
+  border: 1px solid transparent;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: var(--transition-control);
+  font-variant-numeric: tabular-nums;
+}
+.upvote svg { width: 13px; height: 13px; }
+.upvote:hover:not([disabled]) { color: var(--text-brand); background: var(--surface-brand-subtle); }
+.upvote[aria-pressed="true"] { color: var(--text-brand); background: var(--surface-brand-subtle); border-color: var(--brand-accent); }
+.upvote[disabled] { cursor: not-allowed; opacity: 0.6; }
+
+/* Destaque de relevância: etiqueta + borda. Nunca só a cor. */
+.comment--relevant > .comment__body { border-left: 3px solid var(--brand-accent); padding-left: var(--space-4); }
+.comment__relevance {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  font-size: 11px;
+  font-weight: var(--weight-bold);
+  color: var(--text-brand);
+  background: var(--surface-brand-subtle);
+  border-radius: var(--radius-chip);
+}
+.comment__relevance svg { width: 11px; height: 11px; }
+
+.vote-budget {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-caption-size);
+  color: var(--text-muted);
+}
+.vote-budget strong { color: var(--text-title); font-variant-numeric: tabular-nums; }
+
+/* Edição de comentário: a caixa ocupa o lugar do texto, sem avatar — o
+   comentário já mostra de quem é logo acima. */
+.composer--edit { margin-block: var(--space-2); }
+.composer--edit .composer__field { width: 100%; }
+
+/* "(editado)" discreto: informa sem competir com o texto. */
+.comment__edited {
+  color: var(--text-muted);
+  font-size: var(--text-caption-size);
+}
+
+/* Aula de documento — o curso que se lê. */
+
+.doc { display: flex; flex-direction: column; gap: var(--space-3); }
+
+.doc__frame {
+  position: relative;
+  /* 4:3 é a proporção de slide e de página A4 em paisagem; retrato passa a
+     rolar dentro do próprio visualizador, que é o comportamento esperado. */
+  aspect-ratio: 4 / 3;
+  background: var(--surface-subtle);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.doc__embed { width: 100%; height: 100%; border: 0; }
+
+.doc__nav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.doc__counter {
+  margin: 0;
+  font-size: var(--text-small-size);
+  font-variant-numeric: tabular-nums;
+  color: var(--text-body);
+}
+.doc__read { color: var(--text-muted); }
+
+.doc__actions { margin: 0; }
+
+.doc__image {
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+}
+
+.doc__audio { width: 100%; }
+
+/* Tipos que não abrem no navegador: cartão explicando e oferecendo o download,
+   em vez de um quadro vazio que parece defeito. */
+.doc--placeholder {
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-6);
+  text-align: center;
+  background: var(--surface-subtle);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+}
+
+.doc__icon {
+  display: grid;
+  place-items: center;
+  width: 48px; height: 48px;
+  color: var(--text-brand);
+  background: var(--surface-card);
+  border-radius: var(--radius-full);
+}
+.doc__icon svg { width: 24px; height: 24px; }
+
+.doc__text { margin: 0; font-size: var(--text-small-size); color: var(--text-body); }
+
+/* Player SCORM — F5-03. */
+.scorm { display: flex; flex-direction: column; gap: var(--space-2); }
+
+.scorm__frame {
+  position: relative;
+  /* 16:9 é a proporção que a maioria dos autorais gera. O conteúdo tem a
+     própria navegação, então não há controles nossos por cima. */
+  aspect-ratio: 16 / 9;
+  background: var(--surface-subtle);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.scorm__embed { width: 100%; height: 100%; border: 0; }
+
+.scorm__status {
+  margin: 0;
+  font-size: var(--text-caption-size);
+  color: var(--text-muted);
+}
+
+/* Pré-visualização: o instrutor precisa notar que o progresso dele não conta.
+
+   Cor E texto, nunca só a cor — a WCAG 1.4.1 pede isso, e aqui a informação é
+   a diferença entre "meu progresso foi salvo" e "não foi". */
+.scorm__status[data-preview] {
+  padding: var(--space-2) var(--space-3);
+  background: var(--warning-surface);
+  border-radius: var(--radius-sm);
+  color: var(--warning-text);
+  font-weight: 600;
+}
+
+/* Confirmação de leitura (rigor.leitura).
+
+   Modal e não aviso na lateral: a pergunta precisa de resposta antes de a
+   conclusão acontecer, e um aviso que não interrompe seria ignorado — que é
+   exatamente o comportamento que ele existe para questionar. */
+.leitura-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  padding: var(--space-5);
+  background: rgba(7, 18, 58, 0.55);
+}
+
+.leitura-modal__painel {
+  width: min(100%, 460px);
+  padding: var(--space-6);
+  background: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+}
+
+.leitura-modal__titulo {
+  margin: 0 0 var(--space-3);
+  font-size: var(--text-body-lg-size);
+  line-height: var(--text-body-lg-lh);
+}
+
+.leitura-modal__texto {
+  margin: 0 0 var(--space-6);
+  color: var(--text-muted);
+}
+
+.leitura-modal__acoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  /* "Já terminei" à direita, e é o que a leitura ocidental encontra por
+     último: a ação que avança fica depois da que recua. */
+  justify-content: flex-end;
+}
+
+.leitura-modal__acoes .btn {
+  /* 44px: o mínimo confortável para toque, acima dos 24px da WCAG 2.5.8. */
+  min-height: 44px;
+}

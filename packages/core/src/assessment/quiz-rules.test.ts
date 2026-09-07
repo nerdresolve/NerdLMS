@@ -1,0 +1,170 @@
+import { test, describe } from "node:test";
+import assert from "node:assert/strict";
+
+import {
+  canStartAttempt,
+  deadlineFor,
+  finalScore,
+  isExpired,
+  shuffleWithSeed,
+  type QuizSettings,
+} from "./quiz-rules.ts";
+
+const prova = (over: Partial<QuizSettings> = {}): QuizSettings => ({
+  passingScore: 70,
+  gradingMethod: "best",
+  graceMinutes: 0,
+  ...over,
+});
+
+const AGORA = new Date("2026-03-15T14:00:00Z");
+
+describe("Quando se pode começar uma tentativa", () => {
+  test("prova sem janela nem limite aceita", () => {
+    assert.equal(canStartAttempt(prova(), 0, AGORA).allow, true);
+  });
+
+  test("antes da abertura, recusa", () => {
+    const p = prova({ opensAt: "2026-03-20T00:00:00Z" });
+    const d = canStartAttempt(p, 0, AGORA);
+    assert.equal(d.allow === false && d.reason, "not_open");
+  });
+
+  test("depois do fechamento, recusa", () => {
+    const p = prova({ closesAt: "2026-03-10T00:00:00Z" });
+    const d = canStartAttempt(p, 0, AGORA);
+    assert.equal(d.allow === false && d.reason, "closed");
+  });
+
+  test("dentro da janela, aceita", () => {
+    const p = prova({ opensAt: "2026-03-01T00:00:00Z", closesAt: "2026-03-20T00:00:00Z" });
+    assert.equal(canStartAttempt(p, 0, AGORA).allow, true);
+  });
+
+  test("o grace period estende o fechamento", () => {
+    // O guia pede grace period: quem chega no limite não perde a prova por um
+    // minuto de relógio.
+    const p = prova({ closesAt: "2026-03-15T13:50:00Z", graceMinutes: 15 });
+    assert.equal(canStartAttempt(p, 0, AGORA).allow, true);
+  });
+
+  test("passado o grace, recusa mesmo assim", () => {
+    const p = prova({ closesAt: "2026-03-15T13:40:00Z", graceMinutes: 15 });
+    assert.equal(canStartAttempt(p, 0, AGORA).allow, false);
+  });
+
+  test("tentativas esgotadas, recusa", () => {
+    const d = canStartAttempt(prova({ maxAttempts: 3 }), 3, AGORA);
+    assert.equal(d.allow === false && d.reason, "no_attempts_left");
+  });
+
+  test("ainda resta tentativa, aceita", () => {
+    assert.equal(canStartAttempt(prova({ maxAttempts: 3 }), 2, AGORA).allow, true);
+  });
+
+  test("sem limite de tentativas, sempre aceita", () => {
+    assert.equal(canStartAttempt(prova(), 99, AGORA).allow, true);
+  });
+
+  test("fechada E esgotada informa o fechamento", () => {
+    // "Sem tentativas" sugeriria que esperar não resolve; a prova fechada é
+    // informação mais útil.
+    const p = prova({ closesAt: "2026-03-01T00:00:00Z", maxAttempts: 1 });
+    const d = canStartAttempt(p, 1, AGORA);
+    assert.equal(d.allow === false && d.reason, "closed");
+  });
+});
+
+describe("Prazo da tentativa", () => {
+  test("sem limite de tempo, não há prazo", () => {
+    assert.equal(deadlineFor(prova(), AGORA), null);
+  });
+
+  test("o prazo é o início mais o limite", () => {
+    const p = prova({ timeLimitMinutes: 30 });
+    assert.equal(deadlineFor(p, AGORA)?.toISOString(), "2026-03-15T14:30:00.000Z");
+  });
+
+  test("o fechamento da prova encurta o prazo", () => {
+    // Começar 30 minutos antes de fechar não dá 60 minutos de prova.
+    const p = prova({ timeLimitMinutes: 60, closesAt: "2026-03-15T14:30:00Z" });
+    assert.equal(deadlineFor(p, AGORA)?.toISOString(), "2026-03-15T14:30:00.000Z");
+  });
+
+  test("o grace period entra no prazo", () => {
+    const p = prova({ timeLimitMinutes: 60, closesAt: "2026-03-15T14:30:00Z", graceMinutes: 10 });
+    assert.equal(deadlineFor(p, AGORA)?.toISOString(), "2026-03-15T14:40:00.000Z");
+  });
+});
+
+describe("Tentativa expirada", () => {
+  const inicio = new Date("2026-03-15T14:00:00Z");
+
+  test("dentro do tempo, não expirou", () => {
+    const p = prova({ timeLimitMinutes: 30 });
+    assert.equal(isExpired(p, inicio, new Date("2026-03-15T14:20:00Z")), false);
+  });
+
+  test("passado o tempo, expirou", () => {
+    const p = prova({ timeLimitMinutes: 30 });
+    assert.equal(isExpired(p, inicio, new Date("2026-03-15T14:31:00Z")), true);
+  });
+
+  test("sem limite, nunca expira", () => {
+    assert.equal(isExpired(prova(), inicio, new Date("2027-01-01T00:00:00Z")), false);
+  });
+});
+
+describe("Nota final entre tentativas", () => {
+  const notas = [40, 85, 60];
+
+  test("melhor", () => {
+    assert.equal(finalScore(notas, "best"), 85);
+  });
+
+  test("última", () => {
+    assert.equal(finalScore(notas, "last"), 60);
+  });
+
+  test("primeira", () => {
+    assert.equal(finalScore(notas, "first"), 40);
+  });
+
+  test("média", () => {
+    assert.equal(finalScore(notas, "average"), 61.67);
+  });
+
+  test("sem tentativa nenhuma, não há nota", () => {
+    // Zero seria uma reprovação de quem não fez a prova — coisas diferentes.
+    assert.equal(finalScore([], "best"), null);
+  });
+});
+
+describe("Randomização estável", () => {
+  test("a mesma semente dá a mesma ordem", () => {
+    // A ordem precisa sobreviver a recarregar a página: sem isso, a questão 3
+    // vira outra ao atualizar, e quem respondeu perde a referência.
+    const a = shuffleWithSeed(["1", "2", "3", "4", "5"], "tentativa-abc");
+    const b = shuffleWithSeed(["1", "2", "3", "4", "5"], "tentativa-abc");
+    assert.deepEqual(a, b);
+  });
+
+  test("sementes diferentes dão ordens diferentes", () => {
+    const a = shuffleWithSeed(["1", "2", "3", "4", "5", "6"], "tentativa-1");
+    const b = shuffleWithSeed(["1", "2", "3", "4", "5", "6"], "tentativa-2");
+    assert.notDeepEqual(a, b);
+  });
+
+  test("não perde nem duplica item", () => {
+    const original = ["a", "b", "c", "d", "e"];
+    const embaralhado = shuffleWithSeed(original, "x");
+
+    assert.equal(embaralhado.length, original.length);
+    assert.deepEqual([...embaralhado].sort(), [...original].sort());
+  });
+
+  test("lista vazia ou de um item não quebra", () => {
+    assert.deepEqual(shuffleWithSeed([], "x"), []);
+    assert.deepEqual(shuffleWithSeed(["só"], "x"), ["só"]);
+  });
+});
