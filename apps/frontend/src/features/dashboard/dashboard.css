@@ -153,18 +153,24 @@
 /* O grafismo é ACENTO na capa, não papel de parede.
 
    Cobrindo os 16/9 inteiros, cada capa virava um mosaico saturado — e numa
-   grade de sete cartões o olho não tinha onde descansar: sete anéis amarelos
-   do mesmo tamanho, em ritmo, disputando com os títulos. No material da NerdResolve
-   Energy a grade de formas aparece UMA vez por peça, em bloco, com o resto da
-   superfície em cor cheia. Aqui vale o mesmo: o campo de marca domina e o
-   grafismo ancora no canto. */
+   grade de sete cartões o olho não tinha onde descansar: sete grafismos do
+   mesmo tamanho, em ritmo, disputando com os títulos. O campo de cor domina e
+   o grafismo ancora no canto. */
 /* Encostado à direita e SANGRANDO para fora: o grafismo é uma grade infinita,
-   e mostrá-lo inteiro dentro da capa o transforma num carimbo com borda. No
-   material da organização a grade é sempre cortada pelo limite da peça. */
+   e mostrá-lo inteiro dentro da capa o transforma num carimbo com borda. */
 .course-card__art svg { position: absolute; inset: 0 -7% 0 auto; width: 56%; height: 100%; }
-.course-card__art--b { background: linear-gradient(140deg, var(--brand-accent), var(--brand) 60%, var(--brand-deep)); }
-.course-card__art--c { background: linear-gradient(200deg, var(--brand-deep), var(--brand) 70%); }
-.course-card__art--d { background: linear-gradient(120deg, var(--brand), var(--brand-deep)); }
+/* As quatro capas precisam ser DISTINGUÍVEIS numa grade, não só diferentes no
+   código. Quatro degradês do mesmo violeta, variando só o ângulo, resultavam em
+   quatro retângulos que o olho lê como um só — e a capa deixa de ajudar a achar
+   o curso, que é a única função dela.
+
+   Cada variante puxa para um vizinho da marca (íris e magenta são os acentos do
+   design system, os mesmos do grafismo), mantendo o violeta como base. Não são
+   cores novas: são as que o `paletteToCss` já deriva quando um cliente
+   personaliza, então uma instalação com marca própria continua coerente. */
+.course-card__art--b { background: linear-gradient(140deg, var(--accent-leaf), var(--brand) 62%, var(--brand-deep)); }
+.course-card__art--c { background: linear-gradient(200deg, var(--brand-deep), var(--brand-accent) 72%); }
+.course-card__art--d { background: linear-gradient(120deg, var(--accent-sun), var(--brand) 58%, var(--brand-deep)); }
 
 .course-card__chip {
   position: absolute;

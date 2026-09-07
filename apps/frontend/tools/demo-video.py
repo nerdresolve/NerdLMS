@@ -5,8 +5,8 @@ progresso, retomada de posição, tempo assistido — e não há conteúdo grava
 O clipe é um cartão da marca com o cronômetro correndo: ver o número andar é o
 que prova que a reprodução está funcionando, e é o que uma tarja parada não faz.
 
-Os quadros são desenhados em HTML no Chromium (é como a tipografia sai em DM
-Sans de verdade) e o ffmpeg costura. 8 fps porque a imagem só muda no
+Os quadros são desenhados em HTML no Chromium (é como a tipografia sai na
+fonte da marca de verdade) e o ffmpeg costura. 8 fps porque a imagem só muda no
 cronômetro, e h264 baseline em 640x360 com crf 33 porque o vídeo é embutido em
 base64 no protótipo, onde cada kB é multiplicado por página — em 1280x720 e crf
 28 o arquivo triplicava sem que nada ficasse mais legível.
@@ -28,8 +28,8 @@ from playwright.sync_api import sync_playwright
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 DESTINO = ROOT / "public" / "media" / "aula-demo.mp4"
-LOGO = ROOT / "public" / "brand" / "nerdresolve-wordmark-white.webp"
-FONTE = ROOT / "public" / "fonts" / "dm-sans.woff2"
+LOGO = ROOT / "public" / "brand" / "nerdresolve-wordmark-white.png"
+FONTE = ROOT / "public" / "fonts" / "manrope.woff2"
 
 LARGURA, ALTURA = 640, 360
 FPS = 8
@@ -42,12 +42,12 @@ if not FFMPEG:
 QUADRO = """
 <!doctype html>
 <html><head><meta charset="utf-8"><style>
-  @font-face { font-family: "DM Sans"; src: url(%(font)s) format("woff2"); font-weight: 100 900; }
+  @font-face { font-family: "Manrope"; src: url(%(font)s) format("woff2"); font-weight: 200 800; }
   html, body { margin: 0; padding: 0; }
   .frame {
     width: %(w)spx; height: %(h)spx;
     background: linear-gradient(120deg, #A855F7 0%%, #4C1D95 55%%, #1E0F45 100%%);
-    font-family: "DM Sans", sans-serif;
+    font-family: "Manrope", sans-serif;
     color: #fff;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
     gap: 14px;
@@ -74,7 +74,7 @@ def cronometro(quadro: int) -> str:
 
 
 def main() -> None:
-    logo = "data:image/webp;base64," + base64.b64encode(LOGO.read_bytes()).decode()
+    logo = "data:image/png;base64," + base64.b64encode(LOGO.read_bytes()).decode()
     fonte = "data:font/woff2;base64," + base64.b64encode(FONTE.read_bytes()).decode()
 
     with tempfile.TemporaryDirectory() as tmp:

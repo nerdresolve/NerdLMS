@@ -295,8 +295,7 @@
       form.className = "composer";
       form.innerHTML =
         '<div class="composer__body">' +
-        '<label class="sr-only">Sua resposta</label>' +
-        '<textarea class="textarea" rows="2" placeholder="Escreva sua resposta…"></textarea>' +
+        '<textarea class="textarea" rows="2" aria-label="Sua resposta" placeholder="Escreva sua resposta…"></textarea>' +
         '<div class="composer__actions">' +
         '<button type="button" class="btn btn--secondary" data-cancelar>Cancelar</button>' +
         '<button type="submit" class="btn btn--primary" disabled>Responder</button>' +
@@ -508,10 +507,8 @@
         var form = document.createElement("form");
         form.className = "editor-add";
         form.innerHTML =
-          '<label class="sr-only">Título da aula</label>' +
-          '<input class="input" type="text" placeholder="Nome da aula" />' +
-          '<label class="sr-only">Duração em minutos</label>' +
-          '<input class="input input--duration" type="number" min="1" placeholder="min" />' +
+          '<input class="input" type="text" aria-label="Título da aula" placeholder="Nome da aula" />' +
+          '<input class="input input--duration" type="number" min="1" aria-label="Duração em minutos" placeholder="min" />' +
           '<button type="submit" class="btn btn--secondary">Adicionar aula</button>';
         form.addEventListener("submit", function (event) {
           event.preventDefault();
@@ -571,7 +568,7 @@
     var dropzone = document.getElementById("dropzone");
     function avisarUpload() {
       document.getElementById("upload-status").textContent =
-        "O envio de arquivo depende da TASK-046 (upload) e do armazenamento assinado. Nada foi enviado.";
+        "O envio de arquivo só funciona na aplicação, com o armazenamento configurado. Nada foi enviado.";
     }
     dropzone.addEventListener("click", avisarUpload);
     dropzone.addEventListener("keydown", function (event) {
@@ -594,7 +591,7 @@
       document.getElementById("export-status").textContent =
         "Exportação em " +
         (button.dataset.export === "pdf" ? "PDF" : "Excel") +
-        " depende da TASK-049 (geração de relatórios). Nada foi gerado.";
+        " só funciona na aplicação. Nada foi gerado.";
     });
   });
 
@@ -623,7 +620,7 @@
   if (novoUsuario) {
     novoUsuario.addEventListener("click", function () {
       document.getElementById("usuario-status").textContent =
-        "O convite depende da TASK-050 (gestão de usuários) e do envio de email.";
+        "O convite só funciona na aplicação, com o envio de e-mail configurado.";
     });
   }
 
@@ -631,8 +628,8 @@
     button.addEventListener("click", function () {
       document.getElementById("usuario-status").textContent =
         button.dataset.userAction === "editar"
-          ? "Edição de usuário depende da TASK-050."
-          : "Desativação depende da TASK-050. Nenhum acesso foi alterado.";
+          ? "Edição de usuário só funciona na aplicação."
+          : "Desativação só funciona na aplicação. Nenhum acesso foi alterado.";
     });
   });
 
@@ -659,7 +656,7 @@
   Array.prototype.forEach.call(document.querySelectorAll("[data-assign]"), function (button) {
     button.addEventListener("click", function () {
       document.getElementById("equipe-status").textContent =
-        "A matrícula atribuída depende da TASK-051 (API de matrículas). Nenhum acesso foi alterado.";
+        "A matrícula atribuída só funciona na aplicação. Nenhum acesso foi alterado.";
     });
   });
 
@@ -668,7 +665,7 @@
   Array.prototype.forEach.call(document.querySelectorAll("[data-reward]"), function (button) {
     button.addEventListener("click", function () {
       document.getElementById("resgate-status").textContent =
-        "O resgate depende da TASK-055 (loja de recompensas) e do catálogo definido pelo RH. Nenhuma moeda foi debitada.";
+        "O resgate só funciona na aplicação, com o catálogo definido pelo RH. Nenhuma moeda foi debitada.";
     });
   });
 
@@ -677,7 +674,7 @@
   Array.prototype.forEach.call(document.querySelectorAll("[data-month]"), function (button) {
     button.addEventListener("click", function () {
       document.getElementById("mes-status").textContent =
-        "A navegação entre meses depende da TASK-057 (API de eventos). O calendário mostra agosto de 2026.";
+        "A navegação entre meses só funciona na aplicação. O calendário mostra agosto de 2026.";
     });
   });
 

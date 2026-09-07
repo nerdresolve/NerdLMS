@@ -31,7 +31,7 @@ BEGIN;
 INSERT INTO users (id, tenant_id, org_unit_id, email, full_name, password_hash, role, status, project, region, last_access_at)
 VALUES ('58a9bb76-23b8-550e-8122-09cd019f99f0', (SELECT id FROM tenants WHERE slug = 'exemplo'), (SELECT id FROM org_units WHERE tenant_id = (SELECT id FROM tenants WHERE slug = 'exemplo') AND name = 'Sede' LIMIT 1),
         'admin.mock@exemplo.com', 'Administrador', '$scrypt$ln=17,r=8,p=1$qxRSv5vMkJPYiBlKUIxdEQ$tu23H3BalMxRDYFdXmUuYA7PcKq94qZNHR0nPKOjp+Y',
-        'admin', 'active', 'Sede', 'Aracaju',
+        'admin', 'active', 'Sede', 'Região Metropolitana',
         '2026-08-12T15:00:00.000Z')
 ON CONFLICT (id) DO UPDATE SET
   email = EXCLUDED.email, full_name = EXCLUDED.full_name,
@@ -61,7 +61,7 @@ ON CONFLICT (id) DO UPDATE SET
 INSERT INTO users (id, tenant_id, org_unit_id, email, full_name, password_hash, role, status, project, region, last_access_at)
 VALUES ('7c7446d4-8be6-5ed5-b50b-6e03afe7de6b', (SELECT id FROM tenants WHERE slug = 'exemplo'), (SELECT id FROM org_units WHERE tenant_id = (SELECT id FROM tenants WHERE slug = 'exemplo') AND name = 'Unidade Oeste' LIMIT 1),
         'instructor2.mock@exemplo.com', 'Instrutor 2', '$scrypt$ln=17,r=8,p=1$ckM43sBCEi+xdrwkfj+9WQ$vkfDKJy13oesZfwwrl+ddI8HclFQuJR9d/MrtdtPHQw',
-        'instructor', 'active', 'Unidade Oeste', 'Japaratuba',
+        'instructor', 'active', 'Unidade Oeste', 'Região Norte',
         NULL)
 ON CONFLICT (id) DO UPDATE SET
   email = EXCLUDED.email, full_name = EXCLUDED.full_name,
@@ -71,7 +71,7 @@ ON CONFLICT (id) DO UPDATE SET
 INSERT INTO users (id, tenant_id, org_unit_id, email, full_name, password_hash, role, status, project, region, last_access_at)
 VALUES ('dd1b44e8-52f8-5b65-a243-5ecb7b6ba687', (SELECT id FROM tenants WHERE slug = 'exemplo'), (SELECT id FROM org_units WHERE tenant_id = (SELECT id FROM tenants WHERE slug = 'exemplo') AND name = 'Unidade Leste' LIMIT 1),
         'user.mock@exemplo.com', 'Aluno', '$scrypt$ln=17,r=8,p=1$8EElRqGSbqcoXgV0ccRShQ$ZGlj3HgA9+44qdrGmrxmmr/yLAyn4IyjzrjUqWquYNA',
-        'learner', 'active', 'Unidade Leste', 'Rosário do Catete',
+        'learner', 'active', 'Unidade Leste', 'Região Sul',
         '2026-08-11T15:00:00.000Z')
 ON CONFLICT (id) DO UPDATE SET
   email = EXCLUDED.email, full_name = EXCLUDED.full_name,
@@ -91,7 +91,7 @@ ON CONFLICT (id) DO UPDATE SET
 INSERT INTO users (id, tenant_id, org_unit_id, email, full_name, password_hash, role, status, project, region, last_access_at)
 VALUES ('bb1f7d87-6677-544a-af56-3d38c5e3ca65', (SELECT id FROM tenants WHERE slug = 'exemplo'), (SELECT id FROM org_units WHERE tenant_id = (SELECT id FROM tenants WHERE slug = 'exemplo') AND name = 'Unidade Leste' LIMIT 1),
         'carla.menezes@exemplo.com', 'Carla Menezes', NULL,
-        'learner', 'active', 'Unidade Leste', 'Rosário do Catete',
+        'learner', 'active', 'Unidade Leste', 'Região Sul',
         '2026-08-06T15:00:00.000Z')
 ON CONFLICT (id) DO UPDATE SET
   email = EXCLUDED.email, full_name = EXCLUDED.full_name,
@@ -101,7 +101,7 @@ ON CONFLICT (id) DO UPDATE SET
 INSERT INTO users (id, tenant_id, org_unit_id, email, full_name, password_hash, role, status, project, region, last_access_at)
 VALUES ('cde71ffa-eb22-541b-af5f-88f1b9bec629', (SELECT id FROM tenants WHERE slug = 'exemplo'), (SELECT id FROM org_units WHERE tenant_id = (SELECT id FROM tenants WHERE slug = 'exemplo') AND name = 'Unidade Oeste' LIMIT 1),
         'diego.ramos@exemplo.com', 'Diego Ramos', NULL,
-        'learner', 'active', 'Unidade Oeste', 'Japaratuba',
+        'learner', 'active', 'Unidade Oeste', 'Região Norte',
         '2026-07-31T15:00:00.000Z')
 ON CONFLICT (id) DO UPDATE SET
   email = EXCLUDED.email, full_name = EXCLUDED.full_name,
@@ -121,7 +121,7 @@ ON CONFLICT (id) DO UPDATE SET
 INSERT INTO users (id, tenant_id, org_unit_id, email, full_name, password_hash, role, status, project, region, last_access_at)
 VALUES ('d958b9da-9f14-57db-ac67-8cd7fc77c167', (SELECT id FROM tenants WHERE slug = 'exemplo'), (SELECT id FROM org_units WHERE tenant_id = (SELECT id FROM tenants WHERE slug = 'exemplo') AND name = 'Unidade Central' LIMIT 1),
         'marcos.tavares@exemplo.com', 'Marcos Tavares', NULL,
-        'learner', 'active', 'Unidade Central', 'Rosário do Catete',
+        'learner', 'active', 'Unidade Central', 'Região Sul',
         '2026-07-19T15:00:00.000Z')
 ON CONFLICT (id) DO UPDATE SET
   email = EXCLUDED.email, full_name = EXCLUDED.full_name,
@@ -131,7 +131,7 @@ ON CONFLICT (id) DO UPDATE SET
 INSERT INTO users (id, tenant_id, org_unit_id, email, full_name, password_hash, role, status, project, region, last_access_at)
 VALUES ('ae870e0b-ede4-51ef-8f59-05172aa84a08', (SELECT id FROM tenants WHERE slug = 'exemplo'), (SELECT id FROM org_units WHERE tenant_id = (SELECT id FROM tenants WHERE slug = 'exemplo') AND name = 'Unidade Leste' LIMIT 1),
         'helena.duarte@exemplo.com', 'Helena Duarte', NULL,
-        'learner', 'pending', 'Unidade Leste', 'Japaratuba',
+        'learner', 'pending', 'Unidade Leste', 'Região Norte',
         NULL)
 ON CONFLICT (id) DO UPDATE SET
   email = EXCLUDED.email, full_name = EXCLUDED.full_name,
@@ -151,7 +151,7 @@ ON CONFLICT (id) DO UPDATE SET
 INSERT INTO users (id, tenant_id, org_unit_id, email, full_name, password_hash, role, status, project, region, last_access_at)
 VALUES ('3d6e6a4d-4b43-50a1-9e1a-b8ba278b0573', (SELECT id FROM tenants WHERE slug = 'exemplo'), (SELECT id FROM org_units WHERE tenant_id = (SELECT id FROM tenants WHERE slug = 'exemplo') AND name = 'Unidade Sul' LIMIT 1),
         'bianca.ferraz@exemplo.com', 'Bianca Ferraz', NULL,
-        'learner', 'pending', 'Unidade Sul', 'Rosário do Catete',
+        'learner', 'pending', 'Unidade Sul', 'Região Sul',
         NULL)
 ON CONFLICT (id) DO UPDATE SET
   email = EXCLUDED.email, full_name = EXCLUDED.full_name,

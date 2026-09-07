@@ -1495,7 +1495,7 @@ const editorBody = `<div class="editor" id="editor" data-course-id="${esc(editin
                      aria-label="Enviar vídeo, PDF ou material">
                   <span class="dropzone__icon">${icon("file-text")}</span>
                   <span class="dropzone__title">Arraste um arquivo ou clique para selecionar</span>
-                  <span class="dropzone__hint">Vídeo MP4, PDF, planilha ou slide. O envio real depende da TASK-046.</span>
+                  <span class="dropzone__hint">Vídeo MP4, PDF, planilha ou slide.</span>
                 </div>
                 <p class="status-text" id="upload-status" role="status"></p>
               </section>
@@ -1720,7 +1720,7 @@ const adminStats = [
   .join("\n              ");
 
 /* Distribuição por campo — a dimensão que a plataforma atual não oferece
-   ("gestão cega", na proposta). Depende de `project` no usuário: ISSUE-023. */
+   ("gestão cega"). Depende de `project` no usuário. */
 const porProjeto = [...new Set(allUsers.map((user) => user.project).filter(Boolean))]
   .map((projeto) => ({
     projeto,
@@ -1850,8 +1850,8 @@ const userRows = allUsers
                   <td data-label="Situação"><span class="badge ${situacao.cls}">${situacao.label}</span></td>
                   <td data-label="">
                     <span class="table__actions">
-                      <button type="button" class="comment__action" data-user-action="editar">Editar</button>
-                      <button type="button" class="comment__action" data-user-action="desativar">Desativar</button>
+                      <button type="button" class="btn btn--secondary btn--small" data-user-action="editar">Editar</button>
+                      <button type="button" class="btn btn--secondary btn--small" data-user-action="desativar">Desativar</button>
                     </span>
                   </td>
                 </tr>`;
@@ -2039,7 +2039,7 @@ const teamRows = equipe
                   <td data-label="Situação"><span class="badge ${situacao.cls}">${situacao.label}</span></td>
                   <td data-label="">
                     <span class="table__actions">
-                      <button type="button" class="comment__action" data-assign="${esc(person.id)}">Matricular</button>
+                      <button type="button" class="btn btn--secondary btn--small" data-assign="${esc(person.id)}">Matricular</button>
                     </span>
                   </td>
                 </tr>`;
