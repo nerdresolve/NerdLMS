@@ -143,7 +143,7 @@ export const BADGES: BadgeDefinition[] = [
   {
     id: "mil-moedas",
     title: "Mil moedas",
-    description: "Acumulou 1.000 moedas NerdResolve.",
+    description: "Acumulou 1.000 moedas.",
     icon: "star",
     earned: (e) => e.coins >= 1000,
   },
