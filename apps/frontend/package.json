@@ -40,7 +40,7 @@
     "server-only": "0.0.1"
   },
   "devDependencies": {
-    "@lhci/cli": "0.14.0",
+    "@lhci/cli": "0.15.1",
     "@types/node": "22.15.0",
     "@types/react": "19.1.0",
     "@types/react-dom": "19.1.0",
@@ -48,7 +48,7 @@
     "eslint-config-next": "15.4.0",
     "typescript": "5.7.3",
     "pdfjs-dist": "4.10.38",
-    "@eslint/eslintrc": "3.2.0"
+    "@eslint/eslintrc": "3.3.7"
   },
   "comments": {
     "install": "npm ci exige rede. Ver progress.md → BLOCK-001.",
