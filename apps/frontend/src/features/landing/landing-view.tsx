@@ -47,7 +47,7 @@ export function LandingView({ stats }: { stats: LandingStat[] }) {
             Treinamento da <em>operação</em>, no seu ritmo
           </h1>
           <p className="landing__lead">
-            Os cursos da Exemplo S.A. em um lugar só. A aula retoma de onde você parou, no
+            Os cursos da organização em um lugar só. A aula retoma de onde você parou, no
             computador ou no celular.
           </p>
           <div className="landing__actions">

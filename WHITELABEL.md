@@ -641,7 +641,7 @@ O nome dos contêineres continua sendo o que distingue de verdade:
 > dados. Renomeá-los não é rebranding: é migração de dados, com downtime, e o
 > do bucket quebra toda URL de mídia já gravada no banco. Nada disso aparece
 > para o usuário. O que ele vê — marca, cores, textos, e-mails, certificado,
-> domínio — é Exemplo S.A..
+> domínio — é a organização.
 >
 > **O projeto do compose era um deles e deixou de ser.** Ele foi renomeado de
 > `nerdlms` para `nerdlms`. O custo é o mesmo dos outros — o nome do

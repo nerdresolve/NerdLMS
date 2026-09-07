@@ -1,6 +1,6 @@
 # Perfis e acessos
 
-Atribuições de cada papel na plataforma de ensino da Exemplo S.A., as restrições
+Atribuições de cada papel na plataforma de ensino da organização, as restrições
 de permissão aplicadas a cada um, e as contas usadas em homologação.
 
 As regras descritas aqui foram verificadas na aplicação em execução, e não
@@ -48,7 +48,7 @@ equipe e engajamento.
 ### Aluno
 
 Papel padrão, atribuído a toda pessoa criada a partir do Active Directory da
-Exemplo S.A..
+a organização.
 
 | Tela | Função |
 |---|---|
@@ -182,7 +182,7 @@ papel atribuído ao usuário é derivado do grupo a que ele pertence no diretór
 o que dispensa manutenção de cadastro em duplicidade. A configuração fica em
 `/admin/acesso`.
 
-**A integração com o Active Directory da Exemplo S.A. está configurada e
+**A integração com o Active Directory da organização está configurada e
 desabilitada.** A autenticação foi validada contra o diretório de produção,
 incluindo a interpretação dos sub-códigos de erro retornados pelo AD. A
 plataforma opera com senha local até que a integração seja habilitada:

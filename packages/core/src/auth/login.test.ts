@@ -23,8 +23,8 @@ function conta(overrides: Partial<AccountRecord> = {}): AccountRecord {
     tenant: {
       id: "t1",
       slug: "exemplo",
-      name: "Exemplo S.A.",
-      unitLabel: "Concessionária",
+      name: "a organização",
+      unitLabel: "Unidade",
       /* Sem personalização: nulo em tudo significa "usa o padrão do produto". */
       branding: {
         logoLightUrl: null,

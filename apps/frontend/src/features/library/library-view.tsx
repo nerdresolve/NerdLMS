@@ -268,7 +268,7 @@ export function LibraryView({
       <div className="page-head">
         <h1 className="page-head__title">Biblioteca</h1>
         <p className="page-head__sub">
-          Procedimentos, normas e documentos da Exemplo S.A.. Filtre por assunto ou procure por
+          Procedimentos, normas e documentos da organização. Filtre por assunto ou procure por
           uma palavra do nome.
         </p>
       </div>

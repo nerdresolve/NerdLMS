@@ -1,0 +1,124 @@
+name: CI
+
+# Roda em todo push e em toda proposta de mudança. Os portões aqui são os
+# mesmos que `npm run verify` roda na máquina de quem desenvolve — se passa
+# localmente, passa aqui.
+on:
+  push:
+    branches: [main]
+  pull_request:
+  # Permite disparar à mão pela aba Actions, útil para revalidar sem commit.
+  workflow_dispatch:
+
+# Uma execução por branch. Um push novo cancela o anterior, que já não
+# interessa a ninguém e só ocuparia fila.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+# O padrão do GitHub dá escrita; aqui só se lê. Um workflow comprometido não
+# consegue empurrar commit nem publicar release.
+permissions:
+  contents: read
+
+jobs:
+  verificar:
+    name: Testes e portões de qualidade
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          # `.nvmrc` é a fonte única da versão: a mesma que `nvm use` lê na
+          # máquina de quem desenvolve. O `engines` do package.json declara o
+          # MÍNIMO (>=22); aqui é preciso um número exato.
+          node-version-file: .nvmrc
+          cache: npm
+
+      # `npm ci` e não `npm install`: instala exatamente o que está no
+      # package-lock.json e falha se os dois divergirem. É o que garante que a
+      # CI testa as mesmas versões que a máquina de quem desenvolveu.
+      - run: npm ci
+
+      - name: Tipos
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
+
+      # `verify` reúne testes de unidade, contraste (WCAG AA), critérios da
+      # WCAG 2.2, geração do protótipo, portões de qualidade estática, imports
+      # declarados, hidratação, SQL, codificação e direção das camadas.
+      #
+      # O `perf` de dentro do verify precisa de Chromium; ele é instalado no
+      # passo seguinte, e por isso este roda antes com os portões offline.
+      - name: Testes e portões offline
+        run: |
+          npm run test --workspace @nerdlms/core
+          npm run test --workspace @nerdlms/backend
+          npm run test --workspace @nerdlms/frontend
+          npm run test:a11y --workspace @nerdlms/frontend
+          npm run preview --workspace @nerdlms/frontend
+          npm run quality --workspace @nerdlms/frontend
+          npm run check:imports --workspace @nerdlms/frontend
+          npm run check:hydration --workspace @nerdlms/frontend
+          npm run check:sql
+          npm run check:encoding
+          npm run check:layers
+
+  build:
+    name: Build de produção
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      # O build do Next é o único portão que pega erro de codificação de
+      # arquivo e de Server/Client Component — typecheck e testes passam com
+      # esses defeitos.
+      - run: npm run build
+        env:
+          # O build não conecta em nada; estes valores existem só para as
+          # variáveis obrigatórias não abortarem a compilação.
+          DATABASE_URL: postgres://lms_app:build@localhost:5432/build
+          SESSION_SECRET: valor-de-build-sem-uso-em-runtime-0000000000
+
+  docker:
+    name: Imagem Docker
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v3
+
+      # Só CONSTRÓI, não publica. Publicar é o deploy.yml, que roda em tag.
+      # O ganho aqui é pegar Dockerfile quebrado antes de virar release.
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: apps/frontend/Dockerfile
+          push: false
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  compose:
+    name: docker-compose válido
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      # `config` resolve as variáveis e recusa arquivo inválido. Pega erro de
+      # sintaxe e variável obrigatória sem valor — que só apareceriam no
+      # servidor, na hora de subir.
+      - name: Validar
+        run: |
+          cp infra/.env.example infra/.env
+          docker compose -f infra/docker-compose.yml --env-file infra/.env config >/dev/null

@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Dúvida de uso ou de implantação
+    url: https://github.com/mariathdev/nerdlms/discussions
+    about: Perguntas vão para Discussions; issues são para defeito e proposta.
+  - name: Vulnerabilidade de segurança
+    url: https://github.com/mariathdev/nerdlms/security/advisories/new
+    about: Relate em privado. Nunca abra issue pública para isto.

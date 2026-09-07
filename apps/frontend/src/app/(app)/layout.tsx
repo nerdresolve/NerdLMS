@@ -40,7 +40,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   /* Tenant e funcionalidades entram aqui, e não em cada página: são 19 telas
      usando o AppShell, e passar por prop obrigaria todas a repassar algo que a
      maioria não usa — bastaria uma esquecer para a tela dela falar "projeto"
-     enquanto as outras falam "concessionária", ou para uma funcionalidade
+     enquanto as outras falam "unidade", ou para uma funcionalidade
      desligada reaparecer só ali. */
   const features = await currentFeatures();
 

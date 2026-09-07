@@ -1,5 +1,5 @@
 /**
- * Logo da Exemplo S.A. embutida, pronta para o PDF.
+ * Logo da organização embutida, pronta para o PDF.
  *
  * GERADO — não editar à mão. Origem: `public/brand/nerdresolve-wordmark.webp`,
  * por `apps/frontend/tools/brand-embeds.py`.

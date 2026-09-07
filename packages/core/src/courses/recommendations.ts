@@ -3,7 +3,7 @@
  *
  * A proposta promete um "motor de recomendação" que sugere o próximo passo com
  * base no perfil e no histórico. Isto é a versão baseada em regras, e ela é
- * suficiente para o volume da Exemplo S.A.: ~76 cursos e quatro campos.
+ * suficiente para o volume da organização: ~76 cursos e quatro campos.
  *
  * Duas decisões que valem mais que o algoritmo em si:
  *

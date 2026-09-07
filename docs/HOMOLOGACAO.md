@@ -1,10 +1,7 @@
 # Homologação: contas e acesso
 
-**Endereço:** `lms.exemplo.com`, que é o domínio de demonstração em uso.
-O nome é herança do código, escrito para outra empresa antes de virar a nossa
-plataforma. Ele sai de `SITE_ADDRESS` no `infra/.env`, e não há domínio fixo em
-código: trocar para um endereço da Exemplo S.A. é editar uma linha e apontar o
-DNS.
+**Endereço:** o que estiver em `SITE_ADDRESS`, no `infra/.env`. Não há domínio
+fixo em código — trocar de endereço é editar uma linha e apontar o DNS.
 
 Localmente, `http://localhost:8080`. Com HTTPS local, `https://localhost`: o
 Caddy emite certificado interno e o navegador exibe aviso, o que é esperado. Com um
@@ -52,7 +49,7 @@ npm run seed      # LEIA O AVISO ABAIXO
 > **`npm run seed` não é só contas.** Ele insere também **7 cursos inventados**,
 > 20 módulos, 84 aulas, 7 provas, 20 matrículas e 164 registros de progresso.
 > Todo `INSERT` é `ON CONFLICT DO UPDATE`, então rodá-lo num banco que já tem o
-> conteúdo real da Exemplo S.A. **traz os cursos fictícios de volta**, e o
+> conteúdo real da organização **traz os cursos fictícios de volta**, e o
 > catálogo passa a misturar os dois.
 >
 > Num banco vazio, é o caminho mais rápido para ter com quem entrar. Num banco
@@ -154,7 +151,7 @@ LDAP/Active Directory, SAML 2.0, Google e Microsoft estão implementados, e o
 papel na plataforma vem do grupo no diretório. A configuração é por tenant, em
 `/admin/acesso`, e o passo a passo está em [`../WHITELABEL.md`](../WHITELABEL.md).
 
-**O diretório da Exemplo S.A. está configurado e DESLIGADO.** A validação foi
+**O diretório da organização está configurado e DESLIGADO.** A validação foi
 provada contra o Active Directory real, mas a plataforma segue com senha local
 até alguém decidir virar a chave:
 

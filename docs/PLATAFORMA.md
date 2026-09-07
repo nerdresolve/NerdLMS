@@ -1,6 +1,6 @@
 # A nossa plataforma, por inteiro
 
-Documentação funcional e técnica do EAD da Exemplo S.A.. Este é o documento
+Documentação funcional e técnica do EAD da organização. Este é o documento
 longo: o que existe, como funciona e **por que** foi feito assim. Para começar
 rápido, o [`../README.md`](../README.md); para a apresentação,
 [`ROTEIRO-APRESENTACAO.md`](./ROTEIRO-APRESENTACAO.md).
@@ -30,7 +30,7 @@ rápido, o [`../README.md`](../README.md); para a apresentação,
 
 ## 1. Por que construímos a nossa
 
-A licença atual trava em **500 usuários ativos** para a Exemplo S.A. inteira. O
+A licença atual trava em **500 usuários ativos** para a organização inteira. O
 limite é comercial, não técnico: cada pessoa a mais é negociação, e o
 planejamento de treinamento passa a depender de quando dá para renegociar.
 
@@ -283,7 +283,7 @@ grupo de instrutores vira instrutor; quem sai, deixa de ser.
 Duas travas de produção: `allow_password_login = false` (senha local deixa de
 valer) e `require_group = true` (sem grupo mapeado, não entra).
 
-**Hoje está desligado.** Foi provado contra o AD real da Exemplo S.A.; ligar é
+**Hoje está desligado.** Foi provado contra o AD real da organização; ligar é
 uma linha de SQL, e é decisão de quem opera.
 
 ### SAML 2.0, Google e Microsoft
@@ -295,7 +295,7 @@ fica em `/admin/acesso`.
 
 ## 8. Uma instalação que aguenta mais de uma organização
 
-Hoje existe **um tenant só**, o da Exemplo S.A., e todo curso, pessoa e nota
+Hoje existe **um tenant só**, o da organização, e todo curso, pessoa e nota
 pertence a ele. Mas a plataforma foi construída sabendo separar organizações:
 `tenant_id` está em **42 tabelas**, e nada atravessa de uma para outra.
 
@@ -308,7 +308,7 @@ build por `apps/backend/src/tenancy/query-isolation.test.ts`, que **falha** se
 alguém escrever uma consulta sem o recorte. É a única garantia que sobrevive a
 quem não leu a documentação.
 
-A segunda é o dia em que a Exemplo S.A. quiser treinar **quem não é
+A segunda é o dia em que a organização quiser treinar **quem não é
 funcionário**: terceirizado em campo, empresa parceira, fornecedor que precisa
 da integração de segurança antes de entrar na área. Esse público não pode ver o
 catálogo interno nem aparecer nos relatórios de RH, e não deve entrar pelo
@@ -392,7 +392,7 @@ de código no próprio servidor, limitação registrada no cabeçalho do arquivo
 
 ## 11. Conteúdo real
 
-Sete cursos, todos procedimentos da Exemplo S.A.. Cinco com prova (30 questões,
+Sete cursos, todos procedimentos da organização. Cinco com prova (30 questões,
 gabarito completo), dois sem.
 
 Os arquivos de vídeo somam 522 MB e **não são versionados**. O repositório
@@ -470,12 +470,12 @@ rede interna é `internal: true`.
 A aplicação **não** usa o dono do schema: `lms_migrator` migra, `lms_app`
 roda sem DDL. Se houver SQL injection, o estrago não alcança a estrutura.
 
-> Os nomes `nerdlms_*` e o bucket `lms-media` são herança: o código foi escrito
-> para outra empresa antes de virar a nossa plataforma. Continuam porque
-> renomear papel de banco e bucket é migração de infraestrutura, com risco de
-> deixar a aplicação sem conectar no meio do caminho, e ganho nenhum para quem
-> usa. A migração 035 registra o momento em que a instalação passou a ser da
-> Exemplo S.A..
+> Os papéis (`lms_migrator`, `lms_app`) e o bucket (`lms-media`) levam o nome do
+> produto, não o do cliente — de propósito: uma instalação atende vários
+> clientes, e um nome de cliente na infraestrutura envelheceria mal. Renomeá-los
+> num banco já em uso é migração de infraestrutura, com risco de deixar a
+> aplicação sem conectar no meio do caminho. A migração `035_tenant_do_cliente`
+> é onde a instalação declara de quem ela é.
 
 Detalhes em [`../infra/db/README.md`](../infra/db/README.md).
 

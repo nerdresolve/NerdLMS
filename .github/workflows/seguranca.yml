@@ -1,0 +1,74 @@
+name: Segurança
+
+# Três varreduras que pegam classes diferentes de problema:
+#   CodeQL      defeito no código (injeção, XSS, caminho não sanitizado)
+#   npm audit   dependência com vulnerabilidade conhecida
+#   Gitleaks    segredo que entrou num commit
+#
+# Roda em PR (pega antes de entrar) e semanalmente (pega o que virou
+# vulnerabilidade DEPOIS de entrar — a maioria dos casos).
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    # Segunda, 04:17 UTC. Minuto quebrado de propósito: o GitHub enfileira
+    # agendamentos na hora cheia e eles atrasam.
+    - cron: "17 4 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  codeql:
+    name: CodeQL
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: github/codeql-action/init@v3
+        with:
+          languages: javascript-typescript
+          # `security-and-quality` acha mais que o padrão, incluindo problema
+          # de manutenção que costuma virar defeito depois.
+          queries: security-and-quality
+      - uses: github/codeql-action/analyze@v3
+
+  dependencias:
+    name: Dependências
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      # `--omit=dev`: vulnerabilidade em ferramenta de build não chega ao
+      # usuário. Falhar por causa dela treina a equipe a ignorar o portão.
+      - name: npm audit (produção)
+        run: npm audit --omit=dev --audit-level=high
+      # As de desenvolvimento aparecem no log sem reprovar: são para olhar,
+      # não para bloquear entrega.
+      - name: npm audit (desenvolvimento, informativo)
+        run: npm audit --audit-level=moderate || true
+
+  segredos:
+    name: Segredos
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Histórico inteiro: um segredo apagado no commit seguinte continua
+          # no histórico, e é de lá que ele vaza.
+          fetch-depth: 0
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

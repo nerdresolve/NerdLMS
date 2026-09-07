@@ -20,7 +20,7 @@ import { query } from "../db/pool.ts";
  *
  * - **gestor**: as pessoas da unidade dele (`project`). É o recorte que o
  *   painel dele já usa, e o que impede matricular gente de outra
- *   concessionária;
+ *   unidade;
  * - **admin**: o tenant inteiro. Não tem unidade, e restringi-lo a uma o
  *   impediria de atender o cliente que administra;
  * - **qualquer outro papel**: conjunto vazio. Quem não matricula não precisa

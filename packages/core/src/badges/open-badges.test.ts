@@ -21,14 +21,14 @@ describe("Open Badges 2.0: F6-01", () => {
   test("o emissor aponta para o próprio domínio", () => {
     const issuer = openBadgeIssuer({
       baseUrl: BASE,
-      tenantName: "Exemplo S.A.",
+      tenantName: "a organização",
       email: "treinamento@exemplo.com",
     });
 
     assert.equal(issuer["@context"], "https://w3id.org/openbadges/v2");
     assert.equal(issuer.type, "Issuer");
     assert.equal(issuer.id, `${BASE}/api/badges/issuer`);
-    assert.equal(issuer.name, "Exemplo S.A.");
+    assert.equal(issuer.name, "a organização");
   });
 
   test("o emissor sem e-mail não inventa campo vazio", () => {

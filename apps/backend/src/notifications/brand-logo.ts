@@ -7,7 +7,7 @@
  *
  * É IMAGEM, e não HTML com cor de fundo, por causa do Outlook: ele aplica o
  * próprio modo escuro sobre a mensagem e reescreve `background-color`, o que
- * transformava o azul da Exemplo S.A. em roxo. Pixel não é reescrito.
+ * transformava o azul da organização em roxo. Pixel não é reescrito.
  *
  * 600x236, ~20 kB. GERADO — não editar à mão.
  * Origem: `apps/frontend/tools/brand-embeds.py`.

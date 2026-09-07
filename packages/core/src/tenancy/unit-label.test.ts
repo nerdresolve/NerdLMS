@@ -5,14 +5,14 @@ import { lowerUnit, pluralOfUnit } from "./unit-label.ts";
 
 describe("Rótulo da unidade, flexão", () => {
   test("plural regular ganha s", () => {
-    assert.equal(pluralOfUnit("Concessionária"), "concessionárias");
     assert.equal(pluralOfUnit("Unidade"), "unidades");
+    assert.equal(pluralOfUnit("Gerência"), "gerências");
     assert.equal(pluralOfUnit("Diretoria"), "diretorias");
   });
 
   test("terminação em L vira IS", () => {
     // "filiais", não "filials" — é o termo mais provável depois de
-    // "concessionária" num cliente de varejo.
+    // "unidade" num cliente de varejo.
     assert.equal(pluralOfUnit("Filial"), "filiais");
     assert.equal(pluralOfUnit("Regional"), "regionais");
   });
@@ -29,6 +29,6 @@ describe("Rótulo da unidade, flexão", () => {
   });
 
   test("minúscula para o meio da frase", () => {
-    assert.equal(lowerUnit("Concessionária"), "concessionária");
+    assert.equal(lowerUnit("Gerência"), "gerência");
   });
 });

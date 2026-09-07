@@ -14,7 +14,7 @@ export type LessonStatus = "not_started" | "in_progress" | "completed";
  * Tipo de conteúdo da aula.
  *
  * SCORM está aqui porque a proposta promete upload de "SCORM, vídeo, imagem,
- * slide, doc" e a Exemplo S.A. já usa hoje. **A conclusão de uma aula SCORM não segue
+ * slide, doc" e a organização já usa hoje. **A conclusão de uma aula SCORM não segue
  * a regra dos 90%**: quem decide é o próprio pacote, pela API dele. Misturar as
  * duas fontes daria dois donos para a mesma verdade. Ver DEC-041.
  */

@@ -127,7 +127,7 @@ export async function sendMail(mail: Mail): Promise<MailResult> {
 export function resetPasswordMail(to: string, fullName: string, link: string): Mail {
   return {
     to,
-    subject: "Redefinir sua senha: Exemplo S.A.",
+    subject: "Redefinir sua senha: a organização",
     body: [
       `Olá, ${fullName}.`,
       "",
@@ -164,7 +164,7 @@ export function accountCreatedMail(options: {
   const primeiroNome = fullName.split(" ")[0] ?? fullName;
 
   const body = [
-    `Bem-vindo à plataforma de ensino da Exemplo S.A., ${primeiroNome}.`,
+    `Bem-vindo à plataforma de ensino da organização, ${primeiroNome}.`,
     "",
     "Sua conta foi criada e já está liberada.",
     "",
@@ -183,7 +183,7 @@ export function accountCreatedMail(options: {
 <meta name="supported-color-schemes" content="light" />
 <meta name="format-detection" content="telephone=no,date=no,address=no,email=no" />
 <meta name="x-apple-disable-message-reformatting" />
-<title>Bem-vindo à plataforma de ensino da Exemplo S.A.</title>
+<title>Bem-vindo à plataforma de ensino da organização</title>
 <!--[if mso]><style>body,table,td{font-family:Arial,sans-serif !important}</style><![endif]-->
 <style>
   /* Modo escuro de cliente de e-mail: Outlook (data-ogsc/ogsb), Gmail e Apple
@@ -220,7 +220,7 @@ export function accountCreatedMail(options: {
 
 <!-- Cabeçalho: imagem, para o Outlook não repintar o azul da marca. -->
 <tr><td style="padding:0;font-size:0;line-height:0;">
-  <img src="${NERD_EMAIL_HEADER_BASE64}" width="600" alt="Exemplo S.A., bem-vindo à plataforma de ensino" style="display:block;width:100%;max-width:600px;height:auto;border:0;" />
+  <img src="${NERD_EMAIL_HEADER_BASE64}" width="600" alt="a organização, bem-vindo à plataforma de ensino" style="display:block;width:100%;max-width:600px;height:auto;border:0;" />
 </td></tr>
 
 <!-- Saudação -->
@@ -279,14 +279,14 @@ export function accountCreatedMail(options: {
 
 <!-- Rodapé -->
 <tr><td bgcolor="#F5F3FF" style="background-color:#F5F3FF;padding:22px 44px;border-top:1px solid #C9E0F2;">
-  <p style="margin:0;font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:12px;line-height:1.6;color:#494C50;">Exemplo S.A. · Plataforma de ensino corporativo<br />Ambiente de homologação</p>
+  <p style="margin:0;font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:12px;line-height:1.6;color:#494C50;">a organização · Plataforma de ensino corporativo<br />Ambiente de homologação</p>
 </td></tr>
 
 </table></td></tr></table></body></html>`;
 
   return {
     to,
-    subject: "Bem-vindo à plataforma de ensino da Exemplo S.A.",
+    subject: "Bem-vindo à plataforma de ensino da organização",
     body,
     html,
     ...(options.bcc ? { bcc: options.bcc } : {}),

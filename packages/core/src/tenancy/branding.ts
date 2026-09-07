@@ -10,6 +10,8 @@
  * régua do produto, não escolha por cliente (guia §34).
  */
 
+import { ARQUIVOS, COR, NOME } from "../brand/brand.config.ts";
+
 export interface Branding {
   logoLightUrl: string | null;
   logoDarkUrl: string | null;
@@ -19,27 +21,21 @@ export interface Branding {
   mailFromEmail: string | null;
 }
 
-/** O que o produto usa quando o cliente não personaliza. */
 /**
- * O nome exibido quando o domínio não identifica nenhum cliente.
+ * A marca do PRODUTO — reexportada de `brand/brand.config.ts`, que é o arquivo
+ * que um fork edita. Aqui só se consome; lá se decide.
  *
- * Aparece na aba do navegador, nos títulos e no texto das telas públicas —
- * acesso inicial, login, recuperação de senha, validação de certificado. Todo
- * cliente com tenant cadastrado vê o PRÓPRIO nome; isto é só a reserva.
- *
- * É o nome do PRODUTO, não o de um cliente: um nome de cliente aqui apareceria
- * para todos os outros até que cada um cadastrasse o seu.
- *
- * PERSONALIZAR: este valor e `BRANDING_PADRAO` abaixo são os dois lugares que
- * um fork precisa editar para trocar a marca do produto inteiro.
+ * Aparece enquanto o domínio não identificar nenhum cliente: acesso inicial,
+ * login, recuperação de senha, validação pública de certificado. Todo cliente
+ * com tenant cadastrado vê o PRÓPRIO nome e as próprias logos.
  */
-export const NOME_PADRAO = "NerdResolve LMS";
+export const NOME_PADRAO = NOME;
 
 export const BRANDING_PADRAO = {
-  logoLight: "/brand/nerdresolve-wordmark.png",
-  logoDark: "/brand/nerdresolve-wordmark-white.png",
-  favicon: "/icon.png",
-  brandColor: "#7C3AED",
+  logoLight: ARQUIVOS.logoClaro,
+  logoDark: ARQUIVOS.logoEscuro,
+  favicon: ARQUIVOS.favicon,
+  brandColor: COR,
 } as const;
 
 interface Rgb {
@@ -207,7 +203,7 @@ export function paletteToCss(brandColor: string | null): string {
     `--text-on-brand:${p.onBrand}`,
     `--border-brand:${p.brand}`,
     `--fill:${p.brand}`,
-    /* O grafismo em quatro cores é da EXEMPLO S.A.. Para um cliente que
+    /* O grafismo em quatro cores é o do produto. Para um cliente que
        personaliza a marca, ele vira monocromático na cor dele — quatro tons da
        mesma família, derivados aqui. Manter o amarelo e o verde do símbolo
        alheio seria pôr a marca de uma empresa dentro do produto de outra. */

@@ -10,8 +10,8 @@ import { ssoOptionsForLogin } from "@/features/auth/sso-options.ts";
 import "@/features/auth/login.css";
 
 export const metadata: Metadata = {
-  title: "Entrar · Exemplo S.A.",
-  description: "Acesse a plataforma de ensino da Exemplo S.A..",
+  title: "Entrar · a organização",
+  description: "Acesse a plataforma de ensino da organização.",
   robots: { index: false, follow: false },
 };
 
@@ -52,7 +52,7 @@ export default async function LoginPage({
 
             {/* Régua da marca: os três acentos em blocos retos, no lugar do
                 rabisco à mão-livre que havia aqui. Traço à mão-livre não é
-                vocabulário da Exemplo S.A. — o material dela é todo módulo,
+                vocabulário da organização — o material dela é todo módulo,
                 canto reto e círculo. */}
             <span className="brand__rule" aria-hidden="true" />
           </section>

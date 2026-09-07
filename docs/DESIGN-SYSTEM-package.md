@@ -1,6 +1,6 @@
 > **Documento histórico.** Este é o README do pacote NERDRESOLVE Design System como
 > ele chegou, e por isso continua falando de NERDRESOLVE, Plus Jakarta Sans e
-> `#0A33CC`. A plataforma não usa mais esses valores: a marca é a Exemplo S.A.,
+> `#0A33CC`. A plataforma não usa mais esses valores: a marca é a organização,
 > a fonte é DM Sans e o azul é `#4C1D95`. O pacote foi bifurcado em
 > `apps/frontend/src/styles/nerd-ds/`, que mantém a MESMA estrutura de arquivos
 > e nomes de token — só as cores, a tipografia e os raios mudaram. Este texto

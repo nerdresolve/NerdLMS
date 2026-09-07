@@ -8,7 +8,7 @@ import { ConfirmResetForm, RequestResetForm } from "@/features/auth/reset-form.t
 import "@/features/auth/login.css";
 
 export const metadata: Metadata = {
-  title: "Redefinir senha · Exemplo S.A.",
+  title: "Redefinir senha · a organização",
   robots: { index: false, follow: false },
 };
 
