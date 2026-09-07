@@ -190,7 +190,7 @@ const slugify = (s) =>
  *   1007 e 1022 COMPARTILHAM o formulário: os dois `prova.txt` são idênticos no
  *   cabeçalho, porque um documento cobre os dois procedimentos. Tirando o
  *   título dali, os cursos ficavam indistinguíveis no catálogo. A diferença —
- *   Unidade Norte e Polo Atalaia — só existe no nome do vídeo.
+ *   Unidade Central e Polo Atalaia — só existe no nome do vídeo.
  *
  * Fica no código, e não no JSON gerado, porque o JSON é SAÍDA: editá-lo lá
  * duraria até a próxima execução deste script. Aqui é entrada, e sobrevive.
@@ -203,7 +203,7 @@ const TITULOS = {
   "1001-PR-0006-BRA-I": "Gerenciamento de Riscos Sociais",
   "1014-PE-0004-BRA-I": "Requisitos Mínimos de Segurança para PT",
 
-  "1007-PE-00022-BRA-I": "Plano de Resposta a Emergências: Unidade Norte",
+  "1007-PE-00022-BRA-I": "Plano de Resposta a Emergências: Unidade Central",
   "1022-PE-00022-BRA-I": "Plano de Resposta a Emergências: Polo Atalaia",
   myahgora: "Acesso ao My Ahgora",
   "consicencia-negra": "Campanha de Consciência Negra",
@@ -228,12 +228,12 @@ const TITULOS = {
 const RESUMOS = {
   "1001-PE-0003-BRA-I":
     "Resposta a emergências ambientais no ativo de produção da operação de " +
-    "Unidade Norte. Procedimento 1001-PE-0003-BRA-I.",
+    "Unidade Central. Procedimento 1001-PE-0003-BRA-I.",
   "1001-PR-0006-BRA-I":
     "Gerenciamento de riscos sociais e relacionamento comunitário. " +
     "Procedimento 1001-PR-0006-BRA-I.",
   "1007-PE-00022-BRA-I":
-    "Plano de resposta a emergências do polo de Unidade Norte. " +
+    "Plano de resposta a emergências do polo de Unidade Central. " +
     "Procedimento 1007-PE-00022-BRA-I.",
   "1014-PE-0004-BRA-I":
     "Requisitos mínimos de segurança para Permissão para Trabalho. " +

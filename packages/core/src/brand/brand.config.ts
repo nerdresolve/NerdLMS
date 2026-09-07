@@ -48,8 +48,8 @@
  *    remota. Regere a sua e cole no lugar.
  *
  * 6. Fonte: `apps/frontend/public/fonts/` + os três lugares que a nomeiam,
- *    listados em `public/fonts/LEIA-ME.md`. **A Satoshi que vem aqui permite
- *    uso mas NÃO redistribuição** — quem publica um fork precisa trocá-la.
+ *    listados em `public/fonts/LEIA-ME.md`. A Manrope que vem aqui é SIL Open
+ *    Font License — pode ser redistribuída, inclusive num fork comercial.
  *
  * 7. `npm run preview && npm run test:a11y` — o segundo reprova se a cor nova
  *    não passar em contraste. É de propósito: WCAG AA é régua do produto.

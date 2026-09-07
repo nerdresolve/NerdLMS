@@ -3,8 +3,8 @@
 -- O RECORTE POR LOCAL JÁ EXISTIA E FUNCIONA
 --
 -- `tracks.project` recorta a leitura desde a 0xx, e `users.project` é
--- preenchido pelo `department` do Active Directory. Uma trilha de Unidade Norte já
--- aparece só para quem é de Unidade Norte.
+-- preenchido pelo `department` do Active Directory. Uma trilha de Unidade Central já
+-- aparece só para quem é de Unidade Central.
 --
 -- O QUE FALTAVA
 --

@@ -12,8 +12,8 @@ describe("Alvo da trilha: a chave de comparação", () => {
   test("ignora caixa, acento e espaço em volta", () => {
     assert.equal(chaveDoAlvo("  Operador de Campo "), "operador de campo");
     assert.equal(chaveDoAlvo("OPERADOR DE CAMPO"), "operador de campo");
-    assert.equal(chaveDoAlvo("Unidade Norte"), "unidade norte");
-    assert.equal(chaveDoAlvo("UNIDADE NORTE"), "unidade norte");
+    assert.equal(chaveDoAlvo("Unidade Central"), "unidade central");
+    assert.equal(chaveDoAlvo("UNIDADE CENTRAL"), "unidade central");
   });
 
   test("vazio, só-espaços, nulo e ausente são a mesma coisa", () => {
@@ -27,68 +27,68 @@ describe("Alvo da trilha: a chave de comparação", () => {
 });
 
 describe("Alvo da trilha: quem a trilha alcança", () => {
-  const operadorUnidadeNorte = { project: "Unidade Norte", jobTitle: "Operador de Campo" };
-  const operadorRiachuelo = { project: "Riachuelo", jobTitle: "Operador de Campo" };
-  const supervisorUnidadeNorte = { project: "Unidade Norte", jobTitle: "Supervisor" };
+  const operadorCentral = { project: "Unidade Central", jobTitle: "Operador de Campo" };
+  const operadorOeste = { project: "Unidade Oeste", jobTitle: "Operador de Campo" };
+  const supervisorCentral = { project: "Unidade Central", jobTitle: "Supervisor" };
 
   test("sem local e sem função, alcança a organização inteira", () => {
     /* Campo em branco é ausência de filtro, não filtro que não casa. O inverso
        seria uma trilha nova invisível para todo mundo, sem nada explicando. */
     const geral = {};
 
-    assert.ok(trilhaAlcanca(geral, operadorUnidadeNorte));
-    assert.ok(trilhaAlcanca(geral, supervisorUnidadeNorte));
+    assert.ok(trilhaAlcanca(geral, operadorCentral));
+    assert.ok(trilhaAlcanca(geral, supervisorCentral));
     assert.ok(trilhaAlcanca(geral, { project: null, jobTitle: null }));
   });
 
   test("só função: alcança a função em qualquer unidade", () => {
     const alvo = { jobTitle: "Operador de Campo" };
 
-    assert.ok(trilhaAlcanca(alvo, operadorUnidadeNorte));
-    assert.ok(trilhaAlcanca(alvo, operadorRiachuelo));
-    assert.equal(trilhaAlcanca(alvo, supervisorUnidadeNorte), false);
+    assert.ok(trilhaAlcanca(alvo, operadorCentral));
+    assert.ok(trilhaAlcanca(alvo, operadorOeste));
+    assert.equal(trilhaAlcanca(alvo, supervisorCentral), false);
   });
 
   test("só local: alcança qualquer função da unidade", () => {
-    const alvo = { project: "Unidade Norte" };
+    const alvo = { project: "Unidade Central" };
 
-    assert.ok(trilhaAlcanca(alvo, operadorUnidadeNorte));
-    assert.ok(trilhaAlcanca(alvo, supervisorUnidadeNorte));
-    assert.equal(trilhaAlcanca(alvo, operadorRiachuelo), false);
+    assert.ok(trilhaAlcanca(alvo, operadorCentral));
+    assert.ok(trilhaAlcanca(alvo, supervisorCentral));
+    assert.equal(trilhaAlcanca(alvo, operadorOeste), false);
   });
 
   test("os dois: é o cruzamento, e só ele", () => {
-    const alvo = { project: "Unidade Norte", jobTitle: "Operador de Campo" };
+    const alvo = { project: "Unidade Central", jobTitle: "Operador de Campo" };
 
-    assert.ok(trilhaAlcanca(alvo, operadorUnidadeNorte));
-    assert.equal(trilhaAlcanca(alvo, operadorRiachuelo), false);
-    assert.equal(trilhaAlcanca(alvo, supervisorUnidadeNorte), false);
+    assert.ok(trilhaAlcanca(alvo, operadorCentral));
+    assert.equal(trilhaAlcanca(alvo, operadorOeste), false);
+    assert.equal(trilhaAlcanca(alvo, supervisorCentral), false);
   });
 
   test("quem está sem função não é alcançado por trilha de função", () => {
-    const semFuncao = { project: "Unidade Norte", jobTitle: null };
+    const semFuncao = { project: "Unidade Central", jobTitle: null };
 
     assert.equal(trilhaAlcanca({ jobTitle: "Operador de Campo" }, semFuncao), false);
     /* Mas continua recebendo o que vale para todos — é o que impede uma
        pendência de cadastro de deixar a pessoa sem treinamento nenhum. */
     assert.ok(trilhaAlcanca({}, semFuncao));
-    assert.ok(trilhaAlcanca({ project: "Unidade Norte" }, semFuncao));
+    assert.ok(trilhaAlcanca({ project: "Unidade Central" }, semFuncao));
   });
 
   test("um espaço a mais no cadastro não some com a trilha", () => {
-    const alvo = { project: " unidade norte ", jobTitle: "OPERADOR DE CAMPO" };
-    assert.ok(trilhaAlcanca(alvo, operadorUnidadeNorte));
+    const alvo = { project: " unidade central ", jobTitle: "OPERADOR DE CAMPO" };
+    assert.ok(trilhaAlcanca(alvo, operadorCentral));
   });
 });
 
 describe("Alvo da trilha: como a tela descreve", () => {
   test("as quatro combinações têm frase própria", () => {
     assert.equal(alvoEmPalavras({}), "Toda a organização");
-    assert.equal(alvoEmPalavras({ project: "Unidade Norte" }), "Qualquer função, em Unidade Norte");
+    assert.equal(alvoEmPalavras({ project: "Unidade Central" }), "Qualquer função, em Unidade Central");
     assert.equal(alvoEmPalavras({ jobTitle: "Operador" }), "Operador, em qualquer unidade");
     assert.equal(
-      alvoEmPalavras({ project: "Unidade Norte", jobTitle: "Operador" }),
-      "Operador · Unidade Norte",
+      alvoEmPalavras({ project: "Unidade Central", jobTitle: "Operador" }),
+      "Operador · Unidade Central",
     );
   });
 
@@ -99,16 +99,16 @@ describe("Alvo da trilha: como a tela descreve", () => {
 
 describe("Matriz de treinamento", () => {
   const pessoas = [
-    { id: "1", project: "Unidade Norte", jobTitle: "Operador de Campo" },
-    { id: "2", project: "Riachuelo", jobTitle: "Operador de Campo" },
-    { id: "3", project: "Unidade Norte", jobTitle: "Supervisor" },
-    { id: "4", project: "Unidade Norte", jobTitle: null },
+    { id: "1", project: "Unidade Central", jobTitle: "Operador de Campo" },
+    { id: "2", project: "Unidade Oeste", jobTitle: "Operador de Campo" },
+    { id: "3", project: "Unidade Central", jobTitle: "Supervisor" },
+    { id: "4", project: "Unidade Central", jobTitle: null },
   ];
 
   const trilhas = [
     { title: "Integração", project: null, jobTitle: null },
     { title: "Operação segura", project: null, jobTitle: "Operador de Campo" },
-    { title: "Permissão de trabalho", project: "Unidade Norte", jobTitle: "Supervisor" },
+    { title: "Permissão de trabalho", project: "Unidade Central", jobTitle: "Supervisor" },
   ];
 
   test("uma linha por função, com a contagem de gente", () => {

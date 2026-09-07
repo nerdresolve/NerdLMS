@@ -3,7 +3,8 @@
 **Endereço:** o que estiver em `SITE_ADDRESS`, no `infra/.env`. Não há domínio
 fixo em código — trocar de endereço é editar uma linha e apontar o DNS.
 
-Localmente, `http://localhost:8080`. Com HTTPS local, `https://localhost`: o
+Localmente, `http://localhost:3000` com `npm run dev`. Com a pilha completa
+(`npm run up`), `https://localhost`: o
 Caddy emite certificado interno e o navegador exibe aviso, o que é esperado. Com um
 domínio real, ele obtém certificado da Let's Encrypt sozinho, desde que o DNS
 já aponte para o servidor e a porta 443 esteja acessível.

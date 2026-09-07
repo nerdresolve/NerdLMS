@@ -1,28 +1,40 @@
 # Fontes
 
-## Satoshi
+## Manrope
 
-Family used by the platform's default theme. Self-hosted here as `.woff2`, one
-file per weight — the browser downloads only the weights the page actually uses.
+Família usada pelo tema padrão da plataforma. Auto-hospedada aqui como um único
+`.woff2` **variável**: o eixo `wght` cobre 200–800, então os cinco pesos que o
+design system usa saem de 24 kB. Uma família estática equivalente seriam oito
+arquivos e cerca de 215 kB.
 
-**Satoshi is NOT under an open-source font license.** It is published by
-[Fontshare](https://www.fontshare.com/fonts/satoshi) (Indian Type Foundry) under
-the *Fontshare Free License*, which permits free personal and commercial use of
-the webfont but **does not permit redistribution of the font files themselves**.
+**Licença: SIL Open Font License 1.1** — ver [OFL.txt](OFL.txt). Pode ser usada,
+modificada e **redistribuída**, inclusive comercialmente. É por isso que ela
+acompanha o repositório: um fork pode publicá-la sem tomar nenhuma providência.
 
-### What this means for you
+### Itálico
 
-If you forked this repository to run your own instance, replace these files with
-a font you have the right to serve, then point `src/styles/nerd-ds/tokens/fonts.css`
-at it. The design system reads a single variable — `--font-sans` — so swapping
-the family is one line, not a refactor.
+A Manrope não publica um desenho itálico próprio; o navegador inclina o romano.
+Isso é aceitável aqui porque o itálico aparece em pouca coisa — citação,
+legenda, ênfase curta. Se ele virar tipografia de corpo em algum lugar, troque
+por uma família com itálico verdadeiro.
 
-A drop-in substitute under the SIL Open Font License, with a similar geometric
-grotesque feel:
+### Trocar a família
 
-- [Inter](https://fonts.google.com/specimen/Inter) — closest match, OFL
-- [Manrope](https://fonts.google.com/specimen/Manrope) — OFL
-- [Plus Jakarta Sans](https://fonts.google.com/specimen/Plus+Jakarta+Sans) — OFL
+O design system lê uma variável só, `--font-sans`, então trocar a fonte é
+mexer em três arquivos e nada mais:
 
-Download the `.woff2` files, drop them in this folder, and edit the `@font-face`
-blocks in `fonts.css`. Nothing else in the codebase names a font.
+1. `apps/frontend/public/fonts/` — ponha o `.woff2` e a licença dele
+2. `apps/frontend/src/styles/fonts.css` — o `@font-face` e o `--font-sans`
+3. `apps/frontend/src/app/layout.tsx` — o `localFont`
+
+Também sob OFL, com caráter parecido (grotesca geométrica):
+
+- [Inter](https://fonts.google.com/specimen/Inter) — a mais neutra, variável
+- [Plus Jakarta Sans](https://fonts.google.com/specimen/Plus+Jakarta+Sans) — variável, com itálico próprio
+- [Figtree](https://fonts.google.com/specimen/Figtree) — variável, com itálico próprio
+
+Depois de trocar, rode `npm run preview` e `npm run test:a11y`.
+
+> **Fonte com licença restritiva não entra aqui.** Muita família comercial
+> permite usar como webfont mas **não redistribuir** — e um repositório público
+> redistribui. Confira a licença antes de versionar o arquivo.

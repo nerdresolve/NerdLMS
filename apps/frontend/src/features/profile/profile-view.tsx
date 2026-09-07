@@ -130,7 +130,7 @@ export function ProfileView({
             <span className="badge badge--on-brand">
               <GraduationCap aria-hidden /> {ROLE_LABEL[user.role]}
             </span>
-            {/* O projeto vem da pessoa, não fixo: com "Aguilhada" no JSX
+            {/* O projeto vem da pessoa, não fixo: com "Unidade Sul" no JSX
                 todo perfil dizia o mesmo, contradizendo a tela de usuários na
                 mesma sessão. A data de entrada saiu porque o modelo não a
                 guarda — imprimir uma fixa era inventar dado. */}

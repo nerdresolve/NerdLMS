@@ -15,7 +15,7 @@ import type { Course, Enrollment, User } from "@nerdlms/core/courses/types.ts";
 /**
  * Camada de dados do gestor.
  *
- * O recorte é o **projeto**, não a autoria: um gestor responde por Siririzinho
+ * O recorte é o **projeto**, não a autoria: um gestor responde por Unidade Leste
  * inteiro, incluindo cursos escritos por outra pessoa. É por isso que o papel
  * existe separado de instrutor (DEC-038).
  *

@@ -494,10 +494,10 @@ for (const perfil of PERFIS) {
   f.filete();
 
   const linhas = [
-    ["Aluno", "user.mock", "usermock", "Siririzinho"],
-    ["Instrutor", "instructor.mock", "instructormock", "Unidade Norte"],
-    ["Instrutor 2", "instructor2.mock", "instructor2mock", "Riachuelo"],
-    ["Gestor", "manager.mock", "managermock", "Unidade Norte"],
+    ["Aluno", "user.mock", "usermock", "Unidade Leste"],
+    ["Instrutor", "instructor.mock", "instructormock", "Unidade Central"],
+    ["Instrutor 2", "instructor2.mock", "instructor2mock", "Unidade Oeste"],
+    ["Gestor", "manager.mock", "managermock", "Unidade Central"],
     ["Administrador", "admin.mock", "adminmock", "Sede"],
   ];
 

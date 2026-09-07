@@ -1,3 +1,4 @@
+import { BRANDING_PADRAO } from "@nerdlms/core/tenancy/branding.ts";
 import { findBadgePublic } from "@nerdlms/backend/badges/badge-repository.ts";
 import { badgeSvg } from "@nerdlms/core/badges/open-badges.ts";
 
@@ -30,7 +31,7 @@ export async function GET(
 
   const svg = badgeSvg(
     badge.name,
-    tenant?.branding?.brandColor ?? "#0A33CC",
+    tenant?.branding?.brandColor ?? BRANDING_PADRAO.brandColor,
     /* As iniciais do badge: "NR-10 Básico" vira "NR". É o que cabe num círculo
        de 200px e ainda distingue um badge do outro na lista de um perfil. */
     badge.name.replace(/[^\p{L}\p{N}]/gu, "").slice(0, 2),

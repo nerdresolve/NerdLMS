@@ -56,8 +56,15 @@ npm run seed                           # contas e catálogo de demonstração
 npm run dev
 ```
 
-Abre em <http://localhost:3000>. As contas de demonstração estão em
-[docs/HOMOLOGACAO.md](docs/HOMOLOGACAO.md).
+Abre em **<http://localhost:3000>** — é o `next dev`, com recarga a quente.
+
+O `npm run up` sobe a pilha completa atrás do proxy, e ela responde em
+**<https://localhost>** (certificado interno: o navegador avisa, e é esperado).
+São dois endereços porque são duas coisas: o `dev` serve o código da sua
+máquina; a pilha serve a imagem, como em produção. As portas 80 e 443 saem de
+`HTTP_PORT`/`HTTPS_PORT` no `infra/.env`, para o caso de já estarem ocupadas.
+
+As contas de demonstração estão em [docs/HOMOLOGACAO.md](docs/HOMOLOGACAO.md).
 
 Precisa de Node 22+ e Docker. **Sem Docker você ainda vai longe:** os testes, os
 portões de acessibilidade e o protótipo navegável em `apps/frontend/preview/`
@@ -150,9 +157,11 @@ Uso comercial — operar para clientes, revender, oferecer como serviço, ou usa
 internamente numa empresa com fins lucrativos — requer licença comercial:
 **contato@mariath.dev**.
 
-A fonte **Satoshi**, que acompanha o repositório, permite uso mas **não
-redistribuição** — se você publicar um fork, troque-a. Alternativas sob OFL
-estão em [apps/frontend/public/fonts/LEIA-ME.md](apps/frontend/public/fonts/LEIA-ME.md).
+A fonte que acompanha o repositório é a **Manrope**, sob
+[SIL Open Font License 1.1](apps/frontend/public/fonts/OFL.txt) — livre para
+usar, modificar e redistribuir, inclusive num fork comercial. Trocá-la é mexer
+em três arquivos: veja
+[apps/frontend/public/fonts/LEIA-ME.md](apps/frontend/public/fonts/LEIA-ME.md).
 
 ---
 

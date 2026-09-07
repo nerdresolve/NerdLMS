@@ -11,25 +11,34 @@
    restrita — o que num cliente grande não é hipótese remota. E não vaza para
    um terceiro o IP de quem está estudando.
 
-   TROCAR A FAMÍLIA: ver `public/fonts/LEIA-ME.md`. Satoshi permite uso, não
-   redistribuição — quem publica um fork precisa substituí-la. Só este arquivo,
-   o do design system e o `localFont` em `app/layout.tsx` nomeiam a fonte.
+   ARQUIVO ÚNICO, VARIÁVEL: o eixo `wght` cobre 200–800, então os cinco pesos
+   que o design system usa saem de 24 kB. Uma família estática equivalente
+   custaria oito arquivos e ~215 kB.
+
+   O ITÁLICO É SINTÉTICO. A Manrope não publica um desenho itálico próprio, e
+   o navegador inclina o romano. É aceitável aqui porque o itálico aparece em
+   pouca coisa (citação, legenda); se um dia virar tipografia de corpo, troque
+   por uma família com itálico verdadeiro.
+
+   TROCAR A FAMÍLIA: ver `public/fonts/LEIA-ME.md`. Só este arquivo, o do
+   design system e o `localFont` em `app/layout.tsx` nomeiam a fonte.
    ============================================================================= */
 
-@font-face{font-family:"Satoshi";src:url("/fonts/Satoshi-Light.woff2") format("woff2");font-weight:300;font-style:normal;font-display: swap}
-@font-face{font-family:"Satoshi";src:url("/fonts/Satoshi-Regular.woff2") format("woff2");font-weight:400;font-style:normal;font-display: swap}
-@font-face{font-family:"Satoshi";src:url("/fonts/Satoshi-Italic.woff2") format("woff2");font-weight:400;font-style:italic;font-display: swap}
-@font-face{font-family:"Satoshi";src:url("/fonts/Satoshi-Medium.woff2") format("woff2");font-weight:500;font-style:normal;font-display: swap}
-@font-face{font-family:"Satoshi";src:url("/fonts/Satoshi-MediumItalic.woff2") format("woff2");font-weight:500;font-style:italic;font-display: swap}
-@font-face{font-family:"Satoshi";src:url("/fonts/Satoshi-Bold.woff2") format("woff2");font-weight:700;font-style:normal;font-display: swap}
-@font-face{font-family:"Satoshi";src:url("/fonts/Satoshi-BoldItalic.woff2") format("woff2");font-weight:700;font-style:italic;font-display: swap}
-@font-face{font-family:"Satoshi";src:url("/fonts/Satoshi-Black.woff2") format("woff2");font-weight:800;font-style:normal;font-display: swap}
+@font-face {
+  font-family: "Manrope";
+  src: url("/fonts/manrope.woff2") format("woff2");
+  font-weight: 200 800;
+  font-style: normal;
+  /* swap: o texto aparece na fonte de sistema e troca depois. Nunca bloquear
+     leitura por causa de tipografia. */
+  font-display: swap;
+}
 
 :root {
   /* O fallback dentro do var() é obrigatório: uma custom property indefinida
      invalida a declaração inteira, e a página cai em serifada. Fora do Next,
-     --font-satoshi não existe. */
-  --font-sans: var(--font-satoshi, "Satoshi"), "Satoshi", ui-sans-serif, system-ui,
+     --font-manrope não existe. */
+  --font-sans: var(--font-manrope, "Manrope"), "Manrope", ui-sans-serif, system-ui,
     -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, "JetBrains Mono", Menlo, Consolas, monospace;
 }

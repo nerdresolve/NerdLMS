@@ -27,10 +27,10 @@
   </g>
 
   <g transform="translate(320 132)">
-    <text font-family="Satoshi, Segoe UI, Inter, Helvetica Neue, Arial, sans-serif" font-size="52" font-weight="700" letter-spacing="-1">
+    <text font-family="Manrope, Segoe UI, Inter, Helvetica Neue, Arial, sans-serif" font-size="52" font-weight="700" letter-spacing="-1">
       <tspan fill="#FFFFFF">Nerd</tspan><tspan fill="#A855F7">Resolve</tspan><tspan fill="#F8FAFC" font-weight="300"> LMS</tspan>
     </text>
-    <text y="42" font-family="Satoshi, Segoe UI, Inter, Helvetica Neue, Arial, sans-serif" font-size="21" font-weight="400" fill="#9691A4">Plataforma de ensino corporativo white-label</text>
-    <text y="80" font-family="Satoshi, Segoe UI, Inter, Helvetica Neue, Arial, sans-serif" font-size="13" font-weight="500" fill="#A855F7" letter-spacing="3.2">UM SERVIDOR &#183; MUITOS CLIENTES &#183; CADA UM COM SUA MARCA</text>
+    <text y="42" font-family="Manrope, Segoe UI, Inter, Helvetica Neue, Arial, sans-serif" font-size="21" font-weight="400" fill="#9691A4">Plataforma de ensino corporativo white-label</text>
+    <text y="80" font-family="Manrope, Segoe UI, Inter, Helvetica Neue, Arial, sans-serif" font-size="13" font-weight="500" fill="#A855F7" letter-spacing="3.2">UM SERVIDOR &#183; MUITOS CLIENTES &#183; CADA UM COM SUA MARCA</text>
   </g>
 </svg>

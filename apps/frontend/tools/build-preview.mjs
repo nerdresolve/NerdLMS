@@ -192,32 +192,17 @@ function linkPreviews(html) {
  * No app a fonte é servida de /fonts; o preview é um arquivo solto que precisa
  * funcionar aberto do disco, então o `src:` vira data URI.
  *
- * Só Regular e Bold entram. A família tem oito arquivos, e embutir todos
- * somaria ~215 kB a CADA uma das 21 páginas — o orçamento de peso
- * (check-quality.mjs) é 220 kB para a página inteira. Os dois pesos cobrem
- * texto e título; os demais o navegador sintetiza, e no protótipo isso basta.
- *
- * Os @font-face dos pesos NÃO embutidos são removidos: um `src:` apontando
- * para `/fonts/` não resolve num arquivo aberto do disco, e o navegador
- * registraria a família com uma fonte que nunca chega.
+ * Um arquivo só, porque a Manrope é variável: os 24 kB cobrem todos os pesos.
+ * Com a família estática anterior era preciso escolher quais pesos embutir para
+ * caber no orçamento de peso da página (check-quality.mjs).
  */
-const PESOS_NO_PREVIEW = new Set(["Satoshi-Regular", "Satoshi-Bold"]);
-
 async function embedFont(css) {
-  if (!/url\("\/fonts\/Satoshi-/.test(css)) return css;
-
-  const embutidos = new Map();
-  for (const nome of PESOS_NO_PREVIEW) {
-    embutidos.set(nome, await readBase64(`public/fonts/${nome}.woff2`));
-  }
-
-  return css.replace(/@font-face\{[^}]*\}/g, (bloco) => {
-    const nome = bloco.match(/url\("\/fonts\/([A-Za-z-]+)\.woff2"\)/)?.[1];
-    if (!nome) return bloco;
-    const b64 = embutidos.get(nome);
-    if (!b64) return "";
-    return bloco.replace(/src:[^;]+;/, `src:url("data:font/woff2;base64,${b64}") format("woff2");`);
-  });
+  if (!css.includes("manrope.woff2")) return css;
+  const woff2 = await readBase64("public/fonts/manrope.woff2");
+  return css.replace(
+    /src:\s*url\("\/fonts\/manrope\.woff2"\)\s*format\("woff2"\);/,
+    `src: url("data:font/woff2;base64,${woff2}") format("woff2");`,
+  );
 }
 
 /**
@@ -1367,7 +1352,7 @@ await render(
     "@@HERO_WAVE@@": mosaico("blob", "profile-hero__wave", "silhueta"),
     "@@PROFILE_BADGES@@": [
       `<span class="badge badge--on-brand">${icon("graduation-cap")} Aluno</span>`,
-      `<span class="badge badge--on-brand">${icon("users")} Aguilhada</span>`,
+      `<span class="badge badge--on-brand">${icon("users")} Unidade Sul</span>`,
       `<span class="badge badge--on-brand">${icon("calendar")} Desde março de 2026</span>`,
     ].join("\n              "),
     "@@PROFILE_STATS@@": profileStats,

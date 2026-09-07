@@ -175,7 +175,7 @@ describe("Open Badges 2.0: F6-01", () => {
   test("o SVG escapa o que vem de fora", () => {
     /* O nome do badge é digitado por alguém do cliente e vai para dentro de um
        documento XML servido pela plataforma. */
-    const svg = badgeSvg('Badge <script>alert("x")</script>', "#0A33CC", "BA");
+    const svg = badgeSvg('Badge <script>alert("x")</script>', "#7C3AED", "BA");
 
     assert.equal(svg.includes("<script>"), false);
     assert.ok(svg.includes("&lt;script&gt;"));
@@ -188,7 +188,7 @@ describe("Open Badges 2.0: F6-01", () => {
     const comInjecao = badgeSvg("X", '" onload="alert(1)', "X");
 
     assert.equal(comInjecao.includes("onload"), false);
-    assert.ok(comInjecao.includes("#0A33CC"));
+    assert.ok(comInjecao.includes("#7C3AED"));
 
     const valida = badgeSvg("X", "#FF0000", "X");
     assert.ok(valida.includes("#FF0000"));

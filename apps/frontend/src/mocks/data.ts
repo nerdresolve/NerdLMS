@@ -38,7 +38,7 @@ export const student: User = {
   fullName: "Aluno",
   email: "maria.souza@exemplo.com",
   status: "active",
-  project: "Siririzinho",
+  project: "Unidade Leste",
   region: "Rosário do Catete",
   lastAccessAt: acessoEm(1),
 };
@@ -52,8 +52,8 @@ export const instructors: User[] = [
     fullName: "Instrutor",
     email: "rafael.nunes@exemplo.com",
     status: "active",
-    project: "Unidade Norte",
-    region: "Unidade Norte",
+    project: "Unidade Central",
+    region: "Unidade Central",
   },
   {
     id: "u3",
@@ -62,7 +62,7 @@ export const instructors: User[] = [
     fullName: "Instrutor 2",
     email: "camila.prado@exemplo.com",
     status: "active",
-    project: "Riachuelo",
+    project: "Unidade Oeste",
     region: "Japaratuba",
   },
 ];
@@ -75,8 +75,8 @@ export const manager: User = {
   fullName: "Gestor",
   email: "sergio.bastos@exemplo.com",
   status: "active",
-  project: "Unidade Norte",
-  region: "Unidade Norte",
+  project: "Unidade Central",
+  region: "Unidade Central",
   lastAccessAt: acessoEm(2),
 };
 
@@ -546,8 +546,8 @@ const NOMES = [
 ];
 
 /* Campos e municípios reais da operação da organização . */
-const PROJETOS = ["Unidade Norte", "Siririzinho", "Riachuelo", "Aguilhada"];
-const REGIOES = ["Unidade Norte", "Rosário do Catete", "Japaratuba"];
+const PROJETOS = ["Unidade Central", "Unidade Leste", "Unidade Oeste", "Unidade Sul"];
+const REGIOES = ["Unidade Central", "Rosário do Catete", "Japaratuba"];
 
 function emailDe(fullName: string): string {
   return `${fullName
@@ -678,7 +678,7 @@ function noMesAtual(offset: number): string {
 
 export const events: CalendarEvent[] = [
   { id: "e1", date: noMesAtual(-10), title: "Prazo: Segurança em Operações de Campo", kind: "deadline" },
-  { id: "e2", date: noMesAtual(-5), title: "Treinamento ao vivo: Bombeio mecânico", kind: "training", time: "14h às 17h", location: "Estação Unidade Norte" },
+  { id: "e2", date: noMesAtual(-5), title: "Treinamento ao vivo: Bombeio mecânico", kind: "training", time: "14h às 17h", location: "Estação Unidade Central" },
   { id: "e3", date: noMesAtual(0), title: "Comunicado: nova norma de integridade", kind: "announcement" },
   { id: "e4", date: noMesAtual(2), title: "Treinamento ao vivo: Integração", kind: "training", time: "9h às 12h", location: "Online" },
   { id: "e5", date: noMesAtual(4), title: "Prazo: Relacionamento com Comunidades", kind: "deadline" },
@@ -733,7 +733,7 @@ import type { AuditEvent } from "@nerdlms/core/courses/audit.ts";
  * ficar registrado, e a tela precisa mostrar como isso aparece.
  */
 export const auditEvents: AuditEvent[] = [
-  { id: "a1", at: "2026-08-12T09:14:00-03:00", actorId: "u9", actorName: "Administrador", action: "report_exported", target: "relatório de conclusão · Unidade Norte", outcome: "allowed", ip: "200.150.10.4" },
+  { id: "a1", at: "2026-08-12T09:14:00-03:00", actorId: "u9", actorName: "Administrador", action: "report_exported", target: "relatório de conclusão · Unidade Central", outcome: "allowed", ip: "200.150.10.4" },
   { id: "a2", at: "2026-08-12T09:02:00-03:00", actorId: "u2", actorName: "Instrutor", action: "course_published", target: "Operação de Poços: Fundamentos", outcome: "allowed", ip: "200.150.10.8" },
   { id: "a3", at: "2026-08-12T08:47:00-03:00", actorId: "s1", actorName: "João Peixoto", action: "access_denied", target: "progresso de outro aluno (s3)", outcome: "denied", ip: "189.44.2.19" },
   { id: "a4", at: "2026-08-12T08:46:00-03:00", actorId: "s1", actorName: "João Peixoto", action: "access_denied", target: "progresso de outro aluno (s4)", outcome: "denied", ip: "189.44.2.19" },

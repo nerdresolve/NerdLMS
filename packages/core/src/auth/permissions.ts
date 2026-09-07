@@ -15,9 +15,9 @@
  * Papéis da plataforma.
  *
  * `manager` existe porque a proposta promete "Administrador, Gestor e Aluno" e
- * porque os relatórios pedidos são **por campo** (Unidade Norte, Siririzinho,
- * Riachuelo, Aguilhada). O recorte do instrutor é autoria de conteúdo e não
- * responde "como está Siririzinho" — são funções diferentes, não sinônimos.
+ * porque os relatórios pedidos são **por campo** (Unidade Central, Unidade Leste,
+ * Unidade Oeste, Unidade Sul). O recorte do instrutor é autoria de conteúdo e não
+ * responde "como está Unidade Leste" — são funções diferentes, não sinônimos.
  * Ver PRD §2 e DEC-038.
  */
 export type Role = "admin" | "manager" | "instructor" | "learner";

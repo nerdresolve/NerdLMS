@@ -206,7 +206,7 @@ export function TracksView({
                 value={project}
                 onChange={(evento) => setProject(evento.target.value)}
                 maxLength={120}
-                placeholder="Ex.: Unidade Norte"
+                placeholder="Ex.: Unidade Central"
               />
             </div>
 

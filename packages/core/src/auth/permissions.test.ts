@@ -171,11 +171,11 @@ describe("Falha fechada", () => {
 });
 
 describe("Manager, o Gestor da proposta", () => {
-  const gestor: Actor = { id: "u5", role: "manager", project: "Siririzinho" };
+  const gestor: Actor = { id: "u5", role: "manager", project: "Unidade Leste" };
 
   test("lê o engajamento do próprio projeto, não o de outro", () => {
-    assert.equal(can(gestor, "read", { kind: "analytics", scope: "project", project: "Siririzinho" }), true);
-    assert.equal(can(gestor, "read", { kind: "analytics", scope: "project", project: "Unidade Norte" }), false);
+    assert.equal(can(gestor, "read", { kind: "analytics", scope: "project", project: "Unidade Leste" }), true);
+    assert.equal(can(gestor, "read", { kind: "analytics", scope: "project", project: "Unidade Central" }), false);
   });
 
   test("não vê o engajamento da plataforma inteira, isso é do admin", () => {
@@ -183,8 +183,8 @@ describe("Manager, o Gestor da proposta", () => {
   });
 
   test("gerencia gente do próprio projeto, nunca de outro", () => {
-    assert.equal(can(gestor, "create", { kind: "user", project: "Siririzinho" }), true);
-    assert.equal(can(gestor, "create", { kind: "user", project: "Aguilhada" }), false);
+    assert.equal(can(gestor, "create", { kind: "user", project: "Unidade Leste" }), true);
+    assert.equal(can(gestor, "create", { kind: "user", project: "Unidade Sul" }), false);
     assert.equal(can(gestor, "create", { kind: "user" }), false, "usuário sem projeto não é dele");
   });
 
@@ -212,22 +212,22 @@ describe("Manager, o Gestor da proposta", () => {
 
   test("gestor sem projeto definido não enxerga nada", () => {
     const semProjeto: Actor = { id: "u6", role: "manager" };
-    assert.equal(can(semProjeto, "read", { kind: "analytics", scope: "project", project: "Siririzinho" }), false);
-    assert.equal(can(semProjeto, "create", { kind: "user", project: "Siririzinho" }), false);
+    assert.equal(can(semProjeto, "read", { kind: "analytics", scope: "project", project: "Unidade Leste" }), false);
+    assert.equal(can(semProjeto, "create", { kind: "user", project: "Unidade Leste" }), false);
   });
 });
 
 describe("Recorte por projeto para os demais papéis", () => {
   test("instrutor não lê engajamento de projeto", () => {
-    assert.equal(can(author, "read", { kind: "analytics", scope: "project", project: "Siririzinho" }), false);
+    assert.equal(can(author, "read", { kind: "analytics", scope: "project", project: "Unidade Leste" }), false);
   });
 
   test("aluno não lê engajamento de projeto", () => {
-    assert.equal(can(learner, "read", { kind: "analytics", scope: "project", project: "Siririzinho" }), false);
+    assert.equal(can(learner, "read", { kind: "analytics", scope: "project", project: "Unidade Leste" }), false);
   });
 
   test("admin lê qualquer recorte", () => {
-    assert.equal(can(admin, "read", { kind: "analytics", scope: "project", project: "Siririzinho" }), true);
+    assert.equal(can(admin, "read", { kind: "analytics", scope: "project", project: "Unidade Leste" }), true);
   });
 });
 
