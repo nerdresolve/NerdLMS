@@ -27,7 +27,7 @@ export const LANDING_POINTS: LandingPoint[] = [
   {
     icon: "book-open",
     title: "Cursos da operação",
-    text: "Operação de poços, integridade de ativos, segurança de campo e meio ambiente.",
+    text: "Desenvolvimento, segurança, dados e as práticas que o time usa todo dia.",
   },
   {
     icon: "clock",

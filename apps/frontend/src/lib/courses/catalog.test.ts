@@ -49,17 +49,21 @@ describe("queryCatalog, filtros", () => {
 
 describe("queryCatalog, busca", () => {
   test("encontra sem acento", () => {
-    assert.deepEqual(titles(queryCatalog(entries, { search: "pocos" })), ["Operação de Poços: Fundamentos"]);
+    /* "pratica" acha "Prática": é o caso que a normalização existe para cobrir,
+       porque ninguém digita acento na busca. */
+    assert.deepEqual(titles(queryCatalog(entries, { search: "pratica" })), ["TypeScript na Prática"]);
   });
 
   test("exige todos os termos, em qualquer ordem", () => {
-    assert.equal(queryCatalog(entries, { search: "integridade ativos" }).length, 1);
-    assert.equal(queryCatalog(entries, { search: "ativos integridade" }).length, 1);
-    assert.equal(queryCatalog(entries, { search: "integridade inexistente" }).length, 0);
+    assert.equal(queryCatalog(entries, { search: "typescript pratica" }).length, 1);
+    assert.equal(queryCatalog(entries, { search: "pratica typescript" }).length, 1);
+    assert.equal(queryCatalog(entries, { search: "typescript inexistente" }).length, 0);
   });
 
   test("busca também no resumo do curso", () => {
-    assert.ok(queryCatalog(entries, { search: "espaco confinado" }).length >= 1);
+    /* "deploy" não está em nenhum título — só no resumo de Fundamentos de Web
+       Moderna. É o que prova que a busca alcança o resumo. */
+    assert.ok(queryCatalog(entries, { search: "deploy" }).length >= 1);
   });
 
   test("busca vazia ou só espaços não filtra nada", () => {
@@ -67,7 +71,7 @@ describe("queryCatalog, busca", () => {
   });
 
   test("busca combina com filtro", () => {
-    assert.equal(queryCatalog(entries, { filter: "completed", search: "pocos" }).length, 0);
+    assert.equal(queryCatalog(entries, { filter: "completed", search: "pratica" }).length, 0);
   });
 });
 

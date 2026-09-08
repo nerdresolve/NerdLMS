@@ -22,7 +22,7 @@ export interface SearchHit {
   /** Para curso, o slug; para aula, o id — é o que a URL de cada um usa. */
   id: string;
   title: string;
-  /** Onde o resultado vive, para a pessoa se situar. Ex.: "Segurança · Espaço confinado". */
+  /** Onde o resultado vive, para a pessoa se situar. Ex.: "Segurança · Injeção de SQL". */
   context: string;
   href: string;
   /** Quanto o resultado casa com o termo. Maior aparece primeiro. */

@@ -331,9 +331,9 @@ export function planCoursesImport(linhas: Array<Record<string, string>>): PlanoC
 export const MODELO_CURSOS = {
   headers: ["Tipo", "Titulo", "Descricao", "Formato", "Duracao", "URL", "Paginas"],
   exemplo: [
-    ["curso", "Segurança em Espaço Confinado", "NR-33 aplicada à operação de saneamento.", "", "", "", ""],
+    ["curso", "Segurança para Quem Desenvolve", "As falhas que aparecem em auditoria, do lado de quem escreve o código.", "", "", "", ""],
     ["modulo", "Fundamentos", "", "", "", "", ""],
-    ["aula", "O que é espaço confinado", "", "video", "12", "", ""],
+    ["aula", "O que é injeção de SQL", "", "video", "12", "", ""],
     ["aula", "Riscos atmosféricos", "", "video", "18", "", ""],
     ["modulo", "Procedimentos", "", "", "", "", ""],
     ["aula", "Permissão de entrada e trabalho", "", "documento", "20", "", "24"],
