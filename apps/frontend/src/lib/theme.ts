@@ -17,10 +17,14 @@ export type Theme = "light" | "dark";
 /**
  * Executado inline no `<head>`, antes de qualquer pintura.
  *
- * Ordem: escolha salva > claro. A preferência do sistema NÃO entra: quem usa
- * o Windows no escuro caía no tema escuro sem ter pedido, e a plataforma é
- * apresentada no claro. O escuro passa a ser uma escolha explícita, feita no
- * botão da topbar, e essa escolha sobrevive ao recarregamento.
+ * Ordem: escolha salva > ESCURO. O escuro é o modo nativo da marca — o site
+ * institucional é escuro, e a paleta foi desenhada a partir dele — então é o
+ * que a plataforma mostra a quem chega. O claro continua a um clique no botão
+ * da topbar, e a escolha sobrevive ao recarregamento.
+ *
+ * A preferência do sistema NÃO entra: ela empataria com o padrão da marca sem
+ * que ninguém tivesse pedido, e faria a mesma instalação abrir de dois jeitos
+ * em duas máquinas. Quem quer claro clica uma vez.
  *
  * O `try` cobre o navegador com armazenamento bloqueado (janela privada,
  * cookies de terceiros desligados), onde `localStorage` lança em vez de
@@ -29,13 +33,13 @@ export type Theme = "light" | "dark";
  */
 export const THEME_INIT_SCRIPT = `(function(){try{
 var s=localStorage.getItem(${JSON.stringify(THEME_KEY)});
-document.documentElement.setAttribute("data-theme",s==="dark"?"dark":"light");
+document.documentElement.setAttribute("data-theme",s==="light"?"light":"dark");
 }catch(e){}})();`;
 
 /** Lê a escolha efetiva já aplicada ao documento. */
 export function readTheme(): Theme {
-  if (typeof document === "undefined") return "light";
-  return document.documentElement.getAttribute("data-theme") === "dark" ? "dark" : "light";
+  if (typeof document === "undefined") return "dark";
+  return document.documentElement.getAttribute("data-theme") === "light" ? "light" : "dark";
 }
 
 /** Aplica e guarda a escolha. Falha de armazenamento não impede a troca. */

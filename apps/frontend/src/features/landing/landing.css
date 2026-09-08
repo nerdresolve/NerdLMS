@@ -24,7 +24,7 @@
 }
 @container (min-width: 860px) { .landing__header { padding: var(--space-8) var(--space-12); } }
 
-.landing__logo { width: 108px; height: auto; }
+.landing__logo { width: 150px; height: auto; }
 
 /* A marca azul desaparece contra o fundo escuro da landing; a branca some
    contra o claro. Só uma das duas fica visível, escolhida pelo tema. */
@@ -100,33 +100,41 @@
 }
 @container (min-width: 960px) { .landing__art { max-width: none; } }
 
-/* A forma É uma primitiva da marca em escala de hero: quadrado com dois cantos
-   OPOSTOS arredondados — o mesmo `canto` da grade de formas.
+/* Painel de vidro sobre brilho, que é a composição de hero da marca: um bloco
+   de canto arredondado uniforme, com a trama de pontos por dentro e os cartões
+   flutuando por cima.
 
-   Antes era um blob orgânico assimétrico, assinatura da marca anterior. Curva
-   à mão-livre não existe em nenhuma peça da organização: lá tudo é módulo,
-   canto reto e círculo. */
+   O `border-radius` assimétrico (`46% 0 46% 0`) saiu daqui. Ele desenhava uma
+   folha — dois cantos opostos redondos e dois retos —, e forma figurativa não
+   existe no vocabulário da NerdResolve: o site é feito de retângulo de canto
+   suave, círculo concêntrico e brilho radial. Uma silhueta de folha em escala
+   de hero era a coisa mais visível da tela e apontava para outra marca. */
 .landing__blob {
   position: absolute;
   inset: 9% 7% 7% 9%;
-  border-radius: 46% 0 46% 0;
+  border-radius: var(--radius-surface, 28px);
   background: var(--landing-art);
   overflow: hidden;
 }
 .landing__blob svg { position: absolute; inset: 0; width: 100%; height: 100%; }
 
-/* Halo claro atrás: a MESMA forma, um pouco maior. Um eco.
+/* Brilho atrás do painel. Não é mais um eco da forma: é o `bg-glow` do site —
+   um halo radial que se dissolve antes da borda, sem contorno próprio.
 
-   Os cantos eram espelhados (`0 46% 0 46%` contra `46% 0 46% 0`), na ideia de
-   repetir o par que a grade faz ao alternar a rotação de uma peça. Na tela deu
-   outra coisa: onde a forma da frente é arredondada, o halo mostrava um canto
-   reto saindo por baixo — e o conjunto lia como duplicata desalinhada, não
-   como composição. Mesmo raio, e a sobreposição vira profundidade. */
+   Com a mesma silhueta atrás, o conjunto lia como duplicata desalinhada. Um
+   brilho sem forma dá a profundidade que se queria e não compete com o painel
+   da frente.
+
+   `inset: 0`, e não negativo: estourando a caixa ele empurrava a largura do
+   documento e a landing passava a rolar na horizontal em 390 e 414px. O
+   alcance do brilho vem do `blur` e do raio do gradiente, que não afetam
+   layout — não de área extra. */
 .landing__halo {
   position: absolute;
   inset: 0;
-  border-radius: 46% 0 46% 0;
-  background: var(--landing-halo);
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--landing-halo) 0%, transparent 72%);
+  filter: blur(32px);
 }
 
 /* Mesmo tratamento do MediaPlaceholder do kit oficial: superfície de marca com

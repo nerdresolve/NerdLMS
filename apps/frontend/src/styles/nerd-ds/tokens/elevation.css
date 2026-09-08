@@ -1,8 +1,18 @@
+/* Sombras.
+
+   As neutras usam preto-violeta (#08060D) em vez de preto puro: sombra
+   cinza-neutra sobre superfície violeta lê como sujeira. No escuro elas são
+   preto quase opaco, porque ali a sombra separa por contraste de luz, não por
+   tinta.
+
+   `--shadow-brand` é o brilho do botão primário e dos elementos de marca. Ele
+   PRECISA sair da cor da marca: com um azul aqui — herança de outra paleta — o
+   botão violeta ganhava um halo azul no hover, visível e errado. */
 :root{
---shadow-sm:0 1px 2px rgba(0,11,27,.06),0 1px 3px rgba(0,11,27,.04);
---shadow-md:0 4px 12px rgba(0,11,27,.08),0 1px 3px rgba(0,11,27,.04);
---shadow-lg:0 16px 36px rgba(0,11,27,.10),0 4px 10px rgba(0,11,27,.05);
---shadow-brand:0 8px 20px rgba(0,46,109,.24);
+--shadow-sm:0 1px 2px rgba(8,6,13,.06),0 1px 3px rgba(8,6,13,.04);
+--shadow-md:0 4px 12px rgba(8,6,13,.08),0 1px 3px rgba(8,6,13,.04);
+--shadow-lg:0 16px 36px rgba(8,6,13,.10),0 4px 10px rgba(8,6,13,.05);
+--shadow-brand:0 8px 20px rgba(124,58,237,.24);
 --shadow-inset-hairline:inset 0 0 0 1px var(--border-subtle);
 }
-[data-theme="dark"]{--shadow-sm:0 1px 2px rgba(0,0,0,.5);--shadow-md:0 4px 12px rgba(0,0,0,.45);--shadow-lg:0 16px 36px rgba(0,0,0,.55);--shadow-brand:0 8px 20px rgba(0,117,201,.30)}
+[data-theme="dark"]{--shadow-sm:0 1px 2px rgba(0,0,0,.5);--shadow-md:0 4px 12px rgba(0,0,0,.45);--shadow-lg:0 16px 36px rgba(0,0,0,.55);--shadow-brand:0 8px 20px rgba(168,85,247,.30)}

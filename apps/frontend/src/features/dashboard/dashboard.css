@@ -38,7 +38,7 @@
   position: absolute;
   inset: 0;
   z-index: -1;
-  background: linear-gradient(100deg, rgba(0, 11, 27, 0.58) 0%, rgba(0, 11, 27, 0.30) 58%, transparent 82%);
+  background: linear-gradient(100deg, rgba(8, 6, 13, 0.58) 0%, rgba(8, 6, 13, 0.30) 58%, transparent 82%);
 }
 .continue__body { display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-4); max-width: 42ch; }
 
@@ -75,7 +75,7 @@
   max-width: 420px;
   padding: var(--space-3) var(--space-4);
   margin-inline: calc(var(--space-4) * -1);
-  background: rgba(0, 11, 27, 0.28);
+  background: rgba(8, 6, 13, 0.28);
   border-radius: var(--radius-md);
   backdrop-filter: blur(2px);
 }

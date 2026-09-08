@@ -29,7 +29,7 @@ export default async function ResetPage({
   const { token } = await searchParams;
 
   return (
-    <main className="page">
+    <main className="auth-page">
       <div className="viewport">
         <div className="auth">
           <section className="brand">

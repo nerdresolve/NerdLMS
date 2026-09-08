@@ -1,11 +1,9 @@
 /**
- * O grafismo da organização, em SVG.
+ * O grafismo da marca, em SVG: traçado de circuito.
  *
- * Substitui o `FluidWave`: a onda era a assinatura de outra marca, e nenhuma
- * curva orgânica aparece no material da organização. A geometria vem de
- * `@nerdlms/core/brand/mosaic.ts`, extraída do arquivo oficial do site institucional e
- * compartilhada com o gerador do protótipo — as duas superfícies desenham o
- * mesmo grafismo por construção.
+ * A geometria vem de `@nerdlms/core/brand/mosaic.ts` e é compartilhada com o
+ * gerador do protótipo e com o certificado em PDF — as três superfícies
+ * desenham o mesmo grafismo por construção, não por coincidência.
  */
 
 import { MOSAIC_SHAPES, type MosaicVariant } from "@nerdlms/core/brand/mosaic.ts";
@@ -14,17 +12,14 @@ interface BrandMosaicProps {
   variant: MosaicVariant;
   className?: string;
   /**
-   * `cor` usa as quatro cores da marca. `silhueta` usa um só branco
-   * translúcido, com a MESMA geometria.
+   * `cor` usa os acentos da marca. `silhueta` usa um só tom translúcido, com a
+   * MESMA geometria.
    *
-   * A distinção existe porque no site institucional o grafismo colorido
-   * aparece UMA vez — o banner da home — e em nenhuma outra página. Repetido,
-   * ele deixa de ser assinatura e vira papel de parede: numa grade de sete
-   * capas de curso viravam sete anéis amarelos do mesmo tamanho, em ritmo,
-   * disputando com os títulos.
+   * A distinção existe porque o grafismo colorido é assinatura: aparece uma vez
+   * por tela. Repetido, vira papel de parede — numa grade de sete capas de
+   * curso, sete anéis do mesmo tamanho em ritmo disputam com os títulos.
    *
    * Então: cor onde é o gráfico DA TELA, silhueta onde o elemento se repete.
-   * A forma continua sendo a mesma, e é ela que carrega o reconhecimento.
    */
   tone?: "cor" | "silhueta";
 }
@@ -43,9 +38,24 @@ export function BrandMosaic({ variant, className, tone = "cor" }: BrandMosaicPro
       aria-hidden="true"
       focusable="false"
     >
-      {shape.paths.map((path, index) => (
-        <path key={index} d={path.d} fill={tone === "silhueta" ? "var(--tile-ghost)" : path.fill} />
-      ))}
+      {shape.paths.map((path, index) => {
+        /* Trilha é traço, nó é preenchimento. Sem repassar `stroke` a trilha
+           some: `fill: "none"` num caminho aberto não desenha nada. */
+        const cor = tone === "silhueta" ? "var(--tile-ghost)" : undefined;
+        return path.stroke ? (
+          <path
+            key={index}
+            d={path.d}
+            fill="none"
+            stroke={cor ?? path.stroke}
+            strokeWidth={path.strokeWidth ?? 2}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        ) : (
+          <path key={index} d={path.d} fill={cor ?? path.fill} />
+        );
+      })}
     </svg>
   );
 }

@@ -49,7 +49,7 @@
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background: linear-gradient(180deg, rgba(0, 11, 27, 0.35) 0%, rgba(0, 11, 27, 0) 32%, rgba(0, 11, 27, 0.82) 100%);
+  background: linear-gradient(180deg, rgba(8, 6, 13, 0.35) 0%, rgba(8, 6, 13, 0) 32%, rgba(8, 6, 13, 0.82) 100%);
 }
 
 .player__big-play {

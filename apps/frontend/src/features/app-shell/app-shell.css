@@ -40,8 +40,8 @@
   min-height: var(--topbar-height);
   padding: var(--space-5) var(--space-5) var(--space-4);
 }
-.sidebar__logo { width: 132px; height: auto; }
-.sidebar__mark { display: none; width: 34px; height: auto; }
+.sidebar__logo { width: 156px; height: auto; }
+.sidebar__mark { display: none; width: 40px; height: auto; }
 
 .sidebar__toggle {
   margin-left: auto;
@@ -180,7 +180,7 @@
   backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--border-subtle);
 }
-.topbar__logo { width: 92px; height: auto; flex: none; }
+.topbar__logo { width: 116px; height: auto; flex: none; }
 
 /* A marca azul tem 3.37:1 sobre a topbar escura; a branca, 17.48:1. Só uma
    das duas fica visível, escolhida pelo tema — sem JavaScript, então vale já
@@ -378,7 +378,7 @@
   display: flex;
   justify-content: center;
   padding: calc(var(--topbar-height) + var(--space-4)) var(--space-4) var(--space-4);
-  background: rgba(0, 11, 27, 0.42);
+  background: rgba(8, 6, 13, 0.42);
   backdrop-filter: blur(2px);
 }
 

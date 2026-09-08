@@ -1,100 +1,139 @@
-Required Notice: Copyright 2026 mariathdev (https://github.com/mariathdev/nerdlms)
-
 # Licença
 
-Este software é licenciado sob a **PolyForm Noncommercial License 1.0.0**,
-reproduzida na íntegra abaixo.
+**Business Source License 1.1**, com conversão automática para **Apache 2.0**
+após quatro anos. É a mesma licença do MariaDB, do Terraform e do CockroachDB.
 
 ## Em resumo
 
-Você **pode** ler o código, modificá-lo, redistribuí-lo e usá-lo para qualquer
-finalidade **não comercial** — estudo, pesquisa, avaliação técnica, projeto
-pessoal, e uso por instituição de ensino, órgão público ou organização sem fins
-lucrativos.
+Este resumo é orientação de leitura. O que vale juridicamente é o texto
+integral, reproduzido abaixo sem alteração.
 
-Você **não pode** usá-lo com finalidade comercial. Isso inclui operar a
-plataforma para clientes, vendê-la, revendê-la, oferecê-la como serviço,
-embuti-la em produto pago ou usá-la internamente numa empresa com fins
-lucrativos.
+### Você pode, de graça
 
-Para uso comercial é necessária uma licença comercial por escrito. Fale com
-**contato@mariath.dev**.
+- **Usar em produção dentro da sua organização**, inclusive com fins
+  lucrativos. Uma empresa pode instalar e treinar os próprios funcionários,
+  terceiros, parceiros, alunos ou clientes sem pagar nada e sem pedir
+  autorização.
+- **Rodar como multi-tenant.** Uma holding servindo suas subsidiárias, uma rede
+  de franquias servindo os franqueados, uma consultoria treinando a base de
+  clientes dela — tudo isso é uso permitido. O que se vende ali é treinamento,
+  não a plataforma.
+- Ler, estudar, modificar e redistribuir o código.
+- Usar sem limite de usuários, de cursos ou de instalações. Não há chave de
+  licença, telemetria nem contagem de assentos.
 
-Este resumo é orientação de leitura, não substitui os termos: o que vale é o
-texto integral a seguir.
+### Você não pode, sem falar comigo
+
+Oferecer o NerdResolve LMS **a terceiros como produto ou serviço, concorrendo
+com a versão paga**. Na prática: montar um SaaS de LMS em cima deste código e
+vender assinatura dele, ou revendê-lo como produto próprio.
+
+A diferença é o que está sendo vendido. Vender treinamento usando a plataforma:
+liberado. Vender a plataforma: converse comigo.
+
+### Em quatro anos, vira Apache 2.0
+
+Cada versão publicada passa automaticamente para a **Apache License 2.0** quatro
+anos depois de ser publicada — sem exigir nada de ninguém, e sem que eu possa
+voltar atrás. A versão de hoje é irrestrita em 2030.
+
+Isso existe para você não ficar refém: mesmo no pior cenário, o código que você
+adotou tem data para virar permissivo.
+
+### Licença comercial
+
+Para o que a concessão acima não cobre — ou para suporte, garantia e
+customização — **contato@mariath.dev**.
 
 ---
 
-# PolyForm Noncommercial License 1.0.0
+License text copyright (c) 2020 MariaDB Corporation Ab, All Rights Reserved.
+"Business Source License" is a trademark of MariaDB Corporation Ab.
 
-<https://polyformproject.org/licenses/noncommercial/1.0.0>
+Parameters
 
-## Acceptance
+Licensor:             Matheus Mariath (NerdResolve)
 
-In order to get any license under these terms, you must agree to them as both strict obligations and conditions to all your licenses.
+Licensed Work:        NerdResolve LMS. The Licensed Work is (c) 2026
+                      Matheus Mariath.
 
-## Copyright License
+Additional Use Grant: You may make production use of the Licensed Work,
+                      including use inside a for-profit organization to train
+                      its own workforce, contractors, partners, students or
+                      customers, provided Your use does not include offering
+                      the Licensed Work to third parties on a hosted or
+                      embedded basis in order to compete with the Licensor's
+                      paid version(s) of the Licensed Work.
 
-The licensor grants you a copyright license for the software to do everything you might do with the software that would otherwise infringe the licensor's copyright in it for any permitted purpose.  However, you may only distribute the software according to [Distribution License](#distribution-license) and make changes or new works based on the software according to [Changes and New Works License](#changes-and-new-works-license).
+                      For purposes of this license:
 
-## Distribution License
+                      A "competitive offering" is a Product that is offered to
+                      third parties on a paid basis, including through paid
+                      support arrangements, that significantly overlaps with
+                      the capabilities of the Licensor's paid version(s) of the
+                      Licensed Work. If Your Product is not a competitive
+                      offering when You first make it generally available, it
+                      will not become a competitive offering later.
 
-The licensor grants you an additional copyright license to distribute copies of the software.  Your license to distribute covers distributing the software with changes and new works permitted by [Changes and New Works License](#changes-and-new-works-license).
+                      "Product" means software that is offered to end users to
+                      manage in their own environments or offered as a service
+                      on a hosted basis.
 
-## Notices
+                      Running the Licensed Work as a multi-tenant installation
+                      is NOT by itself a competitive offering: an organization
+                      may serve its own subsidiaries, business units, franchise
+                      network or client base with training, as long as the
+                      Licensed Work itself is not what is being sold or
+                      resold.
 
-You must ensure that anyone who gets a copy of any part of the software from you also gets a copy of these terms or the URL for them above, as well as copies of any plain-text lines beginning with `Required Notice:` that the licensor provided with the software.  For example:
+Change Date:          Four years from the date the Licensed Work is published.
 
-> Required Notice: Copyright Yoyodyne, Inc. (http://example.com)
+Change License:       Apache License, Version 2.0
 
-## Changes and New Works License
+For information about alternative licensing arrangements for the Licensed Work,
+please contact contato@mariath.dev.
 
-The licensor grants you an additional copyright license to make changes and new works based on the software for any permitted purpose.
+Notice
 
-## Patent License
+Business Source License 1.1
 
-The licensor grants you a patent license for the software that covers patent claims the licensor can license, or becomes able to license, that you would infringe by using the software.
+Terms
 
-## Noncommercial Purposes
+The Licensor hereby grants you the right to copy, modify, create derivative
+works, redistribute, and make non-production use of the Licensed Work. The
+Licensor may make an Additional Use Grant, above, permitting limited production use.
 
-Any noncommercial purpose is a permitted purpose.
+Effective on the Change Date, or the fourth anniversary of the first publicly
+available distribution of a specific version of the Licensed Work under this
+License, whichever comes first, the Licensor hereby grants you rights under
+the terms of the Change License, and the rights granted in the paragraph
+above terminate.
 
-## Personal Uses
+If your use of the Licensed Work does not comply with the requirements
+currently in effect as described in this License, you must purchase a
+commercial license from the Licensor, its affiliated entities, or authorized
+resellers, or you must refrain from using the Licensed Work.
 
-Personal use for research, experiment, and testing for the benefit of public knowledge, personal study, private entertainment, hobby projects, amateur pursuits, or religious observance, without any anticipated commercial application, is use for a permitted purpose.
+All copies of the original and modified Licensed Work, and derivative works
+of the Licensed Work, are subject to this License. This License applies
+separately for each version of the Licensed Work and the Change Date may vary
+for each version of the Licensed Work released by Licensor.
 
-## Noncommercial Organizations
+You must conspicuously display this License on each original or modified copy
+of the Licensed Work. If you receive the Licensed Work in original or
+modified form from a third party, the terms and conditions set forth in this
+License apply to your use of that work.
 
-Use by any charitable organization, educational institution, public research organization, public safety or health organization, environmental protection organization, or government institution is use for a permitted purpose regardless of the source of funding or obligations resulting from the funding.
+Any use of the Licensed Work in violation of this License will automatically
+terminate your rights under this License for the current and all other
+versions of the Licensed Work.
 
-## Fair Use
+This License does not grant you any right in any trademark or logo of
+Licensor or its affiliates (provided that you may use a trademark or logo of
+Licensor as expressly required by this License).
 
-You may have "fair use" rights for the software under the law. These terms do not limit them.
-
-## No Other Rights
-
-These terms do not allow you to sublicense or transfer any of your licenses to anyone else, or prevent the licensor from granting licenses to anyone else.  These terms do not imply any other licenses.
-
-## Patent Defense
-
-If you make any written claim that the software infringes or contributes to infringement of any patent, your patent license for the software granted under these terms ends immediately. If your company makes such a claim, your patent license ends immediately for work on behalf of your company.
-
-## Violations
-
-The first time you are notified in writing that you have violated any of these terms, or done anything with the software not covered by your licenses, your licenses can nonetheless continue if you come into full compliance with these terms, and take practical steps to correct past violations, within 32 days of receiving notice.  Otherwise, all your licenses end immediately.
-
-## No Liability
-
-***As far as the law allows, the software comes as is, without any warranty or condition, and the licensor will not be liable to you for any damages arising out of these terms or the use or nature of the software, under any kind of legal claim.***
-
-## Definitions
-
-The **licensor** is the individual or entity offering these terms, and the **software** is the software the licensor makes available under these terms.
-
-**You** refers to the individual or entity agreeing to these terms.
-
-**Your company** is any legal entity, sole proprietorship, or other kind of organization that you work for, plus all organizations that have control over, are under the control of, or are under common control with that organization.  **Control** means ownership of substantially all the assets of an entity, or the power to direct its management and policies by vote, contract, or otherwise.  Control can be direct or indirect.
-
-**Your licenses** are all the licenses granted to you for the software under these terms.
-
-**Use** means anything you do with the software requiring one of your licenses.
+TO THE EXTENT PERMITTED BY APPLICABLE LAW, THE LICENSED WORK IS PROVIDED ON
+AN "AS IS" BASIS. LICENSOR HEREBY DISCLAIMS ALL WARRANTIES AND CONDITIONS,
+EXPRESS OR IMPLIED, INCLUDING (WITHOUT LIMITATION) WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
+TITLE.

@@ -28,7 +28,7 @@ export default async function LoginPage({
   const [sso, modo] = await Promise.all([ssoOptionsForLogin(), loginMode()]);
 
   return (
-    <main className="page">
+    <main className="auth-page">
       <div className="viewport">
         <div className="auth">
           <section className="brand">

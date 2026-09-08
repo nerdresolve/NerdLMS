@@ -3,11 +3,26 @@
    Layout responsivo por container query: o mesmo componente se adapta dentro
    de um frame de 390px e em largura total (Design System §25). */
 
-/* ===== Página ===== */
-.page {
+/* ===== Página =====
+
+   `.auth-page` e não `.page`: `components.css` já define `.page` como a coluna
+   de conteúdo do app, com `max-width: var(--content-max)` (1440px). As duas
+   regras têm a mesma especificidade, então quem vencia dependia da ordem em que
+   o bundler juntou as folhas — e com a do app por cima, a tela de acesso
+   herdava o teto de 1440px. Num monitor de 1920 isso deixava o cartão preso
+   num bloco de 1440px encostado à esquerda, com 480px de sobra só de um lado:
+   parecia desalinhamento, e era herança.
+
+   O nome próprio elimina a disputa em vez de resolvê-la com `!important` ou
+   com um seletor mais específico, que só adiariam o mesmo problema. */
+.auth-page {
   min-height: 100dvh;
   display: grid;
   place-items: center;
+  /* Explícito porque esta tela não é a coluna de conteúdo: ela ocupa a janela
+     inteira e centra o cartão dentro dela. */
+  width: 100%;
+  max-width: none;
   padding: var(--space-6);
   background:
     radial-gradient(1200px 600px at 12% -10%, var(--surface-subtle), transparent 60%),
@@ -59,18 +74,22 @@
 .brand__tagline { margin: 0; font-size: var(--text-body); color: rgba(255,255,255,0.86); max-width: 26ch; }
 .brand__tagline strong { display: block; font-weight: var(--weight-semibold); color: var(--text-on-brand); }
 /* Três faixas, não um degradê: o corte seco é o que faz a régua ler como
-   elemento de marca em vez de enfeite. As cores são os acentos do grafismo
-   (`--tile-*`), então ela acompanha a personalização do cliente — num tenant
-   com marca própria as três viram tons da cor dele, e não um arco-íris fixo. */
+   elemento de marca em vez de enfeite.
+
+   As três são TONS DA MESMA COR, não cores diferentes. Com `--tile-sun` e
+   `--tile-leaf` (o magenta e o íris do grafismo) ela virava uma barrinha
+   azul-e-vermelha embaixo do logotipo — lia como enfeite genérico, não como a
+   marca. Uma rampa de um matiz só continua acompanhando a personalização do
+   cliente: os três tokens são derivados da cor dele. */
 .brand__rule {
   display: block;
   width: 84px;
   height: 6px;
   background: linear-gradient(
     to right,
-    var(--tile-leaf) 0 33.34%,
+    var(--brand-accent) 0 33.34%,
     var(--tile-blue) 33.34% 66.67%,
-    var(--tile-sun) 66.67% 100%
+    var(--tile-navy) 66.67% 100%
   );
 }
 

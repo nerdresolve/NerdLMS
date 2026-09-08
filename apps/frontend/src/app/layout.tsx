@@ -56,19 +56,21 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export const viewport: Viewport = {
+  /* O escuro primeiro: é o padrão da plataforma, e a barra do navegador no
+     celular deve nascer da cor que a página realmente vai ter. */
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#f8fafc" },
     { media: "(prefers-color-scheme: dark)", color: "#08060d" },
+    { media: "(prefers-color-scheme: light)", color: "#f8fafc" },
   ],
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="pt-BR" className={manrope.variable} data-theme="light" suppressHydrationWarning>
+    <html lang="pt-BR" className={manrope.variable} data-theme="dark" suppressHydrationWarning>
       <head>
         {/* Aplica o tema salvo antes da primeira pintura. Num efeito do React
             só correria depois da hidratação, e a tela piscaria clara antes de
-            escurecer. O `data-theme` acima é o padrão do servidor, que este
+            clarear. O `data-theme` acima é o padrão do servidor, que este
             script sobrescreve quando há escolha salva — daí o
             `suppressHydrationWarning`. */}
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />

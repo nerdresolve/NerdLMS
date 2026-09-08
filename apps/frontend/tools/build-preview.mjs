@@ -267,8 +267,16 @@ async function buildIconSprite(names) {
 /* `fill-rule="evenodd"` não é decoração: sem ele o anel fecha e vira disco. */
 function mosaico(variant, className, tone = "cor") {
   const shape = MOSAIC_SHAPES[variant];
+  /* Trilha é traço, nó é preenchimento: sem repassar `stroke` a trilha some,
+     porque `fill:none` num caminho aberto não desenha nada. Espelha o
+     `BrandMosaic` do app — as duas superfícies desenham o mesmo grafismo. */
   const paths = shape.paths
-    .map((path) => `<path d="${path.d}" fill="${tone === "silhueta" ? "var(--tile-ghost)" : path.fill}" />`)
+    .map((path) => {
+      const cor = tone === "silhueta" ? "var(--tile-ghost)" : null;
+      return path.stroke
+        ? `<path d="${path.d}" fill="none" stroke="${cor ?? path.stroke}" stroke-width="${path.strokeWidth ?? 2}" stroke-linecap="round" stroke-linejoin="round" />`
+        : `<path d="${path.d}" fill="${cor ?? path.fill}" />`;
+    })
     .join("");
   return `<svg class="${className}" viewBox="${shape.viewBox}" preserveAspectRatio="${shape.preserveAspectRatio}" fill-rule="evenodd" aria-hidden="true" focusable="false">${paths}</svg>`;
 }

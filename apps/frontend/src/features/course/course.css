@@ -35,7 +35,7 @@
   position: absolute;
   inset: 0;
   z-index: -1;
-  background: linear-gradient(100deg, rgba(0, 11, 27, 0.5) 0%, rgba(0, 11, 27, 0.15) 48%, transparent 74%);
+  background: linear-gradient(100deg, rgba(8, 6, 13, 0.5) 0%, rgba(8, 6, 13, 0.15) 48%, transparent 74%);
 }
 
 /* O conteúdo precisa ficar acima da onda que agora sobe. */

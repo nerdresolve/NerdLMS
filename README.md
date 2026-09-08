@@ -9,7 +9,7 @@ clientes, cada um com domínio, marca e cores próprios, sem um enxergar o outro
 
 [![CI](https://github.com/nerdresolve/NerdLMS/actions/workflows/ci.yml/badge.svg)](https://github.com/nerdresolve/NerdLMS/actions/workflows/ci.yml)
 [![Segurança](https://github.com/nerdresolve/NerdLMS/actions/workflows/seguranca.yml/badge.svg)](https://github.com/nerdresolve/NerdLMS/actions/workflows/seguranca.yml)
-[![Licença](https://img.shields.io/badge/licença-PolyForm%20Noncommercial-7C3AED)](LICENSE.md)
+[![Licença](https://img.shields.io/badge/licença-BSL%201.1%20→%20Apache%202.0-7C3AED)](LICENSE.md)
 [![Node](https://img.shields.io/badge/node-%E2%89%A522-7C3AED)](.nvmrc)
 
 <img src="docs/capturas/painel-do-aluno.webp" alt="Painel do aluno: curso em andamento, progresso e catálogo" width="100%">
@@ -379,15 +379,24 @@ do proxy, como em produção.
 
 ## Licença
 
-**PolyForm Noncommercial 1.0.0** — ver [LICENSE.md](LICENSE.md).
+**Business Source License 1.1**, com conversão automática para **Apache 2.0**
+após quatro anos — a mesma do MariaDB, do Terraform e do CockroachDB. Texto
+completo em [LICENSE.md](LICENSE.md).
 
-Livre para estudar, modificar, redistribuir e usar sem fins lucrativos:
-pesquisa, avaliação, projeto pessoal, instituição de ensino, órgão público,
-organização sem fins lucrativos.
+**Uso interno é livre, inclusive comercial.** Uma empresa pode instalar e
+treinar os próprios funcionários, terceiros, parceiros, alunos ou clientes sem
+pagar nada e sem pedir autorização. Rodar multi-tenant também: uma holding
+servindo subsidiárias, uma rede servindo franqueados, uma consultoria treinando
+a base de clientes. Sem limite de usuários, sem chave de licença, sem
+telemetria.
 
-Uso comercial — operar para clientes, revender, oferecer como serviço, ou usar
-internamente numa empresa com fins lucrativos — requer licença comercial:
-**contato@mariath.dev**.
+**O que precisa de conversa** é oferecer o NerdResolve LMS a terceiros como
+produto ou serviço, concorrendo com a versão paga — montar um SaaS em cima
+deste código, ou revendê-lo como produto próprio. A diferença é o que está
+sendo vendido: treinamento, liberado; a plataforma, fale comigo.
+
+Cada versão vira Apache 2.0 quatro anos depois de publicada, automaticamente e
+sem volta. Licença comercial: **contato@mariath.dev**.
 
 A fonte que acompanha o repositório é a **Manrope**, sob
 [SIL Open Font License 1.1](apps/frontend/public/fonts/OFL.txt) — livre para
