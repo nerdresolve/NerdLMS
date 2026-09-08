@@ -131,30 +131,52 @@ CAMINHO=/opt/nerdlms bash .github/deploy-remoto.sh
 
 Para máquina **sem IP público** — atrás de NAT, num escritório, numa VPS sem
 porta liberada. O container `cloudflared` abre a conexão de dentro para fora, e
-o TLS público termina na borda da Cloudflare. Some a exigência de IP fixo,
-porta aberta na entrada e certificado próprio.
+o TLS público termina na borda da Cloudflare. Some a exigência de IP fixo, porta
+aberta na entrada e certificado próprio.
 
-1. Crie o túnel em Cloudflare Zero Trust → Networks → Tunnels.
-2. Aponte o DNS (CNAME, *Proxied*) para `<TUNNEL_ID>.cfargotunnel.com`.
-3. Guarde o token **fora do Git**:
+```bash
+cloudflared tunnel login                       # uma vez, por conta
+cloudflared tunnel create nerdlms
+cloudflared tunnel route dns nerdlms lms.suaempresa.com
+```
+
+Guarde o token **fora do Git** e suba:
 
 ```bash
 echo "TUNNEL_TOKEN=<o-token>" > infra/.env.tunnel
-```
-
-4. Suba:
-
-```bash
 npm run publish        # up -d --build, com o perfil tunnel
-npm run migrate:tunnel
+npm run migrate
 npm run publish:logs   # acompanha
 ```
 
-Com o túnel, `SITE_ADDRESS` precisa levar o esquema: `http://lms.suaempresa.com`.
-Sem o `http://`, o Caddy tenta emitir certificado próprio para um domínio cujo
-desafio ACME nunca chega até ele, e reitera para sempre.
+### As duas armadilhas
 
----
+**`SITE_ADDRESS` precisa levar o esquema `http://`:**
+
+```ini
+SITE_ADDRESS=http://lms.suaempresa.com
+```
+
+Sem ele o Caddy tenta emitir certificado da Let's Encrypt para um domínio cujo
+desafio ACME nunca chega até ele — porque quem atende o mundo é a Cloudflare — e
+reitera para sempre. E com o domínio configurado só como `localhost`, o Caddy
+recusa o Host que o túnel entrega e responde **421 Misdirected Request**, sem
+log de erro que explique.
+
+**O túnel aponta para a porta HTTP, não a HTTPS.** O TLS público termina na
+borda; internamente o tráfego é texto claro dentro da própria máquina:
+
+```yaml
+ingress:
+  - hostname: lms.suaempresa.com
+    service: http://localhost:80      # ou a porta em HTTP_PORT
+  - service: http_status:404
+```
+
+> Se você já tem outro túnel nesta máquina, cuidado com `~/.cloudflared/config.yml`:
+> ele é **global** e o `cloudflared` o usa mesmo quando você nomeia outro túnel
+> na linha de comando. Passe `--config` apontando para um arquivo próprio, ou o
+> DNS será criado para o túnel errado.
 
 ## O domínio no certificado
 
