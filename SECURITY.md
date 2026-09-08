@@ -61,7 +61,7 @@ reaproveite os de outro ambiente:
 
 ```bash
 cp infra/.env.example infra/.env
-openssl rand -base64 48    # um valor NOVO para cada segredo
+openssl rand -hex 32    # um valor NOVO para cada segredo
 ```
 
 O seed de homologação (`infra/db/seeds/hml.sql`) usa senhas derivadas do login

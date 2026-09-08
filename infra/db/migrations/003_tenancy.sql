@@ -102,7 +102,7 @@ CREATE INDEX IF NOT EXISTS org_units_parent_idx ON org_units (parent_id);
 -- O executor roda todos os arquivos toda vez. Um seed precisa dizer o que
 -- realmente quer dizer, ou ele envelhece junto com o dado que semeou.
 INSERT INTO tenants (slug, name, unit_label)
-SELECT 'lms', 'NerdResolve Saneamento', 'Concessionária'
+SELECT 'lms', 'NerdResolve LMS', 'Unidade'
  WHERE NOT EXISTS (SELECT 1 FROM tenants);
 
 -- As unidades saem dos valores que já existem em `users.project`. A Holding

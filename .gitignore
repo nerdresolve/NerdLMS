@@ -82,3 +82,7 @@ apps/frontend/preview/*.html
 # visual leva o nome do curso no arquivo — dado de quem instalou, não do
 # produto.
 apps/frontend/preview/*.pdf
+
+# Arquivo pessoal, nao faz parte do produto: e o README do perfil do GitHub,
+# mantido aqui por conveniencia de edicao.
+githubprofile.md

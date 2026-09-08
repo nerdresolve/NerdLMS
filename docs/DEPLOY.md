@@ -21,11 +21,15 @@ reaproveite os de outro ambiente, nem os que estão nos exemplos.
 ```bash
 cp infra/.env.example infra/.env
 
-openssl rand -base64 48   # SESSION_SECRET
-openssl rand -base64 32   # POSTGRES_PASSWORD
-openssl rand -base64 32   # APP_DB_PASSWORD  (precisa entrar também na DATABASE_URL)
-openssl rand -base64 32   # STORAGE_SECRET_KEY
+openssl rand -hex 32   # POSTGRES_PASSWORD
+openssl rand -hex 32   # APP_DB_PASSWORD  (precisa entrar também na DATABASE_URL)
+openssl rand -hex 32   # STORAGE_SECRET_KEY
+openssl rand -hex 48   # SESSION_SECRET
 ```
+
+> **Use `-hex`, não `-base64`.** O base64 emite `/`, `+` e `=`; a senha do banco
+> entra dentro de uma URL, e uma barra ali encerra a autoridade — a aplicação
+> sobe e morre com `TypeError: Invalid URL`, sem dizer qual variável está errada.
 
 Os valores que mudam por instalação:
 

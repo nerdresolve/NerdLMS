@@ -93,7 +93,11 @@ const lessonById = new Map(
 
 /* O tenant é resolvido por subconsulta, não por UUID literal: o seed não sabe
    qual id a migração gerou, e fixar um aqui amarraria os dois arquivos. */
-const TENANT = "(SELECT id FROM tenants WHERE slug = 'exemplo')";
+/* O tenant padrão nasce na migração 003 com o slug `lms`. Quem implanta
+   renomeia em `035_tenant_do_cliente.sql`; o seed é de homologação e sempre
+   semeia no padrão. Um slug diferente aqui faz TODO INSERT falhar com
+   "null value in column tenant_id", porque a subconsulta não acha ninguém. */
+const TENANT = "(SELECT id FROM tenants WHERE slug = 'lms')";
 
 /* Idem para a unidade: o texto do mock vira referência. `LIMIT 1` porque o
    nome é único dentro do tenant, e `NULL` quando o mock não tem projeto. */
@@ -544,9 +548,14 @@ for (const [lessonId, list] of Object.entries(materials)) {
     const bytes = bytesFromLabel(material.sizeLabel);
 
     w(
-      `INSERT INTO materials (id, lesson_id, name, kind, size_bytes, storage_key, uploaded_by)
+      /* `tenant_id` explícito: a migração 043 (biblioteca) adicionou a coluna,
+         preencheu as linhas que existiam a partir do curso e a tornou NOT NULL.
+         O seed insere DEPOIS disso, então não há o que preencher — quem semeia
+         informa. Sem isto todo material falha com "null value in column
+         tenant_id". */
+      `INSERT INTO materials (id, tenant_id, lesson_id, name, kind, size_bytes, storage_key, uploaded_by)
 ` +
-        `VALUES (${uid(`mat-${material.id}`)}, ${uid(lessonId)}, ${lit(material.name)},
+        `VALUES (${uid(`mat-${material.id}`)}, ${TENANT}, ${uid(lessonId)}, ${lit(material.name)},
 ` +
         `        ${lit(material.kind)}, ${bytes},
 ` +

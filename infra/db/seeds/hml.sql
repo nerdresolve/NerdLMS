@@ -29,8 +29,8 @@ BEGIN;
 -- ----------------------------------------------------------------- usuários
 -- `ON CONFLICT` mantém o seed reaplicável, como as migrações 001 e 002.
 INSERT INTO users (id, tenant_id, org_unit_id, email, full_name, password_hash, role, status, project, region, last_access_at)
-VALUES ('58a9bb76-23b8-550e-8122-09cd019f99f0', (SELECT id FROM tenants WHERE slug = 'exemplo'), (SELECT id FROM org_units WHERE tenant_id = (SELECT id FROM tenants WHERE slug = 'exemplo') AND name = 'Sede' LIMIT 1),
-        'admin.mock@exemplo.com', 'Administrador', '$scrypt$ln=17,r=8,p=1$qxRSv5vMkJPYiBlKUIxdEQ$tu23H3BalMxRDYFdXmUuYA7PcKq94qZNHR0nPKOjp+Y',
+VALUES ('58a9bb76-23b8-550e-8122-09cd019f99f0', (SELECT id FROM tenants WHERE slug = 'lms'), (SELECT id FROM org_units WHERE tenant_id = (SELECT id FROM tenants WHERE slug = 'lms') AND name = 'Sede' LIMIT 1),
+        'admin.mock@exemplo.com', 'Administrador', '$scrypt$ln=17,r=8,p=1$enoNbZ9CZENCSYak2bEYBw$O6jQKCxYLEZk/NnbxPUM76PnAift5EGiC7rmG1g0vQ8',
         'admin', 'active', 'Sede', 'Região Metropolitana',
         '2026-08-12T15:00:00.000Z')
 ON CONFLICT (id) DO UPDATE SET
@@ -39,8 +39,8 @@ ON CONFLICT (id) DO UPDATE SET
   status = EXCLUDED.status, project = EXCLUDED.project, region = EXCLUDED.region,
   last_access_at = EXCLUDED.last_access_at;
 INSERT INTO users (id, tenant_id, org_unit_id, email, full_name, password_hash, role, status, project, region, last_access_at)
-VALUES ('c74c631a-3d85-5bb1-a040-19b48741ef2c', (SELECT id FROM tenants WHERE slug = 'exemplo'), (SELECT id FROM org_units WHERE tenant_id = (SELECT id FROM tenants WHERE slug = 'exemplo') AND name = 'Unidade Central' LIMIT 1),
-        'manager.mock@exemplo.com', 'Gestor', '$scrypt$ln=17,r=8,p=1$CnkQWo2EKFePgSRgnmCR+Q$6/wXHuVdg3AKe6+FlNjRaZqzhCoNV8RClyojvDAdLv0',
+VALUES ('c74c631a-3d85-5bb1-a040-19b48741ef2c', (SELECT id FROM tenants WHERE slug = 'lms'), (SELECT id FROM org_units WHERE tenant_id = (SELECT id FROM tenants WHERE slug = 'lms') AND name = 'Unidade Central' LIMIT 1),
+        'manager.mock@exemplo.com', 'Gestor', '$scrypt$ln=17,r=8,p=1$Bmwka82WjUJ7tfJkX/Zjug$IXL2CJRgF5To4zrbEMLDtOCVlcBOGFtY+Xm5OIat5jo',
         'manager', 'active', 'Unidade Central', 'Unidade Central',
         '2026-08-10T15:00:00.000Z')
 ON CONFLICT (id) DO UPDATE SET
@@ -49,8 +49,8 @@ ON CONFLICT (id) DO UPDATE SET
   status = EXCLUDED.status, project = EXCLUDED.project, region = EXCLUDED.region,
   last_access_at = EXCLUDED.last_access_at;
 INSERT INTO users (id, tenant_id, org_unit_id, email, full_name, password_hash, role, status, project, region, last_access_at)
-VALUES ('0241e68a-9b21-5658-bcd4-55cfa515d63c', (SELECT id FROM tenants WHERE slug = 'exemplo'), (SELECT id FROM org_units WHERE tenant_id = (SELECT id FROM tenants WHERE slug = 'exemplo') AND name = 'Unidade Central' LIMIT 1),
-        'instructor.mock@exemplo.com', 'Instrutor', '$scrypt$ln=17,r=8,p=1$K4soSdssm6YKYGLP52qsQQ$btcFAY7l0iDFQ3s00TfRKVifiWcgIRAoepTRx7i14RM',
+VALUES ('0241e68a-9b21-5658-bcd4-55cfa515d63c', (SELECT id FROM tenants WHERE slug = 'lms'), (SELECT id FROM org_units WHERE tenant_id = (SELECT id FROM tenants WHERE slug = 'lms') AND name = 'Unidade Central' LIMIT 1),
+        'instructor.mock@exemplo.com', 'Instrutor', '$scrypt$ln=17,r=8,p=1$Q7hyywP0FtPHi/HABbr46w$mmhPXLtTX/g+2/lbYfd2/aw7XSNJ80uVZMmrCQa02n4',
         'instructor', 'active', 'Unidade Central', 'Unidade Central',
         NULL)
 ON CONFLICT (id) DO UPDATE SET
@@ -59,8 +59,8 @@ ON CONFLICT (id) DO UPDATE SET
   status = EXCLUDED.status, project = EXCLUDED.project, region = EXCLUDED.region,
   last_access_at = EXCLUDED.last_access_at;
 INSERT INTO users (id, tenant_id, org_unit_id, email, full_name, password_hash, role, status, project, region, last_access_at)
-VALUES ('7c7446d4-8be6-5ed5-b50b-6e03afe7de6b', (SELECT id FROM tenants WHERE slug = 'exemplo'), (SELECT id FROM org_units WHERE tenant_id = (SELECT id FROM tenants WHERE slug = 'exemplo') AND name = 'Unidade Oeste' LIMIT 1),
-        'instructor2.mock@exemplo.com', 'Instrutor 2', '$scrypt$ln=17,r=8,p=1$ckM43sBCEi+xdrwkfj+9WQ$vkfDKJy13oesZfwwrl+ddI8HclFQuJR9d/MrtdtPHQw',
+VALUES ('7c7446d4-8be6-5ed5-b50b-6e03afe7de6b', (SELECT id FROM tenants WHERE slug = 'lms'), (SELECT id FROM org_units WHERE tenant_id = (SELECT id FROM tenants WHERE slug = 'lms') AND name = 'Unidade Oeste' LIMIT 1),
+        'instructor2.mock@exemplo.com', 'Instrutor 2', '$scrypt$ln=17,r=8,p=1$+OinMIef1IQ3rmDU8QdmOw$QpPLqXxdVdmniMvodyvep/zGisqpwBkw5CAfw+RJk1k',
         'instructor', 'active', 'Unidade Oeste', 'Região Norte',
         NULL)
 ON CONFLICT (id) DO UPDATE SET
@@ -69,8 +69,8 @@ ON CONFLICT (id) DO UPDATE SET
   status = EXCLUDED.status, project = EXCLUDED.project, region = EXCLUDED.region,
   last_access_at = EXCLUDED.last_access_at;
 INSERT INTO users (id, tenant_id, org_unit_id, email, full_name, password_hash, role, status, project, region, last_access_at)
-VALUES ('dd1b44e8-52f8-5b65-a243-5ecb7b6ba687', (SELECT id FROM tenants WHERE slug = 'exemplo'), (SELECT id FROM org_units WHERE tenant_id = (SELECT id FROM tenants WHERE slug = 'exemplo') AND name = 'Unidade Leste' LIMIT 1),
-        'user.mock@exemplo.com', 'Aluno', '$scrypt$ln=17,r=8,p=1$8EElRqGSbqcoXgV0ccRShQ$ZGlj3HgA9+44qdrGmrxmmr/yLAyn4IyjzrjUqWquYNA',
+VALUES ('dd1b44e8-52f8-5b65-a243-5ecb7b6ba687', (SELECT id FROM tenants WHERE slug = 'lms'), (SELECT id FROM org_units WHERE tenant_id = (SELECT id FROM tenants WHERE slug = 'lms') AND name = 'Unidade Leste' LIMIT 1),
+        'user.mock@exemplo.com', 'Aluno', '$scrypt$ln=17,r=8,p=1$XUecDHsTFeijd2Wto5GSFQ$IoBmKhwZYqz1kRgBKTDDuJwXzhDg89z/SqhjuTpjEzg',
         'learner', 'active', 'Unidade Leste', 'Região Sul',
         '2026-08-11T15:00:00.000Z')
 ON CONFLICT (id) DO UPDATE SET
@@ -79,7 +79,7 @@ ON CONFLICT (id) DO UPDATE SET
   status = EXCLUDED.status, project = EXCLUDED.project, region = EXCLUDED.region,
   last_access_at = EXCLUDED.last_access_at;
 INSERT INTO users (id, tenant_id, org_unit_id, email, full_name, password_hash, role, status, project, region, last_access_at)
-VALUES ('26757df8-30c8-5c63-805a-197a8d9593db', (SELECT id FROM tenants WHERE slug = 'exemplo'), (SELECT id FROM org_units WHERE tenant_id = (SELECT id FROM tenants WHERE slug = 'exemplo') AND name = 'Unidade Central' LIMIT 1),
+VALUES ('26757df8-30c8-5c63-805a-197a8d9593db', (SELECT id FROM tenants WHERE slug = 'lms'), (SELECT id FROM org_units WHERE tenant_id = (SELECT id FROM tenants WHERE slug = 'lms') AND name = 'Unidade Central' LIMIT 1),
         'joao.peixoto@exemplo.com', 'João Peixoto', NULL,
         'learner', 'active', 'Unidade Central', 'Unidade Central',
         '2026-08-12T15:00:00.000Z')
@@ -89,7 +89,7 @@ ON CONFLICT (id) DO UPDATE SET
   status = EXCLUDED.status, project = EXCLUDED.project, region = EXCLUDED.region,
   last_access_at = EXCLUDED.last_access_at;
 INSERT INTO users (id, tenant_id, org_unit_id, email, full_name, password_hash, role, status, project, region, last_access_at)
-VALUES ('bb1f7d87-6677-544a-af56-3d38c5e3ca65', (SELECT id FROM tenants WHERE slug = 'exemplo'), (SELECT id FROM org_units WHERE tenant_id = (SELECT id FROM tenants WHERE slug = 'exemplo') AND name = 'Unidade Leste' LIMIT 1),
+VALUES ('bb1f7d87-6677-544a-af56-3d38c5e3ca65', (SELECT id FROM tenants WHERE slug = 'lms'), (SELECT id FROM org_units WHERE tenant_id = (SELECT id FROM tenants WHERE slug = 'lms') AND name = 'Unidade Leste' LIMIT 1),
         'carla.menezes@exemplo.com', 'Carla Menezes', NULL,
         'learner', 'active', 'Unidade Leste', 'Região Sul',
         '2026-08-06T15:00:00.000Z')
@@ -99,7 +99,7 @@ ON CONFLICT (id) DO UPDATE SET
   status = EXCLUDED.status, project = EXCLUDED.project, region = EXCLUDED.region,
   last_access_at = EXCLUDED.last_access_at;
 INSERT INTO users (id, tenant_id, org_unit_id, email, full_name, password_hash, role, status, project, region, last_access_at)
-VALUES ('cde71ffa-eb22-541b-af5f-88f1b9bec629', (SELECT id FROM tenants WHERE slug = 'exemplo'), (SELECT id FROM org_units WHERE tenant_id = (SELECT id FROM tenants WHERE slug = 'exemplo') AND name = 'Unidade Oeste' LIMIT 1),
+VALUES ('cde71ffa-eb22-541b-af5f-88f1b9bec629', (SELECT id FROM tenants WHERE slug = 'lms'), (SELECT id FROM org_units WHERE tenant_id = (SELECT id FROM tenants WHERE slug = 'lms') AND name = 'Unidade Oeste' LIMIT 1),
         'diego.ramos@exemplo.com', 'Diego Ramos', NULL,
         'learner', 'active', 'Unidade Oeste', 'Região Norte',
         '2026-07-31T15:00:00.000Z')
@@ -109,7 +109,7 @@ ON CONFLICT (id) DO UPDATE SET
   status = EXCLUDED.status, project = EXCLUDED.project, region = EXCLUDED.region,
   last_access_at = EXCLUDED.last_access_at;
 INSERT INTO users (id, tenant_id, org_unit_id, email, full_name, password_hash, role, status, project, region, last_access_at)
-VALUES ('fdf36cb8-b946-59ac-9d69-90756d18a0dc', (SELECT id FROM tenants WHERE slug = 'exemplo'), (SELECT id FROM org_units WHERE tenant_id = (SELECT id FROM tenants WHERE slug = 'exemplo') AND name = 'Unidade Sul' LIMIT 1),
+VALUES ('fdf36cb8-b946-59ac-9d69-90756d18a0dc', (SELECT id FROM tenants WHERE slug = 'lms'), (SELECT id FROM org_units WHERE tenant_id = (SELECT id FROM tenants WHERE slug = 'lms') AND name = 'Unidade Sul' LIMIT 1),
         'priscila.alves@exemplo.com', 'Priscila Alves', NULL,
         'learner', 'active', 'Unidade Sul', 'Unidade Central',
         '2026-07-25T15:00:00.000Z')
@@ -119,7 +119,7 @@ ON CONFLICT (id) DO UPDATE SET
   status = EXCLUDED.status, project = EXCLUDED.project, region = EXCLUDED.region,
   last_access_at = EXCLUDED.last_access_at;
 INSERT INTO users (id, tenant_id, org_unit_id, email, full_name, password_hash, role, status, project, region, last_access_at)
-VALUES ('d958b9da-9f14-57db-ac67-8cd7fc77c167', (SELECT id FROM tenants WHERE slug = 'exemplo'), (SELECT id FROM org_units WHERE tenant_id = (SELECT id FROM tenants WHERE slug = 'exemplo') AND name = 'Unidade Central' LIMIT 1),
+VALUES ('d958b9da-9f14-57db-ac67-8cd7fc77c167', (SELECT id FROM tenants WHERE slug = 'lms'), (SELECT id FROM org_units WHERE tenant_id = (SELECT id FROM tenants WHERE slug = 'lms') AND name = 'Unidade Central' LIMIT 1),
         'marcos.tavares@exemplo.com', 'Marcos Tavares', NULL,
         'learner', 'active', 'Unidade Central', 'Região Sul',
         '2026-07-19T15:00:00.000Z')
@@ -129,7 +129,7 @@ ON CONFLICT (id) DO UPDATE SET
   status = EXCLUDED.status, project = EXCLUDED.project, region = EXCLUDED.region,
   last_access_at = EXCLUDED.last_access_at;
 INSERT INTO users (id, tenant_id, org_unit_id, email, full_name, password_hash, role, status, project, region, last_access_at)
-VALUES ('ae870e0b-ede4-51ef-8f59-05172aa84a08', (SELECT id FROM tenants WHERE slug = 'exemplo'), (SELECT id FROM org_units WHERE tenant_id = (SELECT id FROM tenants WHERE slug = 'exemplo') AND name = 'Unidade Leste' LIMIT 1),
+VALUES ('ae870e0b-ede4-51ef-8f59-05172aa84a08', (SELECT id FROM tenants WHERE slug = 'lms'), (SELECT id FROM org_units WHERE tenant_id = (SELECT id FROM tenants WHERE slug = 'lms') AND name = 'Unidade Leste' LIMIT 1),
         'helena.duarte@exemplo.com', 'Helena Duarte', NULL,
         'learner', 'pending', 'Unidade Leste', 'Região Norte',
         NULL)
@@ -139,7 +139,7 @@ ON CONFLICT (id) DO UPDATE SET
   status = EXCLUDED.status, project = EXCLUDED.project, region = EXCLUDED.region,
   last_access_at = EXCLUDED.last_access_at;
 INSERT INTO users (id, tenant_id, org_unit_id, email, full_name, password_hash, role, status, project, region, last_access_at)
-VALUES ('ea9b5b74-3085-5794-a0e0-c3e0d1fe40a9', (SELECT id FROM tenants WHERE slug = 'exemplo'), (SELECT id FROM org_units WHERE tenant_id = (SELECT id FROM tenants WHERE slug = 'exemplo') AND name = 'Unidade Oeste' LIMIT 1),
+VALUES ('ea9b5b74-3085-5794-a0e0-c3e0d1fe40a9', (SELECT id FROM tenants WHERE slug = 'lms'), (SELECT id FROM org_units WHERE tenant_id = (SELECT id FROM tenants WHERE slug = 'lms') AND name = 'Unidade Oeste' LIMIT 1),
         'rogerio.lima@exemplo.com', 'Rogério Lima', NULL,
         'learner', 'active', 'Unidade Oeste', 'Unidade Central',
         '2026-07-07T15:00:00.000Z')
@@ -149,7 +149,7 @@ ON CONFLICT (id) DO UPDATE SET
   status = EXCLUDED.status, project = EXCLUDED.project, region = EXCLUDED.region,
   last_access_at = EXCLUDED.last_access_at;
 INSERT INTO users (id, tenant_id, org_unit_id, email, full_name, password_hash, role, status, project, region, last_access_at)
-VALUES ('3d6e6a4d-4b43-50a1-9e1a-b8ba278b0573', (SELECT id FROM tenants WHERE slug = 'exemplo'), (SELECT id FROM org_units WHERE tenant_id = (SELECT id FROM tenants WHERE slug = 'exemplo') AND name = 'Unidade Sul' LIMIT 1),
+VALUES ('3d6e6a4d-4b43-50a1-9e1a-b8ba278b0573', (SELECT id FROM tenants WHERE slug = 'lms'), (SELECT id FROM org_units WHERE tenant_id = (SELECT id FROM tenants WHERE slug = 'lms') AND name = 'Unidade Sul' LIMIT 1),
         'bianca.ferraz@exemplo.com', 'Bianca Ferraz', NULL,
         'learner', 'pending', 'Unidade Sul', 'Região Sul',
         NULL)
@@ -161,43 +161,43 @@ ON CONFLICT (id) DO UPDATE SET
 
 -- ------------------------------------------------------------------- cursos
 INSERT INTO courses (id, tenant_id, org_unit_id, author_id, slug, title, summary, status, enrollment_mode)
-VALUES ('cf9de71e-2aa2-5c0f-928b-0c8b211c512c', (SELECT id FROM tenants WHERE slug = 'exemplo'), NULL,
+VALUES ('cf9de71e-2aa2-5c0f-928b-0c8b211c512c', (SELECT id FROM tenants WHERE slug = 'lms'), NULL,
         '0241e68a-9b21-5658-bcd4-55cfa515d63c', 'operacao-de-pocos-fundamentos', 'Operação de Poços: Fundamentos',
         'Do reservatório à estação coletora: as etapas que levam o óleo do poço à transferência.', 'published', 'assigned')
 ON CONFLICT (id) DO UPDATE SET
   title = EXCLUDED.title, summary = EXCLUDED.summary, status = EXCLUDED.status;
 INSERT INTO courses (id, tenant_id, org_unit_id, author_id, slug, title, summary, status, enrollment_mode)
-VALUES ('8145bed3-edf2-55a1-836a-392900cd3d7e', (SELECT id FROM tenants WHERE slug = 'exemplo'), NULL,
+VALUES ('8145bed3-edf2-55a1-836a-392900cd3d7e', (SELECT id FROM tenants WHERE slug = 'lms'), NULL,
         '0241e68a-9b21-5658-bcd4-55cfa515d63c', 'integridade-de-ativos', 'Integridade de Ativos e Corrosão',
         'Como medir, localizar e conter a perda de espessura em linhas, vasos e tanques.', 'published', 'assigned')
 ON CONFLICT (id) DO UPDATE SET
   title = EXCLUDED.title, summary = EXCLUDED.summary, status = EXCLUDED.status;
 INSERT INTO courses (id, tenant_id, org_unit_id, author_id, slug, title, summary, status, enrollment_mode)
-VALUES ('57cfcb32-8049-5ba4-9c92-45351df8de19', (SELECT id FROM tenants WHERE slug = 'exemplo'), NULL,
+VALUES ('57cfcb32-8049-5ba4-9c92-45351df8de19', (SELECT id FROM tenants WHERE slug = 'lms'), NULL,
         '7c7446d4-8be6-5ed5-b50b-6e03afe7de6b', 'seguranca-em-operacoes-de-campo', 'Segurança em Operações de Campo',
         'Procedimentos obrigatórios para trabalho a quente, espaço confinado e atmosfera com H₂S.', 'published', 'assigned')
 ON CONFLICT (id) DO UPDATE SET
   title = EXCLUDED.title, summary = EXCLUDED.summary, status = EXCLUDED.status;
 INSERT INTO courses (id, tenant_id, org_unit_id, author_id, slug, title, summary, status, enrollment_mode)
-VALUES ('24c2669e-c4de-5632-81fb-6e761cc86d3f', (SELECT id FROM tenants WHERE slug = 'exemplo'), NULL,
+VALUES ('24c2669e-c4de-5632-81fb-6e761cc86d3f', (SELECT id FROM tenants WHERE slug = 'lms'), NULL,
         '7c7446d4-8be6-5ed5-b50b-6e03afe7de6b', 'relacionamento-com-comunidades', 'Relacionamento com Comunidades',
         'Escuta, clareza e resolução na relação com quem vive ao redor da operação.', 'published', 'open')
 ON CONFLICT (id) DO UPDATE SET
   title = EXCLUDED.title, summary = EXCLUDED.summary, status = EXCLUDED.status;
 INSERT INTO courses (id, tenant_id, org_unit_id, author_id, slug, title, summary, status, enrollment_mode)
-VALUES ('c7027595-6095-521c-9087-8a2cb3efba5b', (SELECT id FROM tenants WHERE slug = 'exemplo'), NULL,
+VALUES ('c7027595-6095-521c-9087-8a2cb3efba5b', (SELECT id FROM tenants WHERE slug = 'lms'), NULL,
         '7c7446d4-8be6-5ed5-b50b-6e03afe7de6b', 'meio-ambiente-e-licenciamento', 'Meio Ambiente e Licenciamento',
         'Condicionantes, monitoramento e o que a operação precisa entregar ao órgão ambiental.', 'published', 'open')
 ON CONFLICT (id) DO UPDATE SET
   title = EXCLUDED.title, summary = EXCLUDED.summary, status = EXCLUDED.status;
 INSERT INTO courses (id, tenant_id, org_unit_id, author_id, slug, title, summary, status, enrollment_mode)
-VALUES ('65c85afb-fd59-575d-8754-15fee87d6589', (SELECT id FROM tenants WHERE slug = 'exemplo'), NULL,
+VALUES ('65c85afb-fd59-575d-8754-15fee87d6589', (SELECT id FROM tenants WHERE slug = 'lms'), NULL,
         '0241e68a-9b21-5658-bcd4-55cfa515d63c', 'processamento-de-gas', 'Processamento e Tratamento de Gás',
         'Do separador ao ponto de entrega: as etapas do condicionamento e os parâmetros de especificação.', 'published', 'assigned')
 ON CONFLICT (id) DO UPDATE SET
   title = EXCLUDED.title, summary = EXCLUDED.summary, status = EXCLUDED.status;
 INSERT INTO courses (id, tenant_id, org_unit_id, author_id, slug, title, summary, status, enrollment_mode)
-VALUES ('8e06f60b-00b7-50af-8a4d-61e0f10c9c3f', (SELECT id FROM tenants WHERE slug = 'exemplo'), NULL,
+VALUES ('8e06f60b-00b7-50af-8a4d-61e0f10c9c3f', (SELECT id FROM tenants WHERE slug = 'lms'), NULL,
         '7c7446d4-8be6-5ed5-b50b-6e03afe7de6b', 'comunicacao-com-a-comunidade', 'Comunicação com a Comunidade',
         'Como explicar obra, intervenção e impacto para quem é afetado por eles.', 'published', 'open')
 ON CONFLICT (id) DO UPDATE SET
@@ -2577,7 +2577,7 @@ ON CONFLICT (id) DO UPDATE SET
   body = EXCLUDED.body, highlighted = EXCLUDED.highlighted;
 INSERT INTO comments (id, lesson_id, author_id, parent_id, body, highlighted, created_at)
 VALUES ('ac4f8162-d4fc-59a6-bd3d-38791d4ca767', '37564443-a75a-5c8f-a4ba-19d2e853f14b', '0241e68a-9b21-5658-bcd4-55cfa515d63c',
-        'e1f0e8f4-ec8e-54a6-92d1-24b652d61b2b', 'Acima de 60 °C a leitura desvia — não é preferência, é que o acoplante seca e a velocidade do som no aço muda com a temperatura. Se não der para esperar a parada, use sonda de alta temperatura e aplique a correção da tabela. Sem isso, a espessura sai menor do que é e você programa reparo que não precisa.',
+        'e1f0e8f4-ec8e-54a6-92d1-24b652d61b2b', 'Acima de 60 °C a leitura desvia, não é preferência, é que o acoplante seca e a velocidade do som no aço muda com a temperatura. Se não der para esperar a parada, use sonda de alta temperatura e aplique a correção da tabela. Sem isso, a espessura sai menor do que é e você programa reparo que não precisa.',
         true, '2026-08-10T10:40:00-03:00')
 ON CONFLICT (id) DO UPDATE SET
   body = EXCLUDED.body, highlighted = EXCLUDED.highlighted;
@@ -2589,13 +2589,13 @@ ON CONFLICT (id) DO UPDATE SET
   body = EXCLUDED.body, highlighted = EXCLUDED.highlighted;
 INSERT INTO comments (id, lesson_id, author_id, parent_id, body, highlighted, created_at)
 VALUES ('299698e4-dffe-578a-993f-531572f122a5', '04a9e4b1-e038-5d53-8340-bae65cb8b45e', '0241e68a-9b21-5658-bcd4-55cfa515d63c',
-        '50a2db74-dd97-56ef-866e-bee4bef26328', 'Interna. O ataque vem do fluido que passa dentro, e a água livre decanta justamente na geratriz de baixo — por isso o pite aparece ali. Externa é a que vem de fora: solo, umidade sob isolamento, corrente de interferência. A separação importa porque a defesa é diferente: uma se resolve com inibidor e pigagem, a outra com revestimento e proteção catódica.',
+        '50a2db74-dd97-56ef-866e-bee4bef26328', 'Interna. O ataque vem do fluido que passa dentro, e a água livre decanta justamente na geratriz de baixo, por isso o pite aparece ali. Externa é a que vem de fora: solo, umidade sob isolamento, corrente de interferência. A separação importa porque a defesa é diferente: uma se resolve com inibidor e pigagem, a outra com revestimento e proteção catódica.',
         true, '2026-08-11T11:22:00-03:00')
 ON CONFLICT (id) DO UPDATE SET
   body = EXCLUDED.body, highlighted = EXCLUDED.highlighted;
 
 INSERT INTO tracks (id, tenant_id, org_unit_id, slug, title, summary, mode, project)
-VALUES ('4643cda7-bb07-5487-9c63-8b3e6f03849c', (SELECT id FROM tenants WHERE slug = 'exemplo'), NULL,
+VALUES ('4643cda7-bb07-5487-9c63-8b3e6f03849c', (SELECT id FROM tenants WHERE slug = 'lms'), NULL,
         'operacao-de-campo', 'Operação de Campo',
         'Do reservatório ao ponto de entrega: a formação completa de quem opera os campos.', 'sequential', NULL)
 ON CONFLICT (id) DO UPDATE SET
@@ -2610,7 +2610,7 @@ INSERT INTO track_courses (track_id, course_id, position)
 VALUES ('4643cda7-bb07-5487-9c63-8b3e6f03849c', '65c85afb-fd59-575d-8754-15fee87d6589', 3)
 ON CONFLICT (track_id, course_id) DO UPDATE SET position = EXCLUDED.position;
 INSERT INTO tracks (id, tenant_id, org_unit_id, slug, title, summary, mode, project)
-VALUES ('dd46023b-ff2a-55b6-b94f-36452e2a6552', (SELECT id FROM tenants WHERE slug = 'exemplo'), NULL,
+VALUES ('dd46023b-ff2a-55b6-b94f-36452e2a6552', (SELECT id FROM tenants WHERE slug = 'lms'), NULL,
         'atendimento-e-comunidade', 'Comunidade e Território',
         'Como falar com quem é afetado pela operação, do primeiro contato à prestação de contas.', 'free', NULL)
 ON CONFLICT (id) DO UPDATE SET
@@ -2840,16 +2840,16 @@ VALUES ('299698e4-dffe-578a-993f-531572f122a5', '3d6e6a4d-4b43-50a1-9e1a-b8ba278
 ON CONFLICT DO NOTHING;
 
 INSERT INTO events (id, tenant_id, org_unit_id, on_date, time_label, title, kind, location, project)
-VALUES ('3f378a67-0a42-5f25-b9ea-a75823c356ec', (SELECT id FROM tenants WHERE slug = 'exemplo'), NULL,
+VALUES ('3f378a67-0a42-5f25-b9ea-a75823c356ec', (SELECT id FROM tenants WHERE slug = 'lms'), NULL,
         GREATEST(date_trunc('month', current_date)::date,
-                 LEAST((current_date + interval '-10 days')::date,
+                 LEAST((current_date + interval '-6 days')::date,
                        (date_trunc('month', current_date) + interval '1 month - 1 day')::date)), NULL,
         'Prazo: Segurança em Operações de Campo', 'deadline', NULL, NULL)
 ON CONFLICT (id) DO UPDATE SET
   on_date = EXCLUDED.on_date, title = EXCLUDED.title, kind = EXCLUDED.kind,
   time_label = EXCLUDED.time_label, location = EXCLUDED.location;
 INSERT INTO events (id, tenant_id, org_unit_id, on_date, time_label, title, kind, location, project)
-VALUES ('54cc9ac2-ff8b-5543-931e-9ddcca7c3814', (SELECT id FROM tenants WHERE slug = 'exemplo'), NULL,
+VALUES ('54cc9ac2-ff8b-5543-931e-9ddcca7c3814', (SELECT id FROM tenants WHERE slug = 'lms'), NULL,
         GREATEST(date_trunc('month', current_date)::date,
                  LEAST((current_date + interval '-5 days')::date,
                        (date_trunc('month', current_date) + interval '1 month - 1 day')::date)), '14h às 17h',
@@ -2858,7 +2858,7 @@ ON CONFLICT (id) DO UPDATE SET
   on_date = EXCLUDED.on_date, title = EXCLUDED.title, kind = EXCLUDED.kind,
   time_label = EXCLUDED.time_label, location = EXCLUDED.location;
 INSERT INTO events (id, tenant_id, org_unit_id, on_date, time_label, title, kind, location, project)
-VALUES ('fa24a185-6d1f-52a3-bf75-59d3a44e262a', (SELECT id FROM tenants WHERE slug = 'exemplo'), NULL,
+VALUES ('fa24a185-6d1f-52a3-bf75-59d3a44e262a', (SELECT id FROM tenants WHERE slug = 'lms'), NULL,
         GREATEST(date_trunc('month', current_date)::date,
                  LEAST((current_date)::date,
                        (date_trunc('month', current_date) + interval '1 month - 1 day')::date)), NULL,
@@ -2867,7 +2867,7 @@ ON CONFLICT (id) DO UPDATE SET
   on_date = EXCLUDED.on_date, title = EXCLUDED.title, kind = EXCLUDED.kind,
   time_label = EXCLUDED.time_label, location = EXCLUDED.location;
 INSERT INTO events (id, tenant_id, org_unit_id, on_date, time_label, title, kind, location, project)
-VALUES ('969781a7-e3c7-5225-9b27-878dc325a706', (SELECT id FROM tenants WHERE slug = 'exemplo'), NULL,
+VALUES ('969781a7-e3c7-5225-9b27-878dc325a706', (SELECT id FROM tenants WHERE slug = 'lms'), NULL,
         GREATEST(date_trunc('month', current_date)::date,
                  LEAST((current_date + interval '2 days')::date,
                        (date_trunc('month', current_date) + interval '1 month - 1 day')::date)), '9h às 12h',
@@ -2876,7 +2876,7 @@ ON CONFLICT (id) DO UPDATE SET
   on_date = EXCLUDED.on_date, title = EXCLUDED.title, kind = EXCLUDED.kind,
   time_label = EXCLUDED.time_label, location = EXCLUDED.location;
 INSERT INTO events (id, tenant_id, org_unit_id, on_date, time_label, title, kind, location, project)
-VALUES ('8bd3c98c-c744-5006-ad7d-f94857329654', (SELECT id FROM tenants WHERE slug = 'exemplo'), NULL,
+VALUES ('8bd3c98c-c744-5006-ad7d-f94857329654', (SELECT id FROM tenants WHERE slug = 'lms'), NULL,
         GREATEST(date_trunc('month', current_date)::date,
                  LEAST((current_date + interval '4 days')::date,
                        (date_trunc('month', current_date) + interval '1 month - 1 day')::date)), NULL,
@@ -2885,9 +2885,9 @@ ON CONFLICT (id) DO UPDATE SET
   on_date = EXCLUDED.on_date, title = EXCLUDED.title, kind = EXCLUDED.kind,
   time_label = EXCLUDED.time_label, location = EXCLUDED.location;
 INSERT INTO events (id, tenant_id, org_unit_id, on_date, time_label, title, kind, location, project)
-VALUES ('55b31513-71e2-5756-9553-57e72a36bdf8', (SELECT id FROM tenants WHERE slug = 'exemplo'), NULL,
+VALUES ('55b31513-71e2-5756-9553-57e72a36bdf8', (SELECT id FROM tenants WHERE slug = 'lms'), NULL,
         GREATEST(date_trunc('month', current_date)::date,
-                 LEAST((current_date + interval '5 days')::date,
+                 LEAST((current_date + interval '7 days')::date,
                        (date_trunc('month', current_date) + interval '1 month - 1 day')::date)), NULL,
         'Semana da Segurança', 'announcement', NULL, NULL)
 ON CONFLICT (id) DO UPDATE SET
@@ -2896,253 +2896,253 @@ ON CONFLICT (id) DO UPDATE SET
 
 INSERT INTO notifications (id, user_id, title, body, kind, created_at, read_at, link)
 VALUES ('7dc5e22a-e8e4-51c4-9d38-e02d77769f87', 'dd1b44e8-52f8-5b65-a243-5ecb7b6ba687', 'Seu curso de Segurança vence em 2 dias',
-        'Faltam 20 aulas para concluir Segurança em Operações de Campo.', 'reminder', current_date + interval '-1 days',
+        'Faltam 20 aulas para concluir Segurança em Operações de Campo.', 'reminder', current_date,
         NULL, '/cursos/seguranca-em-operacoes-de-campo')
 ON CONFLICT (id) DO UPDATE SET
   title = EXCLUDED.title, body = EXCLUDED.body, created_at = EXCLUDED.created_at,
   link = EXCLUDED.link;
 INSERT INTO notifications (id, user_id, title, body, kind, created_at, read_at, link)
 VALUES ('b22f7de1-15f5-5a5f-a258-4b8377a40cc7', '26757df8-30c8-5c63-805a-197a8d9593db', 'Seu curso de Segurança vence em 2 dias',
-        'Faltam 20 aulas para concluir Segurança em Operações de Campo.', 'reminder', current_date + interval '-1 days',
+        'Faltam 20 aulas para concluir Segurança em Operações de Campo.', 'reminder', current_date,
         NULL, '/cursos/seguranca-em-operacoes-de-campo')
 ON CONFLICT (id) DO UPDATE SET
   title = EXCLUDED.title, body = EXCLUDED.body, created_at = EXCLUDED.created_at,
   link = EXCLUDED.link;
 INSERT INTO notifications (id, user_id, title, body, kind, created_at, read_at, link)
 VALUES ('08a0704e-1a44-53b4-90e9-cfdd7fa09293', 'bb1f7d87-6677-544a-af56-3d38c5e3ca65', 'Seu curso de Segurança vence em 2 dias',
-        'Faltam 20 aulas para concluir Segurança em Operações de Campo.', 'reminder', current_date + interval '-1 days',
+        'Faltam 20 aulas para concluir Segurança em Operações de Campo.', 'reminder', current_date,
         NULL, '/cursos/seguranca-em-operacoes-de-campo')
 ON CONFLICT (id) DO UPDATE SET
   title = EXCLUDED.title, body = EXCLUDED.body, created_at = EXCLUDED.created_at,
   link = EXCLUDED.link;
 INSERT INTO notifications (id, user_id, title, body, kind, created_at, read_at, link)
 VALUES ('7adad3c7-30b2-58af-b681-8942b7f8749c', 'cde71ffa-eb22-541b-af5f-88f1b9bec629', 'Seu curso de Segurança vence em 2 dias',
-        'Faltam 20 aulas para concluir Segurança em Operações de Campo.', 'reminder', current_date + interval '-1 days',
+        'Faltam 20 aulas para concluir Segurança em Operações de Campo.', 'reminder', current_date,
         NULL, '/cursos/seguranca-em-operacoes-de-campo')
 ON CONFLICT (id) DO UPDATE SET
   title = EXCLUDED.title, body = EXCLUDED.body, created_at = EXCLUDED.created_at,
   link = EXCLUDED.link;
 INSERT INTO notifications (id, user_id, title, body, kind, created_at, read_at, link)
 VALUES ('5f5ec1b5-d93e-58e7-9a2e-2b33d9db899e', 'fdf36cb8-b946-59ac-9d69-90756d18a0dc', 'Seu curso de Segurança vence em 2 dias',
-        'Faltam 20 aulas para concluir Segurança em Operações de Campo.', 'reminder', current_date + interval '-1 days',
+        'Faltam 20 aulas para concluir Segurança em Operações de Campo.', 'reminder', current_date,
         NULL, '/cursos/seguranca-em-operacoes-de-campo')
 ON CONFLICT (id) DO UPDATE SET
   title = EXCLUDED.title, body = EXCLUDED.body, created_at = EXCLUDED.created_at,
   link = EXCLUDED.link;
 INSERT INTO notifications (id, user_id, title, body, kind, created_at, read_at, link)
 VALUES ('f54bd80c-8aad-59bc-a3fd-1d75ecda4470', 'd958b9da-9f14-57db-ac67-8cd7fc77c167', 'Seu curso de Segurança vence em 2 dias',
-        'Faltam 20 aulas para concluir Segurança em Operações de Campo.', 'reminder', current_date + interval '-1 days',
+        'Faltam 20 aulas para concluir Segurança em Operações de Campo.', 'reminder', current_date,
         NULL, '/cursos/seguranca-em-operacoes-de-campo')
 ON CONFLICT (id) DO UPDATE SET
   title = EXCLUDED.title, body = EXCLUDED.body, created_at = EXCLUDED.created_at,
   link = EXCLUDED.link;
 INSERT INTO notifications (id, user_id, title, body, kind, created_at, read_at, link)
 VALUES ('7163ecb1-76f4-515c-9623-d929aec7bd6c', 'ae870e0b-ede4-51ef-8f59-05172aa84a08', 'Seu curso de Segurança vence em 2 dias',
-        'Faltam 20 aulas para concluir Segurança em Operações de Campo.', 'reminder', current_date + interval '-1 days',
+        'Faltam 20 aulas para concluir Segurança em Operações de Campo.', 'reminder', current_date,
         NULL, '/cursos/seguranca-em-operacoes-de-campo')
 ON CONFLICT (id) DO UPDATE SET
   title = EXCLUDED.title, body = EXCLUDED.body, created_at = EXCLUDED.created_at,
   link = EXCLUDED.link;
 INSERT INTO notifications (id, user_id, title, body, kind, created_at, read_at, link)
 VALUES ('28c69d83-cf69-5066-81bc-a44a5b01caed', 'ea9b5b74-3085-5794-a0e0-c3e0d1fe40a9', 'Seu curso de Segurança vence em 2 dias',
-        'Faltam 20 aulas para concluir Segurança em Operações de Campo.', 'reminder', current_date + interval '-1 days',
+        'Faltam 20 aulas para concluir Segurança em Operações de Campo.', 'reminder', current_date,
         NULL, '/cursos/seguranca-em-operacoes-de-campo')
 ON CONFLICT (id) DO UPDATE SET
   title = EXCLUDED.title, body = EXCLUDED.body, created_at = EXCLUDED.created_at,
   link = EXCLUDED.link;
 INSERT INTO notifications (id, user_id, title, body, kind, created_at, read_at, link)
 VALUES ('a5a74cf8-df92-5f06-a6cd-aa8cc89e4166', '3d6e6a4d-4b43-50a1-9e1a-b8ba278b0573', 'Seu curso de Segurança vence em 2 dias',
-        'Faltam 20 aulas para concluir Segurança em Operações de Campo.', 'reminder', current_date + interval '-1 days',
+        'Faltam 20 aulas para concluir Segurança em Operações de Campo.', 'reminder', current_date,
         NULL, '/cursos/seguranca-em-operacoes-de-campo')
 ON CONFLICT (id) DO UPDATE SET
   title = EXCLUDED.title, body = EXCLUDED.body, created_at = EXCLUDED.created_at,
   link = EXCLUDED.link;
 INSERT INTO notifications (id, user_id, title, body, kind, created_at, read_at, link)
 VALUES ('d934363f-f192-5e99-bce0-55bfe5084598', 'dd1b44e8-52f8-5b65-a243-5ecb7b6ba687', 'Novo comunicado do RH',
-        'A nova norma de integridade entra em vigor em setembro. Leia antes do treinamento do dia 13.', 'announcement', current_date + interval '-3 days',
+        'A nova norma de integridade entra em vigor em setembro. Leia antes do treinamento do dia 13.', 'announcement', current_date + interval '-2 days',
         NULL, '/agenda')
 ON CONFLICT (id) DO UPDATE SET
   title = EXCLUDED.title, body = EXCLUDED.body, created_at = EXCLUDED.created_at,
   link = EXCLUDED.link;
 INSERT INTO notifications (id, user_id, title, body, kind, created_at, read_at, link)
 VALUES ('2d39ef45-3696-5689-89eb-43df43ec9699', '26757df8-30c8-5c63-805a-197a8d9593db', 'Novo comunicado do RH',
-        'A nova norma de integridade entra em vigor em setembro. Leia antes do treinamento do dia 13.', 'announcement', current_date + interval '-3 days',
+        'A nova norma de integridade entra em vigor em setembro. Leia antes do treinamento do dia 13.', 'announcement', current_date + interval '-2 days',
         NULL, '/agenda')
 ON CONFLICT (id) DO UPDATE SET
   title = EXCLUDED.title, body = EXCLUDED.body, created_at = EXCLUDED.created_at,
   link = EXCLUDED.link;
 INSERT INTO notifications (id, user_id, title, body, kind, created_at, read_at, link)
 VALUES ('875347c4-0bf8-5499-908b-388e650ddec8', 'bb1f7d87-6677-544a-af56-3d38c5e3ca65', 'Novo comunicado do RH',
-        'A nova norma de integridade entra em vigor em setembro. Leia antes do treinamento do dia 13.', 'announcement', current_date + interval '-3 days',
+        'A nova norma de integridade entra em vigor em setembro. Leia antes do treinamento do dia 13.', 'announcement', current_date + interval '-2 days',
         NULL, '/agenda')
 ON CONFLICT (id) DO UPDATE SET
   title = EXCLUDED.title, body = EXCLUDED.body, created_at = EXCLUDED.created_at,
   link = EXCLUDED.link;
 INSERT INTO notifications (id, user_id, title, body, kind, created_at, read_at, link)
 VALUES ('abd86d87-cb71-52a7-8d02-0ea965c5b76d', 'cde71ffa-eb22-541b-af5f-88f1b9bec629', 'Novo comunicado do RH',
-        'A nova norma de integridade entra em vigor em setembro. Leia antes do treinamento do dia 13.', 'announcement', current_date + interval '-3 days',
+        'A nova norma de integridade entra em vigor em setembro. Leia antes do treinamento do dia 13.', 'announcement', current_date + interval '-2 days',
         NULL, '/agenda')
 ON CONFLICT (id) DO UPDATE SET
   title = EXCLUDED.title, body = EXCLUDED.body, created_at = EXCLUDED.created_at,
   link = EXCLUDED.link;
 INSERT INTO notifications (id, user_id, title, body, kind, created_at, read_at, link)
 VALUES ('0159070d-4ab4-52f4-90ab-122f59412550', 'fdf36cb8-b946-59ac-9d69-90756d18a0dc', 'Novo comunicado do RH',
-        'A nova norma de integridade entra em vigor em setembro. Leia antes do treinamento do dia 13.', 'announcement', current_date + interval '-3 days',
+        'A nova norma de integridade entra em vigor em setembro. Leia antes do treinamento do dia 13.', 'announcement', current_date + interval '-2 days',
         NULL, '/agenda')
 ON CONFLICT (id) DO UPDATE SET
   title = EXCLUDED.title, body = EXCLUDED.body, created_at = EXCLUDED.created_at,
   link = EXCLUDED.link;
 INSERT INTO notifications (id, user_id, title, body, kind, created_at, read_at, link)
 VALUES ('a7b4fca3-9c89-51f7-8309-82bf387c7bd0', 'd958b9da-9f14-57db-ac67-8cd7fc77c167', 'Novo comunicado do RH',
-        'A nova norma de integridade entra em vigor em setembro. Leia antes do treinamento do dia 13.', 'announcement', current_date + interval '-3 days',
+        'A nova norma de integridade entra em vigor em setembro. Leia antes do treinamento do dia 13.', 'announcement', current_date + interval '-2 days',
         NULL, '/agenda')
 ON CONFLICT (id) DO UPDATE SET
   title = EXCLUDED.title, body = EXCLUDED.body, created_at = EXCLUDED.created_at,
   link = EXCLUDED.link;
 INSERT INTO notifications (id, user_id, title, body, kind, created_at, read_at, link)
 VALUES ('58f7a308-7f77-52b7-b8a3-4fa379617976', 'ae870e0b-ede4-51ef-8f59-05172aa84a08', 'Novo comunicado do RH',
-        'A nova norma de integridade entra em vigor em setembro. Leia antes do treinamento do dia 13.', 'announcement', current_date + interval '-3 days',
+        'A nova norma de integridade entra em vigor em setembro. Leia antes do treinamento do dia 13.', 'announcement', current_date + interval '-2 days',
         NULL, '/agenda')
 ON CONFLICT (id) DO UPDATE SET
   title = EXCLUDED.title, body = EXCLUDED.body, created_at = EXCLUDED.created_at,
   link = EXCLUDED.link;
 INSERT INTO notifications (id, user_id, title, body, kind, created_at, read_at, link)
 VALUES ('3d4099f3-ca4e-5036-b00f-d2a476e5ec2d', 'ea9b5b74-3085-5794-a0e0-c3e0d1fe40a9', 'Novo comunicado do RH',
-        'A nova norma de integridade entra em vigor em setembro. Leia antes do treinamento do dia 13.', 'announcement', current_date + interval '-3 days',
+        'A nova norma de integridade entra em vigor em setembro. Leia antes do treinamento do dia 13.', 'announcement', current_date + interval '-2 days',
         NULL, '/agenda')
 ON CONFLICT (id) DO UPDATE SET
   title = EXCLUDED.title, body = EXCLUDED.body, created_at = EXCLUDED.created_at,
   link = EXCLUDED.link;
 INSERT INTO notifications (id, user_id, title, body, kind, created_at, read_at, link)
 VALUES ('4bcf2948-8f3e-52b0-9695-d1125102ef27', '3d6e6a4d-4b43-50a1-9e1a-b8ba278b0573', 'Novo comunicado do RH',
-        'A nova norma de integridade entra em vigor em setembro. Leia antes do treinamento do dia 13.', 'announcement', current_date + interval '-3 days',
+        'A nova norma de integridade entra em vigor em setembro. Leia antes do treinamento do dia 13.', 'announcement', current_date + interval '-2 days',
         NULL, '/agenda')
 ON CONFLICT (id) DO UPDATE SET
   title = EXCLUDED.title, body = EXCLUDED.body, created_at = EXCLUDED.created_at,
   link = EXCLUDED.link;
 INSERT INTO notifications (id, user_id, title, body, kind, created_at, read_at, link)
 VALUES ('2d19f4b2-fc02-5896-8487-d8cba0718984', 'dd1b44e8-52f8-5b65-a243-5ecb7b6ba687', 'Distintivo conquistado: Especialista em campo',
-        'Você concluiu 30 aulas. Continue assim.', 'achievement', current_date + interval '-5 days',
-        current_date + interval '-5 days', '/perfil')
+        'Você concluiu 30 aulas. Continue assim.', 'achievement', current_date + interval '-4 days',
+        current_date + interval '-4 days', '/perfil')
 ON CONFLICT (id) DO UPDATE SET
   title = EXCLUDED.title, body = EXCLUDED.body, created_at = EXCLUDED.created_at,
   link = EXCLUDED.link;
 INSERT INTO notifications (id, user_id, title, body, kind, created_at, read_at, link)
 VALUES ('a11ac871-af74-545a-b0d9-681709a2b1f6', '26757df8-30c8-5c63-805a-197a8d9593db', 'Distintivo conquistado: Especialista em campo',
-        'Você concluiu 30 aulas. Continue assim.', 'achievement', current_date + interval '-5 days',
-        current_date + interval '-5 days', '/perfil')
+        'Você concluiu 30 aulas. Continue assim.', 'achievement', current_date + interval '-4 days',
+        current_date + interval '-4 days', '/perfil')
 ON CONFLICT (id) DO UPDATE SET
   title = EXCLUDED.title, body = EXCLUDED.body, created_at = EXCLUDED.created_at,
   link = EXCLUDED.link;
 INSERT INTO notifications (id, user_id, title, body, kind, created_at, read_at, link)
 VALUES ('e8e7b5c3-5884-5012-8d8b-0075cd18e048', 'bb1f7d87-6677-544a-af56-3d38c5e3ca65', 'Distintivo conquistado: Especialista em campo',
-        'Você concluiu 30 aulas. Continue assim.', 'achievement', current_date + interval '-5 days',
-        current_date + interval '-5 days', '/perfil')
+        'Você concluiu 30 aulas. Continue assim.', 'achievement', current_date + interval '-4 days',
+        current_date + interval '-4 days', '/perfil')
 ON CONFLICT (id) DO UPDATE SET
   title = EXCLUDED.title, body = EXCLUDED.body, created_at = EXCLUDED.created_at,
   link = EXCLUDED.link;
 INSERT INTO notifications (id, user_id, title, body, kind, created_at, read_at, link)
 VALUES ('16218cf0-88a7-50b8-b426-1bd284181926', 'cde71ffa-eb22-541b-af5f-88f1b9bec629', 'Distintivo conquistado: Especialista em campo',
-        'Você concluiu 30 aulas. Continue assim.', 'achievement', current_date + interval '-5 days',
-        current_date + interval '-5 days', '/perfil')
+        'Você concluiu 30 aulas. Continue assim.', 'achievement', current_date + interval '-4 days',
+        current_date + interval '-4 days', '/perfil')
 ON CONFLICT (id) DO UPDATE SET
   title = EXCLUDED.title, body = EXCLUDED.body, created_at = EXCLUDED.created_at,
   link = EXCLUDED.link;
 INSERT INTO notifications (id, user_id, title, body, kind, created_at, read_at, link)
 VALUES ('918dc2cd-d7e0-5cd1-b07b-145c24ee9ef6', 'fdf36cb8-b946-59ac-9d69-90756d18a0dc', 'Distintivo conquistado: Especialista em campo',
-        'Você concluiu 30 aulas. Continue assim.', 'achievement', current_date + interval '-5 days',
-        current_date + interval '-5 days', '/perfil')
+        'Você concluiu 30 aulas. Continue assim.', 'achievement', current_date + interval '-4 days',
+        current_date + interval '-4 days', '/perfil')
 ON CONFLICT (id) DO UPDATE SET
   title = EXCLUDED.title, body = EXCLUDED.body, created_at = EXCLUDED.created_at,
   link = EXCLUDED.link;
 INSERT INTO notifications (id, user_id, title, body, kind, created_at, read_at, link)
 VALUES ('1ae0abcc-8b90-53de-912f-76031b18ca19', 'd958b9da-9f14-57db-ac67-8cd7fc77c167', 'Distintivo conquistado: Especialista em campo',
-        'Você concluiu 30 aulas. Continue assim.', 'achievement', current_date + interval '-5 days',
-        current_date + interval '-5 days', '/perfil')
+        'Você concluiu 30 aulas. Continue assim.', 'achievement', current_date + interval '-4 days',
+        current_date + interval '-4 days', '/perfil')
 ON CONFLICT (id) DO UPDATE SET
   title = EXCLUDED.title, body = EXCLUDED.body, created_at = EXCLUDED.created_at,
   link = EXCLUDED.link;
 INSERT INTO notifications (id, user_id, title, body, kind, created_at, read_at, link)
 VALUES ('84f8d9d7-2366-505e-a4e0-21d9a5287358', 'ae870e0b-ede4-51ef-8f59-05172aa84a08', 'Distintivo conquistado: Especialista em campo',
-        'Você concluiu 30 aulas. Continue assim.', 'achievement', current_date + interval '-5 days',
-        current_date + interval '-5 days', '/perfil')
+        'Você concluiu 30 aulas. Continue assim.', 'achievement', current_date + interval '-4 days',
+        current_date + interval '-4 days', '/perfil')
 ON CONFLICT (id) DO UPDATE SET
   title = EXCLUDED.title, body = EXCLUDED.body, created_at = EXCLUDED.created_at,
   link = EXCLUDED.link;
 INSERT INTO notifications (id, user_id, title, body, kind, created_at, read_at, link)
 VALUES ('534302df-16ae-5fdd-aa87-09d26f6e5529', 'ea9b5b74-3085-5794-a0e0-c3e0d1fe40a9', 'Distintivo conquistado: Especialista em campo',
-        'Você concluiu 30 aulas. Continue assim.', 'achievement', current_date + interval '-5 days',
-        current_date + interval '-5 days', '/perfil')
+        'Você concluiu 30 aulas. Continue assim.', 'achievement', current_date + interval '-4 days',
+        current_date + interval '-4 days', '/perfil')
 ON CONFLICT (id) DO UPDATE SET
   title = EXCLUDED.title, body = EXCLUDED.body, created_at = EXCLUDED.created_at,
   link = EXCLUDED.link;
 INSERT INTO notifications (id, user_id, title, body, kind, created_at, read_at, link)
 VALUES ('57c6c8db-0a1d-5c07-a14a-554bb451fc19', '3d6e6a4d-4b43-50a1-9e1a-b8ba278b0573', 'Distintivo conquistado: Especialista em campo',
-        'Você concluiu 30 aulas. Continue assim.', 'achievement', current_date + interval '-5 days',
-        current_date + interval '-5 days', '/perfil')
+        'Você concluiu 30 aulas. Continue assim.', 'achievement', current_date + interval '-4 days',
+        current_date + interval '-4 days', '/perfil')
 ON CONFLICT (id) DO UPDATE SET
   title = EXCLUDED.title, body = EXCLUDED.body, created_at = EXCLUDED.created_at,
   link = EXCLUDED.link;
 INSERT INTO notifications (id, user_id, title, body, kind, created_at, read_at, link)
 VALUES ('cf4ae772-7f78-531f-92d2-60f091a458f9', 'dd1b44e8-52f8-5b65-a243-5ecb7b6ba687', 'Instrutor respondeu seu comentário',
-        'Em Coleta e separação · Falhas comuns.', 'announcement', current_date + interval '-8 days',
-        current_date + interval '-8 days', '/cursos/operacao-de-pocos-fundamentos')
+        'Em Coleta e separação · Falhas comuns.', 'announcement', current_date + interval '-7 days',
+        current_date + interval '-7 days', '/cursos/operacao-de-pocos-fundamentos')
 ON CONFLICT (id) DO UPDATE SET
   title = EXCLUDED.title, body = EXCLUDED.body, created_at = EXCLUDED.created_at,
   link = EXCLUDED.link;
 INSERT INTO notifications (id, user_id, title, body, kind, created_at, read_at, link)
 VALUES ('5e6226ab-b55b-5e61-b96a-cc25319b55f1', '26757df8-30c8-5c63-805a-197a8d9593db', 'Instrutor respondeu seu comentário',
-        'Em Coleta e separação · Falhas comuns.', 'announcement', current_date + interval '-8 days',
-        current_date + interval '-8 days', '/cursos/operacao-de-pocos-fundamentos')
+        'Em Coleta e separação · Falhas comuns.', 'announcement', current_date + interval '-7 days',
+        current_date + interval '-7 days', '/cursos/operacao-de-pocos-fundamentos')
 ON CONFLICT (id) DO UPDATE SET
   title = EXCLUDED.title, body = EXCLUDED.body, created_at = EXCLUDED.created_at,
   link = EXCLUDED.link;
 INSERT INTO notifications (id, user_id, title, body, kind, created_at, read_at, link)
 VALUES ('2339d598-6b23-57db-a02b-e8665b80babd', 'bb1f7d87-6677-544a-af56-3d38c5e3ca65', 'Instrutor respondeu seu comentário',
-        'Em Coleta e separação · Falhas comuns.', 'announcement', current_date + interval '-8 days',
-        current_date + interval '-8 days', '/cursos/operacao-de-pocos-fundamentos')
+        'Em Coleta e separação · Falhas comuns.', 'announcement', current_date + interval '-7 days',
+        current_date + interval '-7 days', '/cursos/operacao-de-pocos-fundamentos')
 ON CONFLICT (id) DO UPDATE SET
   title = EXCLUDED.title, body = EXCLUDED.body, created_at = EXCLUDED.created_at,
   link = EXCLUDED.link;
 INSERT INTO notifications (id, user_id, title, body, kind, created_at, read_at, link)
 VALUES ('01f188f2-5a3f-5d76-86f9-addbbc11376d', 'cde71ffa-eb22-541b-af5f-88f1b9bec629', 'Instrutor respondeu seu comentário',
-        'Em Coleta e separação · Falhas comuns.', 'announcement', current_date + interval '-8 days',
-        current_date + interval '-8 days', '/cursos/operacao-de-pocos-fundamentos')
+        'Em Coleta e separação · Falhas comuns.', 'announcement', current_date + interval '-7 days',
+        current_date + interval '-7 days', '/cursos/operacao-de-pocos-fundamentos')
 ON CONFLICT (id) DO UPDATE SET
   title = EXCLUDED.title, body = EXCLUDED.body, created_at = EXCLUDED.created_at,
   link = EXCLUDED.link;
 INSERT INTO notifications (id, user_id, title, body, kind, created_at, read_at, link)
 VALUES ('5ccab087-03ae-5549-9455-155c4f78162e', 'fdf36cb8-b946-59ac-9d69-90756d18a0dc', 'Instrutor respondeu seu comentário',
-        'Em Coleta e separação · Falhas comuns.', 'announcement', current_date + interval '-8 days',
-        current_date + interval '-8 days', '/cursos/operacao-de-pocos-fundamentos')
+        'Em Coleta e separação · Falhas comuns.', 'announcement', current_date + interval '-7 days',
+        current_date + interval '-7 days', '/cursos/operacao-de-pocos-fundamentos')
 ON CONFLICT (id) DO UPDATE SET
   title = EXCLUDED.title, body = EXCLUDED.body, created_at = EXCLUDED.created_at,
   link = EXCLUDED.link;
 INSERT INTO notifications (id, user_id, title, body, kind, created_at, read_at, link)
 VALUES ('5372ba1e-30c4-56ca-965e-74ed0efd6d47', 'd958b9da-9f14-57db-ac67-8cd7fc77c167', 'Instrutor respondeu seu comentário',
-        'Em Coleta e separação · Falhas comuns.', 'announcement', current_date + interval '-8 days',
-        current_date + interval '-8 days', '/cursos/operacao-de-pocos-fundamentos')
+        'Em Coleta e separação · Falhas comuns.', 'announcement', current_date + interval '-7 days',
+        current_date + interval '-7 days', '/cursos/operacao-de-pocos-fundamentos')
 ON CONFLICT (id) DO UPDATE SET
   title = EXCLUDED.title, body = EXCLUDED.body, created_at = EXCLUDED.created_at,
   link = EXCLUDED.link;
 INSERT INTO notifications (id, user_id, title, body, kind, created_at, read_at, link)
 VALUES ('adb6a3e0-debf-501b-b34f-888dadcc3cc5', 'ae870e0b-ede4-51ef-8f59-05172aa84a08', 'Instrutor respondeu seu comentário',
-        'Em Coleta e separação · Falhas comuns.', 'announcement', current_date + interval '-8 days',
-        current_date + interval '-8 days', '/cursos/operacao-de-pocos-fundamentos')
+        'Em Coleta e separação · Falhas comuns.', 'announcement', current_date + interval '-7 days',
+        current_date + interval '-7 days', '/cursos/operacao-de-pocos-fundamentos')
 ON CONFLICT (id) DO UPDATE SET
   title = EXCLUDED.title, body = EXCLUDED.body, created_at = EXCLUDED.created_at,
   link = EXCLUDED.link;
 INSERT INTO notifications (id, user_id, title, body, kind, created_at, read_at, link)
 VALUES ('23e12986-aab1-5982-8862-298084e7b4c7', 'ea9b5b74-3085-5794-a0e0-c3e0d1fe40a9', 'Instrutor respondeu seu comentário',
-        'Em Coleta e separação · Falhas comuns.', 'announcement', current_date + interval '-8 days',
-        current_date + interval '-8 days', '/cursos/operacao-de-pocos-fundamentos')
+        'Em Coleta e separação · Falhas comuns.', 'announcement', current_date + interval '-7 days',
+        current_date + interval '-7 days', '/cursos/operacao-de-pocos-fundamentos')
 ON CONFLICT (id) DO UPDATE SET
   title = EXCLUDED.title, body = EXCLUDED.body, created_at = EXCLUDED.created_at,
   link = EXCLUDED.link;
 INSERT INTO notifications (id, user_id, title, body, kind, created_at, read_at, link)
 VALUES ('9f435228-c90d-55e3-bf21-2353d202d305', '3d6e6a4d-4b43-50a1-9e1a-b8ba278b0573', 'Instrutor respondeu seu comentário',
-        'Em Coleta e separação · Falhas comuns.', 'announcement', current_date + interval '-8 days',
-        current_date + interval '-8 days', '/cursos/operacao-de-pocos-fundamentos')
+        'Em Coleta e separação · Falhas comuns.', 'announcement', current_date + interval '-7 days',
+        current_date + interval '-7 days', '/cursos/operacao-de-pocos-fundamentos')
 ON CONFLICT (id) DO UPDATE SET
   title = EXCLUDED.title, body = EXCLUDED.body, created_at = EXCLUDED.created_at,
   link = EXCLUDED.link;
@@ -3159,7 +3159,7 @@ INSERT INTO quizzes (id, tenant_id, course_id, lesson_id, title, description,
                      time_limit_minutes, max_attempts, passing_score, grading_method,
                      shuffle_questions, shuffle_options, questions_per_page,
                      sequential_navigation, feedback_mode)
-VALUES ('b2ff4210-6403-5262-a5c7-ec493e3defd3', (SELECT id FROM tenants WHERE slug = 'exemplo'), 'cf9de71e-2aa2-5c0f-928b-0c8b211c512c', NULL, 'Avaliação final — Operação de Poços', 'Quatro questões sobre reservatório, elevação artificial e medição.',
+VALUES ('b2ff4210-6403-5262-a5c7-ec493e3defd3', (SELECT id FROM tenants WHERE slug = 'lms'), 'cf9de71e-2aa2-5c0f-928b-0c8b211c512c', NULL, 'Avaliação final: Operação de Poços', 'Quatro questões sobre reservatório, elevação artificial e medição.',
         30, 3, 70, 'best',
         false, true, 1, false, 'on_submit')
 ON CONFLICT (id) DO UPDATE SET
@@ -3167,8 +3167,8 @@ ON CONFLICT (id) DO UPDATE SET
   passing_score = EXCLUDED.passing_score, max_attempts = EXCLUDED.max_attempts,
   time_limit_minutes = EXCLUDED.time_limit_minutes;
 INSERT INTO questions (id, tenant_id, category_id, course_id, kind, prompt, points, explanation, author_id)
-VALUES ('a4dc5b5e-7845-5e61-805b-78dc2ff0068c', (SELECT id FROM tenants WHERE slug = 'exemplo'), NULL, 'cf9de71e-2aa2-5c0f-928b-0c8b211c512c', 'single_choice', 'O que caracteriza a elevação artificial num poço de petróleo?',
-        1, 'Quando a pressão natural deixa de vencer a coluna hidrostática, é preciso energia de fora — bombeio mecânico, BCP, BCS ou gas lift.', NULL)
+VALUES ('a4dc5b5e-7845-5e61-805b-78dc2ff0068c', (SELECT id FROM tenants WHERE slug = 'lms'), NULL, 'cf9de71e-2aa2-5c0f-928b-0c8b211c512c', 'single_choice', 'O que caracteriza a elevação artificial num poço?',
+        1, 'Quando a pressão natural deixa de vencer a coluna hidrostática, é preciso energia de fora, bombeio mecânico, BCP, BCS ou gas lift.', NULL)
 ON CONFLICT (id) DO UPDATE SET prompt = EXCLUDED.prompt, explanation = EXCLUDED.explanation;
 INSERT INTO question_options (id, question_id, text, is_correct, position)
 VALUES ('60185265-4458-58a3-ba75-63b5bce615b4', 'a4dc5b5e-7845-5e61-805b-78dc2ff0068c', 'O uso de energia externa para trazer o fluido à superfície quando a pressão do reservatório não basta',
@@ -3194,7 +3194,7 @@ INSERT INTO quiz_questions (quiz_id, question_id, position, points)
 VALUES ('b2ff4210-6403-5262-a5c7-ec493e3defd3', 'a4dc5b5e-7845-5e61-805b-78dc2ff0068c', 1, 1)
 ON CONFLICT (quiz_id, question_id) DO UPDATE SET position = EXCLUDED.position;
 INSERT INTO questions (id, tenant_id, category_id, course_id, kind, prompt, points, explanation, author_id)
-VALUES ('36d6f633-bc63-5b4b-8a32-f049c060a30e', (SELECT id FROM tenants WHERE slug = 'exemplo'), NULL, 'cf9de71e-2aa2-5c0f-928b-0c8b211c512c', 'single_choice', 'Num sistema de bombeio mecânico, qual componente converte o movimento rotativo em alternado?',
+VALUES ('36d6f633-bc63-5b4b-8a32-f049c060a30e', (SELECT id FROM tenants WHERE slug = 'lms'), NULL, 'cf9de71e-2aa2-5c0f-928b-0c8b211c512c', 'single_choice', 'Num sistema de bombeio mecânico, qual componente converte o movimento rotativo em alternado?',
         1, NULL, NULL)
 ON CONFLICT (id) DO UPDATE SET prompt = EXCLUDED.prompt, explanation = EXCLUDED.explanation;
 INSERT INTO question_options (id, question_id, text, is_correct, position)
@@ -3221,7 +3221,7 @@ INSERT INTO quiz_questions (quiz_id, question_id, position, points)
 VALUES ('b2ff4210-6403-5262-a5c7-ec493e3defd3', '36d6f633-bc63-5b4b-8a32-f049c060a30e', 2, 1)
 ON CONFLICT (quiz_id, question_id) DO UPDATE SET position = EXCLUDED.position;
 INSERT INTO questions (id, tenant_id, category_id, course_id, kind, prompt, points, explanation, author_id)
-VALUES ('bb5b186c-14da-5a59-953c-7a71f06a5385', (SELECT id FROM tenants WHERE slug = 'exemplo'), NULL, 'cf9de71e-2aa2-5c0f-928b-0c8b211c512c', 'single_choice', 'Qual é a função do separador na estação coletora?',
+VALUES ('bb5b186c-14da-5a59-953c-7a71f06a5385', (SELECT id FROM tenants WHERE slug = 'lms'), NULL, 'cf9de71e-2aa2-5c0f-928b-0c8b211c512c', 'single_choice', 'Qual é a função do separador na estação coletora?',
         1, NULL, NULL)
 ON CONFLICT (id) DO UPDATE SET prompt = EXCLUDED.prompt, explanation = EXCLUDED.explanation;
 INSERT INTO question_options (id, question_id, text, is_correct, position)
@@ -3248,7 +3248,7 @@ INSERT INTO quiz_questions (quiz_id, question_id, position, points)
 VALUES ('b2ff4210-6403-5262-a5c7-ec493e3defd3', 'bb5b186c-14da-5a59-953c-7a71f06a5385', 3, 1)
 ON CONFLICT (quiz_id, question_id) DO UPDATE SET position = EXCLUDED.position;
 INSERT INTO questions (id, tenant_id, category_id, course_id, kind, prompt, points, explanation, author_id)
-VALUES ('5185a174-d9e1-5b16-bc7e-528871b4c204', (SELECT id FROM tenants WHERE slug = 'exemplo'), NULL, 'cf9de71e-2aa2-5c0f-928b-0c8b211c512c', 'single_choice', 'Por que a medição fiscal exige rastreabilidade metrológica?',
+VALUES ('5185a174-d9e1-5b16-bc7e-528871b4c204', (SELECT id FROM tenants WHERE slug = 'lms'), NULL, 'cf9de71e-2aa2-5c0f-928b-0c8b211c512c', 'single_choice', 'Por que a medição fiscal exige rastreabilidade metrológica?',
         1, NULL, NULL)
 ON CONFLICT (id) DO UPDATE SET prompt = EXCLUDED.prompt, explanation = EXCLUDED.explanation;
 INSERT INTO question_options (id, question_id, text, is_correct, position)
@@ -3280,7 +3280,7 @@ INSERT INTO quizzes (id, tenant_id, course_id, lesson_id, title, description,
                      time_limit_minutes, max_attempts, passing_score, grading_method,
                      shuffle_questions, shuffle_options, questions_per_page,
                      sequential_navigation, feedback_mode)
-VALUES ('09d554a9-d44f-5cfb-a353-21638347ed11', (SELECT id FROM tenants WHERE slug = 'exemplo'), '8145bed3-edf2-55a1-836a-392900cd3d7e', NULL, 'Avaliação final — Integridade de Ativos', 'Quatro questões sobre mecanismos de corrosão, inspeção e mitigação.',
+VALUES ('09d554a9-d44f-5cfb-a353-21638347ed11', (SELECT id FROM tenants WHERE slug = 'lms'), '8145bed3-edf2-55a1-836a-392900cd3d7e', NULL, 'Avaliação final: Integridade de Ativos', 'Quatro questões sobre mecanismos de corrosão, inspeção e mitigação.',
         30, 3, 70, 'best',
         false, true, 1, false, 'on_submit')
 ON CONFLICT (id) DO UPDATE SET
@@ -3288,7 +3288,7 @@ ON CONFLICT (id) DO UPDATE SET
   passing_score = EXCLUDED.passing_score, max_attempts = EXCLUDED.max_attempts,
   time_limit_minutes = EXCLUDED.time_limit_minutes;
 INSERT INTO questions (id, tenant_id, category_id, course_id, kind, prompt, points, explanation, author_id)
-VALUES ('d709b22d-3bd6-5456-aef8-1a82f025b2b5', (SELECT id FROM tenants WHERE slug = 'exemplo'), NULL, '8145bed3-edf2-55a1-836a-392900cd3d7e', 'single_choice', 'O que é corrosão sob isolamento (CUI)?',
+VALUES ('d709b22d-3bd6-5456-aef8-1a82f025b2b5', (SELECT id FROM tenants WHERE slug = 'lms'), NULL, '8145bed3-edf2-55a1-836a-392900cd3d7e', 'single_choice', 'O que é corrosão sob isolamento (CUI)?',
         1, 'É perigosa porque a inspeção visual externa não a revela: o isolamento esconde o dano até a falha.', NULL)
 ON CONFLICT (id) DO UPDATE SET prompt = EXCLUDED.prompt, explanation = EXCLUDED.explanation;
 INSERT INTO question_options (id, question_id, text, is_correct, position)
@@ -3315,7 +3315,7 @@ INSERT INTO quiz_questions (quiz_id, question_id, position, points)
 VALUES ('09d554a9-d44f-5cfb-a353-21638347ed11', 'd709b22d-3bd6-5456-aef8-1a82f025b2b5', 1, 1)
 ON CONFLICT (quiz_id, question_id) DO UPDATE SET position = EXCLUDED.position;
 INSERT INTO questions (id, tenant_id, category_id, course_id, kind, prompt, points, explanation, author_id)
-VALUES ('843f845e-a7bf-5480-a6d5-82358e6c6c56', (SELECT id FROM tenants WHERE slug = 'exemplo'), NULL, '8145bed3-edf2-55a1-836a-392900cd3d7e', 'single_choice', 'Qual técnica de inspeção mede a espessura remanescente de parede sem cortar o equipamento?',
+VALUES ('843f845e-a7bf-5480-a6d5-82358e6c6c56', (SELECT id FROM tenants WHERE slug = 'lms'), NULL, '8145bed3-edf2-55a1-836a-392900cd3d7e', 'single_choice', 'Qual técnica de inspeção mede a espessura remanescente de parede sem cortar o equipamento?',
         1, NULL, NULL)
 ON CONFLICT (id) DO UPDATE SET prompt = EXCLUDED.prompt, explanation = EXCLUDED.explanation;
 INSERT INTO question_options (id, question_id, text, is_correct, position)
@@ -3342,7 +3342,7 @@ INSERT INTO quiz_questions (quiz_id, question_id, position, points)
 VALUES ('09d554a9-d44f-5cfb-a353-21638347ed11', '843f845e-a7bf-5480-a6d5-82358e6c6c56', 2, 1)
 ON CONFLICT (quiz_id, question_id) DO UPDATE SET position = EXCLUDED.position;
 INSERT INTO questions (id, tenant_id, category_id, course_id, kind, prompt, points, explanation, author_id)
-VALUES ('3e7252b6-7fb4-5e7c-b5b9-4ebd3f007d73', (SELECT id FROM tenants WHERE slug = 'exemplo'), NULL, '8145bed3-edf2-55a1-836a-392900cd3d7e', 'single_choice', 'Para que serve a proteção catódica numa tubulação enterrada?',
+VALUES ('3e7252b6-7fb4-5e7c-b5b9-4ebd3f007d73', (SELECT id FROM tenants WHERE slug = 'lms'), NULL, '8145bed3-edf2-55a1-836a-392900cd3d7e', 'single_choice', 'Para que serve a proteção catódica numa tubulação enterrada?',
         1, NULL, NULL)
 ON CONFLICT (id) DO UPDATE SET prompt = EXCLUDED.prompt, explanation = EXCLUDED.explanation;
 INSERT INTO question_options (id, question_id, text, is_correct, position)
@@ -3369,7 +3369,7 @@ INSERT INTO quiz_questions (quiz_id, question_id, position, points)
 VALUES ('09d554a9-d44f-5cfb-a353-21638347ed11', '3e7252b6-7fb4-5e7c-b5b9-4ebd3f007d73', 3, 1)
 ON CONFLICT (quiz_id, question_id) DO UPDATE SET position = EXCLUDED.position;
 INSERT INTO questions (id, tenant_id, category_id, course_id, kind, prompt, points, explanation, author_id)
-VALUES ('031ab0fb-93e2-50ef-b2d6-908588c02e6c', (SELECT id FROM tenants WHERE slug = 'exemplo'), NULL, '8145bed3-edf2-55a1-836a-392900cd3d7e', 'single_choice', 'O que a taxa de corrosão permite calcular?',
+VALUES ('031ab0fb-93e2-50ef-b2d6-908588c02e6c', (SELECT id FROM tenants WHERE slug = 'lms'), NULL, '8145bed3-edf2-55a1-836a-392900cd3d7e', 'single_choice', 'O que a taxa de corrosão permite calcular?',
         1, NULL, NULL)
 ON CONFLICT (id) DO UPDATE SET prompt = EXCLUDED.prompt, explanation = EXCLUDED.explanation;
 INSERT INTO question_options (id, question_id, text, is_correct, position)
@@ -3401,7 +3401,7 @@ INSERT INTO quizzes (id, tenant_id, course_id, lesson_id, title, description,
                      time_limit_minutes, max_attempts, passing_score, grading_method,
                      shuffle_questions, shuffle_options, questions_per_page,
                      sequential_navigation, feedback_mode)
-VALUES ('b9686853-e423-509e-952c-f183faa8c40a', (SELECT id FROM tenants WHERE slug = 'exemplo'), '57cfcb32-8049-5ba4-9c92-45351df8de19', NULL, 'Avaliação final — Segurança em Operações de Campo', 'Quatro questões sobre permissão de trabalho, espaço confinado e trabalho a quente.',
+VALUES ('b9686853-e423-509e-952c-f183faa8c40a', (SELECT id FROM tenants WHERE slug = 'lms'), '57cfcb32-8049-5ba4-9c92-45351df8de19', NULL, 'Avaliação final: Segurança em Operações de Campo', 'Quatro questões sobre permissão de trabalho, espaço confinado e trabalho a quente.',
         30, 3, 80, 'best',
         false, true, 1, false, 'on_submit')
 ON CONFLICT (id) DO UPDATE SET
@@ -3409,7 +3409,7 @@ ON CONFLICT (id) DO UPDATE SET
   passing_score = EXCLUDED.passing_score, max_attempts = EXCLUDED.max_attempts,
   time_limit_minutes = EXCLUDED.time_limit_minutes;
 INSERT INTO questions (id, tenant_id, category_id, course_id, kind, prompt, points, explanation, author_id)
-VALUES ('31b7cd78-f880-58d3-8502-341bfd32f729', (SELECT id FROM tenants WHERE slug = 'exemplo'), NULL, '57cfcb32-8049-5ba4-9c92-45351df8de19', 'single_choice', 'Qual é a finalidade da Permissão de Trabalho (PT)?',
+VALUES ('31b7cd78-f880-58d3-8502-341bfd32f729', (SELECT id FROM tenants WHERE slug = 'lms'), NULL, '57cfcb32-8049-5ba4-9c92-45351df8de19', 'single_choice', 'Qual é a finalidade da Permissão de Trabalho (PT)?',
         1, NULL, NULL)
 ON CONFLICT (id) DO UPDATE SET prompt = EXCLUDED.prompt, explanation = EXCLUDED.explanation;
 INSERT INTO question_options (id, question_id, text, is_correct, position)
@@ -3436,11 +3436,11 @@ INSERT INTO quiz_questions (quiz_id, question_id, position, points)
 VALUES ('b9686853-e423-509e-952c-f183faa8c40a', '31b7cd78-f880-58d3-8502-341bfd32f729', 1, 1)
 ON CONFLICT (quiz_id, question_id) DO UPDATE SET position = EXCLUDED.position;
 INSERT INTO questions (id, tenant_id, category_id, course_id, kind, prompt, points, explanation, author_id)
-VALUES ('2686929b-ae00-5a1f-9777-405bf47f5c87', (SELECT id FROM tenants WHERE slug = 'exemplo'), NULL, '57cfcb32-8049-5ba4-9c92-45351df8de19', 'single_choice', 'Antes de entrar num espaço confinado, o que deve ser feito obrigatoriamente?',
-        1, 'A atmosfera muda: a medição é contínua, não uma vez só. E o vigia não entra — quem entra para socorrer sem preparo vira a segunda vítima.', NULL)
+VALUES ('2686929b-ae00-5a1f-9777-405bf47f5c87', (SELECT id FROM tenants WHERE slug = 'lms'), NULL, '57cfcb32-8049-5ba4-9c92-45351df8de19', 'single_choice', 'Antes de entrar num espaço confinado, o que deve ser feito obrigatoriamente?',
+        1, 'A atmosfera muda: a medição é contínua, não uma vez só. E o vigia não entra, quem entra para socorrer sem preparo vira a segunda vítima.', NULL)
 ON CONFLICT (id) DO UPDATE SET prompt = EXCLUDED.prompt, explanation = EXCLUDED.explanation;
 INSERT INTO question_options (id, question_id, text, is_correct, position)
-VALUES ('2343977a-5d21-5ae4-84c0-655e274d3c1d', '2686929b-ae00-5a1f-9777-405bf47f5c87', 'Medir a atmosfera — oxigênio, gases inflamáveis e tóxicos — e manter vigia do lado de fora',
+VALUES ('2343977a-5d21-5ae4-84c0-655e274d3c1d', '2686929b-ae00-5a1f-9777-405bf47f5c87', 'Medir a atmosfera, oxigênio, gases inflamáveis e tóxicos, e manter vigia do lado de fora',
         true, 1)
 ON CONFLICT (id) DO UPDATE SET text = EXCLUDED.text, is_correct = EXCLUDED.is_correct,
   position = EXCLUDED.position;
@@ -3463,7 +3463,7 @@ INSERT INTO quiz_questions (quiz_id, question_id, position, points)
 VALUES ('b9686853-e423-509e-952c-f183faa8c40a', '2686929b-ae00-5a1f-9777-405bf47f5c87', 2, 1)
 ON CONFLICT (quiz_id, question_id) DO UPDATE SET position = EXCLUDED.position;
 INSERT INTO questions (id, tenant_id, category_id, course_id, kind, prompt, points, explanation, author_id)
-VALUES ('9ae6567c-8889-5e6b-ac1d-5ec072873a7f', (SELECT id FROM tenants WHERE slug = 'exemplo'), NULL, '57cfcb32-8049-5ba4-9c92-45351df8de19', 'single_choice', 'O que caracteriza um trabalho a quente?',
+VALUES ('9ae6567c-8889-5e6b-ac1d-5ec072873a7f', (SELECT id FROM tenants WHERE slug = 'lms'), NULL, '57cfcb32-8049-5ba4-9c92-45351df8de19', 'single_choice', 'O que caracteriza um trabalho a quente?',
         1, NULL, NULL)
 ON CONFLICT (id) DO UPDATE SET prompt = EXCLUDED.prompt, explanation = EXCLUDED.explanation;
 INSERT INTO question_options (id, question_id, text, is_correct, position)
@@ -3490,11 +3490,11 @@ INSERT INTO quiz_questions (quiz_id, question_id, position, points)
 VALUES ('b9686853-e423-509e-952c-f183faa8c40a', '9ae6567c-8889-5e6b-ac1d-5ec072873a7f', 3, 1)
 ON CONFLICT (quiz_id, question_id) DO UPDATE SET position = EXCLUDED.position;
 INSERT INTO questions (id, tenant_id, category_id, course_id, kind, prompt, points, explanation, author_id)
-VALUES ('66165804-f301-5cee-8645-cfb8e67ed70c', (SELECT id FROM tenants WHERE slug = 'exemplo'), NULL, '57cfcb32-8049-5ba4-9c92-45351df8de19', 'single_choice', 'Numa situação de risco iminente, qual é o dever de quem observa?',
+VALUES ('66165804-f301-5cee-8645-cfb8e67ed70c', (SELECT id FROM tenants WHERE slug = 'lms'), NULL, '57cfcb32-8049-5ba4-9c92-45351df8de19', 'single_choice', 'Numa situação de risco iminente, qual é o dever de quem observa?',
         1, NULL, NULL)
 ON CONFLICT (id) DO UPDATE SET prompt = EXCLUDED.prompt, explanation = EXCLUDED.explanation;
 INSERT INTO question_options (id, question_id, text, is_correct, position)
-VALUES ('8f948c8e-2018-5d23-921e-666e112c5e7e', '66165804-f301-5cee-8645-cfb8e67ed70c', 'Interromper a atividade imediatamente — a recusa ao trabalho inseguro é um direito e um dever',
+VALUES ('8f948c8e-2018-5d23-921e-666e112c5e7e', '66165804-f301-5cee-8645-cfb8e67ed70c', 'Interromper a atividade imediatamente, a recusa ao trabalho inseguro é um direito e um dever',
         true, 1)
 ON CONFLICT (id) DO UPDATE SET text = EXCLUDED.text, is_correct = EXCLUDED.is_correct,
   position = EXCLUDED.position;
@@ -3522,7 +3522,7 @@ INSERT INTO quizzes (id, tenant_id, course_id, lesson_id, title, description,
                      time_limit_minutes, max_attempts, passing_score, grading_method,
                      shuffle_questions, shuffle_options, questions_per_page,
                      sequential_navigation, feedback_mode)
-VALUES ('9bd40fb8-9742-58d0-a84b-eb864c146f39', (SELECT id FROM tenants WHERE slug = 'exemplo'), '24c2669e-c4de-5632-81fb-6e761cc86d3f', NULL, 'Avaliação final — Relacionamento com Comunidades', 'Quatro questões sobre diálogo, impacto e canais de atendimento.',
+VALUES ('9bd40fb8-9742-58d0-a84b-eb864c146f39', (SELECT id FROM tenants WHERE slug = 'lms'), '24c2669e-c4de-5632-81fb-6e761cc86d3f', NULL, 'Avaliação final: Relacionamento com Comunidades', 'Quatro questões sobre diálogo, impacto e canais de atendimento.',
         25, 3, 70, 'best',
         false, true, 1, false, 'on_submit')
 ON CONFLICT (id) DO UPDATE SET
@@ -3530,7 +3530,7 @@ ON CONFLICT (id) DO UPDATE SET
   passing_score = EXCLUDED.passing_score, max_attempts = EXCLUDED.max_attempts,
   time_limit_minutes = EXCLUDED.time_limit_minutes;
 INSERT INTO questions (id, tenant_id, category_id, course_id, kind, prompt, points, explanation, author_id)
-VALUES ('951cd7ec-469a-560b-aefb-6c75c83ff3b3', (SELECT id FROM tenants WHERE slug = 'exemplo'), NULL, '24c2669e-c4de-5632-81fb-6e761cc86d3f', 'single_choice', 'O que é uma parte interessada (stakeholder) num projeto de operação onshore?',
+VALUES ('951cd7ec-469a-560b-aefb-6c75c83ff3b3', (SELECT id FROM tenants WHERE slug = 'lms'), NULL, '24c2669e-c4de-5632-81fb-6e761cc86d3f', 'single_choice', 'O que é uma parte interessada (stakeholder) num projeto de operação onshore?',
         1, NULL, NULL)
 ON CONFLICT (id) DO UPDATE SET prompt = EXCLUDED.prompt, explanation = EXCLUDED.explanation;
 INSERT INTO question_options (id, question_id, text, is_correct, position)
@@ -3557,7 +3557,7 @@ INSERT INTO quiz_questions (quiz_id, question_id, position, points)
 VALUES ('9bd40fb8-9742-58d0-a84b-eb864c146f39', '951cd7ec-469a-560b-aefb-6c75c83ff3b3', 1, 1)
 ON CONFLICT (quiz_id, question_id) DO UPDATE SET position = EXCLUDED.position;
 INSERT INTO questions (id, tenant_id, category_id, course_id, kind, prompt, points, explanation, author_id)
-VALUES ('dca95fbe-f188-5ba0-8fe1-f894708dbea5', (SELECT id FROM tenants WHERE slug = 'exemplo'), NULL, '24c2669e-c4de-5632-81fb-6e761cc86d3f', 'single_choice', 'Por que registrar formalmente as manifestações da comunidade?',
+VALUES ('dca95fbe-f188-5ba0-8fe1-f894708dbea5', (SELECT id FROM tenants WHERE slug = 'lms'), NULL, '24c2669e-c4de-5632-81fb-6e761cc86d3f', 'single_choice', 'Por que registrar formalmente as manifestações da comunidade?',
         1, NULL, NULL)
 ON CONFLICT (id) DO UPDATE SET prompt = EXCLUDED.prompt, explanation = EXCLUDED.explanation;
 INSERT INTO question_options (id, question_id, text, is_correct, position)
@@ -3584,7 +3584,7 @@ INSERT INTO quiz_questions (quiz_id, question_id, position, points)
 VALUES ('9bd40fb8-9742-58d0-a84b-eb864c146f39', 'dca95fbe-f188-5ba0-8fe1-f894708dbea5', 2, 1)
 ON CONFLICT (quiz_id, question_id) DO UPDATE SET position = EXCLUDED.position;
 INSERT INTO questions (id, tenant_id, category_id, course_id, kind, prompt, points, explanation, author_id)
-VALUES ('fe9359e0-7f21-57de-8d2e-5bb7184d32d8', (SELECT id FROM tenants WHERE slug = 'exemplo'), NULL, '24c2669e-c4de-5632-81fb-6e761cc86d3f', 'single_choice', 'Qual postura é adequada diante de uma reclamação sobre ruído noturno de uma sonda?',
+VALUES ('fe9359e0-7f21-57de-8d2e-5bb7184d32d8', (SELECT id FROM tenants WHERE slug = 'lms'), NULL, '24c2669e-c4de-5632-81fb-6e761cc86d3f', 'single_choice', 'Qual postura é adequada diante de uma reclamação sobre ruído noturno de uma sonda?',
         1, NULL, NULL)
 ON CONFLICT (id) DO UPDATE SET prompt = EXCLUDED.prompt, explanation = EXCLUDED.explanation;
 INSERT INTO question_options (id, question_id, text, is_correct, position)
@@ -3611,7 +3611,7 @@ INSERT INTO quiz_questions (quiz_id, question_id, position, points)
 VALUES ('9bd40fb8-9742-58d0-a84b-eb864c146f39', 'fe9359e0-7f21-57de-8d2e-5bb7184d32d8', 3, 1)
 ON CONFLICT (quiz_id, question_id) DO UPDATE SET position = EXCLUDED.position;
 INSERT INTO questions (id, tenant_id, category_id, course_id, kind, prompt, points, explanation, author_id)
-VALUES ('8cda6c70-01e0-5a59-96e9-a4cd89aa2b2f', (SELECT id FROM tenants WHERE slug = 'exemplo'), NULL, '24c2669e-c4de-5632-81fb-6e761cc86d3f', 'single_choice', 'O que diferencia comunicação de engajamento comunitário?',
+VALUES ('8cda6c70-01e0-5a59-96e9-a4cd89aa2b2f', (SELECT id FROM tenants WHERE slug = 'lms'), NULL, '24c2669e-c4de-5632-81fb-6e761cc86d3f', 'single_choice', 'O que diferencia comunicação de engajamento comunitário?',
         1, NULL, NULL)
 ON CONFLICT (id) DO UPDATE SET prompt = EXCLUDED.prompt, explanation = EXCLUDED.explanation;
 INSERT INTO question_options (id, question_id, text, is_correct, position)
@@ -3643,7 +3643,7 @@ INSERT INTO quizzes (id, tenant_id, course_id, lesson_id, title, description,
                      time_limit_minutes, max_attempts, passing_score, grading_method,
                      shuffle_questions, shuffle_options, questions_per_page,
                      sequential_navigation, feedback_mode)
-VALUES ('43de7b99-f1f1-5e5d-ab4d-5927fcf677bf', (SELECT id FROM tenants WHERE slug = 'exemplo'), 'c7027595-6095-521c-9087-8a2cb3efba5b', NULL, 'Avaliação final — Meio Ambiente e Licenciamento', 'Quatro questões sobre licenças, condicionantes e resposta a incidentes.',
+VALUES ('43de7b99-f1f1-5e5d-ab4d-5927fcf677bf', (SELECT id FROM tenants WHERE slug = 'lms'), 'c7027595-6095-521c-9087-8a2cb3efba5b', NULL, 'Avaliação final: Meio Ambiente e Licenciamento', 'Quatro questões sobre licenças, condicionantes e resposta a incidentes.',
         25, 3, 70, 'best',
         false, true, 1, false, 'on_submit')
 ON CONFLICT (id) DO UPDATE SET
@@ -3651,7 +3651,7 @@ ON CONFLICT (id) DO UPDATE SET
   passing_score = EXCLUDED.passing_score, max_attempts = EXCLUDED.max_attempts,
   time_limit_minutes = EXCLUDED.time_limit_minutes;
 INSERT INTO questions (id, tenant_id, category_id, course_id, kind, prompt, points, explanation, author_id)
-VALUES ('a57d2655-baa8-5f74-9972-5331163bbf28', (SELECT id FROM tenants WHERE slug = 'exemplo'), NULL, 'c7027595-6095-521c-9087-8a2cb3efba5b', 'single_choice', 'Qual licença autoriza o início da operação de uma instalação já construída?',
+VALUES ('a57d2655-baa8-5f74-9972-5331163bbf28', (SELECT id FROM tenants WHERE slug = 'lms'), NULL, 'c7027595-6095-521c-9087-8a2cb3efba5b', 'single_choice', 'Qual licença autoriza o início da operação de uma instalação já construída?',
         1, NULL, NULL)
 ON CONFLICT (id) DO UPDATE SET prompt = EXCLUDED.prompt, explanation = EXCLUDED.explanation;
 INSERT INTO question_options (id, question_id, text, is_correct, position)
@@ -3678,7 +3678,7 @@ INSERT INTO quiz_questions (quiz_id, question_id, position, points)
 VALUES ('43de7b99-f1f1-5e5d-ab4d-5927fcf677bf', 'a57d2655-baa8-5f74-9972-5331163bbf28', 1, 1)
 ON CONFLICT (quiz_id, question_id) DO UPDATE SET position = EXCLUDED.position;
 INSERT INTO questions (id, tenant_id, category_id, course_id, kind, prompt, points, explanation, author_id)
-VALUES ('8bf70bc3-0da3-5662-8efe-cf1899751f57', (SELECT id FROM tenants WHERE slug = 'exemplo'), NULL, 'c7027595-6095-521c-9087-8a2cb3efba5b', 'single_choice', 'O que são condicionantes de uma licença ambiental?',
+VALUES ('8bf70bc3-0da3-5662-8efe-cf1899751f57', (SELECT id FROM tenants WHERE slug = 'lms'), NULL, 'c7027595-6095-521c-9087-8a2cb3efba5b', 'single_choice', 'O que são condicionantes de uma licença ambiental?',
         1, NULL, NULL)
 ON CONFLICT (id) DO UPDATE SET prompt = EXCLUDED.prompt, explanation = EXCLUDED.explanation;
 INSERT INTO question_options (id, question_id, text, is_correct, position)
@@ -3705,7 +3705,7 @@ INSERT INTO quiz_questions (quiz_id, question_id, position, points)
 VALUES ('43de7b99-f1f1-5e5d-ab4d-5927fcf677bf', '8bf70bc3-0da3-5662-8efe-cf1899751f57', 2, 1)
 ON CONFLICT (quiz_id, question_id) DO UPDATE SET position = EXCLUDED.position;
 INSERT INTO questions (id, tenant_id, category_id, course_id, kind, prompt, points, explanation, author_id)
-VALUES ('e98b5b27-d083-556e-841d-8e31d0b51644', (SELECT id FROM tenants WHERE slug = 'exemplo'), NULL, 'c7027595-6095-521c-9087-8a2cb3efba5b', 'single_choice', 'Diante de um vazamento de óleo em solo, qual é a primeira ação?',
+VALUES ('e98b5b27-d083-556e-841d-8e31d0b51644', (SELECT id FROM tenants WHERE slug = 'lms'), NULL, 'c7027595-6095-521c-9087-8a2cb3efba5b', 'single_choice', 'Diante de um vazamento de óleo em solo, qual é a primeira ação?',
         1, 'Remediar sem estancar é enxugar gelo: a fonte continua alimentando o dano enquanto a equipe trabalha.', NULL)
 ON CONFLICT (id) DO UPDATE SET prompt = EXCLUDED.prompt, explanation = EXCLUDED.explanation;
 INSERT INTO question_options (id, question_id, text, is_correct, position)
@@ -3732,7 +3732,7 @@ INSERT INTO quiz_questions (quiz_id, question_id, position, points)
 VALUES ('43de7b99-f1f1-5e5d-ab4d-5927fcf677bf', 'e98b5b27-d083-556e-841d-8e31d0b51644', 3, 1)
 ON CONFLICT (quiz_id, question_id) DO UPDATE SET position = EXCLUDED.position;
 INSERT INTO questions (id, tenant_id, category_id, course_id, kind, prompt, points, explanation, author_id)
-VALUES ('ff5bb466-4514-5089-82c2-694ab66e1aa8', (SELECT id FROM tenants WHERE slug = 'exemplo'), NULL, 'c7027595-6095-521c-9087-8a2cb3efba5b', 'single_choice', 'Por que a destinação de resíduos exige documento de rastreabilidade?',
+VALUES ('ff5bb466-4514-5089-82c2-694ab66e1aa8', (SELECT id FROM tenants WHERE slug = 'lms'), NULL, 'c7027595-6095-521c-9087-8a2cb3efba5b', 'single_choice', 'Por que a destinação de resíduos exige documento de rastreabilidade?',
         1, NULL, NULL)
 ON CONFLICT (id) DO UPDATE SET prompt = EXCLUDED.prompt, explanation = EXCLUDED.explanation;
 INSERT INTO question_options (id, question_id, text, is_correct, position)
@@ -3764,7 +3764,7 @@ INSERT INTO quizzes (id, tenant_id, course_id, lesson_id, title, description,
                      time_limit_minutes, max_attempts, passing_score, grading_method,
                      shuffle_questions, shuffle_options, questions_per_page,
                      sequential_navigation, feedback_mode)
-VALUES ('0dc2d6f4-362b-5beb-9709-3b91b3aa0cc1', (SELECT id FROM tenants WHERE slug = 'exemplo'), '65c85afb-fd59-575d-8754-15fee87d6589', NULL, 'Avaliação final — Processamento e Tratamento de Gás', 'Quatro questões sobre desidratação, compressão e especificação.',
+VALUES ('0dc2d6f4-362b-5beb-9709-3b91b3aa0cc1', (SELECT id FROM tenants WHERE slug = 'lms'), '65c85afb-fd59-575d-8754-15fee87d6589', NULL, 'Avaliação final: Processamento e Tratamento de Gás', 'Quatro questões sobre desidratação, compressão e especificação.',
         30, 3, 70, 'best',
         false, true, 1, false, 'on_submit')
 ON CONFLICT (id) DO UPDATE SET
@@ -3772,7 +3772,7 @@ ON CONFLICT (id) DO UPDATE SET
   passing_score = EXCLUDED.passing_score, max_attempts = EXCLUDED.max_attempts,
   time_limit_minutes = EXCLUDED.time_limit_minutes;
 INSERT INTO questions (id, tenant_id, category_id, course_id, kind, prompt, points, explanation, author_id)
-VALUES ('e57f3aea-a0b5-59d4-bdf9-f1c2dd7fa353', (SELECT id FROM tenants WHERE slug = 'exemplo'), NULL, '65c85afb-fd59-575d-8754-15fee87d6589', 'single_choice', 'Por que o gás natural precisa ser desidratado antes do transporte?',
+VALUES ('e57f3aea-a0b5-59d4-bdf9-f1c2dd7fa353', (SELECT id FROM tenants WHERE slug = 'lms'), NULL, '65c85afb-fd59-575d-8754-15fee87d6589', 'single_choice', 'Por que o gás natural precisa ser desidratado antes do transporte?',
         1, NULL, NULL)
 ON CONFLICT (id) DO UPDATE SET prompt = EXCLUDED.prompt, explanation = EXCLUDED.explanation;
 INSERT INTO question_options (id, question_id, text, is_correct, position)
@@ -3799,7 +3799,7 @@ INSERT INTO quiz_questions (quiz_id, question_id, position, points)
 VALUES ('0dc2d6f4-362b-5beb-9709-3b91b3aa0cc1', 'e57f3aea-a0b5-59d4-bdf9-f1c2dd7fa353', 1, 1)
 ON CONFLICT (quiz_id, question_id) DO UPDATE SET position = EXCLUDED.position;
 INSERT INTO questions (id, tenant_id, category_id, course_id, kind, prompt, points, explanation, author_id)
-VALUES ('220d8383-aadc-524f-8596-e055a9a6879f', (SELECT id FROM tenants WHERE slug = 'exemplo'), NULL, '65c85afb-fd59-575d-8754-15fee87d6589', 'single_choice', 'Qual substância é usada na desidratação por absorção?',
+VALUES ('220d8383-aadc-524f-8596-e055a9a6879f', (SELECT id FROM tenants WHERE slug = 'lms'), NULL, '65c85afb-fd59-575d-8754-15fee87d6589', 'single_choice', 'Qual substância é usada na desidratação por absorção?',
         1, NULL, NULL)
 ON CONFLICT (id) DO UPDATE SET prompt = EXCLUDED.prompt, explanation = EXCLUDED.explanation;
 INSERT INTO question_options (id, question_id, text, is_correct, position)
@@ -3826,7 +3826,7 @@ INSERT INTO quiz_questions (quiz_id, question_id, position, points)
 VALUES ('0dc2d6f4-362b-5beb-9709-3b91b3aa0cc1', '220d8383-aadc-524f-8596-e055a9a6879f', 2, 1)
 ON CONFLICT (quiz_id, question_id) DO UPDATE SET position = EXCLUDED.position;
 INSERT INTO questions (id, tenant_id, category_id, course_id, kind, prompt, points, explanation, author_id)
-VALUES ('279a3059-866a-5237-9073-fd14c28deb42', (SELECT id FROM tenants WHERE slug = 'exemplo'), NULL, '65c85afb-fd59-575d-8754-15fee87d6589', 'single_choice', 'O que é o ponto de orvalho de hidrocarbonetos?',
+VALUES ('279a3059-866a-5237-9073-fd14c28deb42', (SELECT id FROM tenants WHERE slug = 'lms'), NULL, '65c85afb-fd59-575d-8754-15fee87d6589', 'single_choice', 'O que é o ponto de orvalho de hidrocarbonetos?',
         1, NULL, NULL)
 ON CONFLICT (id) DO UPDATE SET prompt = EXCLUDED.prompt, explanation = EXCLUDED.explanation;
 INSERT INTO question_options (id, question_id, text, is_correct, position)
@@ -3853,7 +3853,7 @@ INSERT INTO quiz_questions (quiz_id, question_id, position, points)
 VALUES ('0dc2d6f4-362b-5beb-9709-3b91b3aa0cc1', '279a3059-866a-5237-9073-fd14c28deb42', 3, 1)
 ON CONFLICT (quiz_id, question_id) DO UPDATE SET position = EXCLUDED.position;
 INSERT INTO questions (id, tenant_id, category_id, course_id, kind, prompt, points, explanation, author_id)
-VALUES ('8a172c7a-020d-5bae-a697-92d2fec49faa', (SELECT id FROM tenants WHERE slug = 'exemplo'), NULL, '65c85afb-fd59-575d-8754-15fee87d6589', 'single_choice', 'Para que serve o tratamento de remoção de H2S?',
+VALUES ('8a172c7a-020d-5bae-a697-92d2fec49faa', (SELECT id FROM tenants WHERE slug = 'lms'), NULL, '65c85afb-fd59-575d-8754-15fee87d6589', 'single_choice', 'Para que serve o tratamento de remoção de H2S?',
         1, NULL, NULL)
 ON CONFLICT (id) DO UPDATE SET prompt = EXCLUDED.prompt, explanation = EXCLUDED.explanation;
 INSERT INTO question_options (id, question_id, text, is_correct, position)
@@ -3885,7 +3885,7 @@ INSERT INTO quizzes (id, tenant_id, course_id, lesson_id, title, description,
                      time_limit_minutes, max_attempts, passing_score, grading_method,
                      shuffle_questions, shuffle_options, questions_per_page,
                      sequential_navigation, feedback_mode)
-VALUES ('871eaf03-1f83-5ede-ba63-a27f700b4366', (SELECT id FROM tenants WHERE slug = 'exemplo'), '8e06f60b-00b7-50af-8a4d-61e0f10c9c3f', NULL, 'Avaliação final — Comunicação com a Comunidade', 'Quatro questões sobre linguagem, canais e transparência.',
+VALUES ('871eaf03-1f83-5ede-ba63-a27f700b4366', (SELECT id FROM tenants WHERE slug = 'lms'), '8e06f60b-00b7-50af-8a4d-61e0f10c9c3f', NULL, 'Avaliação final: Comunicação com a Comunidade', 'Quatro questões sobre linguagem, canais e transparência.',
         25, 3, 70, 'best',
         false, true, 1, false, 'on_submit')
 ON CONFLICT (id) DO UPDATE SET
@@ -3893,7 +3893,7 @@ ON CONFLICT (id) DO UPDATE SET
   passing_score = EXCLUDED.passing_score, max_attempts = EXCLUDED.max_attempts,
   time_limit_minutes = EXCLUDED.time_limit_minutes;
 INSERT INTO questions (id, tenant_id, category_id, course_id, kind, prompt, points, explanation, author_id)
-VALUES ('c1759014-edd7-5923-85a4-aa082525c51d', (SELECT id FROM tenants WHERE slug = 'exemplo'), NULL, '8e06f60b-00b7-50af-8a4d-61e0f10c9c3f', 'single_choice', 'Ao comunicar um desvio operacional à comunidade, o que deve vir primeiro?',
+VALUES ('c1759014-edd7-5923-85a4-aa082525c51d', (SELECT id FROM tenants WHERE slug = 'lms'), NULL, '8e06f60b-00b7-50af-8a4d-61e0f10c9c3f', 'single_choice', 'Ao comunicar um desvio operacional à comunidade, o que deve vir primeiro?',
         1, NULL, NULL)
 ON CONFLICT (id) DO UPDATE SET prompt = EXCLUDED.prompt, explanation = EXCLUDED.explanation;
 INSERT INTO question_options (id, question_id, text, is_correct, position)
@@ -3920,7 +3920,7 @@ INSERT INTO quiz_questions (quiz_id, question_id, position, points)
 VALUES ('871eaf03-1f83-5ede-ba63-a27f700b4366', 'c1759014-edd7-5923-85a4-aa082525c51d', 1, 1)
 ON CONFLICT (quiz_id, question_id) DO UPDATE SET position = EXCLUDED.position;
 INSERT INTO questions (id, tenant_id, category_id, course_id, kind, prompt, points, explanation, author_id)
-VALUES ('fe703682-98d0-5351-9b6f-fcc513fd04fd', (SELECT id FROM tenants WHERE slug = 'exemplo'), NULL, '8e06f60b-00b7-50af-8a4d-61e0f10c9c3f', 'single_choice', 'Por que evitar jargão técnico na comunicação comunitária?',
+VALUES ('fe703682-98d0-5351-9b6f-fcc513fd04fd', (SELECT id FROM tenants WHERE slug = 'lms'), NULL, '8e06f60b-00b7-50af-8a4d-61e0f10c9c3f', 'single_choice', 'Por que evitar jargão técnico na comunicação comunitária?',
         1, NULL, NULL)
 ON CONFLICT (id) DO UPDATE SET prompt = EXCLUDED.prompt, explanation = EXCLUDED.explanation;
 INSERT INTO question_options (id, question_id, text, is_correct, position)
@@ -3947,7 +3947,7 @@ INSERT INTO quiz_questions (quiz_id, question_id, position, points)
 VALUES ('871eaf03-1f83-5ede-ba63-a27f700b4366', 'fe703682-98d0-5351-9b6f-fcc513fd04fd', 2, 1)
 ON CONFLICT (quiz_id, question_id) DO UPDATE SET position = EXCLUDED.position;
 INSERT INTO questions (id, tenant_id, category_id, course_id, kind, prompt, points, explanation, author_id)
-VALUES ('6ab1edbb-9c60-563c-af61-368a9c1f7d82', (SELECT id FROM tenants WHERE slug = 'exemplo'), NULL, '8e06f60b-00b7-50af-8a4d-61e0f10c9c3f', 'single_choice', 'Qual é o papel do canal de atendimento à comunidade?',
+VALUES ('6ab1edbb-9c60-563c-af61-368a9c1f7d82', (SELECT id FROM tenants WHERE slug = 'lms'), NULL, '8e06f60b-00b7-50af-8a4d-61e0f10c9c3f', 'single_choice', 'Qual é o papel do canal de atendimento à comunidade?',
         1, NULL, NULL)
 ON CONFLICT (id) DO UPDATE SET prompt = EXCLUDED.prompt, explanation = EXCLUDED.explanation;
 INSERT INTO question_options (id, question_id, text, is_correct, position)
@@ -3974,7 +3974,7 @@ INSERT INTO quiz_questions (quiz_id, question_id, position, points)
 VALUES ('871eaf03-1f83-5ede-ba63-a27f700b4366', '6ab1edbb-9c60-563c-af61-368a9c1f7d82', 3, 1)
 ON CONFLICT (quiz_id, question_id) DO UPDATE SET position = EXCLUDED.position;
 INSERT INTO questions (id, tenant_id, category_id, course_id, kind, prompt, points, explanation, author_id)
-VALUES ('857e526c-8773-51ae-978a-f3148cad6631', (SELECT id FROM tenants WHERE slug = 'exemplo'), NULL, '8e06f60b-00b7-50af-8a4d-61e0f10c9c3f', 'single_choice', 'O que compromete a confiança construída com a comunidade?',
+VALUES ('857e526c-8773-51ae-978a-f3148cad6631', (SELECT id FROM tenants WHERE slug = 'lms'), NULL, '8e06f60b-00b7-50af-8a4d-61e0f10c9c3f', 'single_choice', 'O que compromete a confiança construída com a comunidade?',
         1, NULL, NULL)
 ON CONFLICT (id) DO UPDATE SET prompt = EXCLUDED.prompt, explanation = EXCLUDED.explanation;
 INSERT INTO question_options (id, question_id, text, is_correct, position)
@@ -4010,20 +4010,20 @@ UPDATE courses SET min_grade_percent = 70 WHERE id = '8e06f60b-00b7-50af-8a4d-61
 -- `storage_key` aponta para um objeto que NÃO existe no storage: o seed não
 -- sobe arquivo. Baixar um destes devolve erro do storage, e é o esperado —
 -- o que o seed prova é que a listagem vem do banco, não do mock.
-INSERT INTO materials (id, lesson_id, name, kind, size_bytes, storage_key, uploaded_by)
-VALUES ('e6c8fc25-50fc-56a6-aa67-27cab07e6d6a', '44f96898-759b-5d5a-9b1c-4c5be9769615', 'Checklist de inspeção do separador',
+INSERT INTO materials (id, tenant_id, lesson_id, name, kind, size_bytes, storage_key, uploaded_by)
+VALUES ('e6c8fc25-50fc-56a6-aa67-27cab07e6d6a', (SELECT id FROM tenants WHERE slug = 'lms'), '44f96898-759b-5d5a-9b1c-4c5be9769615', 'Checklist de inspeção do separador',
         'pdf', 491520,
         'materiais/c1m3-l5/1-pdf', '0241e68a-9b21-5658-bcd4-55cfa515d63c')
 ON CONFLICT (id) DO UPDATE SET
   name = EXCLUDED.name, kind = EXCLUDED.kind, size_bytes = EXCLUDED.size_bytes;
-INSERT INTO materials (id, lesson_id, name, kind, size_bytes, storage_key, uploaded_by)
-VALUES ('e29eaff4-39a0-5880-8b3f-2ba72d82aa79', '44f96898-759b-5d5a-9b1c-4c5be9769615', 'Planilha de acompanhamento de BSW',
+INSERT INTO materials (id, tenant_id, lesson_id, name, kind, size_bytes, storage_key, uploaded_by)
+VALUES ('e29eaff4-39a0-5880-8b3f-2ba72d82aa79', (SELECT id FROM tenants WHERE slug = 'lms'), '44f96898-759b-5d5a-9b1c-4c5be9769615', 'Planilha de acompanhamento de BSW',
         'spreadsheet', 63488,
         'materiais/c1m3-l5/2-spreadsheet', '0241e68a-9b21-5658-bcd4-55cfa515d63c')
 ON CONFLICT (id) DO UPDATE SET
   name = EXCLUDED.name, kind = EXCLUDED.kind, size_bytes = EXCLUDED.size_bytes;
-INSERT INTO materials (id, lesson_id, name, kind, size_bytes, storage_key, uploaded_by)
-VALUES ('1e91cc23-5ce2-50cc-bf8a-9500821ea9ab', '44f96898-759b-5d5a-9b1c-4c5be9769615', 'Procedimento de tratamento de emulsão',
+INSERT INTO materials (id, tenant_id, lesson_id, name, kind, size_bytes, storage_key, uploaded_by)
+VALUES ('1e91cc23-5ce2-50cc-bf8a-9500821ea9ab', (SELECT id FROM tenants WHERE slug = 'lms'), '44f96898-759b-5d5a-9b1c-4c5be9769615', 'Procedimento de tratamento de emulsão',
         'pdf', 1258291,
         'materiais/c1m3-l5/3-pdf', '0241e68a-9b21-5658-bcd4-55cfa515d63c')
 ON CONFLICT (id) DO UPDATE SET
