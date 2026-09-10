@@ -40,8 +40,8 @@ clientes, cada um com domínio, marca e cores próprios, sem um enxergar o outro
 ## Por que existe
 
 Plataforma de treinamento corporativo costuma ser alugada por usuário ativo. O
-limite é contratual, não técnico — e o histórico de quem cursou o quê, com que
-nota e em que data fica na base de outra empresa. Quando o contrato termina, a
+limite é contratual, não técnico. O histórico de quem cursou o quê, com que nota
+e em que data fica na base de outra empresa, e quando o contrato termina a
 exportação é um CSV, se houver.
 
 Aqui você hospeda, é dono do dado e a marca na tela é a sua.
@@ -95,7 +95,7 @@ npm run seed      # catálogo e contas de demonstração
 ```
 
 A plataforma responde em **<https://localhost>** (ou na porta que você
-escolheu). O certificado é interno e o navegador avisa — é esperado.
+escolheu). O certificado é interno, então o navegador avisa. É esperado.
 
 ### Contas de demonstração
 
@@ -112,7 +112,7 @@ escolheu). O certificado é interno e o navegador avisa — é esperado.
 As mesmas contas valem em **<https://lms.nerdresolve.com>**, uma instalação de
 demonstração com este mesmo seed. É uma vitrine, não um serviço: os dados são
 reapagados a cada atualização e ela pode estar fora do ar sem aviso. Para
-avaliar de verdade, suba a sua — são os três comandos acima.
+avaliar de verdade, suba a sua com os três comandos acima.
 
 ### Sem Docker
 
@@ -140,7 +140,7 @@ Assiste à aula, baixa o material, comenta, faz a prova e recebe o certificado.
 A aula **retoma de onde parou**, no computador ou no celular.
 
 O catálogo separa o que está em andamento, concluído e salvo. Há trilhas
-(sequências de cursos), agenda com prazos, e conquistas — moedas por aula
+(sequências de cursos), agenda com prazos, e conquistas: moedas por aula
 concluída, distintivos por marco, e um destaque mensal por contribuição no
 fórum, não por velocidade.
 
@@ -152,11 +152,11 @@ fórum, não por velocidade.
 
 Cria curso, módulo e aula. Envia vídeo, PDF, planilha, pacote SCORM ou H5P.
 Monta prova a partir de um banco de questões, corrige dissertativa por rubrica
-e decide os pedidos de reteste — liberando ou recusando **com comentário
+e decide os pedidos de reteste, liberando ou recusando **com comentário
 obrigatório**.
 
 Vê o engajamento da turma: quem começou, quem parou, onde o vídeo perde gente.
-Meses depois, registra a **eficácia do treinamento** — se o desempenho mudou de
+Meses depois, registra a **eficácia do treinamento**: se o desempenho mudou de
 verdade, que é a pergunta que a fiscalização faz.
 
 ### Gestor
@@ -178,20 +178,19 @@ Os relatórios saem em CSV com recorte por período e por unidade.
 
 ## Como o progresso é medido
 
-É a parte que separa um LMS de um player de vídeo, e vale entender antes de
-adotar.
+Vale entender antes de adotar, porque é aqui que as plataformas diferem.
 
 **Concluir uma aula exige 90% de cobertura do vídeo com tempo de sessão
 compatível.** Arrastar a barra até o fim não conta: o tempo real assistido é
 comparado com a duração da aula, e uma sessão curta demais é recusada. O avanço
-para trecho não assistido é bloqueado — por curso, porque treinamento
-obrigatório e comunicado interno não pedem o mesmo rigor. Retroceder é livre, e
-a velocidade vai até 2x.
+para trecho não assistido é bloqueado, e isso se configura por curso:
+treinamento obrigatório e comunicado interno não pedem o mesmo rigor. Retroceder
+é livre, e a velocidade vai até 2x.
 
 **A prova só libera quando as aulas terminam**, e o botão diz quantas faltam em
 vez de deixar clicar e recusar depois. Nota de 0 a 10, com aprovação
-configurável. Reprovou? O reteste é um **pedido ao instrutor**, não
-autosserviço.
+configurável. Quem reprova precisa **pedir reteste ao instrutor**, que libera
+ou recusa. Não é autosserviço.
 
 **O certificado é conferível.** O código em `/validar` não é consultado numa
 lista: a verificação reavalia matrícula, conclusão e nota, aplicando a mesma
@@ -203,24 +202,23 @@ valida.
 ## Arquitetura
 
 ```
-apps/frontend/    Next.js 15 + React 19 — telas e rotas HTTP
+apps/frontend/    Next.js 15 + React 19: telas e rotas HTTP
 apps/backend/     casos de uso, repositórios e integrações
 packages/core/    regra de domínio pura: sem React, sem SQL, sem framework
 infra/            docker-compose, migrações, proxy e ferramentas
 ```
 
-As camadas têm direção — `frontend → backend → core` — e um portão automático
+As camadas têm direção (`frontend → backend → core`) e um portão automático
 (`npm run check:layers`) reprova import na direção errada.
 
-Isso não é organização por gosto. É o que mantém a regra de negócio testável
-sem subir infraestrutura: os **1.357 testes do `core` rodam em segundos, sem
-Docker e sem banco**. A regra que decide se uma aula pode ser concluída é uma
-função pura sobre números; o repositório que lê o Postgres é outra coisa, em
-outra camada.
+Isso mantém a regra de negócio testável sem subir infraestrutura: os **1.357
+testes do `core` rodam em segundos, sem Docker e sem banco**. A regra que decide
+se uma aula pode ser concluída é uma função pura sobre números; o repositório
+que lê o Postgres é outra coisa, em outra camada.
 
-`apps/backend` não é um servidor. É a camada que as rotas do Next chamam —
-`route.ts` continua em `apps/frontend/src/app/api/`, porque no Next a rota **é**
-o arquivo. Elas são cascas finas.
+`apps/backend` não sobe um servidor próprio. Ele é a camada que as rotas do
+Next chamam: o `route.ts` continua em `apps/frontend/src/app/api/`, porque no
+Next a rota é o arquivo. Essas rotas são cascas finas.
 
 ### Multi-tenant desde o schema
 
@@ -261,13 +259,13 @@ acessibilidade é régua do produto, não escolha por cliente.
 ### A marca do cliente
 
 Cada tenant informa **uma cor** e as próprias logos, pela tela
-Administração → Plataforma. As demais cores — hover, ativo, superfície, cor de
-texto — são derivadas em `core/tenancy/branding.ts` de modo a nunca reprovar em
+Administração → Plataforma. As demais cores (hover, ativo, superfície, cor de
+texto) são derivadas em `core/tenancy/branding.ts` de modo a nunca reprovar em
 contraste.
 
-Pedir seis cores convidaria a combinações ilegíveis. Por isso é uma só.
+É uma cor só porque pedir seis convidaria a combinações ilegíveis.
 
-O passo a passo completo — tenant, domínio, e-mail, marca por cliente — está em
+O passo a passo completo (tenant, domínio, e-mail, marca por cliente) está em
 [WHITELABEL.md](WHITELABEL.md).
 
 ---
@@ -284,8 +282,8 @@ espera o healthcheck** antes de declarar sucesso. Se a aplicação subir quebrad
 o job falha com as últimas 50 linhas do log.
 
 As migrações rodam **antes** da troca do container, e cada uma precisa aceitar a
-versão anterior da aplicação. É isso que faz o rollback ser uma troca de tag, e
-não uma restauração de backup.
+versão anterior da aplicação, e por isso o rollback é uma troca de tag em vez
+de uma restauração de backup.
 
 Sem os secrets de SSH configurados, a Action publica a imagem e **pula** o
 deploy, sem erro. Três caminhos (Actions, Compose direto, Cloudflare Tunnel para
@@ -346,7 +344,7 @@ mudar variável de ambiente, não código.
 
 - Contêineres sem root, sistema de arquivos somente-leitura, sem capacidades
   extras
-- Banco e storage **sem porta publicada** — só o proxy fala com a internet
+- Banco e storage **sem porta publicada**: só o proxy fala com a internet
 - Duas redes: o banco não alcança a internet nem é alcançado por ela
 - Papel da aplicação no Postgres **sem permissão de DDL**, separado do dono do
   schema
@@ -354,7 +352,8 @@ mudar variável de ambiente, não código.
 - Segredos cifrados em repouso
 - Exclusão de conta que o schema promete e o banco cumpre (LGPD)
 
-Encontrou uma falha? [SECURITY.md](SECURITY.md) — nunca em issue pública.
+Encontrou uma falha? Veja o [SECURITY.md](SECURITY.md). Nunca em issue
+pública.
 
 ---
 
@@ -388,8 +387,8 @@ do proxy, como em produção.
 ## Licença
 
 **Business Source License 1.1**, com conversão automática para **Apache 2.0**
-após quatro anos — a mesma do MariaDB, do Terraform e do CockroachDB. Texto
-completo em [LICENSE.md](LICENSE.md).
+após quatro anos. É a mesma do MariaDB, do Terraform e do CockroachDB, e o
+texto completo está em [LICENSE.md](LICENSE.md).
 
 **Uso interno é livre, inclusive comercial.** Uma empresa pode instalar e
 treinar os próprios funcionários, terceiros, parceiros, alunos ou clientes sem
@@ -399,15 +398,16 @@ a base de clientes. Sem limite de usuários, sem chave de licença, sem
 telemetria.
 
 **O que precisa de conversa** é oferecer o NerdResolve LMS a terceiros como
-produto ou serviço, concorrendo com a versão paga — montar um SaaS em cima
-deste código, ou revendê-lo como produto próprio. A diferença é o que está
-sendo vendido: treinamento, liberado; a plataforma, fale comigo.
+produto ou serviço, concorrendo com a versão paga: montar um SaaS em cima deste
+código, ou revendê-lo como produto próprio. A diferença é o que está sendo
+vendido. Vender treinamento usando a plataforma é livre; vender a plataforma
+não.
 
 Cada versão vira Apache 2.0 quatro anos depois de publicada, automaticamente e
 sem volta. Licença comercial: **contact@nerdresolve.com**.
 
 A fonte que acompanha o repositório é a **Manrope**, sob
-[SIL Open Font License 1.1](apps/frontend/public/fonts/OFL.txt) — livre para
+[SIL Open Font License 1.1](apps/frontend/public/fonts/OFL.txt), livre para
 usar, modificar e redistribuir, inclusive num fork comercial.
 
 ---
