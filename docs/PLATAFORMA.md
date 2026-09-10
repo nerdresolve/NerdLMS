@@ -438,16 +438,15 @@ não alcança em uso real.
 
 ## 12. Operação
 
-### Os três ambientes não se misturam
+### Um ambiente por projeto do Compose
 
-| Comando | Projeto Compose |
-|---|---|
-| `npm run up`, `migrate`, `seed`, `logs` | `nerdlms-local` |
-| `npm run up:prod`, `migrate:prod` | `nerdlms` |
-| `npm run publish`, `migrate:tunnel` | `nerdlms` |
+| Comando | Arquivo de ambiente | Projeto Compose |
+|---|---|---|
+| `npm run up`, `migrate`, `seed`, `logs` | `infra/.env` | `nerdlms` |
+| `npm run publish`, `migrate:tunnel` | `infra/.env` + `infra/.env.tunnel` | `nerdlms` |
 
-Os três já conviveram no mesmo projeto. **Nunca rode `docker compose` sem
-`-p`**: sem ele o Compose deduz o nome pela pasta, e a dedução não distingue.
+**Nunca rode `docker compose` sem `-p`**: sem ele o Compose deduz o nome pela
+pasta, e a dedução não distingue duas instalações na mesma máquina.
 
 ### Portões
 
@@ -471,7 +470,7 @@ A aplicação **não** usa o dono do schema: `lms_migrator` migra, `lms_app`
 roda sem DDL. Se houver SQL injection, o estrago não alcança a estrutura.
 
 > Os papéis (`lms_migrator`, `lms_app`) e o bucket (`lms-media`) levam o nome do
-> produto, não o do cliente — de propósito: uma instalação atende vários
+> produto, não o do cliente, e isso é de propósito: uma instalação atende vários
 > clientes, e um nome de cliente na infraestrutura envelheceria mal. Renomeá-los
 > num banco já em uso é migração de infraestrutura, com risco de deixar a
 > aplicação sem conectar no meio do caminho. A migração `035_tenant_do_cliente`
@@ -485,7 +484,7 @@ Detalhes em [`../infra/db/README.md`](../infra/db/README.md).
 
 | Pendência | Impacto |
 |---|---|
-| **Domínio do certificado** | O endereço de conferência sai de `tenants.domain`, hoje vazio: o rodapé imprime uma orientação em vez de um endereço. O código é válido e a conferência funciona. **Declare o domínio depois que o DNS apontar para a instalação** — ver `docs/DEPLOY.md`. |
+| **Domínio do certificado** | O endereço de conferência sai de `tenants.domain`, hoje vazio: o rodapé imprime uma orientação em vez de um endereço. O código é válido e a conferência funciona. **Declare o domínio depois que o DNS apontar para a instalação**, conforme `docs/DEPLOY.md`. |
 | **Backup** | Não configurado. RPO e RTO precisam ser decididos. Os dois volumes (`db-data` e `storage-data`) precisam entrar na cópia: o `pg_dump` não leva os vídeos. |
 | **Rollback de migração** | Cada arquivo aplica; nenhum desfaz. Ou passa a haver `down`, ou a política é restaurar backup. |
 | **Seed x conteúdo real** | `npm run seed` insere 7 cursos fictícios com `ON CONFLICT DO UPDATE`. Num banco que já tem o conteúdo real, o catálogo volta a misturar os dois. Ver [`HOMOLOGACAO.md`](./HOMOLOGACAO.md). |

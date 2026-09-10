@@ -4,7 +4,7 @@ Como colocar um cliente novo na plataforma: criar o tenant, apontar o domínio,
 aplicar a identidade visual e decidir o que fica ligado.
 
 Um tenant é o recorte de isolamento do produto. Cada cliente tem os próprios
-cursos, pessoas, notas e configuração, e nada atravessa de um para outro — a
+cursos, pessoas, notas e configuração, e nada atravessa de um para outro. A
 separação é por `tenant_id` em 42 tabelas, e há um teste que falha o build
 quando alguém escreve uma consulta sem esse recorte
 (`apps/backend/src/tenancy/query-isolation.test.ts`).
@@ -51,17 +51,17 @@ VALUES (
 RETURNING id;
 ```
 
-Guarde o `id` que volta — os próximos passos usam.
+Guarde o `id` que volta: os próximos passos usam.
 
 ### O que cada campo faz
 
-**`slug`** — identificador interno. Aparece em log e no `NERD_DEFAULT_TENANT`.
+**`slug`**: identificador interno. Aparece em log e no `NERD_DEFAULT_TENANT`.
 Trocar depois quebra referências; escolha uma vez.
 
-**`domain`** — é por ele que a plataforma sabe de quem é a visita. Alguém que
+**`domain`**: é por ele que a plataforma sabe de quem é a visita. Alguém que
 chega por `treinamento.acme.com.br` vê a ACME; por outro domínio, vê outro
 cliente. A resolução está em `apps/frontend/src/lib/tenant-request.ts`, e usa
-`x-forwarded-host` antes de `host` — atrás do proxy, `host` chega como o nome
+`x-forwarded-host` antes de `host`, porque atrás do proxy `host` chega como o nome
 interno do container.
 
 Sem domínio cadastrado, a requisição cai no tenant padrão
@@ -69,12 +69,12 @@ Sem domínio cadastrado, a requisição cai no tenant padrão
 cliente único; com dois clientes, cada um **precisa** do próprio domínio, ou o
 segundo nunca é alcançado.
 
-**`unit_label`** — o produto fala "unidade" o tempo todo: filtro de relatório,
+**`unit_label`**: o produto fala "unidade" o tempo todo: filtro de relatório,
 cadastro de pessoa, desempenho por área. O rótulo é do cliente. A pluralização
 é automática (`packages/core/src/tenancy/unit-label.ts`), então informe no
 singular.
 
-**`brand_color`** — uma cor, e o resto é derivado. Explicado no passo 3.
+**`brand_color`**: uma cor, e o resto é derivado. Explicado no passo 3.
 
 ---
 
@@ -101,7 +101,7 @@ O status `pending` faz a conta existir sem poder entrar até a senha ser
 definida. A pessoa recebe o convite por e-mail se o SMTP estiver configurado
 (passo 6); sem SMTP, mande você mesmo o link de definição de senha.
 
-A partir daqui, o resto se resolve pela interface — este administrador convida
+A partir daqui, o resto se resolve pela interface: este administrador convida
 os demais em **Administração → Usuários**, ou importa uma planilha.
 
 ---
@@ -126,13 +126,13 @@ Com `#B8860B`, a paleta sai assim:
 ```
 
 **O contraste é ajustado sozinho.** A cor do texto sobre a marca é escolhida
-para passar em WCAG AA (4.5:1) — com o dourado acima, o resultado é 5.79:1. Uma
+para passar em WCAG AA (4.5:1). Com o dourado acima, o resultado é 5.79:1. Uma
 cor clara demais recebe texto escuro; uma escura recebe texto claro. Você não
 precisa calcular nada, e não consegue produzir uma combinação ilegível pelo
 campo de cor.
 
 **Cor inválida cai no padrão.** `paletteToCss` só aceita hexadecimal de seis
-dígitos. Qualquer outra coisa — nome de cor, `rgb()`, texto solto — devolve
+dígitos. Qualquer outra coisa, seja nome de cor, `rgb()` ou texto solto, devolve
 vazio e a plataforma usa a cor padrão. Não quebra a tela, mas também não aplica
 a marca; se a cor não pegou, é aqui que olhar.
 
@@ -151,7 +151,7 @@ Uma logo só, escura, some no menu.
 
 Duas formas de hospedar:
 
-**Pelo storage da plataforma** — envie ao bucket MinIO e use o caminho público:
+**Pelo storage da plataforma**: envie ao bucket MinIO e use o caminho público:
 
 ```sql
 UPDATE tenants
@@ -161,7 +161,7 @@ UPDATE tenants
  WHERE slug = 'acme';
 ```
 
-**Por URL externa** — se o cliente já hospeda, use a URL absoluta. Precisa ser
+**Por URL externa**: se o cliente já hospeda, use a URL absoluta. Precisa ser
 HTTPS: um `http://` numa página HTTPS é bloqueado pelo navegador e a logo
 simplesmente não aparece.
 
@@ -191,12 +191,12 @@ ACME_EMAIL=infra@suaempresa.com.br
 ```
 
 `ACME_EMAIL` recebe o aviso de certificado prestes a expirar. Precisa ser um
-endereço válido — `email` sem argumento não é "sem e-mail", é erro de sintaxe, e
+endereço válido: `email` sem argumento não é "sem e-mail", é erro de sintaxe, e
 o Caddy recusa o arquivo inteiro e reinicia em laço.
 
 ### Vários domínios no mesmo servidor
 
-O bloco de site do Caddy é `{$SITE_ADDRESS}` — um endereço por vez. Para servir
+O bloco de site do Caddy é `{$SITE_ADDRESS}`, um endereço por vez. Para servir
 vários clientes do mesmo servidor, liste os domínios separados por espaço:
 
 ```
@@ -204,13 +204,13 @@ SITE_ADDRESS="treinamento.acme.com.br ead.outrocliente.com.br"
 ```
 
 O Caddy trata um bloco com vários endereços como o mesmo site, emite certificado
-para cada um, e a aplicação resolve o tenant pelo `Host` da requisição — um
-servidor, vários clientes, nenhum vê o outro.
+para cada um, e a aplicação resolve o tenant pelo `Host` da requisição. É um
+servidor atendendo vários clientes, sem que nenhum enxergue o outro.
 
 Confirme depois de subir, porque um erro aqui derruba o proxy em laço:
 
 ```bash
-npm run compose:prod -- logs proxy | tail -20
+npm run compose -- logs proxy | tail -20
 ```
 
 ### Atrás do Cloudflare Tunnel
@@ -228,7 +228,7 @@ ACME nunca chega até ele, e repete para sempre.
 Depois de mexer no `.env`, o proxy precisa reler:
 
 ```bash
-npm run compose:prod -- up -d proxy
+npm run compose -- up -d proxy
 ```
 
 ---
@@ -236,7 +236,7 @@ npm run compose:prod -- up -d proxy
 ## 5. Escolher o que fica ligado
 
 São 16 funcionalidades desligáveis, em árvore. Sem nenhuma configuração, todas
-ficam ligadas — o catálogo em `packages/core/src/tenancy/features.ts` define o
+ficam ligadas. O catálogo em `packages/core/src/tenancy/features.ts` define o
 padrão de cada uma.
 
 ```
@@ -258,7 +258,7 @@ trilhas, agenda, certificados, favoritos, busca
 junto, independentemente do que estiver marcado neles. É o que evita o estado
 incoerente de "upvote ligado num produto sem comentário".
 
-Faça pela interface — **Administração → Plataforma** — que é onde a árvore
+Faça pela interface, em **Administração → Plataforma**, que é onde a árvore
 aparece e o efeito de desligar um pai fica visível. Por SQL, se precisar
 automatizar a implantação:
 
@@ -295,7 +295,7 @@ SMTP_PASSWORD=…
 SMTP_FROM=nao-responda@suaempresa.com.br
 ```
 
-Com `MAIL_TRANSPORT=log`, nada é enviado — o e-mail vai para o log do
+Com `MAIL_TRANSPORT=log`, nada é enviado: o e-mail vai para o log do
 container. É o padrão em desenvolvimento e o que você quer ao testar uma
 implantação sem incomodar ninguém.
 
@@ -305,7 +305,7 @@ sua empresa.
 
 **Se o cliente usa o próprio domínio no remetente**, ele precisa autorizar seu
 servidor no SPF, ou o e-mail cai em spam. É a única parte deste processo que
-depende de alguém do lado do cliente mexer em DNS — encaminhe cedo.
+depende de alguém do lado do cliente mexer em DNS, então encaminhe cedo.
 
 Os textos dos e-mails também são por cliente, editáveis em **Administração →
 Plataforma → Textos dos e-mails**. Sem texto próprio, vale o padrão do produto.
@@ -318,7 +318,7 @@ Opcional, e quase sempre pedido. Empresa de porte não quer mais uma senha para
 gerenciar: quer que o desligamento no diretório dela feche o acesso aqui, no
 mesmo dia.
 
-Google e Microsoft **já vêm configurados** no produto — os endereços deles são
+Google e Microsoft **já vêm configurados** no produto: os endereços deles são
 públicos e iguais para todo mundo. O que você preenche é só o que é do cliente.
 
 Tudo acontece em **Administração → Acesso**.
@@ -326,7 +326,7 @@ Tudo acontece em **Administração → Acesso**.
 ### Qual dos três
 
 O produto oferece três formas de entrar pelo sistema da empresa. A escolha não
-é de gosto — depende do que o cliente já tem:
+é de gosto e depende do que o cliente já tem:
 
 | Se o cliente usa | Escolha | Por quê |
 |---|---|---|
@@ -341,8 +341,8 @@ em campo.
 
 ### LDAP e Active Directory
 
-O que muda por cliente é o servidor e o domínio. O formato do identificador —
-que difere entre AD e OpenLDAP — vem do produto.
+O que muda por cliente é o servidor e o domínio. O formato do identificador,
+que difere entre AD e OpenLDAP, vem do produto.
 
 | Campo | Active Directory | OpenLDAP |
 |---|---|---|
@@ -357,7 +357,7 @@ atravessa a rede legível.
 
 **Certificado da própria empresa.** Diretório corporativo quase nunca usa
 certificado de autoridade pública. Se a conexão falhar com erro de certificado,
-marque a opção correspondente — é uma escolha consciente, e fica registrada.
+marque a opção correspondente. É uma escolha consciente, e fica registrada.
 
 O que a pessoa digita é o nome de login dela, não o DN completo. O produto
 monta o resto.
@@ -379,7 +379,7 @@ valores; para o provedor você entrega dois.
 
 | Campo | Valor |
 |---|---|
-| Entity ID (SP) | O que você definir na tela — normalmente a URL da plataforma |
+| Entity ID (SP) | O que você definir na tela, normalmente a URL da plataforma |
 | URL de retorno (ACS) | `https://treinamento.acme.com.br/api/saml/retorno` |
 
 **Cadastre o certificado novo ANTES de o provedor rotacionar.** O campo aceita
@@ -388,7 +388,7 @@ enquanto o cliente ainda tem a velha. Com os dois cadastrados, ninguém percebe
 a rotação; com um só, o login para até alguém atualizar.
 
 **O provedor precisa assinar com SHA-256.** Muitos ainda vêm de fábrica com
-SHA-1, que é recusado — colisão de SHA-1 é demonstrada desde 2017, e aceitá-lo
+SHA-1, que é recusado: colisão de SHA-1 é demonstrada desde 2017, e aceitá-lo
 tornaria a validação decorativa. A mensagem de erro diz o que configurar.
 
 **Asserção não solicitada não entra.** Alguns provedores oferecem um botão que
@@ -431,8 +431,8 @@ aplicativo. São três valores:
 | Chave secreta | **Certificados e segredos** |
 
 O ID do diretório é obrigatório e não tem atalho. Existe um valor `common` que
-a Microsoft aceita, e ele deixaria **qualquer conta Microsoft do mundo** entrar
-— inclusive pessoais. Numa plataforma corporativa isso é uma porta aberta, e
+a Microsoft aceita, e ele deixaria **qualquer conta Microsoft do mundo** entrar,
+inclusive pessoais. Numa plataforma corporativa isso é uma porta aberta, e
 por isso o produto não oferece essa opção.
 
 ### Outro provedor
@@ -448,7 +448,7 @@ https://provedor-do-cliente.com/.well-known/openid-configuration
 ### As três decisões que importam
 
 **Domínios aceitos.** Preencha. Em branco, o produto aceita qualquer e-mail que
-o provedor confirmar — e num cliente que usa o Google como provedor, isso
+o provedor confirmar, e num cliente que usa o Google como provedor isso
 inclui qualquer `@gmail.com` do mundo. Com `acme.com.br` preenchido, quem está
 fora é recusado.
 
@@ -458,23 +458,23 @@ você escolher ao lado. Boa parte dos clientes quer exatamente isso; nenhum quer
 descobrir depois que aconteceu sem ter pedido.
 
 **Manter o login por senha.** Deixe ligado até testar. Desligar exige que todos
-entrem pelo provedor — e se a configuração estiver errada, ninguém entra, nem
+entrem pelo provedor, e se a configuração estiver errada ninguém entra, nem
 você. A tela pede confirmação antes de deixar você desmarcar.
 
 ### Como uma pessoa é reconhecida
 
 Pela ordem:
 
-1. **Já entrou por aqui antes** — o vínculo existe, entra direto.
-2. **Já tinha conta com o mesmo e-mail** — o vínculo é criado no primeiro
+1. **Já entrou por aqui antes**: o vínculo existe, entra direto.
+2. **Já tinha conta com o mesmo e-mail**: o vínculo é criado no primeiro
    acesso e ela entra na conta que já era dela.
-3. **Não tem conta** — cria, se você ligou a opção; senão, recusa com um aviso
+3. **Não tem conta**: cria, se você ligou a opção; senão, recusa com um aviso
    para procurar o administrador.
 
 O vínculo é gravado pelo identificador do provedor, **não pelo e-mail**. É
 importante: quem casa e troca de sobrenome recebe outro endereço e continua a
-mesma pessoa. E um endereço desligado pode ser reatribuído a outro funcionário
-— seguir o e-mail entregaria a conta antiga ao novo dono do endereço.
+mesma pessoa. E um endereço desligado pode ser reatribuído a outro funcionário,
+e seguir o e-mail entregaria a conta antiga ao novo dono do endereço.
 
 **Conta desativada não entra**, mesmo com vínculo. É o acesso que uma empresa
 mais quer cortar no dia de um desligamento.
@@ -503,7 +503,7 @@ Se der erro, a mensagem volta na própria tela de login. As mais comuns:
 ## 8. Conteúdo e sistemas de fora
 
 Nada aqui é obrigatório para entregar um cliente. Está neste documento porque a
-pergunta aparece cedo na implantação — quase sempre na forma "temos os
+pergunta aparece cedo na implantação, quase sempre na forma "temos os
 treinamentos no sistema antigo, dá para aproveitar?".
 
 ### Trazer o que o cliente já tem
@@ -515,7 +515,7 @@ treinamentos no sistema antigo, dá para aproveitar?".
 | Planilha de pessoas | **Administração → Usuários → Importar**. Confere antes de gravar |
 | Catálogo de cursos em planilha | **Instrutor → Meus cursos**, no bloco de importação |
 
-**Sobre o SCORM.** O `.zip` é o único arquivo que passa pelo servidor — os
+**Sobre o SCORM.** O `.zip` é o único arquivo que passa pelo servidor. Os
 demais vão direto do navegador ao storage. Um pacote precisa ser descompactado,
 e a URL assinada resolveria o envio sem resolver o que vem depois. O limite é
 60 MB; acima disso, quase sempre há vídeo embutido no pacote, que renderia mais
@@ -523,7 +523,7 @@ como aula de vídeo separada.
 
 **Quem edita o curso vê o conteúdo em pré-visualização.** O player abre e o
 pacote roda igual, mas nada é registrado: o acompanhamento do SCORM pertence à
-matrícula, e o instrutor não tem uma. A tela avisa. É de propósito — matricular
+matrícula, e o instrutor não tem uma. A tela avisa. É de propósito: matricular
 o instrutor no próprio curso sujaria os relatórios de conclusão.
 
 ### Ligar a plataforma a outro sistema
@@ -538,7 +538,7 @@ o instrutor no próprio curso sujaria os relatórios de conclusão.
 
 O que estas cinco têm em comum: **a chave é por cliente**. Uma chave de API dá
 acesso programático ao tenant inteiro, e vazá-la entre clientes seria o pior
-vazamento possível — por isso ela é emitida na administração daquele cliente, e
+vazamento possível, e por isso ela é emitida na administração daquele cliente, e
 aparece uma única vez.
 
 ### Levar embora
@@ -546,11 +546,11 @@ aparece uma única vez.
 Vale conferir na entrega, porque é o que distingue uma plataforma de uma
 armadilha:
 
-- **Questões** — exportação em QTI 2.1, o formato que Moodle, Canvas e
+- **Questões**: exportação em QTI 2.1, o formato que Moodle, Canvas e
   Blackboard leem. Botão na tela do curso, ao lado da importação.
-- **Relatórios** — CSV, pelos botões do **Painel do projeto** (Progresso, Equipe) e por
+- **Relatórios**: CSV, pelos botões do **Painel do projeto** (Progresso, Equipe) e por
   `/api/relatorios?tipo=progresso|usuarios|notas|cursos`.
-- **O cliente inteiro** — backup em JSON, em **Administração → Plataforma**.
+- **O cliente inteiro**: backup em JSON, em **Administração → Plataforma**.
   Traz o conteúdo, as pessoas, as matrículas e as notas.
 
 ---
@@ -589,13 +589,13 @@ Vale saber para não se surpreender.
 
 **Toda consulta declara o tenant.** As tabelas raiz têm `tenant_id`, e as
 demais herdam por chave estrangeira. Há um teste que lê o código-fonte e falha o
-build quando uma consulta lê tabela raiz sem recortar — foi escrito depois de a
+build quando uma consulta lê tabela raiz sem recortar. Foi escrito depois de a
 lista de tabelas ficar desatualizada e passar a aprovar em silêncio o que devia
 reprovar.
 
 **A fronteira vem antes do papel.** Em `packages/core/src/auth/permissions.ts`,
 a checagem de tenant acontece antes do bloco do administrador. Sem essa ordem, o
-admin de um cliente enxergaria o dado de outro — e "acesso irrestrito" nunca
+admin de um cliente enxergaria o dado de outro, e "acesso irrestrito" nunca
 significou acesso à empresa alheia.
 
 **O e-mail é único por cliente, não global.** A mesma pessoa pode ter conta em
@@ -612,113 +612,56 @@ não está implementado, e a plataforma recusa em vez de fingir que funcionou.
 
 ## Antes de rodar qualquer comando: qual ambiente você está tocando
 
-Esta é a parte que mais custa caro se passar batido.
-
-Na mesma máquina convivem dois ambientes. Os scripts do `package.json` hoje
-dizem qual deles você está atingindo — cada um carrega o seu `-p`:
+Os comandos do `package.json` leem um arquivo de ambiente só, `infra/.env`, e
+sobem sempre o projeto `nerdlms`:
 
 | Comando | Arquivo de ambiente | Contêineres afetados |
 |---|---|---|
-| `npm run compose` | `infra/.env` + `.env.local` | `nerdlms-local-*` — **local** |
-| `npm run compose:prod` | `infra/.env` | `nerdlms-*` — **produção** |
-| `npm run compose:tunnel` | `infra/.env` + `.env.tunnel` | `nerdlms-*` via túnel |
+| `npm run compose` | `infra/.env` | `nerdlms-*` |
+| `npm run compose:tunnel` | `infra/.env` + `infra/.env.tunnel` | `nerdlms-*`, publicados por túnel |
 
-**Nem sempre foi assim, e vale saber por quê.** Os três comandos herdavam o
-`name: nerdlms` do próprio compose, e nenhum passava `-p`. A linha de cima
-dizia "depende de qual arquivo de ambiente está por último" — e isso estava
-errado: arquivo de ambiente troca a CONFIGURAÇÃO da pilha; quem decide QUAIS
-contêineres e QUAIS volumes o comando alcança é o nome do projeto. Como ele não
-variava, `npm run migrate` na máquina de quem desenvolve subia o banco da
-instalação anterior e migrava ele — inclusive a 035, que renomeia o tenant.
-O perigo estava documentado aqui, com um contorno manual para quem lembrasse;
-agora ele não existe. Contorno que depende de memória é defeito adiado.
+O que muda entre uma máquina de desenvolvimento e um servidor (domínio, portas,
+transporte de e-mail) muda dentro do próprio `infra/.env`. Não existem variantes
+`:prod`: elas liam um segundo arquivo somado por cima, e num clone novo esse
+arquivo não existia, o que fazia o compose abortar com "couldn't find env file"
+e derrubava `up`, `migrate`, `seed` e `logs` de uma vez.
 
-O nome dos contêineres continua sendo o que distingue de verdade:
+Se a mesma máquina precisar de duas instalações independentes, o que as separa é
+o nome do projeto, não o arquivo de ambiente. Arquivo de ambiente troca a
+configuração da pilha; quem decide quais contêineres e quais volumes o comando
+alcança é o `-p`:
 
-> **Por que alguns nomes de infraestrutura ainda dizem `nerdlms`.** O banco
-> (`nerdlms`), os papéis (`lms_migrator`, `lms_app`) e o bucket
-> (`lms-media`) são identificadores de uma instalação que já existe e tem
-> dados. Renomeá-los não é rebranding: é migração de dados, com downtime, e o
-> do bucket quebra toda URL de mídia já gravada no banco. Nada disso aparece
-> para o usuário. O que ele vê — marca, cores, textos, e-mails, certificado,
-> domínio — é a organização.
->
-> **O projeto do compose era um deles e deixou de ser.** Ele foi renomeado de
-> `nerdlms` para `nerdlms`. O custo é o mesmo dos outros — o nome do
-> projeto é o prefixo dos volumes, e o Docker não move conteúdo entre eles —,
-> mas aqui ele é pago uma vez, com um procedimento escrito e sem tocar em
-> nenhum dado gravado dentro do banco. Ver **Renomear o projeto do compose**,
-> logo abaixo. Numa instalação nova e vazia, não há o que pagar.
+```bash
+docker compose -p nerdlms-homolog -f infra/docker-compose.yml   --env-file infra/.env up -d --build app
+```
 
-- `nerdlms-local-app-1`, `nerdlms-local-db-1` — **local**, subido com
-  `-p nerdlms-local` e `infra/.env.local` (portas 8080/8443, sem TLS, e-mail em
-  log). É o par que se usa para exercitar a instalação nesta máquina sem
-  encostar em produção.
-- `nerdlms-app-1`, `nerdlms-db-1` — **produção**
+O nome do projeto é o prefixo dos volumes, e o Docker não copia conteúdo de um
+para outro. Subir com um nome diferente do que criou os dados entrega uma
+instalação vazia, com o conteúdo anterior intacto e invisível.
 
-Confira antes, sempre:
+Confira em qual você está antes de rodar qualquer coisa que escreva:
 
 ```bash
 docker ps --format '{{.Names}}'
 ```
 
-### Renomear o projeto do compose
+> **Por que alguns nomes de infraestrutura dizem `lms`.** O banco (`nerdlms`),
+> os papéis (`lms_migrator`, `lms_app`) e o bucket (`lms-media`) são
+> identificadores de uma instalação que já tem dados. Renomeá-los não é
+> rebranding, é migração: exige parada, e a do bucket invalida toda URL de mídia
+> já gravada no banco. Nada disso aparece para o usuário. O que ele vê, que é
+> marca, cores, textos, e-mails, certificado e domínio, vem da organização.
 
-Só é preciso em instalação que **já subiu com o nome antigo**. Numa máquina
-nova, os volumes nascem com o nome novo e não há nada a fazer.
-
-O nome do projeto é o prefixo dos volumes: `nerdlms_db-data` e
-`nerdlms_db-data` são volumes DIFERENTES, e o Docker não copia um para o
-outro. Subir com o nome novo sem migrar dá uma instalação vazia, com os dados
-antigos intactos e invisíveis — o que é recuperável, mas assusta.
-
-```bash
-# 1. Derrube com o nome ANTIGO, explicitamente. O script já usa o novo.
-docker compose -p nerdlms -f infra/docker-compose.yml --env-file infra/.env down
-
-# 2. Copie os quatro volumes. `cp -a` preserva dono e permissão, que o
-#    Postgres exige — sem isso ele recusa iniciar.
-for v in db-data storage-data caddy-data caddy-config; do
-  docker volume create "nerdlms_$v"
-  docker run --rm -v "nerdlms_$v":/de -v "nerdlms_$v":/para alpine sh -c 'cd /de && cp -a . /para'
-done
-
-# 3. Suba com o nome novo.
-npm run up:prod
-
-# 4. Confira ANTES de apagar o que sobrou.
-docker exec nerdlms-db-1 sh -c 'psql -U $POSTGRES_USER -d $POSTGRES_DB -c "SELECT count(*) FROM users;"'
-```
-
-Só depois de conferir, e sem pressa nenhuma:
+**O `psql` não aceita `-U nerdlms`.** O papel se chama `lms_migrator`, dono do
+schema, ou `lms_app`, usado pela aplicação. Dentro do contêiner, use as
+variáveis que já estão no ambiente:
 
 ```bash
-for v in db-data storage-data caddy-data caddy-config; do
-  docker volume rm "nerdlms_$v"
-done
-```
-
-**Faça `pg_dump` antes do passo 1.** A cópia de volume com o Postgres parado é
-segura, mas o backup é o que separa um contratempo de uma perda.
-
-O equivalente explícito de `npm run compose`, quando for preciso escrever à mão
-— note que é `nerdlms-local`, o mesmo que o script passa:
-
-```bash
-docker compose -p nerdlms-local -f infra/docker-compose.yml \
-  --env-file infra/.env --env-file infra/.env.local up -d --build app
-```
-
-**O `psql` não aceita `-U nerdlms`.** O papel se chama `lms_migrator` (dono do
-schema) ou `lms_app` (aplicação). Dentro do contêiner, o mais seguro é usar
-as variáveis que já existem lá:
-
-```bash
-docker exec nerdlms-db-1 sh -c \
-  'psql -U $POSTGRES_USER -d $POSTGRES_DB -c "SELECT slug FROM tenants;"'
+docker exec nerdlms-db-1 sh -c   'psql -U $POSTGRES_USER -d $POSTGRES_DB -c "SELECT slug FROM tenants;"'
 ```
 
 ---
+
 
 ## Migrações do banco
 
@@ -729,16 +672,16 @@ para trás.
 
 Isso funciona porque as migrações de ESTRUTURA usam `IF NOT EXISTS`. Mas nem
 toda migração é de estrutura: a `035` é um `UPDATE` que renomeia o tenant, e a
-`002` cria papel de banco. Reaplicar essas no ambiente CERTO é inofensivo — a
+`002` cria papel de banco. Reaplicar essas no ambiente CERTO é inofensivo: a
 `035` filtra por `WHERE slug = 'lms'` e não acha nada na segunda vez. No
 ambiente ERRADO, é uma escrita numa base que nunca deveria tê-la recebido, e
 nenhum `IF NOT EXISTS` protege disso.
 
-Por isso o comando é escolhido pelo AMBIENTE, nunca por hábito:
+Por isso confirme o ambiente antes de migrar, nunca rode por hábito:
 
 ```bash
-npm run migrate        # nerdlms-local — a pilha desta máquina
-npm run migrate:prod   # nerdlms   — produção
+docker ps --format '{{.Names}}'   # em qual instalação estou
+npm run migrate                   # aplica no projeto nerdlms
 ```
 
 Cada arquivo roda numa transação própria, com `ON_ERROR_STOP=1`: um erro
@@ -753,8 +696,8 @@ docker exec nerdlms-db-1 sh -c 'pg_dump -U $POSTGRES_USER -d $POSTGRES_DB' \
 ```
 
 **Uma imagem nova exige o schema dela.** Subir a aplicação sem aplicar as
-migrações correspondentes derruba as telas que dependem das tabelas novas — com
-erro 500, não com uma mensagem clara. A ordem é: migrar, depois subir.
+migrações correspondentes derruba as telas que dependem das tabelas novas, com
+erro 500 e sem mensagem clara. A ordem é: migrar, depois subir.
 
 Para saber em que ponto um ambiente está, procure a tabela mais recente:
 
@@ -787,7 +730,7 @@ não bate com nada; `acme.com` bate.
 desafio ACME. Atrás de túnel, use `SITE_ADDRESS=http://…` como no passo 4.
 
 ```bash
-npm run compose:prod -- logs proxy | tail -30
+npm run compose -- logs proxy | tail -30
 ```
 
 **A logo não carrega.** Abra o console do navegador. Bloqueio de conteúdo misto

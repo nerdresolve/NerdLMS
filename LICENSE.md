@@ -16,7 +16,7 @@ integral, reproduzido abaixo sem alteração.
   autorização.
 - **Rodar como multi-tenant.** Uma holding servindo suas subsidiárias, uma rede
   de franquias servindo os franqueados, uma consultoria treinando a base de
-  clientes dela — tudo isso é uso permitido. O que se vende ali é treinamento,
+  clientes dela: tudo isso é uso permitido. O que se vende ali é treinamento,
   não a plataforma.
 - Ler, estudar, modificar e redistribuir o código.
 - Usar sem limite de usuários, de cursos ou de instalações. Não há chave de
@@ -34,7 +34,7 @@ liberado. Vender a plataforma: converse comigo.
 ### Em quatro anos, vira Apache 2.0
 
 Cada versão publicada passa automaticamente para a **Apache License 2.0** quatro
-anos depois de ser publicada — sem exigir nada de ninguém, e sem que eu possa
+anos depois de ser publicada, sem exigir nada de ninguém e sem que eu possa
 voltar atrás. A versão de hoje é irrestrita em 2030.
 
 Isso existe para você não ficar refém: mesmo no pior cenário, o código que você
@@ -42,8 +42,8 @@ adotou tem data para virar permissivo.
 
 ### Licença comercial
 
-Para o que a concessão acima não cobre — ou para suporte, garantia e
-customização — **contact@nerdresolve.com**.
+Para o que a concessão acima não cobre, ou para suporte, garantia e
+customização, escreva para **contact@nerdresolve.com**.
 
 ---
 

@@ -1,7 +1,7 @@
 # Homologação: contas e acesso
 
 **Endereço:** o que estiver em `SITE_ADDRESS`, no `infra/.env`. Não há domínio
-fixo em código — trocar de endereço é editar uma linha e apontar o DNS.
+fixo em código: trocar de endereço é editar uma linha e apontar o DNS.
 
 Localmente, `http://localhost:3000` com `npm run dev`. Com a pilha completa
 (`npm run up`), `https://localhost`: o
@@ -218,7 +218,7 @@ garante que a tela apresente o estado corretamente:
 
 - **O domínio do certificado.** O endereço de conferência vem de
   `tenants.domain`. Com a coluna vazia, o rodapé imprime "Confira o código com
-  a área de treinamento" — o código é válido e a conferência funciona, mas quem
+  a área de treinamento". O código é válido e a conferência funciona, mas quem
   recebe o documento não tem para onde ir sozinho. Ver `docs/DEPLOY.md`.
 - **Backup** não está configurado. RPO e RTO precisam ser decididos antes da
   produção.

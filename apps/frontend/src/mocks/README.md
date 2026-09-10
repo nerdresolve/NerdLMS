@@ -4,7 +4,7 @@ Tudo que é inventado no projeto está nesta pasta.
 
 **O papel mudou.** Enquanto o banco não existia, estes arquivos eram a fonte das
 telas, e `repository.ts` era a costura que seria trocada. As telas hoje leem do
-PostgreSQL — nenhuma página em `src/features/` ou `src/app/` importa daqui.
+PostgreSQL, e nenhuma página em `src/features/` ou `src/app/` importa daqui.
 
 O que sobrou tem três usos, e só três:
 
@@ -18,7 +18,7 @@ O que sobrou tem três usos, e só três:
 
 `build-seed.mjs` transforma este catálogo em SQL, e o SQL entra com
 `ON CONFLICT DO UPDATE`. Isso significa que **`npm run seed` num banco que já
-tem o conteúdo real da organização traz os cursos fictícios de volta** — sete
+tem o conteúdo real da organização traz os cursos fictícios de volta**: sete
 cursos, vinte módulos, oitenta e quatro aulas.
 
 Num banco vazio é o caminho mais rápido para ter com quem entrar. Num banco em

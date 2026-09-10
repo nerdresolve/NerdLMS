@@ -14,7 +14,7 @@ npm run migrate
 ```
 
 A migração 002 cria o papel `lms_app` **já com a senha** de `APP_DB_PASSWORD`.
-Não há passo manual de `ALTER ROLE` — se você precisou de um, é bug.
+Não há passo manual de `ALTER ROLE`: se você precisou de um, é bug.
 
 Verificar:
 
@@ -24,7 +24,7 @@ docker exec nerdlms-local-db-1 sh -c \
 ```
 
 As migrações são **reaplicáveis**: rodar de novo sobre um banco já migrado não
-quebra nem duplica. Foi preciso consertar isso em duas delas — `ADD CONSTRAINT`
+quebra nem duplica. Foi preciso consertar isso em duas delas, porque `ADD CONSTRAINT`
 sem `DROP CONSTRAINT IF EXISTS` antes falha na segunda execução, e falha depois
 de já ter aplicado metade do arquivo.
 
@@ -42,12 +42,12 @@ abrir nada.
 
 | Papel | Usado por | Pode |
 |---|---|---|
-| `lms_migrator` | migração, no deploy | tudo — é o dono do schema |
+| `lms_migrator` | migração, no deploy | tudo, porque é o dono do schema |
 | `lms_app` | a aplicação | SELECT/INSERT/UPDATE/DELETE, e nada de DDL |
 
 Os nomes vêm do cliente para quem o produto foi especificado antes desta
 implantação. Continuam porque renomear papel e base é migração de
-infraestrutura sem ganho nenhum para quem usa a plataforma — e com risco real
+infraestrutura sem ganho nenhum para quem usa a plataforma, e com risco real
 de deixar a aplicação sem conectar no meio do caminho.
 
 A aplicação **não** usa o dono do schema. Se houver SQL injection, o estrago
@@ -65,7 +65,7 @@ Três tabelas são **somente-inserção**, com UPDATE e DELETE revogados até pa
 | `grade_entries` | refazer a prova lança OUTRA nota; a anterior é histórico |
 
 **Isso tem uma consequência prática que surpreende.** Não dá para apagar curso,
-matrícula ou nota que já tenha uso registrado — o gatilho recusa. Para limpar o
+matrícula ou nota que já tenha uso registrado: o gatilho recusa. Para limpar o
 ambiente de desenvolvimento, o caminho é recriar:
 
 ```bash
@@ -81,18 +81,18 @@ protege o histórico de quem estudou.
 
 Esta é a decisão que mais protege o sistema a longo prazo.
 
-**Derivado por consulta** — progresso de curso, percentual de trilha, moedas
+**Derivado por consulta**: progresso de curso, percentual de trilha, moedas
 ganhas, contagem de votos, orçamento semanal de votos, usuários ativos no
 período. Contador gravado sai de sincronia e ninguém percebe até o relatório
 sair errado.
 
-**Gravado, porque é evento** — moedas gastas (`coin_spends`), voto dado
+**Gravado, porque é evento**: moedas gastas (`coin_spends`), voto dado
 (`comment_votes`), progresso assistido (`lesson_progress`), tentativa de prova
 (`quiz_attempts`), nota lançada (`grade_entries`), pedido de reteste
 (`quiz_retake_requests`), e tudo em `audit_log`.
 
 O orçamento semanal de votos, por exemplo, é `COUNT(*)` sobre `comment_votes`
-na semana ISO corrente. Não há tabela de saldo — saldo gravado permite gastar
+na semana ISO corrente. Não há tabela de saldo, porque saldo gravado permite gastar
 duas vezes numa corrida entre requisições.
 
 **A nota é a exceção que confirma a regra.** `quiz_attempts.score_percent`
@@ -101,7 +101,7 @@ boletim. Parecem o mesmo dado, e não são: o boletim é o que o certificado
 consulta, e a prova com questão dissertativa só fecha a nota quando o instrutor
 corrige. Houve um período em que o envio da prova não lançava em
 `grade_entries`, e o resultado foi certificado impossível de emitir para quem
-tirasse dez — sem nenhuma mensagem explicando.
+tirasse dez, sem nenhuma mensagem explicando.
 
 ## Convenções
 
@@ -133,7 +133,7 @@ não leu esta página.
 ## O que ainda não existe
 
 - **Migração de rollback.** Cada arquivo aplica; nenhum desfaz. Antes de
-  produção, ou há `down`, ou há política de restaurar backup — decidir qual.
+  produção, ou há `down`, ou há política de restaurar backup. Decidir qual.
 - **Backup em rotina.** Ver `docs/DEPLOY.md`. Os dois volumes (`db-data` e
   `storage-data`) precisam entrar na cópia: o `pg_dump` não leva os vídeos.
 - **Particionamento de `audit_log`.** Não é problema no primeiro ano; é

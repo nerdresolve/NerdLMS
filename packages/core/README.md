@@ -3,7 +3,7 @@
 Regras de domínio da plataforma. **Sem framework**: nada aqui sabe o que é
 React, Next, requisição HTTP ou banco de dados.
 
-O teste disso não é uma promessa no README — é o `package.json`, que não declara
+O teste disso não é uma promessa no README: é o `package.json`, que não declara
 nenhuma dependência de runtime. Se um dia precisar de uma, vale a pergunta antes
 de instalar: a regra está no lugar certo?
 
@@ -25,7 +25,7 @@ de instalar: a regra está no lugar certo?
 ### Por que protocolo mora no domínio
 
 `ldap/`, `saml/` e `reports/certificate.ts` parecem infraestrutura, e não são:
-não abrem conexão nem tocam disco. Eles montam e leem **bytes** — uma
+não abrem conexão nem tocam disco. Eles montam e leem **bytes**, e uma
 `SearchRequest` em BER, uma asserção assinada, um PDF. Quem fala com a rede é o
 backend; a gramática do que trafega é regra, e é testável sem nada ligado.
 
@@ -36,9 +36,9 @@ nosso próprio codificador.
 
 ## O que **não** mora aqui, e por quê
 
-- **`session.ts`** — é `server-only`, lê variável de ambiente e cookie.
+- **`session.ts`**: é `server-only`, lê variável de ambiente e cookie.
   Infraestrutura da aplicação, não regra de domínio.
-- **`use-learner-store.ts`** — é React (`useSyncExternalStore`). A store está
+- **`use-learner-store.ts`**: é React (`useSyncExternalStore`). A store está
   aqui; a ligação com o React fica no app.
 - **Dois testes** (`catalog.test.ts` e `learner-store.test.ts`) ficaram no app:
   eles rodam sobre o catálogo fictício inteiro, e essa é a garantia que o
@@ -65,6 +65,6 @@ npm run typecheck --workspace @nerdlms/core
 npm run test --workspace @nerdlms/core      # 1.127 testes, sem rede
 ```
 
-O `tsconfig.json` repete as mesmas regras do app — `strict`,
+O `tsconfig.json` repete as mesmas regras do app: `strict`,
 `noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`. Regra que se afrouxa
 ao mudar de pasta não é a mesma regra.

@@ -1,4 +1,4 @@
-# `infra` — ambiente
+# `infra`: ambiente
 
 Tudo que roda a plataforma fora do código da aplicação.
 
@@ -26,7 +26,7 @@ npm run migrate                     # aplica as migrações
 npm run logs                        # acompanha
 ```
 
-O `.env` fica em `infra/`, ao lado do `docker-compose.yml` — é de lá que o
+O `.env` fica em `infra/`, ao lado do `docker-compose.yml`, e é de lá que o
 compose lê as variáveis.
 
 ## Os três ambientes não se misturam
@@ -66,7 +66,7 @@ npm run check:css                           # variável CSS usada e nunca defini
 roda contra o banco que estiver de pé e tenta, uma a uma, cada alteração que os
 gatilhos de somente-inserção devem recusar. As duas se complementam, e a
 segunda existe porque a migração 040 abriu frestas nesses gatilhos para a
-exclusão de conta cumprir a LGPD — fresta em gatilho de imutabilidade é fácil
+exclusão de conta cumprir a LGPD: fresta em gatilho de imutabilidade é fácil
 de alargar sem perceber.
 
 A exclusão de conta em si não tem tela: é `infra/tools/excluir-conta.mjs`, e o
@@ -81,7 +81,7 @@ O vídeo sobe separado do banco de propósito: ele demora e falha por rede,
 enquanto o banco não. Juntar os dois faria uma falha de upload desfazer a
 importação inteira.
 
-`duracao-mp4.mjs` lê a duração do cabeçalho `mvhd` sem ffmpeg — e sabe somar
+`duracao-mp4.mjs` lê a duração do cabeçalho `mvhd` sem ffmpeg, e sabe somar
 fragmentos, porque um dos vídeos da Exemplo S.A. é MP4 fragmentado e declara
 duração zero no cabeçalho principal.
 

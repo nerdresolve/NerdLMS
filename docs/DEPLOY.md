@@ -15,7 +15,7 @@ simultâneos. Linux, macOS ou Windows.
 
 ## Antes de qualquer coisa: o `.env`
 
-Nenhum `.env` é versionado. Copie o exemplo e **gere segredos próprios** — não
+Nenhum `.env` é versionado. Copie o exemplo e **gere segredos próprios**. Não
 reaproveite os de outro ambiente, nem os que estão nos exemplos.
 
 ```bash
@@ -28,7 +28,7 @@ openssl rand -hex 48   # SESSION_SECRET
 ```
 
 > **Use `-hex`, não `-base64`.** O base64 emite `/`, `+` e `=`; a senha do banco
-> entra dentro de uma URL, e uma barra ali encerra a autoridade — a aplicação
+> entra dentro de uma URL, e uma barra ali encerra a autoridade, e a aplicação
 > sobe e morre com `TypeError: Invalid URL`, sem dizer qual variável está errada.
 
 Os valores que mudam por instalação:
@@ -103,8 +103,8 @@ git clone https://github.com/nerdresolve/NerdLMS.git /opt/nerdlms
 cd /opt/nerdlms
 cp infra/.env.example infra/.env    # preencha
 
-npm run up:prod       # sobe banco, storage, aplicação e proxy
-npm run migrate:prod  # aplica o schema
+npm run up        # sobe banco, storage, aplicação e proxy
+npm run migrate   # aplica o schema
 ```
 
 A aplicação responde em `https://$SITE_ADDRESS`. O Caddy emite certificado da
@@ -115,8 +115,8 @@ Para atualizar depois:
 
 ```bash
 git pull
-npm run migrate:prod
-npm run compose:prod -- up -d --build app
+npm run migrate
+npm run compose -- up -d --build app
 ```
 
 Ou rode o mesmo script que a Action usa:
@@ -129,7 +129,7 @@ CAMINHO=/opt/nerdlms bash .github/deploy-remoto.sh
 
 ## C. Cloudflare Tunnel
 
-Para máquina **sem IP público** — atrás de NAT, num escritório, numa VPS sem
+Para máquina **sem IP público**, atrás de NAT, num escritório ou numa VPS sem
 porta liberada. O container `cloudflared` abre a conexão de dentro para fora, e
 o TLS público termina na borda da Cloudflare. Some a exigência de IP fixo, porta
 aberta na entrada e certificado próprio.
@@ -158,7 +158,7 @@ SITE_ADDRESS=http://lms.suaempresa.com
 ```
 
 Sem ele o Caddy tenta emitir certificado da Let's Encrypt para um domínio cujo
-desafio ACME nunca chega até ele — porque quem atende o mundo é a Cloudflare — e
+desafio ACME nunca chega até ele, porque quem atende o mundo é a Cloudflare, e
 reitera para sempre. E com o domínio configurado só como `localhost`, o Caddy
 recusa o Host que o túnel entrega e responde **421 Misdirected Request**, sem
 log de erro que explique.
@@ -181,7 +181,7 @@ ingress:
 ## O domínio no certificado
 
 O certificado PDF imprime o endereço de conferência a partir da coluna `domain`
-da tabela `tenants` — **não de código**. Vazia, o rodapé imprime "Confira o
+da tabela `tenants`, **não de código**. Vazia, o rodapé imprime "Confira o
 código com a área de treinamento" em vez de um endereço que não resolve.
 
 Depois que o DNS apontar para a instalação:
@@ -231,7 +231,7 @@ gunzip -c backup.sql.gz | docker compose ... exec -T db \
 ```
 
 O storage (vídeos e materiais) é um volume do MinIO. Para S3 real, aponte
-`STORAGE_ENDPOINT` e as chaves para o provedor — a aplicação não distingue.
+`STORAGE_ENDPOINT` e as chaves para o provedor: a aplicação não distingue.
 
 A plataforma também tem exportação por dentro (Administração → Backup), que
 gera um pacote com o conteúdo lógico. Ela **não** substitui o `pg_dump`: serve

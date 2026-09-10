@@ -1,4 +1,4 @@
-# `@nerdlms/backend` — camada de servidor
+# `@nerdlms/backend`: camada de servidor
 
 Tudo que fala com o PostgreSQL, com o storage e com sistemas de fora. **Não
 conhece React nem Next**: recebe dados, devolve dados.
@@ -7,7 +7,7 @@ conhece React nem Next**: recebe dados, devolve dados.
 
 Cada pasta segue a mesma divisão, herdada do que o SCE API faz entre `Service`
 e `Models/DTOs`: o **caso de uso** concentra a regra e a auditoria, o
-**repositório** concentra o SQL, e o contrato — o que entra e o que sai — mora
+**repositório** concentra o SQL, e o contrato, ou seja, o que entra e o que sai, mora
 em `@nerdlms/core`, sem saber que existe banco.
 
 ```
@@ -30,7 +30,7 @@ src/storage/            URL assinada para o arquivo não atravessar a aplicaçã
 
 **`crypto/secret-box.ts`** existe porque nem todo segredo pode virar hash. A
 senha de uma pessoa vira: ninguém precisa saber qual era, só conferir se bate.
-A senha da conta de serviço do Active Directory, não — a aplicação precisa
+A senha da conta de serviço do Active Directory, não: a aplicação precisa
 apresentá-la ao diretório. A chave é derivada do `SESSION_SECRET` por HKDF, com
 rótulo por uso, e mora no ambiente do processo. Isso protege contra o segredo
 sair junto com um dump do banco, que é o caminho que de fato acontece. Não
@@ -46,7 +46,7 @@ Os `route.ts` continuam em `apps/frontend/src/app/api/`, e não por comodismo:
 no Next a rota **é** o arquivo. Movê-los para cá faria o endpoint deixar de
 existir.
 
-Eles são cascas finas — leem o corpo, chamam o caso de uso, montam a resposta:
+Eles são cascas finas: leem o corpo, chamam o caso de uso, montam a resposta:
 
 ```ts
 // apps/frontend/src/app/api/auth/login/route.ts
@@ -59,13 +59,13 @@ próprio, é o `route.ts` que se joga fora, não este pacote.
 ## Por que não há Fastify nem Express
 
 Quem serve HTTP hoje é o Next. Acrescentar um servidor próprio significaria
-segunda imagem, segundo deploy, CORS e uma porta a mais exposta — custo real
+segunda imagem, segundo deploy, CORS e uma porta a mais exposta, um custo real
 por um ganho que ainda não existe. Este pacote é a camada **abaixo** do HTTP, e
 continua válido se essa decisão mudar.
 
 ## Regras de domínio
 
-Não são reescritas aqui — este pacote as chama:
+Não são reescritas aqui. Este pacote as chama:
 
 ```
 packages/core/src/courses/      progresso, catálogo, conclusão, trava do player
@@ -83,4 +83,4 @@ npm run test --workspace @nerdlms/backend      # 49 testes, sem banco e sem rede
 
 Os testes daqui não sobem PostgreSQL: eles conferem a **forma** das consultas e
 das decisões. O que depende de banco é conferido pela tela, contra o ambiente
-local — ver `docs/HOMOLOGACAO.md`.
+local, conforme `docs/HOMOLOGACAO.md`.
