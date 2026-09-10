@@ -23,6 +23,7 @@
     "check:imports": "npm run check:imports --workspace @nerdlms/frontend",
     "check:sql": "node infra/tools/check-sql.mjs",
     "check:encoding": "node infra/tools/check-encoding.mjs",
+    "check:comandos": "node infra/tools/check-comandos.mjs",
     "check:layers": "node infra/tools/check-layers.mjs",
     "check:imutabilidade": "node infra/tools/check-imutabilidade.mjs",
     "verify": "npm run test --workspace @nerdlms/core && npm run test --workspace @nerdlms/backend && npm run verify --workspace @nerdlms/frontend && npm run check:sql && npm run check:encoding && npm run check:layers",

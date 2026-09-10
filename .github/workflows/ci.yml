@@ -68,6 +68,7 @@ jobs:
           npm run check:sql
           npm run check:encoding
           npm run check:layers
+          npm run check:comandos
 
   build:
     name: Build de produção

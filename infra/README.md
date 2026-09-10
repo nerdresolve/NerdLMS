@@ -37,16 +37,15 @@ comando de desenvolvimento de alcançar produção:
 
 | Comando | Projeto | Arquivos de ambiente |
 |---|---|---|
-| `npm run up`, `migrate`, `seed`, `logs`, `down` | `nerdlms-local` | `.env` + `.env.local` |
-| `npm run up:prod`, `migrate:prod` | `nerdlms` | `.env` |
+| `npm run up`, `migrate`, `seed`, `logs` | `nerdlms` | `.env` |
 | `npm run publish`, `migrate:tunnel` | `nerdlms` | `.env` + `.env.tunnel` |
 
-`.env.local` sobrepõe o `.env` porque o Compose lê os dois e o segundo vence. É
-onde ficam os valores que divergem de produção: `SITE_ADDRESS=http://localhost`,
-`MAIL_TRANSPORT=log`.
+É um arquivo de ambiente só. O que muda entre uma máquina de desenvolvimento e
+um servidor, como `SITE_ADDRESS` e `MAIL_TRANSPORT`, muda dentro do próprio
+`.env`.
 
 **Nunca rode `docker compose` sem `-p`.** Sem ele o Compose deduz o nome pela
-pasta, e a dedução não distingue os três.
+pasta, e a dedução não distingue duas instalações na mesma máquina.
 
 ## As ferramentas
 

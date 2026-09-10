@@ -208,7 +208,7 @@ docker compose -f infra/docker-compose.yml --env-file infra/.env ps
 Se o `app` ficar em `unhealthy`:
 
 ```bash
-npm run logs:prod
+npm run logs
 ```
 
 Causas comuns, em ordem de frequência: `DATABASE_URL` com senha diferente da do
