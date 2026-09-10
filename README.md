@@ -12,6 +12,9 @@ clientes, cada um com domínio, marca e cores próprios, sem um enxergar o outro
 [![Licença](https://img.shields.io/badge/licença-BSL%201.1%20→%20Apache%202.0-7C3AED)](LICENSE.md)
 [![Node](https://img.shields.io/badge/node-%E2%89%A522-7C3AED)](.nvmrc)
 
+**[Ver funcionando →](https://lms.nerdresolve.com)** &nbsp;·&nbsp; entre com
+`user.mock` / `usermock`
+
 <img src="docs/capturas/painel-do-aluno.webp" alt="Painel do aluno: curso em andamento, progresso e catálogo" width="100%">
 
 </div>
@@ -105,6 +108,11 @@ escolheu). O certificado é interno e o navegador avisa — é esperado.
 
 > O seed **recusa rodar** sem `-v allow_seed=yes` e usa senhas derivadas do
 > login. É adequado para homologação e inaceitável fora dela.
+
+As mesmas contas valem em **<https://lms.nerdresolve.com>**, uma instalação de
+demonstração com este mesmo seed. É uma vitrine, não um serviço: os dados são
+reapagados a cada atualização e ela pode estar fora do ar sem aviso. Para
+avaliar de verdade, suba a sua — são os três comandos acima.
 
 ### Sem Docker
 
@@ -396,7 +404,7 @@ deste código, ou revendê-lo como produto próprio. A diferença é o que está
 sendo vendido: treinamento, liberado; a plataforma, fale comigo.
 
 Cada versão vira Apache 2.0 quatro anos depois de publicada, automaticamente e
-sem volta. Licença comercial: **contato@mariath.dev**.
+sem volta. Licença comercial: **contact@nerdresolve.com**.
 
 A fonte que acompanha o repositório é a **Manrope**, sob
 [SIL Open Font License 1.1](apps/frontend/public/fonts/OFL.txt) — livre para

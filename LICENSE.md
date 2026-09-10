@@ -43,7 +43,7 @@ adotou tem data para virar permissivo.
 ### Licença comercial
 
 Para o que a concessão acima não cobre — ou para suporte, garantia e
-customização — **contato@mariath.dev**.
+customização — **contact@nerdresolve.com**.
 
 ---
 
@@ -91,7 +91,7 @@ Change Date:          Four years from the date the Licensed Work is published.
 Change License:       Apache License, Version 2.0
 
 For information about alternative licensing arrangements for the Licensed Work,
-please contact contato@mariath.dev.
+please write to contact@nerdresolve.com.
 
 Notice
 
