@@ -48,7 +48,18 @@ function chave(rotulo: string): Buffer {
        alguém seis meses depois. */
     throw new Error(
       "SESSION_SECRET ausente ou curto demais: sem ele não há como guardar segredo cifrado. " +
-        "Gere um com `openssl rand -base64 48` e defina no .env.",
+        "Gere um com `openssl rand -hex 32` e defina no .env.",
+    );
+  }
+
+  /* O valor que vem em `.env.example` tem 17 caracteres e passaria pelo teste
+     de tamanho acima. Como o arquivo é público, quem não o trocou estaria
+     cifrando com uma chave que qualquer pessoa lê no repositório, e o defeito
+     não daria sinal nenhum: tudo funcionaria. */
+  if (raiz.startsWith("troque-este-valor")) {
+    throw new Error(
+      "SESSION_SECRET ainda é o valor de exemplo, que é público. " +
+        "Gere um próprio com `openssl rand -hex 32` e defina no .env.",
     );
   }
 

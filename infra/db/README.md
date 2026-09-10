@@ -7,7 +7,7 @@ e as decisões que o schema sozinho não conta.
 
 ```bash
 cp .env.example .env          # a partir de infra/
-openssl rand -base64 48       # para SESSION_SECRET e senhas
+openssl rand -hex 32          # para SESSION_SECRET e senhas
 
 npm run up        # da raiz do repositório
 npm run migrate
