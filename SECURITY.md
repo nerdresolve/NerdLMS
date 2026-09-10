@@ -3,13 +3,13 @@
 ## Relatar uma vulnerabilidade
 
 **Não abra issue pública.** Use
-[Security → Report a vulnerability](https://github.com/mariathdev/nerdlms/security/advisories/new),
+[Security → Report a vulnerability](https://github.com/nerdresolve/NerdLMS/security/advisories/new),
 que cria um canal privado entre você e quem mantém o projeto.
 
 Se preferir e-mail: **contact@nerdresolve.com**.
 
 Ajuda muito incluir: o que a falha permite fazer, os passos para chegar lá, a
-versão em que você viu, e — se souber — qual arquivo está envolvido.
+versão em que você viu, e, se souber, qual arquivo está envolvido.
 
 Retorno em até 5 dias úteis. Correção conforme a gravidade: dias para o que
 permite acesso a dado de outro cliente ou execução de código, semanas para o

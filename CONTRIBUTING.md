@@ -5,8 +5,8 @@ Obrigado pelo interesse. Este guia é curto de propósito.
 ## Antes de começar
 
 Para **defeito ou proposta**, abra uma issue primeiro. Para **dúvida**, use
-[Discussions](https://github.com/mariathdev/nerdlms/discussions). Para
-**vulnerabilidade**, veja o [SECURITY.md](SECURITY.md) — nunca em issue pública.
+[Discussions](https://github.com/nerdresolve/NerdLMS/discussions). Para
+**vulnerabilidade**, veja o [SECURITY.md](SECURITY.md). Nunca em issue pública.
 
 ## Rodando o projeto
 
@@ -38,7 +38,7 @@ passa lá.
 ## O que o projeto espera do código
 
 **As camadas têm direção.** `frontend → backend → core`. O `core` não conhece
-React nem Postgres — é regra de domínio pura, e é por isso que ela é testável
+React nem Postgres: é regra de domínio pura, e é por isso que ela é testável
 sem subir nada. `check-layers.mjs` reprova import na direção errada.
 
 **Regra de negócio mora no `core`.** Se a regra está num componente ou numa
@@ -64,7 +64,7 @@ Mudança que quebra a versão anterior vira duas entregas.
 ## Personalizar para outro cliente
 
 Se o seu objetivo é rodar isto com outra marca, você provavelmente não precisa
-de um PR — precisa do [WHITELABEL.md](WHITELABEL.md), que cobre marca, cores,
+de um PR, precisa do [WHITELABEL.md](WHITELABEL.md), que cobre marca, cores,
 domínio e tenant sem tocar em código de produto.
 
 Funcionalidade que só faz sentido para uma organização costuma caber melhor num

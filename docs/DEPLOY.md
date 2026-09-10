@@ -54,7 +54,7 @@ imagem no GHCR e atualiza o servidor.
 **No servidor**, uma vez:
 
 ```bash
-git clone https://github.com/mariathdev/nerdlms.git /opt/nerdlms
+git clone https://github.com/nerdresolve/NerdLMS.git /opt/nerdlms
 cd /opt/nerdlms
 cp infra/.env.example infra/.env   # preencha, como acima
 ```
@@ -99,7 +99,7 @@ apontando a imagem para a tag anterior. Sem restaurar backup.
 ## B. Compose no servidor
 
 ```bash
-git clone https://github.com/mariathdev/nerdlms.git /opt/nerdlms
+git clone https://github.com/nerdresolve/NerdLMS.git /opt/nerdlms
 cd /opt/nerdlms
 cp infra/.env.example infra/.env    # preencha
 
