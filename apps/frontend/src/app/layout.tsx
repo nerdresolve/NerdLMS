@@ -1,6 +1,8 @@
 import { NOME_PADRAO } from "@nerdlms/core/tenancy/branding.ts";
 import type { Metadata, Viewport } from "next";
 
+import { headers } from "next/headers";
+
 import { tenantOfRequest } from "@/lib/tenant-request.ts";
 import localFont from "next/font/local";
 
@@ -64,7 +66,12 @@ export const viewport: Viewport = {
   ],
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  /* O `nonce` que o middleware sorteou para esta resposta. O Next carimba
+     sozinho as tags que ele mesmo emite, mas não esta, que é nossa. Sem o
+     atributo o navegador bloqueia o script e a página fica sem tema. */
+  const nonce = (await headers()).get("x-nonce") ?? undefined;
+
   return (
     <html lang="pt-BR" className={manrope.variable} data-theme="dark" suppressHydrationWarning>
       <head>
@@ -73,7 +80,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             clarear. O `data-theme` acima é o padrão do servidor, que este
             script sobrescreve quando há escolha salva — daí o
             `suppressHydrationWarning`. */}
-        <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
+        <script nonce={nonce} dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
       </head>
       <body>{children}</body>
     </html>

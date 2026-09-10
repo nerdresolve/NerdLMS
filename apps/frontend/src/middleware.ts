@@ -3,20 +3,21 @@ import { NextResponse, type NextRequest } from "next/server";
 /**
  * Content-Security-Policy da aplicação.
  *
- * Mora aqui, e não em `next.config.ts`, porque o plano era emitir um nonce por
- * requisição — e header estático não gera valor novo a cada resposta. O nonce
- * não vingou (ver a nota em `script-src`), mas o middleware fica: é daqui que
- * ele volta quando o Next cooperar, e ter os dois lugares emitindo CSP faria o
- * navegador aplicar a interseção das duas, que é como a página some da tela.
+ * Mora aqui, e não em `next.config.ts`, porque o nonce muda a cada requisição e
+ * header estático não gera valor novo a cada resposta. Os dois lugares emitindo
+ * CSP ao mesmo tempo fariam o navegador aplicar a interseção das duas, que é
+ * como a página some da tela.
  *
  * Histórico do bug que trouxe este arquivo à existência: com `script-src
  * 'self'` puro, o navegador bloqueava os `<script>` inline que o Next usa para
  * mandar o payload de hidratação. O SSR pintava a tela, a hidratação falhava, o
- * React desmontava a árvore — e sobrava uma página em branco com o `<body>` só
- * de `<script>`. O HTML do servidor estava perfeito o tempo todo; o defeito só
- * aparecia executando a página num navegador de verdade.
+ * React desmontava a árvore e sobrava uma página em branco com o `<body>` só de
+ * `<script>`. O HTML do servidor estava perfeito o tempo todo; o defeito só
+ * aparecia executando a página num navegador de verdade, e é por isso que
+ * mexer nesta CSP pede teste em navegador, não em `curl`.
  */
-export function middleware(_request: NextRequest) {
+export function middleware(request: NextRequest) {
+  const nonce = Buffer.from(crypto.randomUUID()).toString("base64");
   const csp = [
     "default-src 'self'",
     "base-uri 'self'",
@@ -30,29 +31,31 @@ export function middleware(_request: NextRequest) {
     "font-src 'self'",
     "style-src 'self' 'unsafe-inline'",
     /*
-     * `'unsafe-inline'` é dívida consciente, registrada como ISSUE-012.
+     * Nonce por requisição, sem `'unsafe-inline'`.
      *
-     * O certo é nonce. Foi tentado três vezes — com `x-nonce`, com a CSP também
-     * no header da requisição, com e sem `'strict-dynamic'` — e no `output:
-     * "standalone"` o Next não carimbou `nonce=` em nenhuma das 15 tags. Sem o
-     * carimbo, `'strict-dynamic'` (que desliga o `'self'`) bloqueia até os
-     * chunks da própria origem.
+     * Isto já foi dívida registrada como ISSUE-012: em versões anteriores o
+     * Next não carimbava `nonce=` nas tags que ele mesmo emite no `output:
+     * "standalone"`, e sem o carimbo o `'strict-dynamic'` (que desliga o
+     * `'self'`) bloqueava até os chunks da própria origem. A saída era
+     * `'unsafe-inline'`, que deixa passar qualquer script injetado.
      *
-     * E não adianta emitir o nonce "por via das dúvidas" junto com
-     * `'unsafe-inline'`: pela especificação, a presença de nonce **anula** o
-     * `'unsafe-inline'`. Foi o navegador que disse isso, em texto:
-     * "'unsafe-inline' is ignored if either a hash or nonce value is present".
+     * No 15.5.25 o Next carimba. A única tag que continua sendo nossa é o
+     * script de tema em `app/layout.tsx`, que lê o `x-nonce` abaixo e se
+     * carimba sozinho. Se um dia voltar a página em branco, é aqui e lá que
+     * se olha.
      *
-     * O que continua de pé: `'self'` segue lá e não há allowlist de terceiros,
-     * então nenhuma origem externa executa script. O que se perde é a proteção
-     * contra script inline injetado — que é justamente o que o nonce daria.
+     * Não existe meio-termo: pela especificação, a presença de nonce anula o
+     * `'unsafe-inline'`, então não adianta emitir os dois por via das dúvidas.
      */
-    "script-src 'self' 'unsafe-inline'",
+    `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'`,
     "connect-src 'self'",
     "upgrade-insecure-requests",
   ].join("; ");
 
-  const response = NextResponse.next();
+  const headers = new Headers(request.headers);
+  headers.set("x-nonce", nonce);
+  headers.set("Content-Security-Policy", csp);
+  const response = NextResponse.next({ request: { headers } });
   response.headers.set("Content-Security-Policy", csp);
   return response;
 }
