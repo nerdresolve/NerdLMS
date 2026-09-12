@@ -49,10 +49,16 @@ does. The comment records the decision: what was tried before, what broke, why
 this shape and not the obvious one. A comment that paraphrases the next line is
 noise.
 
-**Portuguese in what the user reads and in what the team reads.** Interface,
-comments, commit messages and migration names in Portuguese. Code identifiers in
-English when the term is technical (`enrollment`, `tenant`), in Portuguese when
-it is domain vocabulary (`aproveitamento`, `trilha`).
+**English in what the team reads, Portuguese in what the user reads.** This
+repository is public, so documentation, comments, commit messages and new code
+identifiers are in English. The product interface stays in Portuguese: the
+people using it are Brazilian, and translating a screen nobody asked to have
+translated only adds a layer to maintain.
+
+Existing Portuguese identifiers stay as they are. Domain vocabulary with no
+clean English equivalent (`aproveitamento`, `trilha`) and names other modules
+already import are not worth a rename: the churn buys nothing and breaks
+imports. New code, new names in English.
 
 **No credentials, real email addresses or client names.** The repository is
 public and white-label. In examples, use `exemplo.com.br`.
