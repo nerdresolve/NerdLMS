@@ -4,56 +4,57 @@
 
 # NerdResolve LMS
 
-**Plataforma de ensino corporativo white-label.** Uma instalação atende vários
-clientes, cada um com domínio, marca e cores próprios, sem um enxergar o outro.
+**White-label corporate training platform.** One install serves several
+clients, each with its own domain, brand and colors, none of them seeing the
+others.
 
 [![CI](https://github.com/nerdresolve/NerdLMS/actions/workflows/ci.yml/badge.svg)](https://github.com/nerdresolve/NerdLMS/actions/workflows/ci.yml)
-[![Segurança](https://github.com/nerdresolve/NerdLMS/actions/workflows/seguranca.yml/badge.svg)](https://github.com/nerdresolve/NerdLMS/actions/workflows/seguranca.yml)
-[![Licença](https://img.shields.io/badge/licença-BSL%201.1%20→%20Apache%202.0-7C3AED)](LICENSE.md)
+[![Security](https://github.com/nerdresolve/NerdLMS/actions/workflows/seguranca.yml/badge.svg)](https://github.com/nerdresolve/NerdLMS/actions/workflows/seguranca.yml)
+[![License](https://img.shields.io/badge/license-BSL%201.1%20→%20Apache%202.0-7C3AED)](LICENSE.md)
 [![Node](https://img.shields.io/badge/node-%E2%89%A522-7C3AED)](.nvmrc)
 
-**[Ver funcionando →](https://lms.nerdresolve.com)** &nbsp;·&nbsp; entre com
+**[See it running →](https://lms.nerdresolve.com)** &nbsp;·&nbsp; sign in with
 `user.mock` / `usermock`
 
-<img src="docs/capturas/painel-do-aluno.webp" alt="Painel do aluno: curso em andamento, progresso e catálogo" width="100%">
+<img src="docs/capturas/painel-do-aluno.webp" alt="Student dashboard: course in progress, progress and catalog" width="100%">
 
 </div>
 
 ---
 
-## Índice
+## Contents
 
-- [Por que existe](#por-que-existe)
-- [Subir em 5 minutos](#subir-em-5-minutos)
-- [O que cada pessoa faz aqui](#o-que-cada-pessoa-faz-aqui)
-- [Como o progresso é medido](#como-o-progresso-é-medido)
-- [Arquitetura](#arquitetura)
-- [Personalizar para o seu cliente](#personalizar-para-o-seu-cliente)
-- [Publicar](#publicar)
-- [Qualidade](#qualidade)
-- [Interoperabilidade](#interoperabilidade)
-- [Segurança](#segurança)
-- [Referência de comandos](#referência-de-comandos)
-
----
-
-## Por que existe
-
-Plataforma de treinamento corporativo costuma ser alugada por usuário ativo. O
-limite é contratual, não técnico. O histórico de quem cursou o quê, com que nota
-e em que data fica na base de outra empresa, e quando o contrato termina a
-exportação é um CSV, se houver.
-
-Aqui você hospeda, é dono do dado e a marca na tela é a sua.
-
-**Estado atual:** 38 telas, 65 rotas de API, 83 tabelas, 46 migrações e 1.444
-testes automatizados.
+- [Why it exists](#why-it-exists)
+- [Up in 5 minutes](#up-in-5-minutes)
+- [What each person does here](#what-each-person-does-here)
+- [How progress is measured](#how-progress-is-measured)
+- [Architecture](#architecture)
+- [Customizing for your client](#customizing-for-your-client)
+- [Deploying](#deploying)
+- [Quality](#quality)
+- [Interoperability](#interoperability)
+- [Security](#security)
+- [Command reference](#command-reference)
 
 ---
 
-## Subir em 5 minutos
+## Why it exists
 
-Precisa de **Node 22+** e **Docker**.
+Corporate training platforms are usually rented per active user. The cap is
+contractual, not technical. The record of who took what, with what grade and on
+what date lives in another company's database, and when the contract ends the
+export is a CSV, if there is one at all.
+
+Here you host it, you own the data, and the brand on screen is yours.
+
+**Current state:** 38 screens, 65 API routes, 83 tables, 46 migrations and
+1,444 automated tests.
+
+---
+
+## Up in 5 minutes
+
+You need **Node 22+** and **Docker**.
 
 ```bash
 git clone https://github.com/nerdresolve/NerdLMS.git
@@ -63,22 +64,22 @@ npm ci
 cp infra/.env.example infra/.env
 ```
 
-Abra `infra/.env` e gere um valor para cada segredo:
+Open `infra/.env` and generate a value for each secret:
 
 ```bash
 openssl rand -hex 32   # POSTGRES_PASSWORD
-openssl rand -hex 32   # APP_DB_PASSWORD  (repita dentro da DATABASE_URL)
+openssl rand -hex 32   # APP_DB_PASSWORD  (repeat it inside DATABASE_URL)
 openssl rand -hex 32   # STORAGE_SECRET_KEY
 openssl rand -hex 48   # SESSION_SECRET
 ```
 
-> **`-hex`, não `-base64`.** O base64 emite `/` e `+`. A senha da aplicação
-> entra dentro de `DATABASE_URL=postgres://lms_app:SENHA@db:5432/nerdlms`, e uma
-> barra ali encerra a autoridade da URL: o contêiner sobe e morre com
-> `TypeError: Invalid URL`, sem dizer qual variável está errada.
+> **`-hex`, not `-base64`.** Base64 emits `/` and `+`. The application password
+> goes inside `DATABASE_URL=postgres://lms_app:PASSWORD@db:5432/nerdlms`, and a
+> slash there ends the URL's authority: the container starts and dies with
+> `TypeError: Invalid URL`, without saying which variable is wrong.
 
-Se as portas 80 e 443 já estiverem ocupadas na sua máquina, ajuste no mesmo
-arquivo:
+If ports 80 and 443 are already taken on your machine, adjust them in the same
+file:
 
 ```ini
 HTTP_PORT=9080
@@ -86,158 +87,161 @@ HTTPS_PORT=9443
 STORAGE_PUBLIC_ENDPOINT=https://localhost:9443
 ```
 
-Então:
+Then:
 
 ```bash
-npm run up        # banco, storage, aplicação e proxy
-npm run migrate   # aplica as 46 migrações
-npm run seed      # catálogo e contas de demonstração
+npm run up        # database, storage, application and proxy
+npm run migrate   # applies the 46 migrations
+npm run seed      # catalog and demo accounts
 ```
 
-A plataforma responde em **<https://localhost>** (ou na porta que você
-escolheu). O certificado é interno, então o navegador avisa. É esperado.
+The platform answers at **<https://localhost>** (or at the port you chose). The
+certificate is internal, so the browser warns you. That is expected.
 
-### Contas de demonstração
+### Demo accounts
 
-| Perfil | Usuário | Senha |
+| Role | User | Password |
 |---|---|---|
-| Administrador | `admin.mock` | `adminmock` |
-| Gestor | `manager.mock` | `managermock` |
-| Instrutor | `instructor.mock` | `instructormock` |
-| Aluno | `user.mock` | `usermock` |
+| Administrator | `admin.mock` | `adminmock` |
+| Manager | `manager.mock` | `managermock` |
+| Instructor | `instructor.mock` | `instructormock` |
+| Student | `user.mock` | `usermock` |
 
-> O seed **recusa rodar** sem `-v allow_seed=yes` e usa senhas derivadas do
-> login. É adequado para homologação e inaceitável fora dela.
+> The seed **refuses to run** without `-v allow_seed=yes` and uses passwords
+> derived from the login. It is fine for staging and unacceptable outside it.
 
-As mesmas contas valem em **<https://lms.nerdresolve.com>**, uma instalação de
-demonstração com este mesmo seed. É uma vitrine, não um serviço: os dados são
-reapagados a cada atualização e ela pode estar fora do ar sem aviso. Para
-avaliar de verdade, suba a sua com os três comandos acima.
+The same accounts work at **<https://lms.nerdresolve.com>**, a demo install
+running this same seed. It is a showcase, not a service: the data is wiped on
+every update and it may be down without notice. To evaluate it properly, bring
+up your own with the three commands above.
 
-### Sem Docker
+### Without Docker
 
-Os testes, os portões de acessibilidade e o protótipo navegável rodam sem nada
-além do npm:
+The tests, the accessibility gates and the clickable prototype run with nothing
+but npm:
 
 ```bash
-npm run test          # 1.444 testes
-npm run test:a11y     # contraste WCAG AA, token a token
-npm run preview       # gera apps/frontend/preview/*.html
+npm run test          # 1,444 tests
+npm run test:a11y     # WCAG AA contrast, token by token
+npm run preview       # generates apps/frontend/preview/*.html
 ```
 
-Abra qualquer arquivo de `apps/frontend/preview/` no navegador: são as 21 telas
-com o CSS real do produto e dados do seed, sem servidor.
+Open any file from `apps/frontend/preview/` in a browser: those are the 21
+screens with the product's real CSS and seed data, no server involved.
 
 ---
 
-## O que cada pessoa faz aqui
+## What each person does here
 
-### Aluno
+### Student
 
-<img src="docs/capturas/aula.webp" alt="Tela de aula: player, materiais e conteúdo do curso" width="100%">
+<img src="docs/capturas/aula.webp" alt="Lesson screen: player, materials and course content" width="100%">
 
-Assiste à aula, baixa o material, comenta, faz a prova e recebe o certificado.
-A aula **retoma de onde parou**, no computador ou no celular.
+Watches the lesson, downloads the material, comments, takes the exam and
+receives the certificate. The lesson **picks up where it left off**, on desktop
+or on the phone.
 
-O catálogo separa o que está em andamento, concluído e salvo. Há trilhas
-(sequências de cursos), agenda com prazos, e conquistas: moedas por aula
-concluída, distintivos por marco, e um destaque mensal por contribuição no
-fórum, não por velocidade.
+The catalog separates what is in progress, completed and saved. There are
+tracks (course sequences), a schedule with deadlines, and achievements: coins
+per completed lesson, badges per milestone, and a monthly highlight for forum
+contribution, not for speed.
 
-<img src="docs/capturas/catalogo.webp" alt="Catálogo: filtros por situação e cartões de curso com progresso" width="100%">
+<img src="docs/capturas/catalogo.webp" alt="Catalog: filters by status and course cards with progress" width="100%">
 
-### Instrutor
+### Instructor
 
-<img src="docs/capturas/estudio-do-instrutor.webp" alt="Estúdio do instrutor: lista de cursos com módulos, aulas e situação" width="100%">
+<img src="docs/capturas/estudio-do-instrutor.webp" alt="Instructor studio: course list with modules, lessons and status" width="100%">
 
-Cria curso, módulo e aula. Envia vídeo, PDF, planilha, pacote SCORM ou H5P.
-Monta prova a partir de um banco de questões, corrige dissertativa por rubrica
-e decide os pedidos de reteste, liberando ou recusando **com comentário
-obrigatório**.
+Creates courses, modules and lessons. Uploads video, PDF, spreadsheet, SCORM
+package or H5P. Builds an exam from a question bank, grades essay answers by
+rubric and decides on retake requests, granting or refusing them **with a
+mandatory comment**.
 
-Vê o engajamento da turma: quem começou, quem parou, onde o vídeo perde gente.
-Meses depois, registra a **eficácia do treinamento**: se o desempenho mudou de
-verdade, que é a pergunta que a fiscalização faz.
+Sees how the class is engaging: who started, who stopped, where the video loses
+people. Months later, records the **training effectiveness**: whether
+performance actually changed, which is the question auditors ask.
 
-### Gestor
+### Manager
 
-Acompanha a própria equipe: quem está em dia, quem vence prazo, quem nunca
-começou. O recorte é por unidade organizacional, e ele não enxerga fora dela.
+Follows their own team: who is on track, who is about to miss a deadline, who
+never started. The scope is the organizational unit, and they cannot see
+outside it.
 
-### Administrador
+### Administrator
 
-<img src="docs/capturas/painel-da-plataforma.webp" alt="Painel da plataforma: relatórios, visão geral e atividade por unidade" width="100%">
+<img src="docs/capturas/painel-da-plataforma.webp" alt="Platform dashboard: reports, overview and activity by unit" width="100%">
 
-Pessoas, acesso e auditoria. Competências e plano de formação por cargo.
-Trilhas por função e por local. Distintivos, biblioteca de conteúdos,
-integrações e a marca do cliente.
+People, access and auditing. Competencies and training plans by job title.
+Tracks by role and by location. Badges, content library, integrations and the
+client's brand.
 
-Os relatórios saem em CSV com recorte por período e por unidade.
-
----
-
-## Como o progresso é medido
-
-Vale entender antes de adotar, porque é aqui que as plataformas diferem.
-
-**Concluir uma aula exige 90% de cobertura do vídeo com tempo de sessão
-compatível.** Arrastar a barra até o fim não conta: o tempo real assistido é
-comparado com a duração da aula, e uma sessão curta demais é recusada. O avanço
-para trecho não assistido é bloqueado, e isso se configura por curso:
-treinamento obrigatório e comunicado interno não pedem o mesmo rigor. Retroceder
-é livre, e a velocidade vai até 2x.
-
-**A prova só libera quando as aulas terminam**, e o botão diz quantas faltam em
-vez de deixar clicar e recusar depois. Nota de 0 a 10, com aprovação
-configurável. Quem reprova precisa **pedir reteste ao instrutor**, que libera
-ou recusa. Não é autosserviço.
-
-**O certificado é conferível.** O código em `/validar` não é consultado numa
-lista: a verificação reavalia matrícula, conclusão e nota, aplicando a mesma
-regra da emissão. Um certificado de alguém que foi desmatriculado depois não
-valida.
+Reports come out as CSV, scoped by period and by unit.
 
 ---
 
-## Arquitetura
+## How progress is measured
+
+Worth understanding before adopting, because this is where platforms differ.
+
+**Completing a lesson requires 90% video coverage with a matching session
+time.** Dragging the bar to the end does not count: the actual time watched is
+compared against the lesson's duration, and a session that is too short is
+refused. Seeking into an unwatched stretch is blocked, and that is configurable
+per course: mandatory training and an internal announcement do not call for the
+same rigor. Going back is free, and speed goes up to 2x.
+
+**The exam only unlocks once the lessons are done**, and the button says how
+many are left instead of letting you click and refusing afterwards. Grades from
+0 to 10, with a configurable pass mark. Whoever fails has to **ask the
+instructor for a retake**, who grants or refuses it. It is not self-service.
+
+**The certificate is verifiable.** The code at `/validar` is not looked up in a
+list: verification re-evaluates enrollment, completion and grade, applying the
+same rule as issuance. A certificate belonging to someone who was unenrolled
+afterwards does not validate.
+
+---
+
+## Architecture
 
 ```
-apps/frontend/    Next.js 15 + React 19: telas e rotas HTTP
-apps/backend/     casos de uso, repositórios e integrações
-packages/core/    regra de domínio pura: sem React, sem SQL, sem framework
-infra/            docker-compose, migrações, proxy e ferramentas
+apps/frontend/    Next.js 15 + React 19: screens and HTTP routes
+apps/backend/     use cases, repositories and integrations
+packages/core/    pure domain rules: no React, no SQL, no framework
+infra/            docker-compose, migrations, proxy and tooling
 ```
 
-As camadas têm direção (`frontend → backend → core`) e um portão automático
-(`npm run check:layers`) reprova import na direção errada.
+The layers have a direction (`frontend → backend → core`) and an automated gate
+(`npm run check:layers`) fails an import going the wrong way.
 
-Isso mantém a regra de negócio testável sem subir infraestrutura: os **1.357
-testes do `core` rodam em segundos, sem Docker e sem banco**. A regra que decide
-se uma aula pode ser concluída é uma função pura sobre números; o repositório
-que lê o Postgres é outra coisa, em outra camada.
+That keeps business rules testable without bringing up infrastructure: the
+**1,357 `core` tests run in seconds, with no Docker and no database**. The rule
+that decides whether a lesson can be completed is a pure function over numbers;
+the repository that reads Postgres is another thing, in another layer.
 
-`apps/backend` não sobe um servidor próprio. Ele é a camada que as rotas do
-Next chamam: o `route.ts` continua em `apps/frontend/src/app/api/`, porque no
-Next a rota é o arquivo. Essas rotas são cascas finas.
+`apps/backend` does not run a server of its own. It is the layer the Next routes
+call: `route.ts` still lives in `apps/frontend/src/app/api/`, because in Next
+the route *is* the file. Those routes are thin shells.
 
-### Multi-tenant desde o schema
+### Multi-tenant from the schema up
 
-Toda consulta filtra por `tenant_id`, e há teste automatizado cobrindo o
-isolamento (`query-isolation.test.ts`). O tenant vem do domínio da requisição;
-sem domínio cadastrado, cai no padrão.
+Every query filters by `tenant_id`, and an automated test covers the isolation
+(`query-isolation.test.ts`). The tenant comes from the request's domain; with
+no domain registered, it falls back to the default.
 
 ---
 
-## Personalizar para o seu cliente
+## Customizing for your client
 
-São **duas camadas**, e confundi-las é o erro comum.
+There are **two layers**, and confusing them is the common mistake.
 
-### A marca do produto
+### The product brand
 
-Quem opera a plataforma. Aparece enquanto o domínio não identificar nenhum
-cliente: acesso inicial, login, recuperação de senha, validação de certificado.
+Whoever operates the platform. It shows up as long as the domain does not
+identify any client: the entry page, login, password recovery, certificate
+validation.
 
-Um arquivo:
+One file:
 
 ```ts
 // packages/core/src/brand/brand.config.ts
@@ -245,173 +249,175 @@ export const NOME = "Academia ACME";
 export const COR  = "#0F766E";
 ```
 
-Troque os quatro PNGs em `apps/frontend/public/brand/` (mantendo nomes e
-proporções), rode `npm run preview` e pronto. A rampa de cor da interface fica
-em `apps/frontend/src/styles/nerd-ds/tokens/colors.css`.
+Swap the four PNGs in `apps/frontend/public/brand/` (keeping names and
+proportions), run `npm run preview` and you are done. The interface's color ramp
+lives in `apps/frontend/src/styles/nerd-ds/tokens/colors.css`.
 
 ```bash
 npm run test:a11y
 ```
 
-**Reprova se a cor nova não passar em contraste WCAG AA.** É de propósito:
-acessibilidade é régua do produto, não escolha por cliente.
+**It fails if the new color does not pass WCAG AA contrast.** That is on
+purpose: accessibility is a product standard, not a per-client choice.
 
-### A marca do cliente
+### The client brand
 
-Cada tenant informa **uma cor** e as próprias logos, pela tela
-Administração → Plataforma. As demais cores (hover, ativo, superfície, cor de
-texto) são derivadas em `core/tenancy/branding.ts` de modo a nunca reprovar em
-contraste.
+Each tenant supplies **one color** and its own logos, through the
+Administration → Platform screen. The remaining colors (hover, active, surface,
+text color) are derived in `core/tenancy/branding.ts` in a way that can never
+fail contrast.
 
-É uma cor só porque pedir seis convidaria a combinações ilegíveis.
+It is a single color because asking for six would invite unreadable
+combinations.
 
-O passo a passo completo (tenant, domínio, e-mail, marca por cliente) está em
+The full walkthrough (tenant, domain, email, per-client branding) is in
 [WHITELABEL.md](WHITELABEL.md).
 
 ---
 
-## Publicar
+## Deploying
 
 ```bash
 git tag v1.0.0 && git push origin v1.0.0
 ```
 
-A [Action de deploy](.github/workflows/deploy.yml) roda os portões, publica a
-imagem no GHCR e atualiza o servidor: **migra o banco, troca o container e
-espera o healthcheck** antes de declarar sucesso. Se a aplicação subir quebrada,
-o job falha com as últimas 50 linhas do log.
+The [deploy Action](.github/workflows/deploy.yml) runs the gates, publishes the
+image to GHCR and updates the server: it **migrates the database, swaps the
+container and waits for the healthcheck** before declaring success. If the
+application comes up broken, the job fails with the last 50 lines of the log.
 
-As migrações rodam **antes** da troca do container, e cada uma precisa aceitar a
-versão anterior da aplicação, e por isso o rollback é uma troca de tag em vez
-de uma restauração de backup.
+Migrations run **before** the container swap, and each one has to accept the
+previous version of the application, which is why a rollback is a tag change
+instead of a backup restore.
 
-Sem os secrets de SSH configurados, a Action publica a imagem e **pula** o
-deploy, sem erro. Três caminhos (Actions, Compose direto, Cloudflare Tunnel para
-máquina sem IP público) em [docs/DEPLOY.md](docs/DEPLOY.md).
+Without the SSH secrets configured, the Action publishes the image and **skips**
+the deploy, without erroring. Three paths (Actions, Compose directly, Cloudflare
+Tunnel for a machine with no public IP) in [docs/DEPLOY.md](docs/DEPLOY.md).
 
 ---
 
-## Qualidade
+## Quality
 
 ```bash
 npm run verify
 ```
 
-O mesmo que a CI roda:
+The same thing CI runs:
 
-| Portão | O que pega |
+| Gate | What it catches |
 |---|---|
-| `test` | 1.444 testes de unidade |
-| `test:a11y` | contraste WCAG AA, token a token, nos dois temas |
-| `quality` | orçamento de peso por página, imagem sem dimensão, classe sem CSS |
-| `check:imports` | pacote importado sem estar declarado |
-| `check:hydration` | data sem fuso em componente de cliente |
-| `perf` | rolagem horizontal, alvo de toque, foco visível |
-| `check:sql` | estrutura das migrações |
-| `check:encoding` | fonte fora de UTF-8 |
-| `check:layers` | import na direção errada |
+| `test` | 1,444 unit tests |
+| `test:a11y` | WCAG AA contrast, token by token, in both themes |
+| `quality` | per-page weight budget, image without dimensions, class without CSS |
+| `check:imports` | package imported without being declared |
+| `check:hydration` | date without a timezone in a client component |
+| `perf` | horizontal scrolling, touch target, visible focus |
+| `check:sql` | migration structure |
+| `check:encoding` | source file outside UTF-8 |
+| `check:layers` | import going the wrong way |
 
-Os quatro últimos rodam dentro do workspace do frontend; `npm run verify` na
-raiz encadeia todos.
+The last four run inside the frontend workspace; `npm run verify` at the root
+chains them all.
 
-Em cada PR e toda semana: CodeQL, `npm audit` e Gitleaks sobre o histórico.
+On every PR and every week: CodeQL, `npm audit` and Gitleaks over the history.
 
-Os portões existem porque cada um nasceu de um defeito que passou. O de
-hidratação veio de um botão de copiar badge que travava a página; o de classes
-sem CSS, de cinco vezes em que um estilo foi reusado e a regra não foi junto.
+The gates exist because each one came out of a defect that slipped through. The
+hydration one came from a badge copy button that froze the page; the one for
+classes without CSS, from five occasions where a style was reused and the rule
+did not come along.
 
 ---
 
-## Interoperabilidade
+## Interoperability
 
-| Padrão | Situação |
+| Standard | Status |
 |---|---|
-| **SCORM 1.2 e 2004** | importa pacote, rastreia progresso e nota |
-| **xAPI (Tin Can)** | LRS próprio, com anonimização |
-| **cmi5** | launch e fetch |
-| **LTI 1.3** | com AGS (nota de volta) e NRPS (lista da turma) |
-| **Open Badges** | emissão com verificação pública |
-| **H5P** | importa `.h5p` como conteúdo interativo |
-| **LDAP / Active Directory** | diretório como fonte de identidade e papel |
-| **SAML 2.0, Google, Microsoft** | entrada pela conta da empresa |
+| **SCORM 1.2 and 2004** | imports the package, tracks progress and grade |
+| **xAPI (Tin Can)** | built-in LRS, with anonymization |
+| **cmi5** | launch and fetch |
+| **LTI 1.3** | with AGS (grade passback) and NRPS (class roster) |
+| **Open Badges** | issuance with public verification |
+| **H5P** | imports `.h5p` as interactive content |
+| **LDAP / Active Directory** | directory as the source of identity and role |
+| **SAML 2.0, Google, Microsoft** | sign-in with the company account |
 
-O armazenamento é compatível com S3 (MinIO no compose). Trocar por S3 real é
-mudar variável de ambiente, não código.
-
----
-
-## Segurança
-
-- Contêineres sem root, sistema de arquivos somente-leitura, sem capacidades
-  extras
-- Banco e storage **sem porta publicada**: só o proxy fala com a internet
-- Duas redes: o banco não alcança a internet nem é alcançado por ela
-- Papel da aplicação no Postgres **sem permissão de DDL**, separado do dono do
-  schema
-- Auditoria em tabela somente-inserção, com gatilho que recusa UPDATE e DELETE
-- Segredos cifrados em repouso
-- Exclusão de conta que o schema promete e o banco cumpre (LGPD)
-
-Encontrou uma falha? Veja o [SECURITY.md](SECURITY.md). Nunca em issue
-pública.
+Storage is S3-compatible (MinIO in the compose file). Swapping it for real S3 is
+an environment variable change, not a code change.
 
 ---
 
-## Referência de comandos
+## Security
 
-| Comando | O que faz |
+- Containers without root, read-only filesystem, no extra capabilities
+- Database and storage **with no published port**: only the proxy talks to the
+  internet
+- Two networks: the database neither reaches the internet nor is reached by it
+- Application role in Postgres **without DDL permission**, separate from the
+  schema owner
+- Auditing in an insert-only table, with a trigger that refuses UPDATE and
+  DELETE
+- Secrets encrypted at rest
+- Account deletion that the schema promises and the database delivers (LGPD)
+
+Found a flaw? See [SECURITY.md](SECURITY.md). Never in a public issue.
+
+---
+
+## Command reference
+
+| Command | What it does |
 |---|---|
-| `npm run dev` | Next em modo desenvolvimento, em `localhost:3000` |
-| `npm run up` | sobe a pilha completa atrás do proxy |
-| `npm run down` | derruba a pilha |
-| `npm run migrate` | aplica as migrações |
-| `npm run seed` | dados de homologação (**nunca em produção**) |
-| `npm run logs` | acompanha os logs |
-| `npm run verify` | todos os portões |
-| `npm run typecheck` | tipos nos três workspaces |
-| `npm run preview` | gera o protótipo navegável |
-| `npm run build` | build de produção |
+| `npm run dev` | Next in development mode, at `localhost:3000` |
+| `npm run up` | brings up the full stack behind the proxy |
+| `npm run down` | tears the stack down |
+| `npm run migrate` | applies the migrations |
+| `npm run seed` | staging data (**never in production**) |
+| `npm run logs` | follows the logs |
+| `npm run verify` | all the gates |
+| `npm run typecheck` | types across the three workspaces |
+| `npm run preview` | generates the clickable prototype |
+| `npm run build` | production build |
 
-`npm run dev` e `npm run up` servem em **endereços diferentes**: o primeiro é o
-`next dev` com recarga a quente em `localhost:3000`; o segundo é a imagem, atrás
-do proxy, como em produção.
+`npm run dev` and `npm run up` serve at **different addresses**: the first is
+`next dev` with hot reload at `localhost:3000`; the second is the image, behind
+the proxy, like in production.
 
 ---
 
-## Contribuir
+## Contributing
 
-[CONTRIBUTING.md](CONTRIBUTING.md). Defeito e proposta em
-[issues](https://github.com/nerdresolve/NerdLMS/issues); dúvida em
+[CONTRIBUTING.md](CONTRIBUTING.md). Defects and proposals in
+[issues](https://github.com/nerdresolve/NerdLMS/issues); questions in
 [discussions](https://github.com/nerdresolve/NerdLMS/discussions).
 
-## Licença
+## License
 
-**Business Source License 1.1**, com conversão automática para **Apache 2.0**
-após quatro anos. É a mesma do MariaDB, do Terraform e do CockroachDB, e o
-texto completo está em [LICENSE.md](LICENSE.md).
+**Business Source License 1.1**, converting automatically to **Apache 2.0**
+after four years. It is the same one MariaDB, Terraform and CockroachDB use, and
+the full text is in [LICENSE.md](LICENSE.md).
 
-**Uso interno é livre, inclusive comercial.** Uma empresa pode instalar e
-treinar os próprios funcionários, terceiros, parceiros, alunos ou clientes sem
-pagar nada e sem pedir autorização. Rodar multi-tenant também: uma holding
-servindo subsidiárias, uma rede servindo franqueados, uma consultoria treinando
-a base de clientes. Sem limite de usuários, sem chave de licença, sem
-telemetria.
+**Internal use is free, commercial use included.** A company can install it and
+train its own employees, contractors, partners, students or customers without
+paying anything and without asking permission. Running it multi-tenant too: a
+holding company serving its subsidiaries, a franchise network serving its
+franchisees, a consultancy training its client base. No user cap, no license
+key, no telemetry.
 
-**O que precisa de conversa** é oferecer o NerdResolve LMS a terceiros como
-produto ou serviço, concorrendo com a versão paga: montar um SaaS em cima deste
-código, ou revendê-lo como produto próprio. A diferença é o que está sendo
-vendido. Vender treinamento usando a plataforma é livre; vender a plataforma
-não.
+**What needs a conversation** is offering NerdResolve LMS to third parties as a
+product or service, competing with the paid version: building a SaaS on top of
+this code, or reselling it as your own product. The difference is what is being
+sold. Selling training using the platform is free; selling the platform is not.
 
-Cada versão vira Apache 2.0 quatro anos depois de publicada, automaticamente e
-sem volta. Licença comercial: **contact@nerdresolve.com**.
+Every version turns into Apache 2.0 four years after it is published,
+automatically and irreversibly. Commercial license:
+**contact@nerdresolve.com**.
 
-A fonte que acompanha o repositório é a **Manrope**, sob
-[SIL Open Font License 1.1](apps/frontend/public/fonts/OFL.txt), livre para
-usar, modificar e redistribuir, inclusive num fork comercial.
+The font shipped with the repository is **Manrope**, under the
+[SIL Open Font License 1.1](apps/frontend/public/fonts/OFL.txt), free to use,
+modify and redistribute, including in a commercial fork.
 
 ---
 
 <div align="center">
-<sub>Feito por <a href="https://github.com/nerdresolve">Matheus Mariath</a> · NerdResolve</sub>
+<sub>Built by <a href="https://github.com/nerdresolve">Matheus Mariath</a> · NerdResolve</sub>
 </div>

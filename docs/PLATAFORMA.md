@@ -1,496 +1,503 @@
-# A nossa plataforma, por inteiro
+# Our platform, in full
 
-Documentação funcional e técnica do EAD da organização. Este é o documento
-longo: o que existe, como funciona e **por que** foi feito assim. Para começar
-rápido, o [`../README.md`](../README.md); para a apresentação,
-[`ROTEIRO-APRESENTACAO.md`](./ROTEIRO-APRESENTACAO.md).
+Functional and technical documentation of the organization's e-learning
+platform. This is the long document: what exists, how it works and **why** it
+was built this way. To get started quickly, see [`../README.md`](../README.md);
+for the presentation, [`ROTEIRO-APRESENTACAO.md`](./ROTEIRO-APRESENTACAO.md).
 
-**Estado em 27 de agosto de 2026**: 35 telas, 38 migrações, 81 tabelas,
-1.214 testes automatizados, 7 cursos reais importados.
-
----
-
-## Sumário
-
-1. [Por que construímos a nossa](#1-por-que-construímos-a-nossa)
-2. [Aprender: da matrícula ao certificado](#2-aprender-da-matrícula-ao-certificado)
-3. [Avaliar: nota, reprovação e reteste](#3-avaliar-nota-reprovação-e-reteste)
-4. [Certificado e validação pública](#4-certificado-e-validação-pública)
-5. [Ensinar: o editor de curso](#5-ensinar-o-editor-de-curso)
-6. [Gerir: equipe, auditoria e plataforma](#6-gerir-equipe-auditoria-e-plataforma)
-7. [Entrar: senha e conta da empresa](#7-entrar-senha-e-conta-da-empresa)
-8. [Uma instalação que aguenta mais de uma organização](#8-uma-instalação-que-aguenta-mais-de-uma-organização)
-9. [Interoperabilidade](#9-interoperabilidade)
-10. [Arquitetura](#10-arquitetura)
-11. [Conteúdo real](#11-conteúdo-real)
-12. [Operação](#12-operação)
-13. [O que ainda não existe](#13-o-que-ainda-não-existe)
+**State as of 27 August 2026**: 35 screens, 38 migrations, 81 tables, 1,214
+automated tests, 7 real courses imported.
 
 ---
 
-## 1. Por que construímos a nossa
+## Contents
 
-A licença atual trava em **500 usuários ativos** para a organização inteira. O
-limite é comercial, não técnico: cada pessoa a mais é negociação, e o
-planejamento de treinamento passa a depender de quando dá para renegociar.
-
-O segundo custo é menos visível e pesa mais no longo prazo. Quem treinou, em
-quê, com que nota e em que data fica na base de um fornecedor. Numa auditoria,
-a resposta depende de pedir a ele. Se o contrato acaba, o histórico é o que
-ele exportar.
-
-Com a plataforma sob gestão própria, o limite deixa de existir e o histórico
-passa a ser mantido internamente. Os recursos adicionais implementados no
-período (provas com nota, certificado verificável e autenticação pelo Active
-Directory) decorrem dessa autonomia de desenvolvimento.
+1. [Why we built our own](#1-why-we-built-our-own)
+2. [Learning: from enrollment to certificate](#2-learning-from-enrollment-to-certificate)
+3. [Assessment: grade, failure and retake](#3-assessment-grade-failure-and-retake)
+4. [Certificate and public validation](#4-certificate-and-public-validation)
+5. [Teaching: the course editor](#5-teaching-the-course-editor)
+6. [Managing: team, auditing and platform](#6-managing-team-auditing-and-platform)
+7. [Signing in: password and company account](#7-signing-in-password-and-company-account)
+8. [One install that can hold more than one organization](#8-one-install-that-can-hold-more-than-one-organization)
+9. [Interoperability](#9-interoperability)
+10. [Architecture](#10-architecture)
+11. [Real content](#11-real-content)
+12. [Operations](#12-operations)
+13. [What does not exist yet](#13-what-does-not-exist-yet)
 
 ---
 
-## 2. Aprender: da matrícula ao certificado
+## 1. Why we built our own
 
-### Matrícula
+The current license caps us at **500 active users** for the whole organization.
+The limit is commercial, not technical: every additional person is a
+negotiation, and training planning comes to depend on when renegotiating is
+possible.
 
-Três caminhos, e a diferença importa para treinamento obrigatório:
+The second cost is less visible and weighs more in the long run. Who trained, in
+what, with what grade and on what date lives in a vendor's database. In an
+audit, the answer depends on asking them for it. If the contract ends, the
+history is whatever they export.
 
-| Modo | Quem inicia |
+With the platform under our own management, the cap goes away and the history is
+kept in-house. The additional features implemented in the meantime (graded
+exams, verifiable certificates and Active Directory authentication) follow from
+that development autonomy.
+
+---
+
+## 2. Learning: from enrollment to certificate
+
+### Enrollment
+
+Three paths, and the difference matters for mandatory training:
+
+| Mode | Who starts it |
 |---|---|
-| Aberta | a própria pessoa, pelo catálogo |
-| Atribuída | o gestor coloca a equipe |
-| Por turma | um grupo com data e instrutor |
+| Open | the person themselves, from the catalog |
+| Assigned | the manager puts the team in |
+| By class | a group with a date and an instructor |
 
-O aluno matricula **a si mesmo e a mais ninguém**. O gestor matricula a equipe
-**do próprio projeto**.
+A student enrolls **themselves and nobody else**. A manager enrolls the team
+**of their own project**.
 
-### A trava do player
+### The player lock
 
-Sem controle de progresso, a conclusão de uma aula depende apenas de um
-clique, e o registro de treinamento passa a atestar um conteúdo que pode não
-ter sido assistido. Em treinamento de segurança operacional, esse registro é
-usado como evidência de capacitação.
+Without progress tracking, completing a lesson comes down to a single click, and
+the training record ends up attesting to content that may never have been
+watched. In operational safety training, that record is used as evidence of
+qualification.
 
-Três regras, em `packages/core/src/courses/watch-guard.ts`:
+Three rules, in `packages/core/src/courses/watch-guard.ts`:
 
-1. **Cobertura de 90%** do vídeo antes de liberar a conclusão.
-2. **Tempo compatível.** A duração da sessão precisa ser coerente com o
-   trecho assistido, o que impede contabilizar vídeo em reprodução sem
-   acompanhamento.
-3. **Sem avanço** além do ponto mais distante já alcançado. O retrocesso é
-   liberado; o avanço para trecho não assistido, não.
+1. **90% coverage** of the video before completion is unlocked.
+2. **Matching time.** The session's duration has to be consistent with the
+   stretch watched, which prevents counting a video that is playing unattended.
+3. **No seeking** beyond the furthest point already reached. Going back is
+   allowed; seeking into an unwatched stretch is not.
 
-**A velocidade de reprodução pode chegar a 2x.** A restrição de velocidade
-tenderia a induzir o comportamento que o controle pretende evitar, com o vídeo
-em reprodução sem acompanhamento.
+**Playback speed can go up to 2x.** Restricting speed would tend to induce the
+very behavior the control is meant to prevent, with the video playing
+unattended.
 
-> **Correção aplicada durante o desenvolvimento.** A primeira implementação
-> gravava o progresso mesmo quando o avanço era bloqueado. Em teste, cem
-> requisições consecutivas alcançaram 81% de um vídeo não assistido, porque a
-> tolerância era consumida a cada chamada em vez de por ponto de referência. A
-> versão atual não grava quando o avanço é bloqueado.
+> **Fix applied during development.** The first implementation recorded progress
+> even when seeking was blocked. In testing, a hundred consecutive requests
+> reached 81% of an unwatched video, because the tolerance was consumed on every
+> call rather than per reference point. The current version does not record when
+> seeking is blocked.
 
-### Formatos de aula
+### Lesson formats
 
-Vídeo (MP4), documento (PDF, com contagem de páginas lidas), texto, link
-externo, conteúdo interativo e pacote **SCORM 1.2 / 2004**.
+Video (MP4), document (PDF, with a count of pages read), text, external link,
+interactive content and **SCORM 1.2 / 2004** packages.
 
-O arquivo é transferido diretamente ao armazenamento por URL assinada de curta
-duração, sem passar pela aplicação. Um arquivo de duas horas trafegando pelo
-processo comprometeria o tempo de resposta das demais páginas.
+The file is transferred straight to storage through a short-lived signed URL,
+without passing through the application. A two-hour file moving through the
+process would hurt the response time of every other page.
 
-### Conclusão do curso
+### Course completion
 
-Um curso está concluído quando **as aulas terminaram e a prova foi aprovada**.
-Quatro estados, em `packages/core/src/courses/completion.ts`:
+A course is complete when **the lessons are done and the exam is passed**. Four
+states, in `packages/core/src/courses/completion.ts`:
 
-| Estado | Significa |
+| State | Means |
 |---|---|
-| `nao-comecou` | matriculado, nada visto |
-| `em-andamento` | aulas em curso |
-| `falta-prova` | aulas concluídas, prova pendente ou reprovada |
-| `concluido` | aulas **e** prova |
+| `nao-comecou` | enrolled, nothing watched |
+| `em-andamento` | lessons under way |
+| `falta-prova` | lessons completed, exam pending or failed |
+| `concluido` | lessons **and** exam |
 
-Nesse estado o cartão do curso exibe **"Falta a prova"**, e não "100%". O
-percentual refere-se apenas às aulas, e o número isolado seria interpretado
-como conclusão do curso.
+In that state the course card shows **"Exam pending"**, not "100%". The
+percentage refers to the lessons only, and the bare number would be read as
+completion of the course.
 
 ---
 
-## 3. Avaliar: nota, reprovação e reteste
+## 3. Assessment: grade, failure and retake
 
-### A escala
+### The scale
 
-Nota de **0 a 10**, aprovação em **8,0**.
+Grades from **0 to 10**, passing at **8.0**.
 
-A coluna do banco permanece em percentual. A conversão reescreveria todas as
-notas já lançadas, e migrações que alteram histórico são difíceis de auditar
-posteriormente. A escala de 0 a 10 é aplicada na apresentação.
+The database column stays in percent. Converting it would rewrite every grade
+already recorded, and migrations that alter history are hard to audit after the
+fact. The 0-to-10 scale is applied at the presentation layer.
 
-O arredondamento usa uma casa decimal. Duas casas indicariam uma precisão que
-uma prova de cinco questões não tem. A aprovação segue o valor exibido: 79,96%
-são apresentados como 8,0 e aprovados, para que a nota exibida e a decisão
-coincidam.
+Rounding uses one decimal place. Two would imply a precision that a five-question
+exam does not have. Passing follows the displayed value: 79.96% is shown as 8.0
+and passes, so that the grade displayed and the decision agree.
 
-### A prova exige as aulas
+### The exam requires the lessons
 
-O botão permanece **desabilitado** e informa quantas aulas faltam. Na versão
-anterior o botão ficava habilitado e a tentativa era recusada em uma tela de
-erro, que retirava o aluno da página do curso.
+The button stays **disabled** and says how many lessons are left. In the previous
+version the button was enabled and the attempt was refused on an error screen,
+which took the student out of the course page.
 
-### Reteste por pedido
+### Retake by request
 
-Quem reprova tem **uma tentativa**. Refazer depende de pedir ao instrutor.
+Whoever fails gets **one attempt**. Retaking depends on asking the instructor.
 
 ```
-aluno reprova → pede reteste (justificativa opcional)
-             → instrutor decide em /instrutor/correcao (comentário OBRIGATÓRIO)
-             → aprovado: +1 tentativa   |   recusado: fica registrado o porquê
+student fails → requests a retake (justification optional)
+             → instructor decides at /instrutor/correcao (comment MANDATORY)
+             → granted: +1 attempt   |   refused: the reason is on record
 ```
 
-**Sobre a opção por tentativa única.** Com tentativas livres, a primeira prova
-passa a funcionar como simulado, e a reprovação não fica registrada em lugar
-nenhum. Exigir o pedido mantém o registro da reprovação e da decisão que
-concedeu a nova tentativa.
+**On choosing a single attempt.** With unlimited attempts, the first exam starts
+working as a practice run, and the failure is not recorded anywhere. Requiring
+the request keeps a record of both the failure and the decision that granted the
+new attempt.
 
-**A justificativa do aluno é opcional; o comentário do instrutor é
-obrigatório.** O comentário registra o motivo da concessão, informação
-necessária em auditoria, e comunica ao aluno a razão da recusa. A
-obrigatoriedade está implementada no código e em um `CHECK` da migração 038,
-de modo que um `INSERT` executado fora desse caminho também é recusado.
+**The student's justification is optional; the instructor's comment is
+mandatory.** The comment records the reason for granting it, information an audit
+needs, and tells the student why it was refused. The requirement is implemented
+in the code and in a `CHECK` in migration 038, so that an `INSERT` executed
+outside that path is refused too.
 
-**Um pedido em aberto por vez**, garantido por índice único parcial. Sem essa
-restrição, dois cliques criariam dois pedidos, e a aprovação de ambos
-concederia duas tentativas.
+**One open request at a time**, guaranteed by a partial unique index. Without
+that constraint, two clicks would create two requests, and approving both would
+grant two attempts.
 
-### Correção de dissertativa
+### Essay grading
 
-Prova com questão aberta permanece em `needs_review`, e a nota é fechada
-somente após a correção do instrutor. O lançamento antecipado gravaria um
-percentual sujeito a alteração.
-
----
-
-## 4. Certificado e validação pública
-
-O PDF é gerado por código próprio, sem dependência externa, e traz nome, curso,
-carga horária, data de conclusão, **assinatura do instrutor responsável** e um
-código de verificação no rodapé.
-
-### A validação é real
-
-`/validar?codigo=XXXXXXXXXXXX`, sem exigência de login, uma vez que o
-destinatário do certificado normalmente não possui conta na plataforma.
-
-A conferência olha **três coisas**: a matrícula existe, o curso foi concluído e
-a nota alcançou o mínimo.
-
-> **Sobre a verificação de nota.** Na implementação anterior, a checagem
-> considerava apenas as aulas. Um curso com prova obrigatória recusava a *emissão* por
-> falta de nota, enquanto `/validar` respondia "válido" para a mesma matrícula:
-> quem reprovasse poderia divulgar o código e a conferência confirmaria um
-> documento que nunca foi emitido. A regra passou a ser a mesma nos dois
-> pontos, o que evita que duas definições de conclusão divirjam ao longo do
-> tempo.
-
-Código inválido recebe a resposta **"Código não confere"**, sem indicar se a
-matrícula existe, se houve reprovação ou qual das três condições falhou. A
-distinção entre esses casos revelaria informação a quem não deveria tê-la.
+An exam with an open question stays in `needs_review`, and the grade is only
+finalized after the instructor grades it. Recording it early would store a
+percentage subject to change.
 
 ---
 
-## 5. Ensinar: o editor de curso
+## 4. Certificate and public validation
 
-Curso → módulos → aulas. Reordenação por arrastar. Envio de vídeo, PDF e
-pacote SCORM.
+The PDF is generated by our own code, with no external dependency, and carries
+the name, course, hours, completion date, the **responsible instructor's
+signature** and a verification code in the footer.
 
-**A fronteira é a autoria.** O instrutor cria à vontade e edita, publica ou
-arquiva **só o que é dele**. Acompanha o progresso dos alunos dos próprios
-cursos e não o altera.
+### Validation is real
 
-**Não existe excluir curso.** Apagar levaria junto matrícula, progresso e
-comentários, e o certificado já emitido deixaria de conferir no validador.
-Arquivar é o caminho: o curso sai do catálogo e para de aceitar matrícula, mas
-quem já cursava continua com acesso, inclusive ao certificado.
+`/validar?codigo=XXXXXXXXXXXX`, with no sign-in required, since the recipient of
+a certificate normally does not have an account on the platform.
 
-**Publicar exige ao menos uma aula.** A contagem vem do banco, não do que o
-cliente afirma: publicar um curso vazio deixaria gente matriculada em nada.
+The check looks at **three things**: the enrollment exists, the course was
+completed, and the grade reached the minimum.
 
-**Campos obrigatórios bloqueiam o envio e informam o que falta.** A mensagem é
-definida pela aplicação, e não pelo navegador: a mensagem padrão do navegador
-segue o idioma da interface dele, e exibiria *"Please fill out this field."* em
-uma instalação configurada em português.
+> **On checking the grade.** In the previous implementation, the check considered
+> only the lessons. A course with a mandatory exam refused *issuance* for lack of
+> a grade, while `/validar` answered "valid" for the same enrollment: anyone who
+> failed could publish the code and the check would confirm a document that was
+> never issued. The rule became the same at both points, which keeps two
+> definitions of completion from drifting apart over time.
 
----
-
-## 6. Gerir: equipe, auditoria e plataforma
-
-**Gestor**: painel do próprio projeto e da própria equipe. Quem concluiu, quem
-está atrasado, quem nem começou. Matricula em treinamento obrigatório. Não
-edita conteúdo.
-
-**Administrador**: pessoas e papéis, importação em massa por CSV, acesso e SSO,
-auditoria, competências, distintivos, integrações, marca, recursos ligados,
-textos de e-mail e backup.
-
-### Auditoria
-
-`audit_log` é **somente-inserção**: `UPDATE` e `DELETE` revogados até para a
-aplicação, com gatilho que recusa mesmo se alguém reconceder por engano.
-Registro que se pode editar não é registro.
-
-A tabela armazena `actor_name` separadamente de `actor_id`, e a chave usa
-`ON DELETE SET NULL`, de modo que o desligamento de um funcionário não remove
-o registro das ações executadas por ele.
-
-O mesmo vale para `xapi_statements` e `grade_entries`.
-
-### Recursos que se pode desligar
-
-Por organização: comentários, fórum, notificações, trilhas, agenda, gamificação,
-certificados, favoritos e busca global. A desativação remove a tela e também
-a rota, de modo que o acesso direto pelo endereço não funciona.
-
-**As recompensas com contrapartida financeira foram removidas.** Itens que
-exigiriam compra pela empresa vinculariam a gamificação a um orçamento, e a
-plataforma passaria a oferecer benefícios cuja entrega não depende dela.
+An invalid code gets the answer **"Code does not match"**, without indicating
+whether the enrollment exists, whether there was a failure, or which of the three
+conditions failed. Distinguishing between those cases would reveal information to
+someone who should not have it.
 
 ---
 
-## 7. Entrar: senha e conta da empresa
+## 5. Teaching: the course editor
 
-Detalhe completo em [`PERFIS-E-ACESSOS.md`](./PERFIS-E-ACESSOS.md). Em resumo:
+Course → modules → lessons. Reordering by dragging. Upload of video, PDF and
+SCORM packages.
 
-- **Senha local**: scrypt com sal por usuário, parâmetros da OWASP.
-- **Sessão**: o banco guarda o *hash* do token, não o token.
-- **Cookie**: `HttpOnly`, `Secure`, `SameSite=Lax`, prefixo `__Host-`.
-- **Erro genérico** para senha errada e conta inexistente.
-- **Bloqueio** de 10 falhas por IP em 15 minutos.
+**The boundary is authorship.** The instructor creates freely and edits,
+publishes or archives **only what is theirs**. They follow the progress of
+students on their own courses and do not change it.
 
-### LDAP e Active Directory
+**There is no delete course.** Deleting would take enrollments, progress and
+comments with it, and a certificate already issued would stop checking out in the
+validator. Archiving is the way: the course leaves the catalog and stops
+accepting enrollment, but whoever was already taking it keeps access, certificate
+included.
 
-Implementado do zero: codificação BER, `BindRequest`, `SearchRequest`, leitura
-das respostas e dos sub-códigos que o AD esconde no diagnóstico
-(`data 52e`, `533` e `532`, entre outros).
+**Publishing requires at least one lesson.** The count comes from the database,
+not from what the client claims: publishing an empty course would leave people
+enrolled in nothing.
 
-**O filtro é uma árvore BER, não um texto montado.** O valor digitado viaja
-num `OCTET STRING` e seus bytes nunca são lidos como sintaxe: quem digitar
-`*)(objectClass=*` não transforma "quem é fulano?" em "me devolva todo mundo".
-A categoria de injeção de filtro **não se aplica por construção**. O teste que
-cobre esse comportamento compara os bytes com o RFC 4511, e não com o próprio
-codificador, o que ocultaria um erro simétrico.
-
-O papel vem do **grupo no diretório**, com o mais alto vencendo. Quem entra no
-grupo de instrutores vira instrutor; quem sai, deixa de ser.
-
-Duas travas de produção: `allow_password_login = false` (senha local deixa de
-valer) e `require_group = true` (sem grupo mapeado, não entra).
-
-**Hoje está desligado.** Foi provado contra o AD real da organização; ligar é
-uma linha de SQL, e é decisão de quem opera.
-
-### SAML 2.0, Google e Microsoft
-
-Também implementados, com verificação de assinatura própria. A configuração
-fica em `/admin/acesso`.
+**Required fields block submission and say what is missing.** The message is
+defined by the application, not by the browser: the browser's default message
+follows its own interface language, and would show *"Please fill out this
+field."* on an install configured in Portuguese.
 
 ---
 
-## 8. Uma instalação que aguenta mais de uma organização
+## 6. Managing: team, auditing and platform
 
-Hoje existe **um tenant só**, o da organização, e todo curso, pessoa e nota
-pertence a ele. Mas a plataforma foi construída sabendo separar organizações:
-`tenant_id` está em **42 tabelas**, e nada atravessa de uma para outra.
+**Manager**: a dashboard for their own project and their own team. Who finished,
+who is behind, who never started. Enrolls people in mandatory training. Does not
+edit content.
 
-**Isso importa para nós por duas razões, e nenhuma delas é vender a plataforma
-para terceiros.**
+**Administrator**: people and roles, bulk CSV import, access and SSO, auditing,
+competencies, badges, integrations, branding, enabled features, email copy and
+backup.
 
-A primeira é hoje. O recorte é o mesmo mecanismo que garante que uma consulta
-mal escrita não devolva dado de fora do escopo pedido. Ele é exercitado a cada
-build por `apps/backend/src/tenancy/query-isolation.test.ts`, que **falha** se
-alguém escrever uma consulta sem o recorte. É a única garantia que sobrevive a
-quem não leu a documentação.
+### Auditing
 
-A segunda é o dia em que a organização quiser treinar **quem não é
-funcionário**: terceirizado em campo, empresa parceira, fornecedor que precisa
-da integração de segurança antes de entrar na área. Esse público não pode ver o
-catálogo interno nem aparecer nos relatórios de RH, e não deve entrar pelo
-nosso Active Directory. Com o isolamento pronto, isso é configuração; sem ele,
-seria outro sistema.
+`audit_log` is **insert-only**: `UPDATE` and `DELETE` revoked even for the
+application, with a trigger that refuses them even if someone grants the
+permission back by mistake. A record you can edit is not a record.
 
-Na regra de permissão, a verificação de organização precede a de papel. Na
-ordem inversa, o bloco do administrador já teria autorizado o acesso antes de
-a organização ser avaliada.
+The table stores `actor_name` separately from `actor_id`, and the key uses
+`ON DELETE SET NULL`, so that an employee leaving does not remove the record of
+the actions they performed.
 
-O passo a passo de configurar uma instalação do zero está em
-[`../WHITELABEL.md`](../WHITELABEL.md). Serve para reconfigurar a nossa e para
-esse cenário.
+The same goes for `xapi_statements` and `grade_entries`.
+
+### Features that can be switched off
+
+Per organization: comments, forum, notifications, tracks, schedule,
+gamification, certificates, bookmarks and global search. Switching one off
+removes the screen and the route as well, so going straight to the address does
+not work either.
+
+**Rewards with a financial counterpart were removed.** Items that would require
+the company to buy something would tie gamification to a budget, and the
+platform would start offering benefits whose delivery does not depend on it.
 
 ---
 
-## 9. Interoperabilidade
+## 7. Signing in: password and company account
 
-| Padrão | Situação |
+Full detail in [`PERFIS-E-ACESSOS.md`](./PERFIS-E-ACESSOS.md). In short:
+
+- **Local password**: scrypt with a per-user salt, at OWASP's parameters.
+- **Session**: the database stores the token's *hash*, not the token.
+- **Cookie**: `HttpOnly`, `Secure`, `SameSite=Lax`, `__Host-` prefix.
+- **A generic error** for a wrong password and a nonexistent account alike.
+- **Lockout** at 10 failures per IP in 15 minutes.
+
+### LDAP and Active Directory
+
+Implemented from scratch: BER encoding, `BindRequest`, `SearchRequest`, reading
+the responses and the sub-codes the AD hides in the diagnostic message
+(`data 52e`, `533` and `532`, among others).
+
+**The filter is a BER tree, not assembled text.** The value typed in travels
+inside an `OCTET STRING` and its bytes are never read as syntax: typing
+`*)(objectClass=*` does not turn "who is so-and-so?" into "give me everybody".
+The filter injection category **does not apply by construction**. The test
+covering that behavior compares the bytes against RFC 4511, not against the
+encoder itself, which would hide a symmetric error.
+
+The role comes from the **group in the directory**, with the highest one
+winning. Whoever joins the instructors group becomes an instructor; whoever
+leaves stops being one.
+
+Two production locks: `allow_password_login = false` (the local password stops
+working) and `require_group = true` (no mapped group, no entry).
+
+**Today it is switched off.** It was proven against the organization's real AD;
+switching it on is one line of SQL, and it is a decision for whoever operates it.
+
+### SAML 2.0, Google and Microsoft
+
+Also implemented, with our own signature verification. Configuration lives at
+`/admin/acesso`.
+
+---
+
+## 8. One install that can hold more than one organization
+
+Today there is **just one tenant**, the organization's, and every course, person
+and grade belongs to it. But the platform was built knowing how to keep
+organizations apart: `tenant_id` is in **42 tables**, and nothing crosses from
+one to another.
+
+**That matters to us for two reasons, and neither of them is selling the
+platform to third parties.**
+
+The first is today. The scoping is the same mechanism that guarantees a badly
+written query does not return data from outside the scope that was asked for. It
+is exercised on every build by
+`apps/backend/src/tenancy/query-isolation.test.ts`, which **fails** if someone
+writes a query without the scope. It is the only guarantee that survives whoever
+did not read the documentation.
+
+The second is the day the organization wants to train **people who are not
+employees**: a contractor in the field, a partner company, a supplier who needs
+the safety induction before entering the site. That audience must not see the
+internal catalog or show up in HR reports, and should not sign in through our
+Active Directory. With the isolation already in place, that is configuration;
+without it, it would be another system.
+
+In the permission rule, the organization check precedes the role check. In the
+reverse order, the administrator block would already have authorized access
+before the organization was evaluated.
+
+The walkthrough for configuring an install from scratch is in
+[`../WHITELABEL.md`](../WHITELABEL.md). It serves both for reconfiguring ours and
+for that scenario.
+
+---
+
+## 9. Interoperability
+
+| Standard | Status |
 |---|---|
-| SCORM 1.2 e 2004 | importa pacote, executa e registra |
-| xAPI | envia e recebe statements |
-| cmi5 | lançamento e sessão |
-| LTI 1.3 | lançamento e envio de nota (AGS) |
-| QTI | importa e exporta questões |
-| CSV | importa usuários e questões; exporta relatório |
+| SCORM 1.2 and 2004 | imports the package, runs it and records |
+| xAPI | sends and receives statements |
+| cmi5 | launch and session |
+| LTI 1.3 | launch and grade passback (AGS) |
+| QTI | imports and exports questions |
+| CSV | imports users and questions; exports reports |
 
-Todos escritos no repositório, sem biblioteca de terceiros. Isso é decisão, não
-teimosia: o pacote `@nerdlms/core` **não declara nenhuma dependência de runtime**,
-e é o `package.json` que prova, não uma promessa no README.
+All written in this repository, with no third-party library. That is a decision,
+not stubbornness: the `@nerdlms/core` package **declares no runtime
+dependencies**, and it is the `package.json` that proves it, not a promise in a
+README.
 
 ---
 
-## 10. Arquitetura
+## 10. Architecture
 
 ```
-packages/core/      regra de domínio. Sem framework, sem dependência.
-apps/backend/       fala com PostgreSQL e com sistemas de fora.
-apps/frontend/      Next.js 15 + React 19. Telas e rotas HTTP.
+packages/core/      domain rules. No framework, no dependencies.
+apps/backend/       talks to PostgreSQL and to outside systems.
+apps/frontend/      Next.js 15 + React 19. Screens and HTTP routes.
 infra/              Docker, PostgreSQL, MinIO, Caddy.
 ```
 
-**Três camadas, e a de baixo não conhece a de cima.** O domínio não sabe o que
-é React, requisição HTTP ou banco. O backend não conhece Next. Isso não é
-purismo: é o que faz 1.127 testes de regra rodarem em 17 segundos sem subir
-nada.
+**Three layers, and the bottom one knows nothing about the top.** The domain does
+not know what React, an HTTP request or a database is. The backend knows nothing
+about Next. This is not purism: it is what makes 1,127 rule tests run in 17
+seconds without bringing anything up.
 
-### Por que não há servidor HTTP próprio
+### Why there is no HTTP server of our own
 
-O Next já atende HTTP. Um servidor adicional exigiria segunda imagem, segundo
-deploy, configuração de CORS e mais uma porta exposta, sem contrapartida no
-escopo atual. As rotas são camadas finas que chamam o caso de uso; caso a API
-seja extraída do Next futuramente, apenas os arquivos `route.ts` são
-descartados.
+Next already serves HTTP. An additional server would require a second image, a
+second deploy, CORS configuration and one more exposed port, with nothing in
+return at the current scope. The routes are thin layers that call the use case;
+if the API is ever pulled out of Next, only the `route.ts` files are thrown away.
 
-### O que é derivado e o que é gravado
+### What is derived and what is stored
 
-**Derivado por consulta**: progresso, percentual de trilha, moedas ganhas,
-contagem de votos, usuários ativos. Contador gravado sai de sincronia e ninguém
-percebe até o relatório sair errado.
+**Derived by query**: progress, track percentage, coins earned, vote counts,
+active users. A stored counter drifts out of sync and nobody notices until a
+report comes out wrong.
 
-**Gravado, porque é evento**: progresso assistido, voto dado, moeda gasta,
-tentativa de prova, nota lançada, pedido de reteste, e tudo em `audit_log`.
+**Stored, because it is an event**: progress watched, vote cast, coin spent, exam
+attempt, grade recorded, retake request, and everything in `audit_log`.
 
-O orçamento semanal de votos, por exemplo, é `COUNT(*)` sobre a semana ISO
-corrente. Saldo gravado permitiria gastar duas vezes numa corrida entre
-requisições.
+The weekly vote budget, for instance, is a `COUNT(*)` over the current ISO week.
+A stored balance would allow spending twice in a race between requests.
 
-### Segredos que precisam voltar
+### Secrets that have to come back
 
-Senha de pessoa vira hash e nunca mais volta. A senha da conta de serviço do
-Active Directory, não: a aplicação precisa apresentá-la ao diretório.
+A person's password becomes a hash and never comes back. The Active Directory
+service account's password does not work that way: the application has to present
+it to the directory.
 
-`apps/backend/src/crypto/secret-box.ts` cifra em AES-256-GCM com chave derivada
-do `SESSION_SECRET` por HKDF, com rótulo por uso. A proteção cobre o cenário em
-que o segredo sai junto com um **dump do banco**: backup copiado, ou réplica de
-homologação restaurada a partir da base de produção. Ela **não** cobre execução
-de código no próprio servidor, limitação registrada no cabeçalho do arquivo.
+`apps/backend/src/crypto/secret-box.ts` encrypts with AES-256-GCM using a key
+derived from `SESSION_SECRET` via HKDF, with a per-use label. The protection
+covers the scenario where the secret leaves along with a **database dump**: a
+backup copied, or a staging replica restored from the production database. It
+does **not** cover code execution on the server itself, a limitation recorded in
+the file's header.
 
 ---
 
-## 11. Conteúdo real
+## 11. Real content
 
-Sete cursos, todos procedimentos da organização. Cinco com prova (30 questões,
-gabarito completo), dois sem.
+Seven courses, all of them the organization's procedures. Five with an exam (30
+questions, full answer key), two without.
 
-Os arquivos de vídeo somam 522 MB e **não são versionados**. O repositório
-armazena o JSON com estrutura, provas e gabarito. A importação é dividida em
-três ferramentas, porque a transferência de vídeo é demorada e sujeita a falha
-de rede, ao contrário da escrita no banco:
+The video files add up to 522 MB and are **not committed**. The repository stores
+the JSON with the structure, exams and answer key. The import is split across
+three tools, because transferring video is slow and prone to network failure,
+unlike writing to the database:
 
 ```bash
-node infra/tools/parse-cursos.mjs <pasta>   # material → infra/db/content/cursos.json
-node infra/tools/upload-cursos.mjs <pasta>  # vídeos → storage
-node infra/tools/import-cursos.mjs          # cursos, aulas e provas → banco
+node infra/tools/parse-cursos.mjs <folder>   # material → infra/db/content/cursos.json
+node infra/tools/upload-cursos.mjs <folder>  # videos → storage
+node infra/tools/import-cursos.mjs           # courses, lessons and exams → database
 ```
 
-Juntar upload e importação faria uma falha de rede desfazer a importação
-inteira.
+Merging upload and import would make a network failure undo the whole import.
 
-**Idempotente**: cada id deriva do código do procedimento, e toda escrita é
-`ON CONFLICT DO UPDATE`. Rodar de novo depois de corrigir um gabarito atualiza
-sem duplicar curso nem perder matrícula.
+**Idempotent**: each id derives from the procedure's code, and every write is
+`ON CONFLICT DO UPDATE`. Running it again after fixing an answer key updates
+without duplicating a course or losing an enrollment.
 
-A duração é lida do cabeçalho `mvhd` do MP4 por
-`infra/tools/duracao-mp4.mjs`, sem dependência de ffmpeg. Um dos vídeos está em
-MP4 fragmentado e declara duração zero no cabeçalho principal; nesse caso a
-duração é obtida pela soma dos fragmentos.
+Duration is read from the MP4's `mvhd` header by
+`infra/tools/duracao-mp4.mjs`, with no dependency on ffmpeg. One of the videos is
+fragmented MP4 and declares zero duration in the main header; in that case the
+duration is obtained by summing the fragments.
 
-Título e resumo são curados numa tabela **dentro do parser**, não no JSON: o
-JSON é saída e seria sobrescrito na execução seguinte.
+Title and summary are curated in a table **inside the parser**, not in the JSON:
+the JSON is output and would be overwritten on the next run.
 
-### O cenário de demonstração
+### The demo scenario
 
 ```bash
 node infra/tools/cenario-demo.mjs
 ```
 
-Os vídeos têm entre 56 e 85 minutos, e o controle de progresso é aplicado
-integralmente, o que inviabiliza concluir um curso durante uma demonstração. O
-script grava o progresso equivalente ao de quem assistiu ao conteúdo, nas
-mesmas tabelas usadas em operação normal e sem marcação de registro de
-demonstração. Registros que a aplicação não produziria levariam a telas que ela
-não alcança em uso real.
+The videos run between 56 and 85 minutes, and progress tracking is applied in
+full, which makes completing a course during a demo impossible. The script
+records progress equivalent to that of someone who watched the content, in the
+same tables normal operation uses and with no demo marker. Records the
+application would not produce would lead to screens it never reaches in real
+use.
 
 ---
 
-## 12. Operação
+## 12. Operations
 
-### Um ambiente por projeto do Compose
+### One environment per Compose project
 
-| Comando | Arquivo de ambiente | Projeto Compose |
+| Command | Environment file | Compose project |
 |---|---|---|
 | `npm run up`, `migrate`, `seed`, `logs` | `infra/.env` | `nerdlms` |
 | `npm run publish`, `migrate:tunnel` | `infra/.env` + `infra/.env.tunnel` | `nerdlms` |
 
-**Nunca rode `docker compose` sem `-p`**: sem ele o Compose deduz o nome pela
-pasta, e a dedução não distingue duas instalações na mesma máquina.
+**Never run `docker compose` without `-p`**: without it Compose infers the name
+from the folder, and that inference cannot tell two installs on the same machine
+apart.
 
-### Portões
+### Gates
 
 ```bash
 npm run typecheck
-npm run test          # 1.127 + 49 + 38
+npm run test          # 1,127 + 49 + 38
 npm run lint
 npm run check:sql
 npm run check:imports
-npm run verify        # os acima menos o typecheck, mais auditorias do protótipo
+npm run verify        # the above minus typecheck, plus the prototype audits
 ```
 
-`verify` **não** roda `typecheck`. Antes de commitar, os dois.
+`verify` does **not** run `typecheck`. Before committing, run both.
 
-### Banco
+### Database
 
-Nem PostgreSQL nem MinIO publicam porta. Só o proxy fala com a internet, e a
-rede interna é `internal: true`.
+Neither PostgreSQL nor MinIO publishes a port. Only the proxy talks to the
+internet, and the internal network is `internal: true`.
 
-A aplicação **não** usa o dono do schema: `lms_migrator` migra, `lms_app`
-roda sem DDL. Se houver SQL injection, o estrago não alcança a estrutura.
+The application does **not** use the schema owner: `lms_migrator` migrates,
+`lms_app` runs without DDL. If there is a SQL injection, the damage does not
+reach the structure.
 
-> Os papéis (`lms_migrator`, `lms_app`) e o bucket (`lms-media`) levam o nome do
-> produto, não o do cliente, e isso é de propósito: uma instalação atende vários
-> clientes, e um nome de cliente na infraestrutura envelheceria mal. Renomeá-los
-> num banco já em uso é migração de infraestrutura, com risco de deixar a
-> aplicação sem conectar no meio do caminho. A migração `035_tenant_do_cliente`
-> é onde a instalação declara de quem ela é.
+> The roles (`lms_migrator`, `lms_app`) and the bucket (`lms-media`) carry the
+> product's name, not the client's, and that is on purpose: one install serves
+> several clients, and a client's name in the infrastructure would age badly.
+> Renaming them on a database already in use is an infrastructure migration, with
+> a risk of leaving the application unable to connect halfway through. The
+> `035_tenant_do_cliente` migration is where an install declares whose it is.
 
-Detalhes em [`../infra/db/README.md`](../infra/db/README.md).
+Details in [`../infra/db/README.md`](../infra/db/README.md).
 
 ---
 
-## 13. O que ainda não existe
+## 13. What does not exist yet
 
-| Pendência | Impacto |
+| Open item | Impact |
 |---|---|
-| **Domínio do certificado** | O endereço de conferência sai de `tenants.domain`, hoje vazio: o rodapé imprime uma orientação em vez de um endereço. O código é válido e a conferência funciona. **Declare o domínio depois que o DNS apontar para a instalação**, conforme `docs/DEPLOY.md`. |
-| **Backup** | Não configurado. RPO e RTO precisam ser decididos. Os dois volumes (`db-data` e `storage-data`) precisam entrar na cópia: o `pg_dump` não leva os vídeos. |
-| **Rollback de migração** | Cada arquivo aplica; nenhum desfaz. Ou passa a haver `down`, ou a política é restaurar backup. |
-| **Seed x conteúdo real** | `npm run seed` insere 7 cursos fictícios com `ON CONFLICT DO UPDATE`. Num banco que já tem o conteúdo real, o catálogo volta a misturar os dois. Ver [`HOMOLOGACAO.md`](./HOMOLOGACAO.md). |
-| **CSP** | `'unsafe-inline'` em `script-src` (ISSUE-028). Nenhuma origem externa executa script, mas a proteção contra inline injetado está aberta. |
-| **Catálogo definitivo** | Sete cursos entraram. O resto depende do RH. |
-| **Particionamento de `audit_log`** | Não é problema no primeiro ano; é no terceiro. |
+| **Certificate domain** | The verification address comes from `tenants.domain`, currently empty: the footer prints a note instead of an address. The code is valid and verification works. **Declare the domain once DNS points at the install**, as in `docs/DEPLOY.md`. |
+| **Backup** | Not configured. RPO and RTO need to be decided. Both volumes (`db-data` and `storage-data`) have to be in the copy: `pg_dump` does not take the videos. |
+| **Migration rollback** | Every file applies; none undoes. Either there comes to be a `down`, or the policy is restoring a backup. |
+| **Seed vs. real content** | `npm run seed` inserts 7 fictional courses with `ON CONFLICT DO UPDATE`. On a database that already holds the real content, the catalog goes back to mixing the two. See [`HOMOLOGACAO.md`](./HOMOLOGACAO.md). |
+| **CSP** | `'unsafe-inline'` in `script-src` (ISSUE-028). No external origin executes script, but the protection against injected inline script is open. |
+| **Final catalog** | Seven courses went in. The rest depends on HR. |
+| **Partitioning `audit_log`** | Not a problem in the first year; it is in the third. |
 
-O raciocínio de cada decisão técnica, numerada, está em
+The reasoning behind each technical decision, numbered, is in
 [`progress.md`](./progress.md).

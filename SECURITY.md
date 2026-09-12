@@ -1,68 +1,70 @@
-# Política de segurança
+# Security policy
 
-## Relatar uma vulnerabilidade
+## Reporting a vulnerability
 
-**Não abra issue pública.** Use
+**Do not open a public issue.** Use
 [Security → Report a vulnerability](https://github.com/nerdresolve/NerdLMS/security/advisories/new),
-que cria um canal privado entre você e quem mantém o projeto.
+which creates a private channel between you and whoever maintains the project.
 
-Se preferir e-mail: **contact@nerdresolve.com**.
+If you prefer email: **contact@nerdresolve.com**.
 
-Ajuda muito incluir: o que a falha permite fazer, os passos para chegar lá, a
-versão em que você viu, e, se souber, qual arquivo está envolvido.
+It helps a lot to include: what the flaw allows someone to do, the steps to get
+there, the version you saw it in, and, if you know, which file is involved.
 
-Retorno em até 5 dias úteis. Correção conforme a gravidade: dias para o que
-permite acesso a dado de outro cliente ou execução de código, semanas para o
-resto. Você é creditado no aviso, a menos que peça o contrário.
+Reply within 5 business days. Fix according to severity: days for anything that
+allows access to another client's data or code execution, weeks for the rest.
+You are credited in the advisory unless you ask otherwise.
 
-## Versões com suporte
+## Supported versions
 
-| Versão | Suporte |
-| ------ | ------- |
-| `main` | sim     |
-| última release menor | sim |
-| anteriores | não |
+| Version | Supported |
+| ------- | --------- |
+| `main` | yes |
+| latest minor release | yes |
+| earlier ones | no |
 
-## Superfícies que merecem atenção
+## Surfaces that deserve attention
 
-Um relato aqui vale mais que em outros lugares:
+A report here is worth more than one elsewhere:
 
-- **Isolamento entre clientes.** A plataforma é multi-tenant. Toda consulta
-  filtra por `tenant_id`, e há teste automatizado (`query-isolation.test.ts`)
-  cobrindo isso. Um caminho que devolva dado de outro cliente é a falha mais
-  grave possível aqui.
-- **Autorização por papel.** Aluno, instrutor, gestor e administrador veem
-  coisas diferentes. Rota que não verifica papel é defeito de segurança, não
-  de interface.
-- **Gabarito de prova.** As respostas certas não podem sair para quem responde
-  antes de o resultado existir (`no-answer-leak.test.ts`).
-- **Upload.** SCORM, H5P e vídeo são ZIPs enviados por usuário. Zip slip,
-  ZIP bomb e conteúdo executável são vetores reais.
-- **SSO / SAML / LDAP.** Verificação de assinatura, validação de emissor,
-  reuso de asserção.
-- **Certificado e badge.** O código de verificação não pode ser adivinhável nem
-  permitir enumerar quem concluiu o quê.
+- **Isolation between clients.** The platform is multi-tenant. Every query
+  filters by `tenant_id`, and an automated test (`query-isolation.test.ts`)
+  covers that. A path that returns another client's data is the worst possible
+  flaw here.
+- **Authorization by role.** Student, instructor, manager and administrator see
+  different things. A route that does not check the role is a security defect,
+  not an interface one.
+- **Exam answer keys.** The correct answers must not reach whoever is answering
+  before the result exists (`no-answer-leak.test.ts`).
+- **Upload.** SCORM, H5P and video are ZIPs uploaded by users. Zip slip, ZIP
+  bombs and executable content are real vectors.
+- **SSO / SAML / LDAP.** Signature verification, issuer validation, assertion
+  replay.
+- **Certificates and badges.** The verification code must be neither guessable
+  nor allow enumerating who completed what.
 
-## O que o projeto já faz
+## What the project already does
 
-- Contêineres sem root, sistema de arquivos somente-leitura, sem capacidades
-  extras, e sem porta de banco publicada (`infra/docker-compose.yml`)
-- Papel de aplicação no Postgres sem permissão de DDL, separado do dono do
-  schema (migração `002`)
-- Auditoria em tabela somente-inserção, com gatilho que recusa UPDATE e DELETE
-- Segredos cifrados em repouso (`backend/src/crypto/secret-box.ts`)
-- CodeQL, `npm audit` e Gitleaks em cada PR e semanalmente
+- Containers without root, read-only filesystem, no extra capabilities, and no
+  published database port (`infra/docker-compose.yml`)
+- Application role in Postgres without DDL permission, separate from the schema
+  owner (migration `002`)
+- Auditing in an insert-only table, with a trigger that refuses UPDATE and
+  DELETE
+- Secrets encrypted at rest (`backend/src/crypto/secret-box.ts`)
+- CodeQL, `npm audit` and Gitleaks on every PR and weekly
   (`.github/workflows/seguranca.yml`)
 
-## Ao implantar
+## When deploying
 
-Nenhum `.env` é versionado. Copie o exemplo, gere segredos próprios, e não
-reaproveite os de outro ambiente:
+No `.env` is committed. Copy the example, generate your own secrets, and do not
+reuse the ones from another environment:
 
 ```bash
 cp infra/.env.example infra/.env
-openssl rand -hex 32    # um valor NOVO para cada segredo
+openssl rand -hex 32    # a NEW value for each secret
 ```
 
-O seed de homologação (`infra/db/seeds/hml.sql`) usa senhas derivadas do login
-e **recusa rodar** sem `-v allow_seed=yes`. Nunca aponte-o para produção.
+The staging seed (`infra/db/seeds/hml.sql`) uses passwords derived from the
+login and **refuses to run** without `-v allow_seed=yes`. Never point it at
+production.

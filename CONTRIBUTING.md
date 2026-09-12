@@ -1,76 +1,78 @@
-# Como contribuir
+# How to contribute
 
-Obrigado pelo interesse. Este guia é curto de propósito.
+Thanks for your interest. This guide is short on purpose.
 
-## Antes de começar
+## Before you start
 
-Para **defeito ou proposta**, abra uma issue primeiro. Para **dúvida**, use
-[Discussions](https://github.com/nerdresolve/NerdLMS/discussions). Para
-**vulnerabilidade**, veja o [SECURITY.md](SECURITY.md). Nunca em issue pública.
+For a **defect or a proposal**, open an issue first. For a **question**, use
+[Discussions](https://github.com/nerdresolve/NerdLMS/discussions). For a
+**vulnerability**, see [SECURITY.md](SECURITY.md). Never in a public issue.
 
-## Rodando o projeto
+## Running the project
 
 ```bash
 npm ci
-cp infra/.env.example infra/.env.local   # ajuste SITE_ADDRESS=localhost
-npm run up                                # sobe banco, storage e proxy
-npm run migrate                           # aplica o schema
-npm run seed                              # dados de homologação (opcional)
+cp infra/.env.example infra/.env.local   # set SITE_ADDRESS=localhost
+npm run up                                # brings up database, storage and proxy
+npm run migrate                           # applies the schema
+npm run seed                              # staging data (optional)
 npm run dev
 ```
 
-Node 22 ou mais novo (`.nvmrc`). Docker para banco e storage.
+Node 22 or newer (`.nvmrc`). Docker for the database and storage.
 
-Sem Docker, dá para ir longe: os testes, os portões de acessibilidade e o
-protótipo em `preview/` rodam sem nada instalado além do npm.
+Without Docker you can still get far: the tests, the accessibility gates and the
+prototype in `preview/` run with nothing installed but npm.
 
-## Antes de abrir o PR
+## Before opening the PR
 
 ```bash
 npm run verify
 ```
 
-Isso roda tudo que a CI roda: testes, contraste WCAG AA, critérios da WCAG 2.2,
-geração do protótipo, portões de qualidade estática, imports declarados,
-hidratação, SQL, codificação de arquivo e direção das camadas. Se passa aqui,
-passa lá.
+That runs everything CI runs: tests, WCAG AA contrast, WCAG 2.2 criteria,
+prototype generation, static quality gates, declared imports, hydration, SQL,
+file encoding and layer direction. If it passes here, it passes there.
 
-## O que o projeto espera do código
+## What the project expects from the code
 
-**As camadas têm direção.** `frontend → backend → core`. O `core` não conhece
-React nem Postgres: é regra de domínio pura, e é por isso que ela é testável
-sem subir nada. `check-layers.mjs` reprova import na direção errada.
+**The layers have a direction.** `frontend → backend → core`. `core` knows
+nothing about React or Postgres: it is pure domain rules, and that is why they
+are testable without bringing anything up. `check-layers.mjs` fails an import
+going the wrong way.
 
-**Regra de negócio mora no `core`.** Se a regra está num componente ou numa
-rota, ela não tem teste e vai divergir da próxima tela que precisar dela.
+**Business rules live in `core`.** If the rule sits in a component or a route,
+it has no test and it will drift from the next screen that needs it.
 
-**Comentário explica o porquê, não o quê.** O código já diz o que faz. O
-comentário registra a decisão: o que foi tentado antes, o que quebrou, por que
-esta forma e não a óbvia. Comentário que parafraseia a linha seguinte é ruído.
+**A comment explains the why, not the what.** The code already says what it
+does. The comment records the decision: what was tried before, what broke, why
+this shape and not the obvious one. A comment that paraphrases the next line is
+noise.
 
-**Português no que o usuário lê e no que a equipe lê.** Interface, comentário,
-mensagem de commit e nome de migração em português. Identificador de código em
-inglês quando for o termo técnico (`enrollment`, `tenant`), em português quando
-for vocabulário do domínio (`aproveitamento`, `trilha`).
+**Portuguese in what the user reads and in what the team reads.** Interface,
+comments, commit messages and migration names in Portuguese. Code identifiers in
+English when the term is technical (`enrollment`, `tenant`), in Portuguese when
+it is domain vocabulary (`aproveitamento`, `trilha`).
 
-**Nada de credencial, e-mail real ou nome de cliente.** O repositório é público
-e white-label. Em exemplo, use `exemplo.com.br`.
+**No credentials, real email addresses or client names.** The repository is
+public and white-label. In examples, use `exemplo.com.br`.
 
-**Schema muda por migração.** Numeradas, nunca editadas depois de aplicadas. E
-a migração precisa aceitar a versão ANTERIOR da aplicação: o deploy migra antes
-de trocar o container, e é isso que permite voltar atrás sem restaurar backup.
-Mudança que quebra a versão anterior vira duas entregas.
+**The schema changes through migrations.** Numbered, never edited after they are
+applied. And a migration has to accept the PREVIOUS version of the application:
+the deploy migrates before swapping the container, and that is what makes it
+possible to roll back without restoring a backup. A change that breaks the
+previous version becomes two releases.
 
-## Personalizar para outro cliente
+## Customizing for another client
 
-Se o seu objetivo é rodar isto com outra marca, você provavelmente não precisa
-de um PR, precisa do [WHITELABEL.md](WHITELABEL.md), que cobre marca, cores,
-domínio e tenant sem tocar em código de produto.
+If your goal is to run this under another brand, you probably do not need a PR,
+you need [WHITELABEL.md](WHITELABEL.md), which covers branding, colors, domain
+and tenant without touching product code.
 
-Funcionalidade que só faz sentido para uma organização costuma caber melhor num
-fork. O que serve a qualquer instalação é bem-vindo aqui.
+A feature that only makes sense for one organization usually fits better in a
+fork. Whatever serves any install is welcome here.
 
 ## Commits
 
-Mensagem no imperativo, explicando o efeito: `corrige contraste do hover no
-tema escuro`, não `mudanças no css`. O corpo, quando existir, diz por quê.
+Message in the imperative, explaining the effect: `corrige contraste do hover no
+tema escuro`, not `mudanças no css`. The body, when there is one, says why.

@@ -1,91 +1,90 @@
-# Configuração de white-label
+# White-label setup
 
-Como colocar um cliente novo na plataforma: criar o tenant, apontar o domínio,
-aplicar a identidade visual e decidir o que fica ligado.
+How to put a new client on the platform: create the tenant, point the domain,
+apply the visual identity and decide what stays switched on.
 
-Um tenant é o recorte de isolamento do produto. Cada cliente tem os próprios
-cursos, pessoas, notas e configuração, e nada atravessa de um para outro. A
-separação é por `tenant_id` em 42 tabelas, e há um teste que falha o build
-quando alguém escreve uma consulta sem esse recorte
+A tenant is the product's isolation boundary. Each client has its own courses,
+people, grades and configuration, and nothing crosses from one to another. The
+separation is by `tenant_id` across 42 tables, and there is a test that fails
+the build when someone writes a query without that scope
 (`apps/backend/src/tenancy/query-isolation.test.ts`).
 
 ---
 
-## O que você precisa antes de começar
+## What you need before you start
 
-| Item | Onde consegue |
+| Item | Where to get it |
 |---|---|
-| Domínio ou subdomínio do cliente | Com o cliente. Ex.: `treinamento.acme.com.br` |
-| Cor da marca em hexadecimal | Manual de marca do cliente. Uma cor só |
-| Logo em fundo claro e escuro | PNG ou SVG, fundo transparente |
-| Favicon | `.ico` ou PNG 32×32 |
-| E-mail remetente | Uma caixa que o cliente controle |
-| Nome da unidade organizacional | Como o cliente chama: "Regional", "Filial", "Concessionária" |
-| Acesso ao banco de produção | `docker exec` no container do Postgres |
-| **Se usa Google ou Microsoft:** ID e chave do cliente | Console do Google ou portal do Entra. Na Microsoft, também o ID do diretório |
-| **Se usa Active Directory:** servidor e domínio | Com quem administra a rede. A porta é 636 |
-| **Se usa ADFS, Okta ou similar:** metadados do IdP | Entity ID, URL de SSO e certificado, dos metadados do provedor |
+| The client's domain or subdomain | From the client. E.g.: `treinamento.acme.com.br` |
+| Brand color in hexadecimal | The client's brand manual. Just one color |
+| Logo on light and dark backgrounds | PNG or SVG, transparent background |
+| Favicon | `.ico` or 32×32 PNG |
+| Sender email address | A mailbox the client controls |
+| Name of the organizational unit | Whatever the client calls it: "Region", "Branch", "Dealership" |
+| Access to the production database | `docker exec` into the Postgres container |
+| **If using Google or Microsoft:** client ID and secret | Google Console or the Entra portal. On Microsoft, the directory ID too |
+| **If using Active Directory:** server and domain | From whoever administers the network. The port is 636 |
+| **If using ADFS, Okta or similar:** IdP metadata | Entity ID, SSO URL and certificate, from the provider's metadata |
 
-Não existe tela para criar tenant. É SQL, deliberadamente: criar um cliente é
-uma operação de implantação, não de administração do dia a dia, e uma tela para
-isso conviveria com o risco de alguém criá-lo por engano.
+There is no screen for creating a tenant. It is SQL, deliberately: creating a
+client is a deployment operation, not day-to-day administration, and a screen
+for it would come with the risk of someone creating one by mistake.
 
 ---
 
-## 1. Criar o tenant
+## 1. Create the tenant
 
-Uma instrução. `slug` e `domain` são únicos.
+One statement. `slug` and `domain` are unique.
 
 ```sql
 INSERT INTO tenants (slug, name, domain, unit_label, brand_color,
                      mail_from_name, mail_from_email)
 VALUES (
-  'acme',                          -- slug: minúsculo, sem espaço, não muda depois
-  'ACME Saneamento',               -- nome que aparece nas telas e nos e-mails
-  'treinamento.acme.com.br',       -- domínio SEM https:// e SEM barra final
-  'Regional',                      -- como o cliente chama a unidade dele
-  '#B8860B',                       -- cor da marca, hexadecimal de 6 dígitos
-  'ACME Treinamento',              -- nome que assina os e-mails
-  'treinamento@acme.com.br'        -- endereço remetente
+  'acme',                          -- slug: lowercase, no spaces, never changes later
+  'ACME Saneamento',               -- name shown on screens and in emails
+  'treinamento.acme.com.br',       -- domain WITHOUT https:// and WITHOUT a trailing slash
+  'Regional',                      -- what the client calls its unit
+  '#B8860B',                       -- brand color, 6-digit hexadecimal
+  'ACME Treinamento',              -- name that signs the emails
+  'treinamento@acme.com.br'        -- sender address
 )
 RETURNING id;
 ```
 
-Guarde o `id` que volta: os próximos passos usam.
+Keep the `id` that comes back: the next steps use it.
 
-### O que cada campo faz
+### What each field does
 
-**`slug`**: identificador interno. Aparece em log e no `NERD_DEFAULT_TENANT`.
-Trocar depois quebra referências; escolha uma vez.
+**`slug`**: internal identifier. Shows up in logs and in `NERD_DEFAULT_TENANT`.
+Changing it later breaks references; pick it once.
 
-**`domain`**: é por ele que a plataforma sabe de quem é a visita. Alguém que
-chega por `treinamento.acme.com.br` vê a ACME; por outro domínio, vê outro
-cliente. A resolução está em `apps/frontend/src/lib/tenant-request.ts`, e usa
-`x-forwarded-host` antes de `host`, porque atrás do proxy `host` chega como o nome
-interno do container.
+**`domain`**: this is how the platform knows whose visitor this is. Someone
+arriving at `treinamento.acme.com.br` sees ACME; on another domain, another
+client. The resolution lives in `apps/frontend/src/lib/tenant-request.ts`, and
+uses `x-forwarded-host` before `host`, because behind the proxy `host` arrives
+as the container's internal name.
 
-Sem domínio cadastrado, a requisição cai no tenant padrão
-(`NERD_DEFAULT_TENANT`, ou `exemplo`). Isso é o que segura uma instalação de
-cliente único; com dois clientes, cada um **precisa** do próprio domínio, ou o
-segundo nunca é alcançado.
+With no domain registered, the request falls back to the default tenant
+(`NERD_DEFAULT_TENANT`, or `exemplo`). That is what holds up a single-client
+install; with two clients, each one **needs** its own domain, or the second is
+never reached.
 
-**`unit_label`**: o produto fala "unidade" o tempo todo: filtro de relatório,
-cadastro de pessoa, desempenho por área. O rótulo é do cliente. A pluralização
-é automática (`packages/core/src/tenancy/unit-label.ts`), então informe no
-singular.
+**`unit_label`**: the product says "unit" all the time: report filters, person
+records, performance by area. The label belongs to the client. Pluralization is
+automatic (`packages/core/src/tenancy/unit-label.ts`), so enter the singular.
 
-**`brand_color`**: uma cor, e o resto é derivado. Explicado no passo 3.
+**`brand_color`**: one color, and the rest is derived. Explained in step 3.
 
 ---
 
-## 2. Criar o primeiro administrador
+## 2. Create the first administrator
 
-O tenant nasce sem ninguém. Sem este passo, ninguém entra.
+The tenant is born with nobody in it. Without this step, nobody gets in.
 
 ```sql
 INSERT INTO users (tenant_id, email, full_name, role, status)
 VALUES (
-  '<id-do-tenant>',
+  '<tenant-id>',
   'nome@acme.com.br',
   'Nome Completo',
   'admin',
@@ -93,28 +92,28 @@ VALUES (
 );
 ```
 
-`password_hash` fica nulo de propósito: quem escolhe a senha é a pessoa, no
-primeiro acesso. Um administrador que digita a senha de outro passa a saber a
-senha de outro.
+`password_hash` is left null on purpose: the person chooses their own password,
+on first access. An administrator who types someone else's password now knows
+someone else's password.
 
-O status `pending` faz a conta existir sem poder entrar até a senha ser
-definida. A pessoa recebe o convite por e-mail se o SMTP estiver configurado
-(passo 6); sem SMTP, mande você mesmo o link de definição de senha.
+The `pending` status makes the account exist without being able to sign in until
+the password is set. The person receives the invitation by email if SMTP is
+configured (step 6); without SMTP, send them the password-setup link yourself.
 
-A partir daqui, o resto se resolve pela interface: este administrador convida
-os demais em **Administração → Usuários**, ou importa uma planilha.
+From here on, the rest is handled through the interface: this administrator
+invites the others in **Administration → Users**, or imports a spreadsheet.
 
 ---
 
-## 3. Identidade visual
+## 3. Visual identity
 
-### A cor
+### The color
 
-Você informa **uma** cor e o produto deriva a paleta inteira: hover, active,
-superfícies, gradiente, ondas da marca. A lógica está em
+You supply **one** color and the product derives the whole palette: hover,
+active, surfaces, gradient, brand waves. The logic lives in
 `packages/core/src/tenancy/branding.ts`.
 
-Com `#B8860B`, a paleta sai assim:
+With `#B8860B`, the palette comes out like this:
 
 ```
 --brand:#B8860B
@@ -125,33 +124,35 @@ Com `#B8860B`, a paleta sai assim:
 --text-on-brand:…
 ```
 
-**O contraste é ajustado sozinho.** A cor do texto sobre a marca é escolhida
-para passar em WCAG AA (4.5:1). Com o dourado acima, o resultado é 5.79:1. Uma
-cor clara demais recebe texto escuro; uma escura recebe texto claro. Você não
-precisa calcular nada, e não consegue produzir uma combinação ilegível pelo
-campo de cor.
+**Contrast is adjusted on its own.** The color of text over the brand is picked
+to pass WCAG AA (4.5:1). With the gold above, the result is 5.79:1. A color that
+is too light gets dark text; a dark one gets light text. You do not have to
+calculate anything, and you cannot produce an unreadable combination through the
+color field.
 
-**Cor inválida cai no padrão.** `paletteToCss` só aceita hexadecimal de seis
-dígitos. Qualquer outra coisa, seja nome de cor, `rgb()` ou texto solto, devolve
-vazio e a plataforma usa a cor padrão. Não quebra a tela, mas também não aplica
-a marca; se a cor não pegou, é aqui que olhar.
+**An invalid color falls back to the default.** `paletteToCss` only accepts
+six-digit hexadecimal. Anything else, whether a color name, `rgb()` or loose
+text, returns empty and the platform uses the default color. It does not break
+the screen, but it does not apply the brand either; if the color did not take,
+this is where to look.
 
-### Logos e favicon
+### Logos and favicon
 
-Três arquivos, referenciados por URL:
+Three files, referenced by URL:
 
-| Coluna | Uso | Formato |
+| Column | Use | Format |
 |---|---|---|
-| `logo_light_url` | Sobre fundo claro | PNG/SVG, fundo transparente |
-| `logo_dark_url` | Sobre fundo escuro (menu lateral) | PNG/SVG, versão clara da logo |
-| `favicon_url` | Aba do navegador | `.ico` ou PNG 32×32 |
+| `logo_light_url` | On a light background | PNG/SVG, transparent background |
+| `logo_dark_url` | On a dark background (side menu) | PNG/SVG, light version of the logo |
+| `favicon_url` | Browser tab | `.ico` or 32×32 PNG |
 
-As duas logos são necessárias porque o menu lateral é escuro e o corpo é claro.
-Uma logo só, escura, some no menu.
+Both logos are needed because the side menu is dark and the body is light. A
+single dark logo disappears in the menu.
 
-Duas formas de hospedar:
+Two ways to host them:
 
-**Pelo storage da plataforma**: envie ao bucket MinIO e use o caminho público:
+**Through the platform's storage**: upload to the MinIO bucket and use the
+public path:
 
 ```sql
 UPDATE tenants
@@ -161,28 +162,28 @@ UPDATE tenants
  WHERE slug = 'acme';
 ```
 
-**Por URL externa**: se o cliente já hospeda, use a URL absoluta. Precisa ser
-HTTPS: um `http://` numa página HTTPS é bloqueado pelo navegador e a logo
-simplesmente não aparece.
+**By external URL**: if the client already hosts them, use the absolute URL. It
+has to be HTTPS: an `http://` on an HTTPS page is blocked by the browser and the
+logo simply does not show up.
 
-### Pela interface
+### Through the interface
 
-Depois do primeiro acesso, tudo isso é editável em **Administração →
-Plataforma**, sem SQL. Use o SQL para a implantação inicial e deixe os ajustes
-com o cliente.
+After first sign-in, all of this is editable in **Administration → Platform**,
+with no SQL. Use SQL for the initial deployment and leave the adjustments to the
+client.
 
 ---
 
-## 4. Apontar o domínio
+## 4. Point the domain
 
 ### DNS
 
-Aponte o domínio do cliente para o servidor. Registro `A` para o IP, ou `CNAME`
-se estiver atrás de Cloudflare.
+Point the client's domain at the server. An `A` record for the IP, or a `CNAME`
+if it sits behind Cloudflare.
 
-### Certificado
+### Certificate
 
-O Caddy resolve HTTPS sozinho, via Let's Encrypt. O que ele precisa está em
+Caddy handles HTTPS on its own, via Let's Encrypt. What it needs is in
 `infra/.env`:
 
 ```
@@ -190,42 +191,45 @@ SITE_ADDRESS=treinamento.acme.com.br
 ACME_EMAIL=infra@suaempresa.com.br
 ```
 
-`ACME_EMAIL` recebe o aviso de certificado prestes a expirar. Precisa ser um
-endereço válido: `email` sem argumento não é "sem e-mail", é erro de sintaxe, e
-o Caddy recusa o arquivo inteiro e reinicia em laço.
+`ACME_EMAIL` receives the warning about a certificate about to expire. It has to
+be a valid address: `email` with no argument is not "no email", it is a syntax
+error, and Caddy rejects the whole file and restarts in a loop.
 
-### Vários domínios no mesmo servidor
+### Several domains on the same server
 
-O bloco de site do Caddy é `{$SITE_ADDRESS}`, um endereço por vez. Para servir
-vários clientes do mesmo servidor, liste os domínios separados por espaço:
+Caddy's site block is `{$SITE_ADDRESS}`, one address at a time. To serve several
+clients from the same server, list the domains separated by spaces:
 
 ```
 SITE_ADDRESS="treinamento.acme.com.br ead.outrocliente.com.br"
 ```
 
-O Caddy trata um bloco com vários endereços como o mesmo site, emite certificado
-para cada um, e a aplicação resolve o tenant pelo `Host` da requisição. É um
-servidor atendendo vários clientes, sem que nenhum enxergue o outro.
+Caddy treats a block with several addresses as the same site, issues a
+certificate for each of them, and the application resolves the tenant from the
+request's `Host`. It is one server serving several clients, with none of them
+seeing the others.
 
-Confirme depois de subir, porque um erro aqui derruba o proxy em laço:
+Confirm after bringing it up, because a mistake here puts the proxy in a restart
+loop:
 
 ```bash
 npm run compose -- logs proxy | tail -20
 ```
 
-### Atrás do Cloudflare Tunnel
+### Behind Cloudflare Tunnel
 
-Se estiver publicando pelo túnel, o TLS público termina na Cloudflare e o túnel
-entrega em HTTP interno. Aí `SITE_ADDRESS` leva o esquema explícito:
+If you are publishing through the tunnel, public TLS terminates at Cloudflare
+and the tunnel delivers over internal HTTP. In that case `SITE_ADDRESS` takes an
+explicit scheme:
 
 ```
 SITE_ADDRESS=http://nerdlms
 ```
 
-Sem o `http://`, o Caddy tenta emitir certificado para um domínio cujo desafio
-ACME nunca chega até ele, e repete para sempre.
+Without the `http://`, Caddy tries to issue a certificate for a domain whose
+ACME challenge never reaches it, and retries forever.
 
-Depois de mexer no `.env`, o proxy precisa reler:
+After touching `.env`, the proxy needs to re-read it:
 
 ```bash
 npm run compose -- up -d proxy
@@ -233,11 +237,11 @@ npm run compose -- up -d proxy
 
 ---
 
-## 5. Escolher o que fica ligado
+## 5. Choose what stays switched on
 
-São 16 funcionalidades desligáveis, em árvore. Sem nenhuma configuração, todas
-ficam ligadas. O catálogo em `packages/core/src/tenancy/features.ts` define o
-padrão de cada uma.
+There are 16 features that can be switched off, arranged in a tree. With no
+configuration at all, every one of them is on. The catalog in
+`packages/core/src/tenancy/features.ts` defines the default for each.
 
 ```
 comentarios
@@ -254,37 +258,37 @@ gamificacao
 trilhas, agenda, certificados, favoritos, busca
 ```
 
-**A hierarquia manda.** Desligar `comentarios` desliga respostas e upvotes
-junto, independentemente do que estiver marcado neles. É o que evita o estado
-incoerente de "upvote ligado num produto sem comentário".
+**The hierarchy rules.** Switching off `comentarios` switches off replies and
+upvotes along with it, regardless of what is ticked on them. That is what avoids
+the incoherent state of "upvotes on in a product with no comments".
 
-Faça pela interface, em **Administração → Plataforma**, que é onde a árvore
-aparece e o efeito de desligar um pai fica visível. Por SQL, se precisar
-automatizar a implantação:
+Do it through the interface, in **Administration → Platform**, which is where
+the tree is shown and the effect of switching off a parent is visible. Via SQL,
+if you need to automate the deployment:
 
 ```sql
 INSERT INTO tenant_features (tenant_id, feature, enabled)
 VALUES
-  ('<id-do-tenant>', 'gamificacao', false),
-  ('<id-do-tenant>', 'forum', false)
+  ('<tenant-id>', 'gamificacao', false),
+  ('<tenant-id>', 'forum', false)
 ON CONFLICT (tenant_id, feature) DO UPDATE SET enabled = EXCLUDED.enabled;
 ```
 
-A tabela guarda **só o que o cliente mudou**. Ausência de linha significa "usa o
-padrão do produto", e é assim que uma funcionalidade nova entra ligada para
-todos sem precisar de migração de dados.
+The table stores **only what the client changed**. A missing row means "use the
+product default", and that is how a new feature arrives switched on for everyone
+without needing a data migration.
 
-**Desligar não apaga.** O conteúdo continua no banco: some das telas e volta se
-alguém religar. Um cliente que desliga o fórum por seis meses não perde as
-discussões.
+**Switching off does not delete.** The content stays in the database: it
+disappears from the screens and comes back if someone switches it on again. A
+client who switches the forum off for six months does not lose the discussions.
 
 ---
 
-## 6. E-mail
+## 6. Email
 
-Duas camadas: o transporte (do servidor) e a identidade (do cliente).
+Two layers: the transport (the server's) and the identity (the client's).
 
-O transporte fica no `infra/.env` e vale para a instalação inteira:
+The transport lives in `infra/.env` and applies to the whole install:
 
 ```
 MAIL_TRANSPORT=smtp
@@ -295,366 +299,377 @@ SMTP_PASSWORD=…
 SMTP_FROM=nao-responda@suaempresa.com.br
 ```
 
-Com `MAIL_TRANSPORT=log`, nada é enviado: o e-mail vai para o log do
-container. É o padrão em desenvolvimento e o que você quer ao testar uma
-implantação sem incomodar ninguém.
+With `MAIL_TRANSPORT=log`, nothing is sent: the email goes to the container's
+log. That is the default in development and what you want when testing a
+deployment without bothering anyone.
 
-A identidade é por tenant, nas colunas `mail_from_name` e `mail_from_email` que
-você já preencheu no passo 1. Quem recebe vê "ACME Treinamento", não o nome da
-sua empresa.
+The identity is per tenant, in the `mail_from_name` and `mail_from_email`
+columns you already filled in at step 1. The recipient sees "ACME Treinamento",
+not your company's name.
 
-**Se o cliente usa o próprio domínio no remetente**, ele precisa autorizar seu
-servidor no SPF, ou o e-mail cai em spam. É a única parte deste processo que
-depende de alguém do lado do cliente mexer em DNS, então encaminhe cedo.
+**If the client uses its own domain in the sender address**, it has to authorize
+your server in SPF, or the email lands in spam. It is the only part of this
+process that depends on someone on the client's side touching DNS, so raise it
+early.
 
-Os textos dos e-mails também são por cliente, editáveis em **Administração →
-Plataforma → Textos dos e-mails**. Sem texto próprio, vale o padrão do produto.
+The email copy is per client too, editable in **Administration → Platform →
+Email copy**. With no custom text, the product default applies.
 
 ---
 
-## 7. Acesso pelo sistema da empresa (SSO)
+## 7. Sign-in through the company's system (SSO)
 
-Opcional, e quase sempre pedido. Empresa de porte não quer mais uma senha para
-gerenciar: quer que o desligamento no diretório dela feche o acesso aqui, no
-mesmo dia.
+Optional, and requested almost every time. A company of any size does not want
+another password to manage: it wants an offboarding in its own directory to
+close access here, the same day.
 
-Google e Microsoft **já vêm configurados** no produto: os endereços deles são
-públicos e iguais para todo mundo. O que você preenche é só o que é do cliente.
+Google and Microsoft **come preconfigured** in the product: their endpoints are
+public and the same for everyone. All you fill in is what belongs to the client.
 
-Tudo acontece em **Administração → Acesso**.
+Everything happens in **Administration → Access**.
 
-### Qual dos três
+### Which of the three
 
-O produto oferece três formas de entrar pelo sistema da empresa. A escolha não
-é de gosto e depende do que o cliente já tem:
+The product offers three ways to sign in through the company's system. The
+choice is not a matter of taste and depends on what the client already has:
 
-| Se o cliente usa | Escolha | Por quê |
+| If the client uses | Choose | Why |
 |---|---|---|
-| Google Workspace ou Microsoft 365 | **OIDC** | Já vem configurado; ele cola duas chaves |
-| Active Directory na rede dele | **LDAP** | O diretório já existe e já tem todo mundo |
-| ADFS, Okta, OneLogin, Shibboleth | **SAML 2.0** | É o que essas ferramentas falam |
-| Okta ou Auth0 modernos | **OIDC genérico** ou SAML | Os dois funcionam; OIDC é menos configuração |
+| Google Workspace or Microsoft 365 | **OIDC** | Already preconfigured; they paste in two keys |
+| Active Directory on their network | **LDAP** | The directory already exists and already has everyone |
+| ADFS, Okta, OneLogin, Shibboleth | **SAML 2.0** | It is what those tools speak |
+| Modern Okta or Auth0 | **Generic OIDC** or SAML | Both work; OIDC is less configuration |
 
-Dá para ligar mais de um ao mesmo tempo. Quem tem Active Directory e Google
-costuma querer os dois: o AD para quem está na rede, o Google para quem está
-em campo.
+You can switch on more than one at a time. Whoever has both Active Directory and
+Google usually wants both: AD for people on the network, Google for people in
+the field.
 
-### LDAP e Active Directory
+### LDAP and Active Directory
 
-O que muda por cliente é o servidor e o domínio. O formato do identificador,
-que difere entre AD e OpenLDAP, vem do produto.
+What changes per client is the server and the domain. The identifier format,
+which differs between AD and OpenLDAP, comes from the product.
 
-| Campo | Active Directory | OpenLDAP |
+| Field | Active Directory | OpenLDAP |
 |---|---|---|
-| Servidor | `dc.empresa.com.br` | `ldap.empresa.com.br` |
-| Porta | 636 | 636 |
-| Domínio | `empresa.com.br` | — |
+| Server | `dc.empresa.com.br` | `ldap.empresa.com.br` |
+| Port | 636 | 636 |
+| Domain | `empresa.com.br` | — |
 | Base | — | `dc=empresa,dc=com,dc=br` |
 
-**A porta 636 não é opcional.** É LDAP sobre TLS, e o produto não oferece a
-porta 389: a autenticação manda a senha do diretório corporativo, e sem TLS ela
-atravessa a rede legível.
+**Port 636 is not optional.** It is LDAP over TLS, and the product does not offer
+port 389: authentication sends the corporate directory password, and without TLS
+it crosses the network in the clear.
 
-**Certificado da própria empresa.** Diretório corporativo quase nunca usa
-certificado de autoridade pública. Se a conexão falhar com erro de certificado,
-marque a opção correspondente. É uma escolha consciente, e fica registrada.
+**The company's own certificate.** A corporate directory almost never uses a
+certificate from a public authority. If the connection fails with a certificate
+error, tick the corresponding option. It is a conscious choice, and it is
+recorded.
 
-O que a pessoa digita é o nome de login dela, não o DN completo. O produto
-monta o resto.
+What the person types is their login name, not the full DN. The product builds
+the rest.
 
 ### SAML 2.0
 
-Aqui a troca é de metadados, e é mútua. Do provedor você precisa de três
-valores; para o provedor você entrega dois.
+Here the exchange is metadata, and it goes both ways. From the provider you need
+three values; to the provider you hand over two.
 
-**O que trazer do provedor:**
+**What to bring from the provider:**
 
-| Campo | Onde encontrar |
+| Field | Where to find it |
 |---|---|
-| Entity ID | Nos metadados do IdP, como `entityID` |
-| URL de SSO | O endereço `HTTP-Redirect` de SingleSignOnService |
-| Certificado | O bloco `X509Certificate` dos metadados, ou o arquivo `.cer` |
+| Entity ID | In the IdP metadata, as `entityID` |
+| SSO URL | The `HTTP-Redirect` address of SingleSignOnService |
+| Certificate | The `X509Certificate` block in the metadata, or the `.cer` file |
 
-**O que entregar ao provedor:**
+**What to hand to the provider:**
 
-| Campo | Valor |
+| Field | Value |
 |---|---|
-| Entity ID (SP) | O que você definir na tela, normalmente a URL da plataforma |
-| URL de retorno (ACS) | `https://treinamento.acme.com.br/api/saml/retorno` |
+| Entity ID (SP) | Whatever you define on the screen, normally the platform's URL |
+| Return URL (ACS) | `https://treinamento.acme.com.br/api/saml/retorno` |
 
-**Cadastre o certificado novo ANTES de o provedor rotacionar.** O campo aceita
-vários, e é para isso: durante a troca, o provedor já assina com a nova chave
-enquanto o cliente ainda tem a velha. Com os dois cadastrados, ninguém percebe
-a rotação; com um só, o login para até alguém atualizar.
+**Register the new certificate BEFORE the provider rotates it.** The field
+accepts several, and that is what it is for: during the swap, the provider is
+already signing with the new key while the client still has the old one. With
+both registered, nobody notices the rotation; with only one, sign-in stops until
+someone updates it.
 
-**O provedor precisa assinar com SHA-256.** Muitos ainda vêm de fábrica com
-SHA-1, que é recusado: colisão de SHA-1 é demonstrada desde 2017, e aceitá-lo
-tornaria a validação decorativa. A mensagem de erro diz o que configurar.
+**The provider has to sign with SHA-256.** Many still ship with SHA-1, which is
+refused: SHA-1 collisions have been demonstrated since 2017, and accepting it
+would make validation decorative. The error message says what to configure.
 
-**Asserção não solicitada não entra.** Alguns provedores oferecem um botão que
-manda a asserção sem a plataforma ter pedido. O produto recusa: sem um pedido
-nosso, não há como saber que a pessoa quis entrar aqui.
+**Unsolicited assertions do not get in.** Some providers offer a button that
+sends the assertion without the platform having asked for it. The product
+refuses: without a request from us, there is no way to know the person meant to
+sign in here.
 
-### O passo que mais trava
+### The step that trips people up most
 
-A primeira coisa da tela é a **URL de retorno**, com botão de copiar. Cadastre
-esse endereço no provedor **exatamente como está lá**:
+The first thing on the screen is the **return URL**, with a copy button.
+Register that address with the provider **exactly as it appears there**:
 
 ```
 https://treinamento.acme.com.br/api/sso/retorno
 ```
 
-O Google e a Microsoft comparam a string inteira e recusam por uma barra a
-mais, com uma mensagem que não diz qual era o endereço esperado. Se o login
-falhar logo no começo, é quase sempre isto.
+Google and Microsoft compare the whole string and refuse over one extra slash,
+with a message that does not say what address they expected. If sign-in fails
+right at the start, it is almost always this.
 
 ### Google
 
-No Google Cloud Console, em **APIs e Serviços → Credenciais**, crie um **ID do
-cliente OAuth** do tipo aplicativo da Web. Cole a URL de retorno lá, e traga de
-volta duas coisas:
+In the Google Cloud Console, under **APIs & Services → Credentials**, create an
+**OAuth client ID** of the web application type. Paste the return URL there, and
+bring back two things:
 
-| Campo na tela | De onde vem |
+| Field on the screen | Where it comes from |
 |---|---|
-| ID do cliente | termina em `.apps.googleusercontent.com` |
-| Chave secreta | aparece uma vez, na criação |
+| Client ID | ends in `.apps.googleusercontent.com` |
+| Client secret | shown once, at creation time |
 
 ### Microsoft
 
-No portal do **Entra ID**, em **Registros de aplicativo**, registre um
-aplicativo. São três valores:
+In the **Entra ID** portal, under **App registrations**, register an
+application. Three values:
 
-| Campo na tela | De onde vem |
+| Field on the screen | Where it comes from |
 |---|---|
-| ID do diretório (locatário) | visão geral do aplicativo |
-| ID do cliente | visão geral do aplicativo |
-| Chave secreta | **Certificados e segredos** |
+| Directory (tenant) ID | the application's overview |
+| Client ID | the application's overview |
+| Client secret | **Certificates & secrets** |
 
-O ID do diretório é obrigatório e não tem atalho. Existe um valor `common` que
-a Microsoft aceita, e ele deixaria **qualquer conta Microsoft do mundo** entrar,
-inclusive pessoais. Numa plataforma corporativa isso é uma porta aberta, e
-por isso o produto não oferece essa opção.
+The directory ID is mandatory and there is no shortcut. There is a `common`
+value that Microsoft accepts, and it would let **any Microsoft account in the
+world** sign in, personal ones included. On a corporate platform that is an open
+door, which is why the product does not offer that option.
 
-### Outro provedor
+### Another provider
 
-Okta, Keycloak, Auth0 e afins entram como **OpenID Connect**. Aí você preenche
-quatro endereços à mão, todos disponíveis no documento de descoberta do
-provedor, geralmente em:
+Okta, Keycloak, Auth0 and the like go in as **OpenID Connect**. There you fill
+in four endpoints by hand, all of them available in the provider's discovery
+document, usually at:
 
 ```
 https://provedor-do-cliente.com/.well-known/openid-configuration
 ```
 
-### As três decisões que importam
+### The three decisions that matter
 
-**Domínios aceitos.** Preencha. Em branco, o produto aceita qualquer e-mail que
-o provedor confirmar, e num cliente que usa o Google como provedor isso
-inclui qualquer `@gmail.com` do mundo. Com `acme.com.br` preenchido, quem está
-fora é recusado.
+**Accepted domains.** Fill this in. Left blank, the product accepts any email the
+provider confirms, and on a client using Google as its provider that includes
+any `@gmail.com` in the world. With `acme.com.br` filled in, anyone outside it
+is refused.
 
-**Criar conta no primeiro acesso.** Vem desligada. Ligada, qualquer pessoa do
-diretório da empresa vira usuária ao entrar pela primeira vez, com o papel que
-você escolher ao lado. Boa parte dos clientes quer exatamente isso; nenhum quer
-descobrir depois que aconteceu sem ter pedido.
+**Create an account on first sign-in.** Off by default. On, anyone in the
+company's directory becomes a user the first time they sign in, with the role you
+pick alongside it. Plenty of clients want exactly that; none of them want to find
+out later that it happened without their asking.
 
-**Manter o login por senha.** Deixe ligado até testar. Desligar exige que todos
-entrem pelo provedor, e se a configuração estiver errada ninguém entra, nem
-você. A tela pede confirmação antes de deixar você desmarcar.
+**Keep password sign-in.** Leave it on until you have tested. Switching it off
+requires everyone to come in through the provider, and if the configuration is
+wrong nobody gets in, you included. The screen asks for confirmation before
+letting you untick it.
 
-### Como uma pessoa é reconhecida
+### How a person is recognized
 
-Pela ordem:
+In this order:
 
-1. **Já entrou por aqui antes**: o vínculo existe, entra direto.
-2. **Já tinha conta com o mesmo e-mail**: o vínculo é criado no primeiro
-   acesso e ela entra na conta que já era dela.
-3. **Não tem conta**: cria, se você ligou a opção; senão, recusa com um aviso
-   para procurar o administrador.
+1. **They have signed in here before**: the link exists, they go straight in.
+2. **They already had an account with the same email**: the link is created on
+   first sign-in and they land in the account that was already theirs.
+3. **They have no account**: one is created, if you switched that option on;
+   otherwise they are refused with a note to contact the administrator.
 
-O vínculo é gravado pelo identificador do provedor, **não pelo e-mail**. É
-importante: quem casa e troca de sobrenome recebe outro endereço e continua a
-mesma pessoa. E um endereço desligado pode ser reatribuído a outro funcionário,
-e seguir o e-mail entregaria a conta antiga ao novo dono do endereço.
+The link is recorded by the provider's identifier, **not by the email address**.
+That matters: someone who marries and changes surname gets a different address
+and is still the same person. And a disabled address can be reassigned to another
+employee, and following the email would hand the old account to the address's new
+owner.
 
-**Conta desativada não entra**, mesmo com vínculo. É o acesso que uma empresa
-mais quer cortar no dia de um desligamento.
+**A deactivated account does not get in**, link or no link. It is the access a
+company most wants cut on the day of an offboarding.
 
-### Testando
+### Testing
 
-Ligue o provedor, abra a tela de login numa janela anônima e clique no botão. O
-que deve acontecer:
+Switch the provider on, open the sign-in screen in a private window and click the
+button. What should happen:
 
-- você vai para o provedor;
-- volta para a plataforma já logado;
-- em **Administração → Auditoria** aparece um registro `Entrou` e, no primeiro
-  acesso, um `Vinculou conta ao provedor`.
+- you go to the provider;
+- you come back to the platform already signed in;
+- in **Administration → Auditing** an `Entrou` record appears and, on first
+  sign-in, a `Vinculou conta ao provedor`.
 
-Se der erro, a mensagem volta na própria tela de login. As mais comuns:
+If it errors, the message comes back on the sign-in screen itself. The most
+common ones:
 
-| Mensagem | O que verificar |
+| Message | What to check |
 |---|---|
-| O provedor de identidade recusou a autenticação | chave secreta errada ou vencida; URL de retorno não cadastrada |
-| Este e-mail não pertence a um domínio autorizado | o domínio da pessoa não está na lista |
-| Você não tem conta nesta plataforma | conta não existe e a criação automática está desligada |
-| O provedor está configurado pela metade | falta o ID do diretório (Microsoft) ou um dos endereços (genérico) |
+| The identity provider refused authentication | wrong or expired client secret; return URL not registered |
+| This email does not belong to an authorized domain | the person's domain is not on the list |
+| You do not have an account on this platform | the account does not exist and automatic creation is off |
+| The provider is only half configured | the directory ID (Microsoft) or one of the endpoints (generic) is missing |
 
 ---
 
-## 8. Conteúdo e sistemas de fora
+## 8. Content and outside systems
 
-Nada aqui é obrigatório para entregar um cliente. Está neste documento porque a
-pergunta aparece cedo na implantação, quase sempre na forma "temos os
-treinamentos no sistema antigo, dá para aproveitar?".
+Nothing here is required to deliver a client. It is in this document because the
+question comes up early in a deployment, almost always as "we have the training
+in the old system, can we reuse it?".
 
-### Trazer o que o cliente já tem
+### Bringing over what the client already has
 
-| O que ele tem | O que fazer |
+| What they have | What to do |
 |---|---|
-| Pacote SCORM 1.2 ou 2004 | Envie o `.zip` ao criar a aula, em **Instrutor → Meus cursos → (o curso)**. O tipo, o título e a nota de corte saem do próprio pacote |
-| Banco de questões de outro LMS | Exporte em QTI e importe na tela do curso, em **Instrutor → Meus cursos → (o curso)**. Aceita `.xml` (QTI 2.x e 3.0) e `.csv` |
-| Planilha de pessoas | **Administração → Usuários → Importar**. Confere antes de gravar |
-| Catálogo de cursos em planilha | **Instrutor → Meus cursos**, no bloco de importação |
+| SCORM 1.2 or 2004 package | Upload the `.zip` when creating the lesson, under **Instructor → My courses → (the course)**. The type, title and pass mark come from the package itself |
+| Question bank from another LMS | Export as QTI and import it on the course screen, under **Instructor → My courses → (the course)**. Accepts `.xml` (QTI 2.x and 3.0) and `.csv` |
+| Spreadsheet of people | **Administration → Users → Import**. It checks before saving |
+| Course catalog in a spreadsheet | **Instructor → My courses**, in the import block |
 
-**Sobre o SCORM.** O `.zip` é o único arquivo que passa pelo servidor. Os
-demais vão direto do navegador ao storage. Um pacote precisa ser descompactado,
-e a URL assinada resolveria o envio sem resolver o que vem depois. O limite é
-60 MB; acima disso, quase sempre há vídeo embutido no pacote, que renderia mais
-como aula de vídeo separada.
+**About SCORM.** The `.zip` is the only file that goes through the server. The
+rest go straight from the browser to storage. A package has to be unpacked, and a
+signed URL would solve the upload without solving what comes after. The limit is
+60 MB; above that there is almost always video embedded in the package, which
+would work better as a separate video lesson.
 
-**Quem edita o curso vê o conteúdo em pré-visualização.** O player abre e o
-pacote roda igual, mas nada é registrado: o acompanhamento do SCORM pertence à
-matrícula, e o instrutor não tem uma. A tela avisa. É de propósito: matricular
-o instrutor no próprio curso sujaria os relatórios de conclusão.
+**Whoever edits the course sees the content in preview.** The player opens and
+the package runs the same way, but nothing is recorded: SCORM tracking belongs to
+the enrollment, and the instructor does not have one. The screen says so. That is
+on purpose: enrolling the instructor in their own course would pollute the
+completion reports.
 
-### Ligar a plataforma a outro sistema
+### Connecting the platform to another system
 
-| Padrão | Para quê | Onde configura |
+| Standard | What for | Where to configure it |
 |---|---|---|
-| **LTI 1.3** | Uma ferramenta de fora abre dentro do curso, já sabendo quem é o aluno, e devolve a nota | Cadastro da ferramenta, por SQL |
-| **xAPI** | Um simulador, um app de campo ou outro LMS registram o que a pessoa fez | Chave de API, em Integrações |
-| **cmi5** | Conteúdo externo com sessão, resultado e critério de conclusão declarado pelo autor | Cadastro da unidade, por SQL |
-| **Webhooks** | Avisar outro sistema quando algo acontece aqui | **Administração → Integrações** |
-| **API REST** | Ler e escrever de fora | Chave de API, com escopos |
+| **LTI 1.3** | An outside tool opens inside the course, already knowing who the student is, and sends the grade back | Tool registration, via SQL |
+| **xAPI** | A simulator, a field app or another LMS record what the person did | API key, under Integrations |
+| **cmi5** | External content with a session, a result and a completion criterion declared by the author | Unit registration, via SQL |
+| **Webhooks** | Notify another system when something happens here | **Administration → Integrations** |
+| **REST API** | Read and write from outside | API key, with scopes |
 
-O que estas cinco têm em comum: **a chave é por cliente**. Uma chave de API dá
-acesso programático ao tenant inteiro, e vazá-la entre clientes seria o pior
-vazamento possível, e por isso ela é emitida na administração daquele cliente, e
-aparece uma única vez.
+What these five have in common: **the key is per client**. An API key gives
+programmatic access to the entire tenant, and leaking one across clients would be
+the worst possible leak, which is why it is issued in that client's
+administration area and shown exactly once.
 
-### Levar embora
+### Taking it away
 
-Vale conferir na entrega, porque é o que distingue uma plataforma de uma
-armadilha:
+Worth checking at handover, because it is what separates a platform from a trap:
 
-- **Questões**: exportação em QTI 2.1, o formato que Moodle, Canvas e
-  Blackboard leem. Botão na tela do curso, ao lado da importação.
-- **Relatórios**: CSV, pelos botões do **Painel do projeto** (Progresso, Equipe) e por
-  `/api/relatorios?tipo=progresso|usuarios|notas|cursos`.
-- **O cliente inteiro**: backup em JSON, em **Administração → Plataforma**.
-  Traz o conteúdo, as pessoas, as matrículas e as notas.
+- **Questions**: export as QTI 2.1, the format Moodle, Canvas and Blackboard
+  read. Button on the course screen, next to the import one.
+- **Reports**: CSV, through the buttons on the **Project dashboard** (Progress,
+  Team) and via `/api/relatorios?tipo=progresso|usuarios|notas|cursos`.
+- **The whole client**: JSON backup, in **Administration → Platform**. It brings
+  the content, the people, the enrollments and the grades.
 
 ---
 
-## 9. Conferir antes de entregar
+## 9. Check before handover
 
-Da máquina, com o domínio já apontando:
+From the machine, with the domain already pointing:
 
 ```bash
-# A tela de login responde e traz a marca certa
+# The sign-in screen responds and shows the right brand
 curl -sI https://treinamento.acme.com.br/login | head -3
 
-# O tenant foi resolvido pelo domínio (e não caiu no padrão)
+# The tenant was resolved from the domain (and did not fall back to the default)
 curl -s https://treinamento.acme.com.br/login | grep -o "ACME Saneamento" | head -1
 ```
 
-Pelo navegador, entrando com o administrador criado:
+In the browser, signed in as the administrator you created:
 
-- [ ] A logo aparece no menu lateral **e** no corpo (as duas versões)
-- [ ] O favicon é o do cliente
-- [ ] Os botões estão na cor da marca, e o texto sobre eles é legível
-- [ ] O rótulo de unidade aparece como o cliente chama, não "Unidade"
-- [ ] **Administração → Plataforma** abre e mostra a configuração
-- [ ] As funcionalidades desligadas realmente sumiram do menu
-- [ ] Um e-mail de convite chega com o remetente certo
+- [ ] The logo shows up in the side menu **and** in the body (both versions)
+- [ ] The favicon is the client's
+- [ ] The buttons are in the brand color, and the text over them is readable
+- [ ] The unit label reads the way the client says it, not "Unit"
+- [ ] **Administration → Platform** opens and shows the configuration
+- [ ] The features you switched off really are gone from the menu
+- [ ] An invitation email arrives with the right sender
 
-Se a marca não aplicou, o suspeito na ordem: cor fora do formato hexadecimal;
-URL de logo em `http://` numa página HTTPS; domínio não bate com a coluna
-`domain` (aí a aplicação caiu no tenant padrão e você está vendo outro cliente).
-
----
-
-## Como o isolamento funciona
-
-Vale saber para não se surpreender.
-
-**Toda consulta declara o tenant.** As tabelas raiz têm `tenant_id`, e as
-demais herdam por chave estrangeira. Há um teste que lê o código-fonte e falha o
-build quando uma consulta lê tabela raiz sem recortar. Foi escrito depois de a
-lista de tabelas ficar desatualizada e passar a aprovar em silêncio o que devia
-reprovar.
-
-**A fronteira vem antes do papel.** Em `packages/core/src/auth/permissions.ts`,
-a checagem de tenant acontece antes do bloco do administrador. Sem essa ordem, o
-admin de um cliente enxergaria o dado de outro, e "acesso irrestrito" nunca
-significou acesso à empresa alheia.
-
-**O e-mail é único por cliente, não global.** A mesma pessoa pode ter conta em
-dois clientes com o mesmo endereço. O login resolve pelo domínio de onde ela
-chegou.
-
-**Backup e restauração são por cliente.** Em **Administração → Plataforma →
-Backup**, o arquivo sai com os registros daquele cliente. Restaurar só funciona
-no mesmo cliente que gerou o arquivo: as linhas carregam os identificadores de
-origem, e num cliente diferente eles já existem. Migrar conteúdo entre clientes
-não está implementado, e a plataforma recusa em vez de fingir que funcionou.
+If the branding did not apply, the suspects in order: color not in hexadecimal
+format; logo URL on `http://` on an HTTPS page; domain not matching the `domain`
+column (in which case the application fell back to the default tenant and you are
+looking at another client).
 
 ---
 
-## Antes de rodar qualquer comando: qual ambiente você está tocando
+## How isolation works
 
-Os comandos do `package.json` leem um arquivo de ambiente só, `infra/.env`, e
-sobem sempre o projeto `nerdlms`:
+Worth knowing so nothing surprises you.
 
-| Comando | Arquivo de ambiente | Contêineres afetados |
+**Every query declares the tenant.** Root tables carry `tenant_id`, and the rest
+inherit it through foreign keys. There is a test that reads the source code and
+fails the build when a query reads a root table without scoping it. It was
+written after the table list went stale and started silently passing what it
+should have failed.
+
+**The boundary comes before the role.** In
+`packages/core/src/auth/permissions.ts`, the tenant check happens before the
+administrator block. Without that order, one client's admin would see another
+client's data, and "unrestricted access" never meant access to someone else's
+company.
+
+**Email is unique per client, not globally.** The same person can have an account
+at two clients with the same address. Sign-in resolves it by the domain they
+arrived from.
+
+**Backup and restore are per client.** In **Administration → Platform →
+Backup**, the file comes out with that client's records. Restoring only works in
+the same client that produced the file: the rows carry their source identifiers,
+and in a different client those already exist. Migrating content between clients
+is not implemented, and the platform refuses instead of pretending it worked.
+
+---
+
+## Before running any command: which environment are you touching
+
+The `package.json` commands read a single environment file, `infra/.env`, and
+always bring up the `nerdlms` project:
+
+| Command | Environment file | Containers affected |
 |---|---|---|
 | `npm run compose` | `infra/.env` | `nerdlms-*` |
-| `npm run compose:tunnel` | `infra/.env` + `infra/.env.tunnel` | `nerdlms-*`, publicados por túnel |
+| `npm run compose:tunnel` | `infra/.env` + `infra/.env.tunnel` | `nerdlms-*`, published through the tunnel |
 
-O que muda entre uma máquina de desenvolvimento e um servidor (domínio, portas,
-transporte de e-mail) muda dentro do próprio `infra/.env`. Não existem variantes
-`:prod`: elas liam um segundo arquivo somado por cima, e num clone novo esse
-arquivo não existia, o que fazia o compose abortar com "couldn't find env file"
-e derrubava `up`, `migrate`, `seed` e `logs` de uma vez.
+What differs between a development machine and a server (domain, ports, email
+transport) changes inside `infra/.env` itself. There are no `:prod` variants:
+they used to read a second file layered on top, and in a fresh clone that file
+did not exist, which made compose abort with "couldn't find env file" and took
+down `up`, `migrate`, `seed` and `logs` all at once.
 
-Se a mesma máquina precisar de duas instalações independentes, o que as separa é
-o nome do projeto, não o arquivo de ambiente. Arquivo de ambiente troca a
-configuração da pilha; quem decide quais contêineres e quais volumes o comando
-alcança é o `-p`:
+If the same machine needs two independent installs, what separates them is the
+project name, not the environment file. The environment file changes the stack's
+configuration; what decides which containers and which volumes the command
+reaches is `-p`:
 
 ```bash
 docker compose -p nerdlms-homolog -f infra/docker-compose.yml   --env-file infra/.env up -d --build app
 ```
 
-O nome do projeto é o prefixo dos volumes, e o Docker não copia conteúdo de um
-para outro. Subir com um nome diferente do que criou os dados entrega uma
-instalação vazia, com o conteúdo anterior intacto e invisível.
+The project name is the prefix of the volumes, and Docker does not copy content
+from one to another. Bringing it up under a different name from the one that
+created the data hands you an empty install, with the previous content intact and
+invisible.
 
-Confira em qual você está antes de rodar qualquer coisa que escreva:
+Check which one you are in before running anything that writes:
 
 ```bash
 docker ps --format '{{.Names}}'
 ```
 
-> **Por que alguns nomes de infraestrutura dizem `lms`.** O banco (`nerdlms`),
-> os papéis (`lms_migrator`, `lms_app`) e o bucket (`lms-media`) são
-> identificadores de uma instalação que já tem dados. Renomeá-los não é
-> rebranding, é migração: exige parada, e a do bucket invalida toda URL de mídia
-> já gravada no banco. Nada disso aparece para o usuário. O que ele vê, que é
-> marca, cores, textos, e-mails, certificado e domínio, vem da organização.
+> **Why some infrastructure names say `lms`.** The database (`nerdlms`), the
+> roles (`lms_migrator`, `lms_app`) and the bucket (`lms-media`) are identifiers
+> of an install that already holds data. Renaming them is not rebranding, it is
+> migration: it requires downtime, and renaming the bucket invalidates every
+> media URL already stored in the database. None of it is visible to the user.
+> What they do see, which is branding, colors, copy, emails, certificates and
+> the domain, comes from the organization.
 
-**O `psql` não aceita `-U nerdlms`.** O papel se chama `lms_migrator`, dono do
-schema, ou `lms_app`, usado pela aplicação. Dentro do contêiner, use as
-variáveis que já estão no ambiente:
+**`psql` does not accept `-U nerdlms`.** The role is called `lms_migrator`, the
+schema owner, or `lms_app`, used by the application. Inside the container, use
+the variables that are already in the environment:
 
 ```bash
 docker exec nerdlms-db-1 sh -c   'psql -U $POSTGRES_USER -d $POSTGRES_DB -c "SELECT slug FROM tenants;"'
@@ -663,43 +678,44 @@ docker exec nerdlms-db-1 sh -c   'psql -U $POSTGRES_USER -d $POSTGRES_DB -c "SEL
 ---
 
 
-## Migrações do banco
+## Database migrations
 
-O schema é versionado em `infra/db/migrations/`, um arquivo por mudança, em
-ordem numérica. Não há controle de quais já foram aplicadas: o executor roda
-**todos os arquivos, toda vez**, e é assim que se descobre se um ambiente ficou
-para trás.
+The schema is versioned in `infra/db/migrations/`, one file per change, in
+numeric order. There is no tracking of which ones have already been applied: the
+runner runs **every file, every time**, and that is how you find out whether an
+environment has fallen behind.
 
-Isso funciona porque as migrações de ESTRUTURA usam `IF NOT EXISTS`. Mas nem
-toda migração é de estrutura: a `035` é um `UPDATE` que renomeia o tenant, e a
-`002` cria papel de banco. Reaplicar essas no ambiente CERTO é inofensivo: a
-`035` filtra por `WHERE slug = 'lms'` e não acha nada na segunda vez. No
-ambiente ERRADO, é uma escrita numa base que nunca deveria tê-la recebido, e
-nenhum `IF NOT EXISTS` protege disso.
+This works because STRUCTURE migrations use `IF NOT EXISTS`. But not every
+migration is a structural one: `035` is an `UPDATE` that renames the tenant, and
+`002` creates a database role. Reapplying those in the RIGHT environment is
+harmless: `035` filters by `WHERE slug = 'lms'` and finds nothing the second
+time. In the WRONG environment, it is a write to a database that should never
+have received it, and no `IF NOT EXISTS` protects against that.
 
-Por isso confirme o ambiente antes de migrar, nunca rode por hábito:
+So confirm the environment before migrating, and never run it out of habit:
 
 ```bash
-docker ps --format '{{.Names}}'   # em qual instalação estou
-npm run migrate                   # aplica no projeto nerdlms
+docker ps --format '{{.Names}}'   # which install am I in
+npm run migrate                   # applies to the nerdlms project
 ```
 
-Cada arquivo roda numa transação própria, com `ON_ERROR_STOP=1`: um erro
-interrompe naquele arquivo e não deixa meia migração aplicada.
+Each file runs in its own transaction, with `ON_ERROR_STOP=1`: an error stops at
+that file and does not leave half a migration applied.
 
-**Faça `pg_dump` antes.** Não porque a migração seja perigosa, mas porque a
-alternativa a ter o backup é descobrir que precisava dele:
+**Take a `pg_dump` first.** Not because the migration is dangerous, but because
+the alternative to having the backup is finding out you needed it:
 
 ```bash
 docker exec nerdlms-db-1 sh -c 'pg_dump -U $POSTGRES_USER -d $POSTGRES_DB' \
   > backup-$(date +%Y%m%d-%H%M).sql
 ```
 
-**Uma imagem nova exige o schema dela.** Subir a aplicação sem aplicar as
-migrações correspondentes derruba as telas que dependem das tabelas novas, com
-erro 500 e sem mensagem clara. A ordem é: migrar, depois subir.
+**A new image requires its own schema.** Bringing the application up without
+applying the corresponding migrations takes down the screens that depend on the
+new tables, with a 500 and no clear message. The order is: migrate, then bring
+it up.
 
-Para saber em que ponto um ambiente está, procure a tabela mais recente:
+To find out where an environment stands, look for the most recent table:
 
 ```bash
 docker exec nerdlms-db-1 sh -c "psql -U \$POSTGRES_USER -d \$POSTGRES_DB \
@@ -707,15 +723,15 @@ docker exec nerdlms-db-1 sh -c "psql -U \$POSTGRES_USER -d \$POSTGRES_DB \
          WHERE table_name IN ('sso_providers','cmi5_units')\""
 ```
 
-Resposta `2` significa que o banco está atualizado até a migração mais recente
-deste documento.
+An answer of `2` means the database is up to date through the most recent
+migration in this document.
 
 ---
 
-## Quando algo dá errado
+## When something goes wrong
 
-**Todos os clientes veem a mesma coisa.** O domínio não está batendo com a
-coluna `domain`. Confira o que chega ao servidor:
+**Every client sees the same thing.** The domain is not matching the `domain`
+column. Check what reaches the server:
 
 ```bash
 docker exec nerdlms-app-1 sh -c 'echo $NERD_DEFAULT_TENANT'
@@ -723,23 +739,24 @@ docker exec nerdlms-db-1 psql -U lms_migrator -d nerdlms \
   -c "SELECT slug, domain FROM tenants;"
 ```
 
-O valor de `domain` é comparado sem o esquema e sem a porta. `https://acme.com/`
-não bate com nada; `acme.com` bate.
+The `domain` value is compared without the scheme and without the port.
+`https://acme.com/` matches nothing; `acme.com` matches.
 
-**Certificado não emite.** O Caddy precisa alcançar a porta 80 de fora para o
-desafio ACME. Atrás de túnel, use `SITE_ADDRESS=http://…` como no passo 4.
+**The certificate is not issued.** Caddy needs to be reachable on port 80 from
+outside for the ACME challenge. Behind a tunnel, use `SITE_ADDRESS=http://…` as
+in step 4.
 
 ```bash
 npm run compose -- logs proxy | tail -30
 ```
 
-**A logo não carrega.** Abra o console do navegador. Bloqueio de conteúdo misto
-significa `http://` numa página HTTPS. 404 no caminho `/lms-media/…` significa
-que o arquivo não está no bucket.
+**The logo does not load.** Open the browser console. A mixed-content block means
+`http://` on an HTTPS page. A 404 on the `/lms-media/…` path means the file is
+not in the bucket.
 
-**Funcionalidade desligada continua aparecendo.** As telas são renderizadas no
-servidor com cache por requisição; force um recarregamento limpo. Se persistir,
-confira que a linha entrou para o tenant certo:
+**A feature that was switched off still shows up.** The screens are rendered on
+the server with a per-request cache; force a clean reload. If it persists, check
+that the row went in for the right tenant:
 
 ```sql
 SELECT t.slug, f.feature, f.enabled
@@ -750,42 +767,42 @@ SELECT t.slug, f.feature, f.enabled
 
 ---
 
-## Checklist de implantação
+## Deployment checklist
 
 ```
-[ ] Migrações aplicadas no banco de destino
-[ ] Tenant criado (slug, nome, domínio, unit_label)
-[ ] Primeiro administrador criado com status 'pending'
-[ ] Cor da marca aplicada e conferida no navegador
-[ ] Logo clara, logo escura e favicon no ar
-[ ] DNS apontando para o servidor
-[ ] SITE_ADDRESS atualizado e proxy reiniciado
-[ ] Certificado emitido (https sem aviso)
-[ ] Funcionalidades revisadas com o cliente
-[ ] SPF autorizado, se o remetente usa o domínio do cliente
-[ ] E-mail de convite recebido com o remetente certo
-[ ] Administrador do cliente definiu a senha e entrou
+[ ] Migrations applied to the target database
+[ ] Tenant created (slug, name, domain, unit_label)
+[ ] First administrator created with status 'pending'
+[ ] Brand color applied and checked in the browser
+[ ] Light logo, dark logo and favicon live
+[ ] DNS pointing at the server
+[ ] SITE_ADDRESS updated and proxy restarted
+[ ] Certificate issued (https with no warning)
+[ ] Features reviewed with the client
+[ ] SPF authorized, if the sender uses the client's domain
+[ ] Invitation email received with the right sender
+[ ] The client's administrator set their password and signed in
 
-Se o cliente usa Google ou Microsoft (OIDC):
-[ ] URL de retorno cadastrada no provedor, igual à da tela
-[ ] ID e chave secreta preenchidos (e o ID do diretório, na Microsoft)
+If the client uses Google or Microsoft (OIDC):
+[ ] Return URL registered with the provider, identical to the one on screen
+[ ] Client ID and secret filled in (and the directory ID, on Microsoft)
 
-Se usa Active Directory ou LDAP:
-[ ] Servidor e porta 636 alcançáveis do servidor da plataforma
-[ ] Domínio (AD) ou base (OpenLDAP) preenchidos
-[ ] Certificado próprio? Opção marcada, se for o caso
+If using Active Directory or LDAP:
+[ ] Server and port 636 reachable from the platform's server
+[ ] Domain (AD) or base (OpenLDAP) filled in
+[ ] Self-signed certificate? Option ticked, if that is the case
 
-Se usa SAML:
-[ ] Entity ID, URL de SSO e certificado do provedor cadastrados
-[ ] Entity ID e URL de retorno entregues a quem administra o provedor
-[ ] Provedor configurado para assinar com SHA-256
+If using SAML:
+[ ] Provider's Entity ID, SSO URL and certificate registered
+[ ] Entity ID and return URL handed to whoever administers the provider
+[ ] Provider configured to sign with SHA-256
 
-Em qualquer um deles:
-[ ] Domínios aceitos preenchidos
-[ ] Login testado em janela anônima
-[ ] Registro do acesso conferido na Auditoria
+In any of them:
+[ ] Accepted domains filled in
+[ ] Sign-in tested in a private window
+[ ] Access record checked in Auditing
 
-Se o cliente traz conteúdo de outro sistema:
-[ ] Questões importadas e conferidas antes de aplicar
-[ ] Pacotes SCORM enviados e abertos com uma conta matriculada
+If the client brings content from another system:
+[ ] Questions imported and checked before being applied
+[ ] SCORM packages uploaded and opened with an enrolled account
 ```

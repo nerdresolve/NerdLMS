@@ -1,117 +1,118 @@
-# Implantação
+# Deployment
 
-Três caminhos, do mais automático ao mais manual. Escolha um.
+Three paths, from most automatic to most manual. Pick one.
 
-| | Para quem | O que precisa |
+| | Who it is for | What you need |
 |---|---|---|
-| [A. GitHub Actions](#a-github-actions) | quem vai atualizar com frequência | um servidor com SSH |
-| [B. Compose no servidor](#b-compose-no-servidor) | primeira instalação, ou sem CI | acesso ao servidor |
-| [C. Cloudflare Tunnel](#c-cloudflare-tunnel) | máquina sem IP público | conta Cloudflare |
+| [A. GitHub Actions](#a-github-actions) | anyone updating often | a server with SSH |
+| [B. Compose on the server](#b-compose-on-the-server) | first install, or no CI | access to the server |
+| [C. Cloudflare Tunnel](#c-cloudflare-tunnel) | a machine with no public IP | a Cloudflare account |
 
-Em todos: **Docker e Docker Compose**, 2 vCPU e 4 GB atendem ~100 usuários
-simultâneos. Linux, macOS ou Windows.
+In all of them: **Docker and Docker Compose**, 2 vCPU and 4 GB handle ~100
+concurrent users. Linux, macOS or Windows.
 
 ---
 
-## Antes de qualquer coisa: o `.env`
+## Before anything else: the `.env`
 
-Nenhum `.env` é versionado. Copie o exemplo e **gere segredos próprios**. Não
-reaproveite os de outro ambiente, nem os que estão nos exemplos.
+No `.env` is committed. Copy the example and **generate your own secrets**. Do
+not reuse the ones from another environment, or the ones in the examples.
 
 ```bash
 cp infra/.env.example infra/.env
 
 openssl rand -hex 32   # POSTGRES_PASSWORD
-openssl rand -hex 32   # APP_DB_PASSWORD  (precisa entrar também na DATABASE_URL)
+openssl rand -hex 32   # APP_DB_PASSWORD  (also has to go into DATABASE_URL)
 openssl rand -hex 32   # STORAGE_SECRET_KEY
 openssl rand -hex 48   # SESSION_SECRET
 ```
 
-> **Use `-hex`, não `-base64`.** O base64 emite `/`, `+` e `=`; a senha do banco
-> entra dentro de uma URL, e uma barra ali encerra a autoridade, e a aplicação
-> sobe e morre com `TypeError: Invalid URL`, sem dizer qual variável está errada.
+> **Use `-hex`, not `-base64`.** Base64 emits `/`, `+` and `=`; the database
+> password goes inside a URL, and a slash there ends the authority, and the
+> application starts and dies with `TypeError: Invalid URL`, without saying which
+> variable is wrong.
 
-Os valores que mudam por instalação:
+The values that change per install:
 
-| Variável | O que é |
+| Variable | What it is |
 |---|---|
-| `SITE_ADDRESS` | o domínio que o Caddy atende. `localhost` em desenvolvimento |
-| `PUBLIC_ORIGIN` | endereço público completo, usado no link do e-mail de recuperação |
-| `MAIL_TRANSPORT` | `log` grava a mensagem no log; `smtp` envia de verdade |
-| `SMTP_*` | só com `MAIL_TRANSPORT=smtp` |
+| `SITE_ADDRESS` | the domain Caddy serves. `localhost` in development |
+| `PUBLIC_ORIGIN` | the full public address, used in the recovery email link |
+| `MAIL_TRANSPORT` | `log` writes the message to the log; `smtp` actually sends it |
+| `SMTP_*` | only with `MAIL_TRANSPORT=smtp` |
 
-> **`MAIL_TRANSPORT=log` em produção significa que a recuperação de senha não
-> chega a ninguém.** O link fica no `npm run logs`. É adequado para
-> homologação e não para uso real.
+> **`MAIL_TRANSPORT=log` in production means password recovery reaches nobody.**
+> The link sits in `npm run logs`. It is fine for staging and not for real use.
 
 ---
 
 ## A. GitHub Actions
 
-A [Action de deploy](../.github/workflows/deploy.yml) roda os portões, publica a
-imagem no GHCR e atualiza o servidor.
+The [deploy Action](../.github/workflows/deploy.yml) runs the gates, publishes
+the image to GHCR and updates the server.
 
-**No servidor**, uma vez:
+**On the server**, once:
 
 ```bash
 git clone https://github.com/nerdresolve/NerdLMS.git /opt/nerdlms
 cd /opt/nerdlms
-cp infra/.env.example infra/.env   # preencha, como acima
+cp infra/.env.example infra/.env   # fill it in, as above
 ```
 
-**No GitHub**, em Settings → Environments → `producao`, crie os secrets:
+**On GitHub**, under Settings → Environments → `producao`, create the secrets:
 
-| Secret | Exemplo |
+| Secret | Example |
 |---|---|
 | `SSH_HOST` | `lms.suaempresa.com` |
 | `SSH_USER` | `deploy` |
-| `SSH_KEY` | a chave **privada** (a pública vai no `authorized_keys` do servidor) |
-| `SSH_PORT` | opcional, padrão `22` |
+| `SSH_KEY` | the **private** key (the public one goes in the server's `authorized_keys`) |
+| `SSH_PORT` | optional, defaults to `22` |
 | `DEPLOY_PATH` | `/opt/nerdlms` |
 
-Depois disso, publicar é marcar uma tag:
+After that, deploying is a matter of tagging:
 
 ```bash
 git tag v1.0.0 && git push origin v1.0.0
 ```
 
-A Action migra o banco, troca o container e **espera o healthcheck** antes de
-declarar sucesso. Se a aplicação subir quebrada, o job falha com as últimas 50
-linhas do log.
+The Action migrates the database, swaps the container and **waits for the
+healthcheck** before declaring success. If the application comes up broken, the
+job fails with the last 50 lines of the log.
 
-> Sem os secrets de SSH, a Action publica a imagem e **pula** o deploy, sem
-> erro. Um fork que só quer a imagem não vê vermelho por algo que não pediu.
+> Without the SSH secrets, the Action publishes the image and **skips** the
+> deploy, without erroring. A fork that only wants the image does not see red
+> over something it never asked for.
 
-### Voltar atrás
+### Rolling back
 
-As migrações rodam **antes** da troca do container, e cada uma precisa aceitar
-a versão anterior da aplicação. É isso que faz o rollback ser uma troca de tag:
+Migrations run **before** the container swap, and each one has to accept the
+previous version of the application. That is what makes a rollback a tag change:
 
 ```bash
 docker compose -f infra/docker-compose.yml --env-file infra/.env \
   pull app && docker compose ... up -d --no-deps app
 ```
 
-apontando a imagem para a tag anterior. Sem restaurar backup.
+pointing the image at the previous tag. No backup restore involved.
 
 ---
 
-## B. Compose no servidor
+## B. Compose on the server
 
 ```bash
 git clone https://github.com/nerdresolve/NerdLMS.git /opt/nerdlms
 cd /opt/nerdlms
-cp infra/.env.example infra/.env    # preencha
+cp infra/.env.example infra/.env    # fill it in
 
-npm run up        # sobe banco, storage, aplicação e proxy
-npm run migrate   # aplica o schema
+npm run up        # brings up database, storage, application and proxy
+npm run migrate   # applies the schema
 ```
 
-A aplicação responde em `https://$SITE_ADDRESS`. O Caddy emite certificado da
-Let's Encrypt sozinho, desde que o DNS já aponte para a máquina e a porta 443
-esteja acessível.
+The application answers at `https://$SITE_ADDRESS`. Caddy obtains a Let's
+Encrypt certificate on its own, as long as DNS already points at the machine and
+port 443 is reachable.
 
-Para atualizar depois:
+To update later:
 
 ```bash
 git pull
@@ -119,7 +120,7 @@ npm run migrate
 npm run compose -- up -d --build app
 ```
 
-Ou rode o mesmo script que a Action usa:
+Or run the same script the Action uses:
 
 ```bash
 CAMINHO=/opt/nerdlms bash .github/deploy-remoto.sh
@@ -129,126 +130,129 @@ CAMINHO=/opt/nerdlms bash .github/deploy-remoto.sh
 
 ## C. Cloudflare Tunnel
 
-Para máquina **sem IP público**, atrás de NAT, num escritório ou numa VPS sem
-porta liberada. O container `cloudflared` abre a conexão de dentro para fora, e
-o TLS público termina na borda da Cloudflare. Some a exigência de IP fixo, porta
-aberta na entrada e certificado próprio.
+For a machine **with no public IP**, behind NAT, in an office or on a VPS with
+no open port. The `cloudflared` container opens the connection from the inside
+out, and public TLS terminates at Cloudflare's edge. That removes the need for a
+static IP, an open inbound port and your own certificate.
 
 ```bash
-cloudflared tunnel login                       # uma vez, por conta
+cloudflared tunnel login                       # once, per account
 cloudflared tunnel create nerdlms
 cloudflared tunnel route dns nerdlms lms.suaempresa.com
 ```
 
-Guarde o token **fora do Git** e suba:
+Keep the token **out of Git** and bring it up:
 
 ```bash
-echo "TUNNEL_TOKEN=<o-token>" > infra/.env.tunnel
-npm run publish        # up -d --build, com o perfil tunnel
+echo "TUNNEL_TOKEN=<the-token>" > infra/.env.tunnel
+npm run publish        # up -d --build, with the tunnel profile
 npm run migrate
-npm run publish:logs   # acompanha
+npm run publish:logs   # follow along
 ```
 
-### As duas armadilhas
+### The two traps
 
-**`SITE_ADDRESS` precisa levar o esquema `http://`:**
+**`SITE_ADDRESS` has to carry the `http://` scheme:**
 
 ```ini
 SITE_ADDRESS=http://lms.suaempresa.com
 ```
 
-Sem ele o Caddy tenta emitir certificado da Let's Encrypt para um domínio cujo
-desafio ACME nunca chega até ele, porque quem atende o mundo é a Cloudflare, e
-reitera para sempre. E com o domínio configurado só como `localhost`, o Caddy
-recusa o Host que o túnel entrega e responde **421 Misdirected Request**, sem
-log de erro que explique.
+Without it, Caddy tries to issue a Let's Encrypt certificate for a domain whose
+ACME challenge never reaches it, because the one answering the world is
+Cloudflare, and it retries forever. And with the domain configured only as
+`localhost`, Caddy refuses the Host the tunnel delivers and answers **421
+Misdirected Request**, with no error log to explain it.
 
-**O túnel aponta para a porta HTTP, não a HTTPS.** O TLS público termina na
-borda; internamente o tráfego é texto claro dentro da própria máquina:
+**The tunnel points at the HTTP port, not the HTTPS one.** Public TLS terminates
+at the edge; internally the traffic is cleartext inside the machine itself:
 
 ```yaml
 ingress:
   - hostname: lms.suaempresa.com
-    service: http://localhost:80      # ou a porta em HTTP_PORT
+    service: http://localhost:80      # or whatever port is in HTTP_PORT
   - service: http_status:404
 ```
 
-> Se você já tem outro túnel nesta máquina, cuidado com `~/.cloudflared/config.yml`:
-> ele é **global** e o `cloudflared` o usa mesmo quando você nomeia outro túnel
-> na linha de comando. Passe `--config` apontando para um arquivo próprio, ou o
-> DNS será criado para o túnel errado.
+> If you already have another tunnel on this machine, watch out for
+> `~/.cloudflared/config.yml`: it is **global** and `cloudflared` uses it even
+> when you name a different tunnel on the command line. Pass `--config` pointing
+> at a file of your own, or the DNS record will be created for the wrong tunnel.
 
-## O domínio no certificado
+## The domain on the certificate
 
-O certificado PDF imprime o endereço de conferência a partir da coluna `domain`
-da tabela `tenants`, **não de código**. Vazia, o rodapé imprime "Confira o
-código com a área de treinamento" em vez de um endereço que não resolve.
+The PDF certificate prints the verification address from the `domain` column of
+the `tenants` table, **not from code**. Left empty, the footer prints "Confira o
+código com a área de treinamento" instead of an address that does not resolve.
 
-Depois que o DNS apontar para a instalação:
+Once DNS points at the install:
 
 ```sql
 UPDATE tenants SET domain = 'lms.suaempresa.com' WHERE slug = 'lms';
 ```
 
-O nome impresso na linha de assinatura, quando o curso não tem instrutor
-definido, também vem do tenant (coluna `name`).
+The name printed on the signature line, when the course has no instructor set,
+also comes from the tenant (the `name` column).
 
 ---
 
-## Conferir que subiu
+## Checking that it came up
 
 ```bash
 curl -s -o /dev/null -w "%{http_code}\n" https://lms.suaempresa.com/api/health
 # 200
 
 docker compose -f infra/docker-compose.yml --env-file infra/.env ps
-# app, db, storage e proxy em "running"; app em "healthy"
+# app, db, storage and proxy in "running"; app in "healthy"
 ```
 
-Se o `app` ficar em `unhealthy`:
+If `app` stays `unhealthy`:
 
 ```bash
 npm run logs
 ```
 
-Causas comuns, em ordem de frequência: `DATABASE_URL` com senha diferente da do
-`APP_DB_PASSWORD`, migrações não aplicadas, e `SESSION_SECRET` vazio.
+Common causes, in order of frequency: `DATABASE_URL` with a different password
+from `APP_DB_PASSWORD`, migrations not applied, and an empty `SESSION_SECRET`.
 
 ---
 
 ## Backup
 
-O que precisa sair da máquina são dois volumes: o banco e o storage.
+What needs to leave the machine is two volumes: the database and the storage.
 
 ```bash
-# Banco
+# Database
 docker compose -f infra/docker-compose.yml --env-file infra/.env \
   exec -T db pg_dump -U "$POSTGRES_USER" "$POSTGRES_DB" | gzip > backup.sql.gz
 
-# Restaurar
+# Restore
 gunzip -c backup.sql.gz | docker compose ... exec -T db \
   psql -U "$POSTGRES_USER" -d "$POSTGRES_DB"
 ```
 
-O storage (vídeos e materiais) é um volume do MinIO. Para S3 real, aponte
-`STORAGE_ENDPOINT` e as chaves para o provedor: a aplicação não distingue.
+The storage (videos and materials) is a MinIO volume. For real S3, point
+`STORAGE_ENDPOINT` and the keys at the provider: the application cannot tell the
+difference.
 
-A plataforma também tem exportação por dentro (Administração → Backup), que
-gera um pacote com o conteúdo lógico. Ela **não** substitui o `pg_dump`: serve
-para levar conteúdo de uma instalação a outra, não para recuperar de desastre.
+The platform also has an export of its own (Administration → Backup), which
+produces a package with the logical content. It does **not** replace `pg_dump`:
+it is for moving content from one install to another, not for disaster recovery.
 
 ---
 
-## Segurança da instalação
+## Security of the install
 
-O `docker-compose.yml` já traz, e vale entender antes de mexer:
+The `docker-compose.yml` already ships with this, and it is worth understanding
+before changing anything:
 
-- **Banco e storage sem porta publicada.** Só o proxy fala com a internet.
-- **Duas redes.** `edge` (proxy ↔ aplicação) e `internal` (aplicação ↔ banco).
-  O banco não alcança a internet nem é alcançado por ela.
-- **Contêiner sem root**, sistema de arquivos somente-leitura onde dá, e sem
-  capacidades extras.
-- **O papel da aplicação no Postgres não tem DDL.** Quem altera schema é o
-  `migrate`, que roda e sai.
+- **Database and storage with no published port.** Only the proxy talks to the
+  internet.
+- **Two networks.** `edge` (proxy ↔ application) and `internal` (application ↔
+  database). The database neither reaches the internet nor is reached by it.
+- **Container without root**, read-only filesystem where possible, and no extra
+  capabilities.
+- **The application's Postgres role has no DDL.** The one that changes the schema
+  is `migrate`, which runs and exits.
 
-Ver [SECURITY.md](../SECURITY.md).
+See [SECURITY.md](../SECURITY.md).

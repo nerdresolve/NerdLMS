@@ -1,49 +1,48 @@
-# Licença
+# License
 
-**Business Source License 1.1**, com conversão automática para **Apache 2.0**
-após quatro anos. É a mesma licença do MariaDB, do Terraform e do CockroachDB.
+**Business Source License 1.1**, converting automatically to **Apache 2.0**
+after four years. It is the same license MariaDB, Terraform and CockroachDB use.
 
-## Em resumo
+## In short
 
-Este resumo é orientação de leitura. O que vale juridicamente é o texto
-integral, reproduzido abaixo sem alteração.
+This summary is a reading aid. What holds legally is the full text, reproduced
+below unaltered.
 
-### Você pode, de graça
+### You may, free of charge
 
-- **Usar em produção dentro da sua organização**, inclusive com fins
-  lucrativos. Uma empresa pode instalar e treinar os próprios funcionários,
-  terceiros, parceiros, alunos ou clientes sem pagar nada e sem pedir
-  autorização.
-- **Rodar como multi-tenant.** Uma holding servindo suas subsidiárias, uma rede
-  de franquias servindo os franqueados, uma consultoria treinando a base de
-  clientes dela: tudo isso é uso permitido. O que se vende ali é treinamento,
-  não a plataforma.
-- Ler, estudar, modificar e redistribuir o código.
-- Usar sem limite de usuários, de cursos ou de instalações. Não há chave de
-  licença, telemetria nem contagem de assentos.
+- **Use it in production inside your organization**, for profit included. A
+  company can install it and train its own employees, contractors, partners,
+  students or customers without paying anything and without asking permission.
+- **Run it multi-tenant.** A holding company serving its subsidiaries, a
+  franchise network serving its franchisees, a consultancy training its own
+  client base: all of that is permitted use. What is being sold there is
+  training, not the platform.
+- Read, study, modify and redistribute the code.
+- Use it with no cap on users, courses or installs. There is no license key, no
+  telemetry and no seat counting.
 
-### Você não pode, sem falar comigo
+### You may not, without talking to me
 
-Oferecer o NerdResolve LMS **a terceiros como produto ou serviço, concorrendo
-com a versão paga**. Na prática: montar um SaaS de LMS em cima deste código e
-vender assinatura dele, ou revendê-lo como produto próprio.
+Offer NerdResolve LMS **to third parties as a product or service, competing with
+the paid version**. In practice: building an LMS SaaS on top of this code and
+selling subscriptions to it, or reselling it as your own product.
 
-A diferença é o que está sendo vendido. Vender treinamento usando a plataforma:
-liberado. Vender a plataforma: converse comigo.
+The difference is what is being sold. Selling training using the platform: go
+ahead. Selling the platform: talk to me.
 
-### Em quatro anos, vira Apache 2.0
+### In four years, it becomes Apache 2.0
 
-Cada versão publicada passa automaticamente para a **Apache License 2.0** quatro
-anos depois de ser publicada, sem exigir nada de ninguém e sem que eu possa
-voltar atrás. A versão de hoje é irrestrita em 2030.
+Every published version moves automatically to the **Apache License 2.0** four
+years after it is published, requiring nothing from anyone and with no way for
+me to take it back. Today's version is unrestricted in 2030.
 
-Isso existe para você não ficar refém: mesmo no pior cenário, o código que você
-adotou tem data para virar permissivo.
+This exists so you are not held hostage: even in the worst case, the code you
+adopted has a date on which it turns permissive.
 
-### Licença comercial
+### Commercial license
 
-Para o que a concessão acima não cobre, ou para suporte, garantia e
-customização, escreva para **contact@nerdresolve.com**.
+For whatever the grant above does not cover, or for support, warranty and
+customization, write to **contact@nerdresolve.com**.
 
 ---
 
