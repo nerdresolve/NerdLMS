@@ -41,7 +41,7 @@
   },
   "devDependencies": {
     "@lhci/cli": "0.14.0",
-    "@types/node": "22.15.0",
+    "@types/node": "26.5.1",
     "@types/react": "19.1.0",
     "@types/react-dom": "19.1.0",
     "eslint": "9.19.0",
